@@ -1,0 +1,24 @@
+info:
+  name: createRun
+  type: http
+  seq: 2
+
+http:
+  method: POST
+  url: "{{base_url}}/api/runs"
+  body:
+    type: json
+    data: |-
+      {
+        "uuid": "8F3A2B1C-9D0E-4F1A-8B2C-3D4E5F6A7B8C",
+        "startDate": "2026-05-14T07:15:00Z",
+        "endDate": "2026-05-14T07:41:30Z",
+        "duration": 1590.0
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
