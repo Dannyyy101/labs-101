@@ -1,5 +1,6 @@
 'use client'
 
+
 import {
     Table,
     TableBody,
@@ -14,12 +15,13 @@ import { Workout } from "@/utils/types"
 export function WorkoutsTable({ workouts }: { workouts: Workout[] }) {
     return <Table>
         <TableHeader>
-            <TableRow>
+            <TableRow className="relative">
                 <TableHead className="w-[100px]">Name</TableHead>
                 <TableHead className="w-[100px]">Duration</TableHead>
                 <TableHead className="w-[100px]">Calories burned</TableHead>
                 <TableHead className="w-[100px]">Avg. HeartRate</TableHead>
             </TableRow>
+             
         </TableHeader>
         <TableBody>
             {workouts.map((workout) =>

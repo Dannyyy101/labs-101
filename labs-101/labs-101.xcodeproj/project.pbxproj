@@ -7,19 +7,19 @@
 	objects = {
 
 /* Begin PBXFileReference section */
-		650AED7D303613CD003B9558 /* ios.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ios.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		65DC12D73038BBD0009BECA7 /* labs-101.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "labs-101.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		650AED7F303613CD003B9558 /* ios */ = {
+		65DC12D93038BBD0009BECA7 /* labs-101 */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			path = ios;
+			path = "labs-101";
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
-		650AED7A303613CD003B9558 /* Frameworks */ = {
+		65DC12D43038BBD0009BECA7 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -29,18 +29,18 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		650AED74303613CD003B9558 = {
+		65DC12CE3038BBD0009BECA7 = {
 			isa = PBXGroup;
 			children = (
-				650AED7F303613CD003B9558 /* ios */,
-				650AED7E303613CD003B9558 /* Products */,
+				65DC12D93038BBD0009BECA7 /* labs-101 */,
+				65DC12D83038BBD0009BECA7 /* Products */,
 			);
 			sourceTree = "<group>";
 		};
-		650AED7E303613CD003B9558 /* Products */ = {
+		65DC12D83038BBD0009BECA7 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				650AED7D303613CD003B9558 /* ios.app */,
+				65DC12D73038BBD0009BECA7 /* labs-101.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -48,64 +48,64 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		650AED7C303613CD003B9558 /* ios */ = {
+		65DC12D63038BBD0009BECA7 /* labs-101 */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 650AED88303613D0003B9558 /* Build configuration list for PBXNativeTarget "ios" */;
+			buildConfigurationList = 65DC12E23038BBD1009BECA7 /* Build configuration list for PBXNativeTarget "labs-101" */;
 			buildPhases = (
-				650AED79303613CD003B9558 /* Sources */,
-				650AED7A303613CD003B9558 /* Frameworks */,
-				650AED7B303613CD003B9558 /* Resources */,
+				65DC12D33038BBD0009BECA7 /* Sources */,
+				65DC12D43038BBD0009BECA7 /* Frameworks */,
+				65DC12D53038BBD0009BECA7 /* Resources */,
 			);
 			buildRules = (
 			);
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
-				650AED7F303613CD003B9558 /* ios */,
+				65DC12D93038BBD0009BECA7 /* labs-101 */,
 			);
-			name = ios;
+			name = "labs-101";
 			packageProductDependencies = (
 			);
-			productName = ios;
-			productReference = 650AED7D303613CD003B9558 /* ios.app */;
+			productName = "labs-101";
+			productReference = 65DC12D73038BBD0009BECA7 /* labs-101.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
-		650AED75303613CD003B9558 /* Project object */ = {
+		65DC12CF3038BBD0009BECA7 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
 				LastSwiftUpdateCheck = 2660;
 				LastUpgradeCheck = 2660;
 				TargetAttributes = {
-					650AED7C303613CD003B9558 = {
+					65DC12D63038BBD0009BECA7 = {
 						CreatedOnToolsVersion = 26.6;
 					};
 				};
 			};
-			buildConfigurationList = 650AED78303613CD003B9558 /* Build configuration list for PBXProject "ios" */;
+			buildConfigurationList = 65DC12D23038BBD0009BECA7 /* Build configuration list for PBXProject "labs-101" */;
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				en,
 				Base,
 			);
-			mainGroup = 650AED74303613CD003B9558;
+			mainGroup = 65DC12CE3038BBD0009BECA7;
 			minimizedProjectReferenceProxies = 1;
 			preferredProjectObjectVersion = 77;
-			productRefGroup = 650AED7E303613CD003B9558 /* Products */;
+			productRefGroup = 65DC12D83038BBD0009BECA7 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				650AED7C303613CD003B9558 /* ios */,
+				65DC12D63038BBD0009BECA7 /* labs-101 */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
-		650AED7B303613CD003B9558 /* Resources */ = {
+		65DC12D53038BBD0009BECA7 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -115,7 +115,7 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
-		650AED79303613CD003B9558 /* Sources */ = {
+		65DC12D33038BBD0009BECA7 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -125,7 +125,7 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin XCBuildConfiguration section */
-		650AED86303613D0003B9558 /* Debug */ = {
+		65DC12E03038BBD1009BECA7 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -189,7 +189,7 @@
 			};
 			name = Debug;
 		};
-		650AED87303613D0003B9558 /* Release */ = {
+		65DC12E13038BBD1009BECA7 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -246,21 +246,16 @@
 			};
 			name = Release;
 		};
-		650AED89303613D0003B9558 /* Debug */ = {
+		65DC12E33038BBD1009BECA7 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_ENTITLEMENTS = ios/ios.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 7X5U7U9DN3;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.healthcare-fitness";
-				INFOPLIST_KEY_NSHealthClinicalHealthRecordsShareUsageDescription = 1234567889;
-				INFOPLIST_KEY_NSHealthShareUsageDescription = 123;
-				INFOPLIST_KEY_NSHealthUpdateUsageDescription = nnnn;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -271,7 +266,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "labs-101.ios";
+				PRODUCT_BUNDLE_IDENTIFIER = "labs-101.labs-101";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
@@ -283,21 +278,16 @@
 			};
 			name = Debug;
 		};
-		650AED8A303613D0003B9558 /* Release */ = {
+		65DC12E43038BBD1009BECA7 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_ENTITLEMENTS = ios/ios.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 7X5U7U9DN3;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.healthcare-fitness";
-				INFOPLIST_KEY_NSHealthClinicalHealthRecordsShareUsageDescription = 1234567889;
-				INFOPLIST_KEY_NSHealthShareUsageDescription = 123;
-				INFOPLIST_KEY_NSHealthUpdateUsageDescription = nnnn;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -308,7 +298,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "labs-101.ios";
+				PRODUCT_BUNDLE_IDENTIFIER = "labs-101.labs-101";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
@@ -323,25 +313,25 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		650AED78303613CD003B9558 /* Build configuration list for PBXProject "ios" */ = {
+		65DC12D23038BBD0009BECA7 /* Build configuration list for PBXProject "labs-101" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				650AED86303613D0003B9558 /* Debug */,
-				650AED87303613D0003B9558 /* Release */,
+				65DC12E03038BBD1009BECA7 /* Debug */,
+				65DC12E13038BBD1009BECA7 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		650AED88303613D0003B9558 /* Build configuration list for PBXNativeTarget "ios" */ = {
+		65DC12E23038BBD1009BECA7 /* Build configuration list for PBXNativeTarget "labs-101" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				650AED89303613D0003B9558 /* Debug */,
-				650AED8A303613D0003B9558 /* Release */,
+				65DC12E33038BBD1009BECA7 /* Debug */,
+				65DC12E43038BBD1009BECA7 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
-	rootObject = 650AED75303613CD003B9558 /* Project object */;
+	rootObject = 65DC12CF3038BBD0009BECA7 /* Project object */;
 }
