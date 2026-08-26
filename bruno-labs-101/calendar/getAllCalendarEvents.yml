@@ -5,7 +5,14 @@ info:
 
 http:
   method: GET
-  url: "{{base_url}}/api/calendar"
+  url: "{{base_url}}/api/calendar?startDate=2026-08-25T02:00:00.536Z&endDate=2026-08-27T03:30:00.536Z"
+  params:
+    - name: startDate
+      value: 2026-08-25T02:00:00.536Z
+      type: query
+    - name: endDate
+      value: 2026-08-27T03:30:00.536Z
+      type: query
   auth: inherit
 
 settings:

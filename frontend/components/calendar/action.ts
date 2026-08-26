@@ -22,8 +22,14 @@ export async function getAllWorkoutTemplates(): Promise<Result<Map<string, Worko
     return { value: null, error: new Error("Error fetching workout templates") }
 }
 
-export async function getAllCalendarEvents(): Promise<Result<CalendarEvent[]>> {
-    const response = await fetch(BACKEND_URL + "/calendar")
+export async function getAllCalendarEvents(dateRange: Date, steps: number): Promise<Result<CalendarEvent[]>> {
+    const url = new URL(BACKEND_URL + "/calendar")
+    url.searchParams.append("startDate", dateRange.toISOString())
+    const endDate = new Date(dateRange)
+    endDate.setDate(endDate.getDate() + steps)
+    url.searchParams.append("endDate", endDate.toISOString())
+
+    const response = await fetch(url.toString())
 
     if (response.ok) {
         try {
@@ -39,7 +45,24 @@ export async function getAllCalendarEvents(): Promise<Result<CalendarEvent[]>> {
 
 export async function createCalendarEvent(calendarEvent: CalendarEvent): Promise<Result<void>> {
     const response = await fetch(BACKEND_URL + "/calendar", {
-        method: "POST", body: JSON.stringify({...calendarEvent, startDate: calendarEvent.startDate.toISOString(), endDate: calendarEvent.endDate.toISOString() }), headers: {
+        method: "POST", body: JSON.stringify({ ...calendarEvent, startDate: calendarEvent.startDate.toISOString(), endDate: calendarEvent.endDate.toISOString() }), headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+
+    if (response.ok) {
+        try {
+            return { value: null, error: null }
+        } catch (e) {
+            return { value: null, error: e as Error }
+        }
+    }
+
+    return { value: null, error: new Error("Error fetching calendar events") }
+}
+export async function updateCalendarEvent(calendarEvent: CalendarEvent): Promise<Result<void>> {
+    const response = await fetch(BACKEND_URL + "/calendar/" + calendarEvent.id, {
+        method: "PUT", body: JSON.stringify({ ...calendarEvent, startDate: calendarEvent.startDate.toISOString(), endDate: calendarEvent.endDate.toISOString() }), headers: {
             'Content-Type': 'application/json'
         }
     })
@@ -55,8 +78,9 @@ export async function createCalendarEvent(calendarEvent: CalendarEvent): Promise
     return { value: null, error: new Error("Error fetching calendar events") }
 }
 
-export async function deleteCalendarEvent(id:string): Promise<Result<void>> {
-    const response = await fetch(BACKEND_URL + "/calendar/" + id , {
+
+export async function deleteCalendarEvent(id: string): Promise<Result<void>> {
+    const response = await fetch(BACKEND_URL + "/calendar/" + id, {
         method: "DELETE"
     })
 
