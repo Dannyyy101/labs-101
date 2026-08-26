@@ -3,7 +3,7 @@ import { Separator } from "@/components/ui/separator"
 import { Header } from "./header";
 import { WorkoutsTable } from "./table";
 import { useWorkoutData } from "@/hooks/useWorkoutData";
-import { WorkoutType } from "@/utils/types";
+import { WorkoutType } from "@/utils/types/types";
 import { WorkoutMap } from "./workoutMap";
 
 export default function WorkoutsPage() {

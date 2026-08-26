@@ -12,7 +12,7 @@ import {
     TabsList,
     TabsTrigger,
 } from "@/components/ui/tabs"
-import { WorkoutHeaderData, WorkoutType } from "@/utils/types"
+import { WorkoutHeaderData, WorkoutType } from "@/utils/types/types"
 
 
 import {

@@ -1,7 +1,7 @@
 'use server'
 
 import { workoutTypeToName } from "@/lib/workout"
-import { Result, Workout, WorkoutHeaderData } from "@/utils/types"
+import { Result, Workout, WorkoutHeaderData } from "@/utils/types/types"
 
 export async function getWorkoutsHeaderData(): Promise<Result<WorkoutHeaderData>> {
     const restingHeartRateTimeline = [];

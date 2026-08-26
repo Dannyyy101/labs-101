@@ -1,7 +1,7 @@
 'use client'
 
 import { getAllWorkouts, getWorkoutsHeaderData } from "@/app/workouts/action";
-import { Workout, WorkoutHeaderData, WorkoutType } from "@/utils/types";
+import { Workout, WorkoutHeaderData, WorkoutType } from "@/utils/types/types";
 import { useEffect, useState } from "react"
 import { Router } from "next/router";
 

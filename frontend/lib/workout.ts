@@ -1,4 +1,4 @@
-import { WorkoutType } from "@/utils/types";
+import { WorkoutType } from "@/utils/types/types";
 
 export function workoutTypeToName(workoutType: WorkoutType): string {
     switch (workoutType) {

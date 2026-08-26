@@ -10,7 +10,7 @@ import {
     TableHeader,
     TableRow,
 } from "@/components/ui/table"
-import { Workout } from "@/utils/types"
+import { Workout } from "@/utils/types/types"
 
 export function WorkoutsTable({ workouts }: { workouts: Workout[] }) {
     return <Table>
