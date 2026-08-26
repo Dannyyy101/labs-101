@@ -11,7 +11,7 @@ import { Training } from "./calendar";
 import { FormEvent, SubmitEventHandler, useEffect, useState } from "react";
 import { useEventStore } from "@/lib/zustand/eventStore";
 import { WorkoutTemplate } from "@/utils/types/workoutTypes";
-import { createCalendarEvent, deleteCalendarEvent, getAllWorkoutTemplates } from "./action";
+import { createCalendarEvent, deleteCalendarEvent, getAllWorkoutTemplates, updateCalendarEvent } from "./action";
 import { Empty, EmptyHeader, EmptyMedia, EmptyTitle, EmptyDescription, EmptyContent } from "../ui/empty";
 import { Spinner } from "../ui/spinner";
 import { CalendarEvent } from "@/utils/types/calendarTypes";
@@ -40,13 +40,17 @@ export function EventDialog({ calendarEvent, closeDialog, startDate }: { calenda
         setEvent({ ...event, title: training.name, training })
     }
 
-    const saveNewEvent = async (formData: FormData) => {
+    const saveEvent = async (formData: FormData) => {
         addTimeToDate(formData.get("time-picker-start")?.toString() || "", event.startDate)
         addTimeToDate(formData.get("time-picker-end")?.toString() || "", event.endDate)
-        setEvents([...events, event])
-        console.log(event)
+        event.title = formData.get("title")?.toString() || ""
+        
         if (!event.id) {
             await createCalendarEvent(event)
+            setEvents([...events, event])
+        } else {
+            await updateCalendarEvent(event)
+            setEvents([...events.filter((e) => e.id !== event.id), event])
         }
         setEvent({ id: "", title: "", startDate: new Date(), endDate: new Date() })
         closeDialog();
@@ -68,10 +72,10 @@ export function EventDialog({ calendarEvent, closeDialog, startDate }: { calenda
             </CardDescription>
         </CardHeader>
         <CardContent>
-            <form action={saveNewEvent}>
+            <form action={saveEvent}>
                 <div className="grid gap-2 mb-4">
                     <Label htmlFor="title">Title</Label>
-                    <Input name="title" className="w-1/2 h-8" value={event.title} />
+                    <Input defaultValue={event.title} name="title" className="w-1/2 h-8" />
                 </div>
 
                 <div className="flex gap-2">

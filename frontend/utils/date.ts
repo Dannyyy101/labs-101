@@ -11,3 +11,11 @@ export function addTimeToDate(time: string, date: Date) {
     date.setMinutes(minutes)
     date.setSeconds(seconds)
 }
+
+export const startAtTime = (value: number, time: number) => {
+    if (value + time > 23) {
+        return Math.abs(value - (24 - time))
+    }
+
+    return value + time
+}
