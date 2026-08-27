@@ -7,7 +7,6 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Document
 @TypeAlias("run")
 public record RunItem(String exerciseId, int order, String type) implements PlanItem {
-    @PersistenceCreator
     public RunItem {
     }
 }

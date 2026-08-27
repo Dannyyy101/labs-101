@@ -11,19 +11,24 @@ import org.springframework.stereotype.Service;
 import com.labs_101.backend.dtos.calendar.CalendarEventDto;
 import com.labs_101.backend.dtos.calendar.CreateCalendarEventDto;
 import com.labs_101.backend.dtos.calendar.UpdateCalendarEventDto;
+import com.labs_101.backend.dtos.workout.WorkoutDto;
 import com.labs_101.backend.entities.CalendarEvent;
+import com.labs_101.backend.entities.workout.Workout;
 
 @Service
 public class CalendarService {
 
+    private final WorkoutService workoutService;
     private final CalendarRepository calendarRepository;
 
-    CalendarService(CalendarRepository calendarRepository) {
+    CalendarService(CalendarRepository calendarRepository, WorkoutService workoutService) {
         this.calendarRepository = calendarRepository;
+        this.workoutService = workoutService;
     }
 
     public void createCalendarEvent(CreateCalendarEventDto eventDto) {
-        calendarRepository.save(CalendarMapper.fromCreateCalendarEventDto(eventDto));
+        WorkoutDto workout = workoutService.createWorkout(eventDto.getWorkoutDto());
+        calendarRepository.save(CalendarMapper.fromCreateCalendarEventDto(eventDto, new Workout(workout.getId())));
     }
 
     public List<CalendarEventDto> getAllCalendarEvents(Instant startDate, Instant endDate) {

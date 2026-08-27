@@ -1,0 +1,55 @@
+@startuml
+
+Exercise <|-- ExerciseUnit
+Workout <|-- Exercise
+Workout <|-- WorkoutExercise
+WorkoutExercise <|-- WorkoutItem
+TrainingSet <|-- TrainingReps
+
+class Workout {
+    - id: string
+    - name: string
+    - duration: double
+    - exercises: WorkoutExercise[]
+}
+
+class WorkoutExercise {
+    - workoutId: string
+    - exerciseId: string
+    - workoutItem: WorkoutItem
+}
+
+class WorkoutItem {
+    - duration: double
+    - order: int
+}
+
+class TrainingDistance extends WorkoutItem {
+    - distance: double
+}
+
+class TrainingSet extends WorkoutItem{
+    - trainingReps: TrainingReps[]
+}
+
+class TrainingReps {
+    - weight: double
+    - reps: int
+    - order: int
+}
+
+class Exercise {
+    - id: string
+    - name: string
+    - description: string
+    - unit: ExerciseUnit
+    - primaryMuscleGroup: string
+    - secondaryMuscleGroups: string[]
+}
+
+enum ExerciseUnit {
+    REPS,
+    DISTANCE
+}
+
+@enduml

@@ -1,12 +1,7 @@
 package com.labs_101.backend.entities;
 
-import java.time.Instant;
-
 import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
-
-import com.labs_101.backend.entities.workout.Workout;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -16,11 +11,8 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @Document
-public class CalendarEvent {
+public class Exercise {
     private @Id String id;
-    private String title;
-    private Instant startDate;
-    private Instant endDate;
-    @DBRef
-    private Workout workout;
+    private String name;
+    private String description;
 }

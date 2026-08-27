@@ -11,8 +11,25 @@ http:
     data: |-
       {
         "title": "1234",
-        "startDate": "2026-08-26T10:15:30",
-        "endDate": "2026-08-26T12:15:30"
+        "startDate": "2026-08-26T10:15:30Z",
+        "endDate": "2026-08-26T12:15:30Z",
+        "workoutDto": {
+          "name": "Upper Body",
+          "items": [
+            {
+              "exerciseId": "6a8f351ef7b8cd1b4c4cbe1d",
+              "order": 1,
+              "type": "strength-training",
+              "sets": [
+                {
+                  "weight": 50.4,
+                  "reps": 50,
+                  "order": 1
+                }
+              ]
+            }
+          ]
+        }
       }
   auth: inherit
 

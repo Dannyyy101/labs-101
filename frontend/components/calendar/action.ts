@@ -4,7 +4,7 @@ import { mapFromCalendarEventDto } from "@/lib/mapper/calendarMapper"
 import { BACKEND_URL } from "@/utils/constants"
 import { CalendarEvent, CalendarEventDto } from "@/utils/types/calendarTypes"
 import { Result } from "@/utils/types/types"
-import { WorkoutTemplate } from "@/utils/types/workoutTypes"
+import { Exercise, WorkoutTemplate } from "@/utils/types/workoutTypes"
 import { sortWorkoutTemplates } from "@/utils/workout"
 
 export async function getAllWorkoutTemplates(): Promise<Result<Map<string, WorkoutTemplate[]>>> {
@@ -20,6 +20,16 @@ export async function getAllWorkoutTemplates(): Promise<Result<Map<string, Worko
     }
 
     return { value: null, error: new Error("Error fetching workout templates") }
+}
+
+export async function getAllExercises(): Promise<Exercise[]> {
+    const response = await fetch(BACKEND_URL + "/workouts/exercises")
+
+    if (response.ok) {
+        return await response.json() as Exercise[]
+    }
+
+    throw new Error("Error fetching workout templates")
 }
 
 export async function getAllCalendarEvents(dateRange: Date, steps: number): Promise<Result<CalendarEvent[]>> {

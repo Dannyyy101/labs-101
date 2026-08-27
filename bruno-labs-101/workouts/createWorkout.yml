@@ -1,0 +1,31 @@
+info:
+  name: createWorkout
+  type: http
+  seq: 3
+
+http:
+  method: POST
+  url: "{{base_url}}/api/workouts"
+  body:
+    type: json
+    data: |-
+      {
+        "name": "Upper Body",
+        "items": [
+          {
+            "exerciseId": "6a8f351ef7b8cd1b4c4cbe1d",
+            "order": 1,
+            "type": "strength-training",
+            "sets": [{"weight": 50.4, "reps": 50, "order": 1}]
+          }
+        ]
+        
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

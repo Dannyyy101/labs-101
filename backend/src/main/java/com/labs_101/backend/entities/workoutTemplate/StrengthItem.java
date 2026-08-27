@@ -10,7 +10,6 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Document
 @TypeAlias("strength")
 public record StrengthItem(String exerciseId, int order, String type, List<PlannedSet> sets) implements PlanItem {
-    @PersistenceCreator
     public StrengthItem {
     }
 }

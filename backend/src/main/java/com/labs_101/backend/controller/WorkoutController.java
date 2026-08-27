@@ -1,10 +1,12 @@
 package com.labs_101.backend.controller;
 
+import com.labs_101.backend.dtos.exercises.CreateExerciseDto;
+import com.labs_101.backend.dtos.exercises.ExerciseDto;
+import com.labs_101.backend.dtos.workout.CreateWorkoutDto;
+import com.labs_101.backend.dtos.workout.WorkoutDto;
 import com.labs_101.backend.dtos.workoutTemplate.CreateWorkoutTemplateDto;
 import com.labs_101.backend.dtos.workoutTemplate.GetWorkoutTemplateDto;
-import com.labs_101.backend.entities.workoutTemplate.WorkoutTemplate;
 import com.labs_101.backend.services.WorkoutService;
-import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
@@ -23,13 +25,31 @@ public class WorkoutController {
         this.workoutService = workoutService;
     }
 
-    @PostMapping("/sync")
-    public ResponseEntity<Void> createRun(@RequestBody ArrayList<Object> run) {
+    @PostMapping("")
+    public WorkoutDto createWorkout(@RequestBody CreateWorkoutDto workoutDto) {
         try {
-            System.out.println(run);
+            return workoutService.createWorkout(workoutDto);
+        } catch (Exception e) {
+            throw e;
+        }
+    }
+
+    @PostMapping("/exercises")
+    public ResponseEntity<Void> createExercise(@RequestBody CreateExerciseDto exerciseDto) {
+        try {
+            workoutService.createExercise(exerciseDto);
             return ResponseEntity.noContent().build();
         } catch (Exception e) {
-            return ResponseEntity.internalServerError().build();
+            throw e;
+        }
+    }
+
+    @GetMapping("/exercises")
+    public List<ExerciseDto> getAllExercises() {
+        try {
+            return workoutService.getAllExercises();
+        } catch (Exception e) {
+            throw e;
         }
     }
 
