@@ -1,0 +1,5 @@
+name: production
+variables:
+  - name: base_url
+    value: https://backend-labs-101.project101.tech
+    description: ""
