@@ -4,11 +4,13 @@ services:
     build:
       context: ./frontend
     networks:
-      - db
+      - services
     ports:
       - "3000:3000"
+    depends_on:
+    - backend
     environment:
-      BACKEND_URL: ${BACKEND_URL}
+      BACKEND_URL: http://backend:8080
     
   backend:
     container_name: spring-boot-labs-101
@@ -16,6 +18,7 @@ services:
       context: ./backend
     networks:
       - db
+      - services
     ports:
       - "8080:8080"
     depends_on:
@@ -47,6 +50,8 @@ services:
       retries: 5
 networks:
   db:
+    driver: bridge
+  services:
     driver: bridge
 
 volumes:
