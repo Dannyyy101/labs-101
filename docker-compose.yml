@@ -10,7 +10,7 @@ services:
     depends_on:
     - backend
     environment:
-      BACKEND_URL: http://backend:8080
+      BACKEND_URL: http://backend:8080/api
     
   backend:
     container_name: spring-boot-labs-101
