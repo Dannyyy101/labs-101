@@ -21,5 +21,4 @@ jobs:
               env:
                   POSTGRES_USERNAME: ${{ secrets.POSTGRES_USERNAME }}
                   POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
-                  BACKEND_URL: ${{secrets.BACKEND_URL}}
               run: docker compose up -d --build
