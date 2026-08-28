@@ -9,7 +9,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
         @JsonSubTypes.Type(value = RunWorkoutItemDto.class, name = "run-training")
 })
 public sealed interface CreateWorkoutExerciseDto permits StrengthWorkoutItemDto, RunWorkoutItemDto {
-    String exerciseId();
+    Long exerciseId();
 
     int order();
 

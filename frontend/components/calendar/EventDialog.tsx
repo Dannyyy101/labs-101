@@ -25,20 +25,7 @@ export function EventDialog({ calendarEvent, closeDialog, startDate }: { calenda
 
 
     const [event, setEvent] = useState<CalendarEvent>(calendarEvent || { id: "", title: "", startDate: startDate || new Date(), endDate, exerciseIds: [] });
-    const [workoutTemplates, setWorkoutTemplates] = useState<Map<string, WorkoutTemplate[]> | null>()
     const [selectedExerciseIds, setSelectedExerciseIds] = useState<{ ids: Map<string, number>, len: number }>({ ids: new Map<string, number>(), len: 0 });
-
-
-    const [workoutTemplatesLoading, setWorkoutTemplatesLoading] = useState<boolean>(true)
-
-    useEffect(() => {
-        const fetch = async () => {
-            setWorkoutTemplates((await getAllWorkoutTemplates()).value)
-            setWorkoutTemplatesLoading(false)
-        }
-        fetch()
-    }, [])
-
 
     const addTrainingToEvent = (training: WorkoutTemplate) => {
         setEvent({ ...event, training })
@@ -51,7 +38,6 @@ export function EventDialog({ calendarEvent, closeDialog, startDate }: { calenda
 
         if (!event.id) {
             await createCalendarEvent({ ...event, exerciseIds: [...selectedExerciseIds.ids.entries().map((([key, value]) => ({ id: key, order: value })))] })
-            setEvents([...events, event])
         } else {
             await updateCalendarEvent(event)
             setEvents([...events.filter((e) => e.id !== event.id), event])
@@ -116,35 +102,6 @@ export function EventDialog({ calendarEvent, closeDialog, startDate }: { calenda
 
                 <div className="overflow-y-auto max-h-100">
                     <h2 className='font-heading text-base font-medium'>Exercises</h2>
-                    {workoutTemplates ?
-                        <Accordion defaultValue={[...workoutTemplates?.keys() ?? []]} className="mt-1">
-                            {[...workoutTemplates].map(([key, templates]) => (
-                                <AccordionItem key={key} value={key}>
-                                    <AccordionTrigger>{key}</AccordionTrigger>
-                                    <AccordionContent className="gap-4">
-                                        <div className="flex gap-4">
-                                            {templates.map((training) => (<div className="w-full" key={training.id}>
-                                                {key === "strength-training" ?
-                                                    <ExerciseSelect training={training} selectedExerciseIds={selectedExerciseIds} setSelectedExerciseIds={setSelectedExerciseIds} />
-                                                    :
-                                                    <Card
-                                                        style={{ borderWidth: event.training?.id === training.id ? "1px" : "0" }}
-                                                        className="w-md border-black"
-                                                        onClick={() => addTrainingToEvent(training)}
-                                                    >
-                                                        <CardHeader>
-                                                            <CardTitle>{training.name}</CardTitle>
-                                                            <CardDescription>training</CardDescription>
-                                                        </CardHeader>
-                                                    </Card>}
-                                            </div>))}
-                                        </div>
-                                    </AccordionContent>
-                                </AccordionItem>
-                            ))}
-                        </Accordion>
-                        : <EmptyOrLoadingScreen loading={workoutTemplatesLoading} />
-                    }
                 </div>
                 <div className="flex gap-2 mt-4">
                     {event.id && <Button variant="destructive" className="min-w-1/2" onClick={deleteEvent}>

@@ -58,4 +58,8 @@ public class WorkoutService {
         Workout workout = workoutRepository.save(WorkoutMapper.fromCreateWorkoutDto(workoutDto, exercises));
         return WorkoutMapper.toWorkoutDto(workout);
     }
+
+    public void deleteExercise(Long id) {
+        exerciseRepository.deleteById(id);
+    }
 }

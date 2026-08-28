@@ -10,4 +10,5 @@ import lombok.Setter;
 public class CreateExerciseDto {
     private String name;
     private String description;
+    private String type;
 }

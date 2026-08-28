@@ -13,7 +13,6 @@ import com.labs_101.backend.dtos.calendar.CreateCalendarEventDto;
 import com.labs_101.backend.dtos.calendar.UpdateCalendarEventDto;
 import com.labs_101.backend.dtos.workout.WorkoutDto;
 import com.labs_101.backend.entities.CalendarEvent;
-import com.labs_101.backend.entities.workout.Workout;
 
 @Service
 public class CalendarService {
@@ -27,8 +26,7 @@ public class CalendarService {
     }
 
     public void createCalendarEvent(CreateCalendarEventDto eventDto) {
-        WorkoutDto workout = workoutService.createWorkout(eventDto.getWorkoutDto());
-        calendarRepository.save(CalendarMapper.fromCreateCalendarEventDto(eventDto, new Workout(workout.getId())));
+        calendarRepository.save(CalendarMapper.fromCreateCalendarEventDto(eventDto));
     }
 
     public List<CalendarEventDto> getAllCalendarEvents(Instant startDate, Instant endDate) {
@@ -40,7 +38,7 @@ public class CalendarService {
                 .map((event) -> CalendarMapper.fromCalendarEvent(event)).toList();
     }
 
-    public void deleteCalendarEvent(String id) {
+    public void deleteCalendarEvent(Long id) {
         calendarRepository.deleteById(id);
     }
 

@@ -1,18 +1,16 @@
 info:
-  name: createCalendarEvent
+  name: createWorkoutSession
   type: http
   seq: 1
 
 http:
   method: POST
-  url: "{{base_url}}/api/calendar"
+  url: "{{base_url}}/api/workouts/sessions"
   body:
     type: json
     data: |-
       {
-        "title": "1234",
-        "startDate": "2026-08-26T10:15:30Z",
-        "endDate": "2026-08-26T12:15:30Z"
+        "name": "Upper body"
       }
   auth: inherit
 

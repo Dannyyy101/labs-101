@@ -8,7 +8,8 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 public class ExerciseDto {
-    private String id;
+    private Long id;
     private String name;
     private String description;
+    private String type;
 }

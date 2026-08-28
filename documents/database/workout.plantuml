@@ -28,11 +28,11 @@ class TrainingDistance extends WorkoutItem {
     - distance: double
 }
 
-class TrainingSet extends WorkoutItem{
-    - trainingReps: TrainingReps[]
+class TrainingStrength extends WorkoutItem{
+    - trainingSets: ExerciseSet[]
 }
 
-class TrainingReps {
+class ExerciseSet {
     - weight: double
     - reps: int
     - order: int

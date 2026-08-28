@@ -11,15 +11,7 @@ http:
     data: |-
       {
         "name": "Upper Body",
-        "items": [
-          {
-            "exerciseId": "6a8f351ef7b8cd1b4c4cbe1d",
-            "order": 1,
-            "type": "strength-training",
-            "sets": [{"weight": 50.4, "reps": 50, "order": 1}]
-          }
-        ]
-        
+        "duration": 1000
       }
   auth: inherit
 

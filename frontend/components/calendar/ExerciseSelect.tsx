@@ -7,8 +7,8 @@ import { getAllExercises } from "./action";
 import { Spinner } from "../ui/spinner";
 
 export function ExerciseSelect({ training, selectedExerciseIds, setSelectedExerciseIds }: {
-    training: WorkoutTemplate, selectedExerciseIds: { ids: Map<string, number>, len: number }, setSelectedExerciseIds: Dispatch<SetStateAction<{
-        ids: Map<string, number>;
+    training: WorkoutTemplate, selectedExerciseIds: { ids: Map<number, number>, len: number }, setSelectedExerciseIds: Dispatch<SetStateAction<{
+        ids: Map<number, number>;
         len: number;
     }>>
 }) {

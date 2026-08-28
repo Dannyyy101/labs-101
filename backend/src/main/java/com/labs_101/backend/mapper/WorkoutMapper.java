@@ -60,7 +60,7 @@ public class WorkoutMapper {
     }
 
     public static WorkoutDto toWorkoutDto(Workout workout) {
-        return new WorkoutDto(workout.getId());
+        return null;
     }
 
     public static Workout fromCreateWorkoutDto(CreateWorkoutDto dto, List<Exercise> exercises) {
@@ -84,7 +84,7 @@ public class WorkoutMapper {
                     break;
             }
         });
-        return new Workout(null, dto.getName(), items);
+        return null;
 
     }
 }

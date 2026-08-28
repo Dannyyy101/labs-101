@@ -1,4 +1,6 @@
-package com.labs_101.backend.entities.workout;
+package com.labs_101.backend.entities.workout.session;
+
+import java.util.ArrayList;
 
 import jakarta.persistence.*;
 
@@ -12,11 +14,12 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "workout")
-public class Workout {
+@Table(name = "workout_session")
+public class WorkoutSession {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String name;
     private Double duration;
+    private ArrayList<WorkoutExercise> exercises;
 }

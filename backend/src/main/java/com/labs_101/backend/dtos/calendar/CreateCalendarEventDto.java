@@ -15,5 +15,4 @@ public class CreateCalendarEventDto {
     private String title;
     private Instant startDate;
     private Instant endDate;
-    private CreateWorkoutDto workoutDto;
 }
