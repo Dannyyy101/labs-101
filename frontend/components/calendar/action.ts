@@ -65,6 +65,7 @@ export async function createCalendarEvent(calendarEvent: CalendarEvent): Promise
         revalidatePath("/planner")
         return
     }
+    console.error(response.status, response.statusText, response.body)
 
     throw new Error("Error creating calendar events")
 }
