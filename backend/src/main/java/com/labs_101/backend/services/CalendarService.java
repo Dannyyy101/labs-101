@@ -11,15 +11,18 @@ import org.springframework.stereotype.Service;
 import com.labs_101.backend.dtos.calendar.CalendarEventDto;
 import com.labs_101.backend.dtos.calendar.CreateCalendarEventDto;
 import com.labs_101.backend.dtos.calendar.UpdateCalendarEventDto;
+import com.labs_101.backend.dtos.workout.WorkoutDto;
 import com.labs_101.backend.entities.CalendarEvent;
 
 @Service
 public class CalendarService {
 
+    private final WorkoutService workoutService;
     private final CalendarRepository calendarRepository;
 
-    CalendarService(CalendarRepository calendarRepository) {
+    CalendarService(CalendarRepository calendarRepository, WorkoutService workoutService) {
         this.calendarRepository = calendarRepository;
+        this.workoutService = workoutService;
     }
 
     public void createCalendarEvent(CreateCalendarEventDto eventDto) {
@@ -35,7 +38,7 @@ public class CalendarService {
                 .map((event) -> CalendarMapper.fromCalendarEvent(event)).toList();
     }
 
-    public void deleteCalendarEvent(String id) {
+    public void deleteCalendarEvent(Long id) {
         calendarRepository.deleteById(id);
     }
 

@@ -6,10 +6,10 @@ import com.labs_101.backend.entities.CalendarEvent;
 
 public class CalendarMapper {
     public static CalendarEvent fromCreateCalendarEventDto(CreateCalendarEventDto dto) {
-        return new CalendarEvent(null, dto.getTitle(), dto.getStartDate(), dto.getEndDate(), null);
+        return new CalendarEvent(null, dto.getTitle(), dto.getStartDate(), dto.getEndDate());
     }
 
-    public static CalendarEventDto fromCalendarEvent(CalendarEvent event){
+    public static CalendarEventDto fromCalendarEvent(CalendarEvent event) {
         return new CalendarEventDto(event.getId(), event.getTitle(), event.getStartDate(), event.getEndDate());
     }
 }

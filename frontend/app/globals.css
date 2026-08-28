@@ -48,6 +48,10 @@
   --radius-4xl: calc(var(--radius) * 2.6);
 }
 
+body {
+  position: relative;
+}
+
 :root {
   --background: oklch(1 0 0);
   --foreground: oklch(0.145 0 0);
@@ -121,31 +125,41 @@
   * {
     @apply border-border outline-ring/50;
   }
+
   body {
     @apply bg-background text-foreground;
   }
-  button:not(:disabled), [role="button"]:not(:disabled) {
+
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
     cursor: pointer;
   }
+
   html {
     @apply font-sans;
   }
+
   .maplibregl-popup-content {
-    @apply bg-transparent! shadow-none! p-0! rounded-none!;
+    @apply bg-transparent shadow-none p-0 rounded-none;
   }
+
   .maplibregl-popup-tip {
-    @apply hidden!;
+    @apply hidden;
   }
+
   .maplibregl-ctrl-attrib {
-    @apply bg-background! text-muted-foreground! border-border! rounded-md! border! shadow-sm!;
+    @apply bg-background text-muted-foreground border-border rounded-md border shadow-sm;
   }
+
   .maplibregl-ctrl-attrib a {
-    @apply text-muted-foreground!;
+    @apply text-muted-foreground;
   }
+
   .maplibregl-ctrl-attrib a:hover {
-    @apply text-foreground!;
+    @apply text-foreground;
   }
+
   .maplibregl-ctrl-attrib-button {
-    @apply bg-transparent! dark:invert;
+    @apply bg-transparent dark:invert;
   }
 }

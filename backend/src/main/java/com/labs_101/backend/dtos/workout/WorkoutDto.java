@@ -1,0 +1,12 @@
+package com.labs_101.backend.dtos.workout;
+
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter
+@Setter
+@AllArgsConstructor
+public class WorkoutDto {
+    private String id;
+}

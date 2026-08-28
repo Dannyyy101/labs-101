@@ -1,0 +1,58 @@
+services:
+  frontend:
+    container_name: nextjs-labs-101
+    build:
+      context: ./frontend
+    networks:
+      - services
+    ports:
+      - "3000:3000"
+    depends_on:
+    - backend
+    environment:
+      BACKEND_URL: http://backend:8080/api
+    
+  backend:
+    container_name: spring-boot-labs-101
+    build:
+      context: ./backend
+    networks:
+      - db
+      - services
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/labs101
+      - SPRING_DATASOURCE_USERNAME=${POSTGRES_USERNAME}
+      - SPRING_DATASOURCE_PASSWORD=${POSTGRES_PASSWORD}
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+  db:
+    container_name: postgres-labs-101
+    image: postgres
+    environment:
+      POSTGRES_USER: ${POSTGRES_USERNAME}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      PGDATA: /data/postgres
+      POSTGRES_DB: labs101
+    volumes:
+      - db:/data/postgres
+    ports:
+      - "5432:5432"
+    networks:
+      - db
+    restart: unless-stopped
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -d postgres" ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+networks:
+  db:
+    driver: bridge
+  services:
+    driver: bridge
+
+volumes:
+  db:

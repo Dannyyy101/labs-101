@@ -10,7 +10,7 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 public class UpdateCalendarEventDto {
-    private String id;
+    private Long id;
     private String title;
     private Instant startDate;
     private Instant endDate;

@@ -31,7 +31,9 @@ public class CalendarController {
   }
 
   @GetMapping("")
-  public List<CalendarEventDto> getAllCalendarEvents(@RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Instant startDate, @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Instant endDate) {
+  public List<CalendarEventDto> getAllCalendarEvents(
+      @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Instant startDate,
+      @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Instant endDate) {
     try {
       return calendarService.getAllCalendarEvents(startDate, endDate);
     } catch (Exception e) {
@@ -62,7 +64,7 @@ public class CalendarController {
   }
 
   @DeleteMapping("/{id}")
-  public ResponseEntity<Void> deleteCalendarEvent(@PathVariable String id) {
+  public ResponseEntity<Void> deleteCalendarEvent(@PathVariable Long id) {
     try {
       calendarService.deleteCalendarEvent(id);
       return ResponseEntity.ok().build();

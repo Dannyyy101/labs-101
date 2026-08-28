@@ -10,11 +10,12 @@ import { DatePicker } from "./datePicker";
 import { Training } from "./calendar";
 import { FormEvent, SubmitEventHandler, useEffect, useState } from "react";
 import { useEventStore } from "@/lib/zustand/eventStore";
-import { WorkoutTemplate } from "@/utils/types/workoutTypes";
-import { createCalendarEvent, deleteCalendarEvent, getAllWorkoutTemplates, updateCalendarEvent } from "./action";
+import { Exercise, WorkoutTemplate } from "@/utils/types/workoutTypes";
+import { createCalendarEvent, deleteCalendarEvent, getAllExercises, getAllWorkoutTemplates, updateCalendarEvent } from "./action";
 import { Empty, EmptyHeader, EmptyMedia, EmptyTitle, EmptyDescription, EmptyContent } from "../ui/empty";
 import { Spinner } from "../ui/spinner";
 import { CalendarEvent } from "@/utils/types/calendarTypes";
+import { ExerciseSelect } from "./ExerciseSelect";
 
 export function EventDialog({ calendarEvent, closeDialog, startDate }: { calendarEvent: CalendarEvent | null, closeDialog: () => void, startDate: Date | null }) {
     const setEvents = useEventStore((state) => state.setEvents)
@@ -23,36 +24,25 @@ export function EventDialog({ calendarEvent, closeDialog, startDate }: { calenda
     endDate.setHours(endDate.getHours() + 1)
 
 
-    const [event, setEvent] = useState<CalendarEvent>(calendarEvent || { id: "", title: "", startDate: startDate || new Date(), endDate });
-    const [workoutTemplates, setWorkoutTemplates] = useState<Map<string, WorkoutTemplate[]> | null>()
-    const [workoutTemplatesLoading, setWorkoutTemplatesLoading] = useState<boolean>(true)
-
-    useEffect(() => {
-        const fetch = async () => {
-            setWorkoutTemplates((await getAllWorkoutTemplates()).value)
-            setWorkoutTemplatesLoading(false)
-        }
-        fetch()
-    }, [])
+    const [event, setEvent] = useState<CalendarEvent>(calendarEvent || { id: "", title: "", startDate: startDate || new Date(), endDate, exerciseIds: [] });
+    const [selectedExerciseIds, setSelectedExerciseIds] = useState<{ ids: Map<string, number>, len: number }>({ ids: new Map<string, number>(), len: 0 });
 
     const addTrainingToEvent = (training: WorkoutTemplate) => {
-
-        setEvent({ ...event, title: training.name, training })
+        setEvent({ ...event, training })
     }
 
     const saveEvent = async (formData: FormData) => {
         addTimeToDate(formData.get("time-picker-start")?.toString() || "", event.startDate)
         addTimeToDate(formData.get("time-picker-end")?.toString() || "", event.endDate)
         event.title = formData.get("title")?.toString() || ""
-        
+
         if (!event.id) {
-            await createCalendarEvent(event)
-            setEvents([...events, event])
+            await createCalendarEvent({ ...event, exerciseIds: [...selectedExerciseIds.ids.entries().map((([key, value]) => ({ id: key, order: value })))] })
         } else {
             await updateCalendarEvent(event)
             setEvents([...events.filter((e) => e.id !== event.id), event])
         }
-        setEvent({ id: "", title: "", startDate: new Date(), endDate: new Date() })
+        setEvent({ id: "", title: "", startDate: new Date(), endDate: new Date(), exerciseIds: [...selectedExerciseIds.ids.entries().map((([key, value]) => ({ id: key, order: value })))] })
         closeDialog();
     }
 
@@ -60,7 +50,7 @@ export function EventDialog({ calendarEvent, closeDialog, startDate }: { calenda
         if (event.id) {
             await deleteCalendarEvent(event.id)
             setEvents([...events.filter((e) => e.id !== event.id)])
-            setEvent({ id: "", title: "", startDate: new Date(), endDate: new Date() })
+            setEvent({ id: "", title: "", startDate: new Date(), endDate: new Date(), exerciseIds: [] })
             closeDialog();
         }
     }
@@ -110,33 +100,8 @@ export function EventDialog({ calendarEvent, closeDialog, startDate }: { calenda
                 </div>
                 <Separator className={"my-2"} />
 
-                <div>
+                <div className="overflow-y-auto max-h-100">
                     <h2 className='font-heading text-base font-medium'>Exercises</h2>
-                    {workoutTemplates ?
-                        <Accordion defaultValue={[...workoutTemplates?.keys() ?? []]} className="mt-1">
-                            {[...workoutTemplates].map(([key, templates]) => (
-                                <AccordionItem key={key} value={key}>
-                                    <AccordionTrigger>{key}</AccordionTrigger>
-                                    <AccordionContent className="flex gap-4">
-                                        {templates.map((training) => (
-                                            <Card
-                                                key={training.id}
-                                                style={{ borderWidth: event.training?.id === training.id ? "1px" : "0" }}
-                                                className="w-md border-black"
-                                                onClick={() => addTrainingToEvent(training)}
-                                            >
-                                                <CardHeader>
-                                                    <CardTitle>{training.name}</CardTitle>
-                                                    <CardDescription>training</CardDescription>
-                                                </CardHeader>
-                                            </Card>
-                                        ))}
-                                    </AccordionContent>
-                                </AccordionItem>
-                            ))}
-                        </Accordion>
-                        : <EmptyOrLoadingScreen loading={workoutTemplatesLoading} />
-                    }
                 </div>
                 <div className="flex gap-2 mt-4">
                     {event.id && <Button variant="destructive" className="min-w-1/2" onClick={deleteEvent}>
