@@ -52,7 +52,7 @@ public class CalendarController {
   }
 
   @PutMapping("/{id}")
-  public CalendarEventDto updateCalendarEvent(@PathVariable String id, @RequestBody UpdateCalendarEventDto eventDto) {
+  public CalendarEventDto updateCalendarEvent(@PathVariable Long id, @RequestBody UpdateCalendarEventDto eventDto) {
     try {
       if (!id.equals(eventDto.getId())) {
         throw new Error();

@@ -38,6 +38,8 @@ export function EventDialog({ calendarEvent, closeDialog, startDate }: { calenda
 
         if (!event.id) {
             await createCalendarEvent({ ...event, exerciseIds: [...selectedExerciseIds.ids.entries().map((([key, value]) => ({ id: key, order: value })))] })
+            setEvents([...events, event])
+
         } else {
             await updateCalendarEvent(event)
             setEvents([...events.filter((e) => e.id !== event.id), event])
