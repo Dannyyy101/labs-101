@@ -75,7 +75,7 @@ export async function updateCalendarEvent(calendarEvent: CalendarEvent): Promise
             'Content-Type': 'application/json'
         }
     })
-
+    console.log(response, calendarEvent)
     if (response.ok) {
         try {
             return { value: null, error: null }
