@@ -1,0 +1,25 @@
+info:
+  name: updateCalendarEventById
+  type: http
+  seq: 4
+
+http:
+  method: PUT
+  url: "{{base_url}}/api/calendar/6a8eea3ee8b9c250b53bd834"
+  body:
+    type: json
+    data: |-
+      {
+          "id": "6a8eea3ee8b9c250b53bd834",
+          "title": "Zone 1 run",
+          "startDate": "2026-08-26T00:00:00.015Z",
+          "endDate": "2026-08-26T01:00:00.015Z"
+        }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

@@ -1,0 +1,22 @@
+info:
+  name: createWorkoutSession
+  type: http
+  seq: 1
+
+http:
+  method: POST
+  url: "{{base_url}}/api/workouts/sessions"
+  body:
+    type: json
+    data: |-
+      {
+        "name": "Upper body"
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false
