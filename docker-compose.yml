@@ -4,13 +4,21 @@ services:
     build:
       context: ./frontend
     networks:
+      - db
       - services
     ports:
       - "3000:3000"
     depends_on:
     - backend
     environment:
-      BACKEND_URL: http://backend:8080/api
+      - POSTGRES_HOST=${POSTGRES_HOST}
+      - POSTGRES_USERNAME=${POSTGRES_USERNAME}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - BETTER_AUTH_SECRET=${BETTER_AUTH_SECRET}
+      - ALLOWED_EMAIL_ADDRESSES=${ALLOWED_EMAIL_ADDRESSES}
+      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
+      - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
+      - BACKEND_URL= http://backend:8080/api
     
   backend:
     container_name: spring-boot-labs-101
