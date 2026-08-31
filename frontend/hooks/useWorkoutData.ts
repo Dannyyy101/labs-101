@@ -1,6 +1,6 @@
 'use client'
 
-import { getAllWorkouts, getWorkoutsHeaderData } from "@/app/workouts/action";
+import { getAllWorkouts, getWorkoutsHeaderData } from "@/app/_workouts/action";
 import { Workout, WorkoutHeaderData, WorkoutType } from "@/utils/types/types";
 import { useEffect, useState } from "react"
 import { Router } from "next/router";
@@ -17,9 +17,9 @@ export function useWorkoutData() {
             setWorkouts((await getAllWorkouts()).value);
         }
         fetch()
-        
+
     }, [workoutType])
 
 
-    return {workoutType, workoutHeaderData, workouts, setWorkoutType}
+    return { workoutType, workoutHeaderData, workouts, setWorkoutType }
 }
