@@ -75,7 +75,7 @@ export default function Calendar() {
 
 
     return (
-        <div className="p-4 w-screen h-screen relative">
+        <div className="p-4 w-full h-screen relative">
             <div className="absolute top-10 right-4 z-20 flex">
                 <Button variant="secondary" onClick={() => setDateRange((prev) => increaseDateByDays(prev, -STEPS))}><ChevronLeft /></Button>
                 <Button variant="secondary" onClick={() => setDateRange((prev) => increaseDateByDays(prev, STEPS))}><ChevronRight /></Button>
