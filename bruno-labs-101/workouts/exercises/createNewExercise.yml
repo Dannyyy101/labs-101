@@ -11,7 +11,14 @@ http:
     data: |-
       {
         "name": "Chest-Press",
-        "description": "Einfach mal paar machen"
+        "description": "Einfach mal paar machen",
+        "type": "strength-training",
+        "bodyParts": [{
+          "slug": "chest",
+          "color": "#00FF00",
+          "intensity": 1,
+          "side": "right"
+        }]
       }
   auth: inherit
 
