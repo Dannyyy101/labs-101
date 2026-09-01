@@ -6,11 +6,11 @@ export interface WorkoutTemplate {
     type: string
 }
 
-export interface Exercise {
+export interface BaseExercise {
     id: number,
     name: string
     description: string
-    type: string
+    type: ExerciseTypes
     bodyParts: ExtendedBodyPart[]
 }
 
@@ -21,12 +21,31 @@ export interface CreateExercise {
     bodyParts: ExtendedBodyPart[]
 }
 
-export interface StrengthTraining extends Exercise {
-    defaultSets: Set[]
+export interface StrengthTraining extends BaseExercise {
+    type: "Strength Training"
+    sets: Set[]
 }
 
-interface Set {
+export interface SwimmingTraining extends BaseExercise {
+    type: "Swimming"
+}
+
+export interface RunningTraining extends BaseExercise {
+    type: "Running"
+}
+
+export interface StretchingTraining extends BaseExercise {
+    type: "Stretching"
+}
+
+
+
+export interface Set {
     count: number
     weight: number
     unit: string
 }
+
+export type ExerciseTypes = "Strength Training" | "Swimming" | "Running" | "Stretching"
+export type Exercise = BaseExercise
+export type ExerciseTraining = StrengthTraining | SwimmingTraining | RunningTraining | StretchingTraining

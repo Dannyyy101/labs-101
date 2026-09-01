@@ -20,7 +20,7 @@ export default function Exercises() {
             <h1 className="text-2xl font-bold">Exercises</h1>
 
             <Tabs defaultValue="overview" className="w-full mt-4 relative">
-                <EditExercise className="w-32 bg-accent top-0 right-4 absolute" exercise={{ name: "", description: "", id: -1, type: "", bodyParts: [] }}>Create exercise</EditExercise>
+                <EditExercise className="w-32 bg-accent top-0 right-4 absolute" exercise={{ name: "", description: "", id: -1, type: "Strength Training", bodyParts: [] }}>Create exercise</EditExercise>
                 <TabsList>
                     <TabsTrigger value="overview">Overview</TabsTrigger>
                     <TabsTrigger value="strength-training">Strength Training</TabsTrigger>

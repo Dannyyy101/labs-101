@@ -13,7 +13,7 @@ import { Badge } from "@/components/ui/badge"
 import { Field, FieldLabel } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
-import { Exercise, StrengthTraining } from "@/utils/types/workoutTypes"
+import { Exercise, ExerciseTypes, StrengthTraining } from "@/utils/types/workoutTypes"
 import { useEffect, useReducer, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { createExercise, deleteExercise, updateExercise } from "./action"
@@ -28,10 +28,10 @@ import {
 import { getNewSlugColor } from "@/lib/muscle-highlighter/muscle-highlighter"
 
 const EditExercise: React.FC<{ exercise: Exercise, children: React.ReactNode, className?: string }> = ({ exercise: oldExercise, children, className }) => {
-    const [exercise, setExercise] = useState({ ...oldExercise })
+    const [exercise, setExercise] = useState<Exercise>({ ...oldExercise })
 
     const isEditing = exercise.id !== -1
-    const exerciseTypes = ["Strength Training", "Swimming", "Running", "Stretching"]
+    const exerciseTypes: ExerciseTypes[] = ["Strength Training", "Swimming", "Running", "Stretching"]
 
     const handleSubmitExercise = async () => {
         if (isEditing) {

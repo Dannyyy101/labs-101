@@ -14,7 +14,7 @@ import {
     EmptyMedia,
     EmptyTitle,
 } from "@/components/ui/empty"
-import { useState } from "react";
+import { ReactNode, useState } from "react";
 import { useExercisesStore, WorkoutState } from "@/lib/zustand/workoutStore";
 import {
     Dialog,
@@ -32,8 +32,9 @@ import {
     InputGroupAddon,
     InputGroupInput,
 } from "@/components/ui/input-group"
-import { Exercise } from "@/utils/types/workoutTypes";
+import { Exercise, ExerciseTraining, ExerciseTypes } from "@/utils/types/workoutTypes";
 import { getAllExercises } from "@/app/exercises/action";
+import { getNewSlugColor } from "@/lib/muscle-highlighter/muscle-highlighter";
 
 
 export default function WorkoutPage() {
@@ -44,13 +45,33 @@ export default function WorkoutPage() {
 
     const store = useExercisesStore()
     const { exercises, setExercises } = store
+    const map = new Map<string, ExtendedBodyPart>()
+    exercises.forEach((exercise) => exercise.bodyParts.forEach((part) => {
+        if (!part.slug) return
+        const element = map.get(part.slug)
+        if (element && element.intensity) {
+            const newColor = getNewSlugColor(element.intensity + 1)
+            if (newColor) {
+                map.set(part.slug, { ...part, color: newColor, intensity: element.intensity + 1 })
+            }
+        } else {
+            map.set(part.slug, part)
+        }
+    }
+    ))
 
-    return <div className="w-full flex gap-32">
-        <BodyModal />
+    return <div className="w-full flex gap-32 mt-10 relative">
+
+        <BodyModal bodyData={[...map.values()]} />
         <section className="w-full relative">
-            {exercises.length === 0 ? <EmptyExercises workoutState={store} /> : <>
-                {exercises.map((exercise, index) => <ExerciseModal exercise={exercise} key={index} />)}</>}
+            {exercises.length === 0 ? <EmptyExercises workoutState={store} /> : <div className="flex flex-col gap-4 overflow-y-auto p-2">
+                {exercises.map((exercise, index) => <ExerciseModal store={store} exercise={exercise} key={index} />)}</div>}
         </section>
+        <div className="mr-8">
+            {exercises.length > 0 &&
+                <AddExerciseDialog className="w-32 border-accent shadow border px-2 py-1 rounded-2xl" workoutState={store}>Add Exercise</AddExerciseDialog>
+            }
+        </div>
     </div>
 }
 
@@ -58,23 +79,7 @@ export default function WorkoutPage() {
 
 
 export function EmptyExercises({ workoutState }: { workoutState: WorkoutState }) {
-    const [foundExercises, setFoundExercises] = useState<Exercise[]>([])
-    const [searchInput, setSearchInput] = useState<string>("")
 
-    const onSearchInputChange = async (value: string) => {
-        setSearchInput(value)
-        if (value.length === 0) {
-            setFoundExercises([])
-            return
-        }
-        const exercises = await getAllExercises(value)
-        setFoundExercises(exercises)
-    }
-    const { setExercises } = workoutState
-
-    const addEmptyExercise = () => {
-        setExercises([{ id: -1, name: "", description: "", type: "EMPTY", bodyParts: [] }])
-    }
     return (
         <Empty className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
             <EmptyHeader>
@@ -85,34 +90,72 @@ export function EmptyExercises({ workoutState }: { workoutState: WorkoutState })
                 </EmptyDescription>
             </EmptyHeader>
             <EmptyContent className="flex-row justify-center gap-2">
-                <Dialog>
-                    <DialogTrigger>Open</DialogTrigger>
-                    <DialogContent>
-                        <DialogHeader>
-                            <DialogTitle>Are you absolutely sure?</DialogTitle>
-                            <InputGroup className="max-w-xs">
-                                <InputGroupInput value={searchInput} onChange={(e) => onSearchInputChange(e.target.value)} placeholder="Search..." />
-                                <InputGroupAddon>
-                                    <Search />
-                                </InputGroupAddon>
-                                <InputGroupAddon align="inline-end">{foundExercises.length} results</InputGroupAddon>
-                            </InputGroup>
-                            <div className="overflow-y-auto flex flex-col max-h-20">
-                                {foundExercises.map((found) => <button className="text-left hover:bg-accent p-1 pl-2 rounded-2xl" key={found.id}>{found.name}</button>)}
-                            </div>
-                        </DialogHeader>
-                    </DialogContent>
-                </Dialog>
+                <AddExerciseDialog workoutState={workoutState} >Open</AddExerciseDialog>
             </EmptyContent>
         </Empty>
     )
 }
 
+const AddExerciseDialog: React.FC<{ workoutState: WorkoutState, className?: string, children?: ReactNode }> = ({ workoutState, className, children }) => {
+    const { setExercises, exercises } = workoutState
 
-function BodyModal() {
-    const bodyData: readonly ExtendedBodyPart[] = [
+    const [foundExercises, setFoundExercises] = useState<Exercise[]>([])
+    const [searchInput, setSearchInput] = useState<string>("")
 
-    ] as const;
+    const onSearchInputChange = async (value: string) => {
+        setSearchInput(value)
+        if (value.length === 0) {
+            setFoundExercises([])
+            return
+        }
+        const exercises = await getAllExercises({ name: value })
+        setFoundExercises(exercises)
+    }
+
+    function changeType(prev: Exercise, type: ExerciseTypes): ExerciseTraining {
+        if (prev.type === type) return prev as ExerciseTraining
+
+        const base = {
+            id: prev.id,
+            name: prev.name,
+            description: prev.description,
+            bodyParts: prev.bodyParts,
+        }
+
+        switch (type) {
+            case "Strength Training":
+                return { ...base, type, sets: [] }
+            case "Swimming":
+                return { ...base, type /* , swimming-specific defaults */ }
+            case "Running":
+                return { ...base, type /* , running-specific defaults */ }
+            case "Stretching":
+                return { ...base, type /* , stretching-specific defaults */ }
+        }
+    }
+
+    return <Dialog>
+        <DialogTrigger className={className}>{children}</DialogTrigger>
+        <DialogContent>
+            <DialogHeader>
+                <DialogTitle></DialogTitle>
+                <InputGroup className="max-w-xs">
+                    <InputGroupInput value={searchInput} onChange={(e) => onSearchInputChange(e.target.value)} placeholder="Search..." />
+                    <InputGroupAddon>
+                        <Search />
+                    </InputGroupAddon>
+                    <InputGroupAddon align="inline-end">{foundExercises.length} results</InputGroupAddon>
+                </InputGroup>
+                <div className="overflow-y-auto flex flex-col max-h-20">
+                    {foundExercises.map((found) => <button onClick={() => setExercises([...exercises, changeType(found, found.type)])} className="text-left hover:bg-accent p-1 pl-2 rounded-2xl" key={found.id}>{found.name}</button>)}
+                </div>
+            </DialogHeader>
+        </DialogContent>
+    </Dialog>
+}
+
+
+function BodyModal({ bodyData }: { bodyData: ExtendedBodyPart[] }) {
     return <div className="ml-32"> <Body
         data={bodyData}
         side="front"
