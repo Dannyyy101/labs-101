@@ -14,4 +14,5 @@ public class CalendarEventDto {
     private String title;
     private Instant startDate;
     private Instant endDate;
+    private String creatorId;
 }

@@ -3,6 +3,8 @@ package com.labs_101.backend.entities;
 import java.time.Instant;
 
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -25,4 +27,7 @@ public class CalendarEvent {
     private String title;
     private Instant startDate;
     private Instant endDate;
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private User creator;
 }
