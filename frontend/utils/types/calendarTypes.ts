@@ -11,6 +11,7 @@ export interface CalendarEvent {
         id: string,
         order: number
     }[]
+    creatorId: string
 }
 
 export interface CalendarEventDto {
@@ -19,4 +20,5 @@ export interface CalendarEventDto {
     startDate: string
     endDate: string
     training?: Training | WorkoutTemplate
+    creatorId: string
 }

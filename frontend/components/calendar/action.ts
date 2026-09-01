@@ -1,5 +1,6 @@
 'use server'
 
+import { auth } from "@/lib/auth"
 import { mapFromCalendarEventDto } from "@/lib/mapper/calendarMapper"
 import { BACKEND_URL } from "@/utils/constants"
 import { CalendarEvent, CalendarEventDto } from "@/utils/types/calendarTypes"
@@ -7,6 +8,7 @@ import { Result } from "@/utils/types/types"
 import { Exercise, WorkoutTemplate } from "@/utils/types/workoutTypes"
 import { sortWorkoutTemplates } from "@/utils/workout"
 import { revalidatePath } from "next/cache"
+import { headers } from "next/headers"
 
 export async function getAllWorkoutTemplates(): Promise<Result<Map<string, WorkoutTemplate[]>>> {
     const response = await fetch(BACKEND_URL + "/workouts/templates")
@@ -55,8 +57,12 @@ export async function getAllCalendarEvents(dateRange: Date, steps: number): Prom
 }
 
 export async function createCalendarEvent(calendarEvent: CalendarEvent): Promise<void> {
+    const session = await auth.api.getSession({
+        headers: await headers()
+    })
+    if (!session) throw new Error("User is currently not in a session")
     const response = await fetch(BACKEND_URL + "/calendar", {
-        method: "POST", body: JSON.stringify({ ...calendarEvent, startDate: calendarEvent.startDate.toISOString(), endDate: calendarEvent.endDate.toISOString() }), headers: {
+        method: "POST", body: JSON.stringify({ ...calendarEvent, startDate: calendarEvent.startDate.toISOString(), endDate: calendarEvent.endDate.toISOString(), creatorId: session.user.id }), headers: {
             'Content-Type': 'application/json'
         }
     })
