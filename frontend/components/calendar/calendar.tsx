@@ -49,21 +49,26 @@ export default function Calendar() {
     const STEPS = size.width !== undefined ? size.width > 700 ? 7 : 1 : 1
 
     const currentDate = new Date();
-    currentDate.setDate(currentDate.getDate() - currentDate.getDay())
-    currentDate.setHours(0, 0, 0, 0)
+
+    if (STEPS === 7) {
+        currentDate.setDate(currentDate.getDate() - currentDate.getDay())
+        currentDate.setHours(0, 0, 0, 0)
+    }
 
     const [dateRange, setDateRange] = useState<Date>(currentDate)
-
-    const endDate = new Date()
-    endDate.setHours(endDate.getHours() + 1, 30)
-
-    const setEvents = useEventStore((state) => state.setEvents)
 
     const increaseDateByDays = (date: Date, days: number) => {
         const newDate = new Date(date)
         newDate.setDate(date.getDate() + days)
         return newDate
     }
+
+    const endDate = new Date()
+    endDate.setHours(endDate.getHours() + 1, 30)
+
+    const setEvents = useEventStore((state) => state.setEvents)
+
+
 
     useEffect(() => {
         const fetch = async () => {
@@ -75,13 +80,13 @@ export default function Calendar() {
 
 
     return (
-        <div className="p-4 w-full h-screen relative">
-            <div className="absolute top-10 right-4 z-20 flex">
+        <div className="px-4 w-full relative">
+            <div className="absolute -top-[40px] right-4 z-20 flex">
                 <Button variant="secondary" onClick={() => setDateRange((prev) => increaseDateByDays(prev, -STEPS))}><ChevronLeft /></Button>
                 <Button variant="secondary" onClick={() => setDateRange((prev) => increaseDateByDays(prev, STEPS))}><ChevronRight /></Button>
             </div>
 
-            <div className="mt-20 grid h-10" style={{ gridTemplateColumns: `60px repeat(${STEPS}, 1fr)` }}>
+            <div className="mt-10 grid h-10" style={{ gridTemplateColumns: `60px repeat(${STEPS}, 1fr)` }}>
                 <div></div>
                 {Array(STEPS).fill(0).map((_, index) => (
                     <div key={index} className="sticky top-0 z-10 bg-white flex items-center justify-center">
@@ -89,7 +94,7 @@ export default function Calendar() {
                     </div>
                 ))}
             </div>
-            <div className="grid overflow-y-auto max-h-170" style={{ gridTemplateColumns: `60px repeat(${STEPS}, 1fr)` }}>
+            <div className="grid overflow-y-auto max-h-150" style={{ gridTemplateColumns: `60px repeat(${STEPS}, 1fr)` }}>
                 <Time />
 
                 {Array.from(Array(STEPS).keys()).map((index) => {
