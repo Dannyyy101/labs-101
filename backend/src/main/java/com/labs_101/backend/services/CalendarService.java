@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service;
 import com.labs_101.backend.dtos.calendar.CalendarEventDto;
 import com.labs_101.backend.dtos.calendar.CreateCalendarEventDto;
 import com.labs_101.backend.dtos.calendar.UpdateCalendarEventDto;
-import com.labs_101.backend.dtos.workout.WorkoutDto;
+import com.labs_101.backend.dtos.workout.WorkoutHeaderDto;
 import com.labs_101.backend.entities.CalendarEvent;
 
 @Service

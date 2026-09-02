@@ -1,6 +1,4 @@
-package com.labs_101.backend.entities.workout.session;
-
-import com.labs_101.backend.entities.Exercise;
+package com.labs_101.backend.entities;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -9,17 +7,25 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Getter
 @Setter
+@NoArgsConstructor
+@AllArgsConstructor
 @Entity
-@Table(name = "workout_exercise")
-public class WorkoutExercise {
+@Table(name = "bodyPart")
+public class BodyPart {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    private String slug;
+    private String color;
+    private Long intensity;
+    private String side;
     @ManyToOne
     @JoinColumn(name = "exerciseId")
     private Exercise exercise;

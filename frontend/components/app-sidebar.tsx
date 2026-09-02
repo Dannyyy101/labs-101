@@ -43,6 +43,9 @@ export function AppSidebar() {
                     <SidebarGroupLabel render={<a href={"/planner"} />}>Calendar</SidebarGroupLabel>
                 </SidebarGroup>
                 <SidebarGroup>
+                    <SidebarGroupLabel render={<a href={"/workouts"} />}>Workouts</SidebarGroupLabel>
+                </SidebarGroup>
+                <SidebarGroup>
                     <SidebarGroupLabel>Manage Data</SidebarGroupLabel>
                     <SidebarGroupContent>
                         <SidebarMenu>

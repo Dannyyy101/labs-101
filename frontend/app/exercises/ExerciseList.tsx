@@ -6,15 +6,12 @@ import {
     ItemActions,
     ItemContent,
     ItemDescription,
-    ItemMedia,
     ItemTitle,
 } from "@/components/ui/item"
 
-import { Button } from "@/components/ui/button";
 import { Exercise } from "@/utils/types/workoutTypes";
 import {
     Empty,
-    EmptyContent,
     EmptyDescription,
     EmptyHeader,
     EmptyMedia,
@@ -23,8 +20,8 @@ import {
 import EditExercise from "./EditExercise";
 import { Badge } from "@/components/ui/badge";
 
-export default async function ExerciseList({ }) {
-    const exercises = await getAllExercises();
+export default async function ExerciseList({ type }: { type: string }) {
+    const exercises = await getAllExercises({ type });
 
     if (exercises.length === 0) {
 
@@ -46,7 +43,7 @@ function ExerciseElement({ exercise }: { exercise: Exercise }) {
     return <Item variant={"outline"} className="min-w-20 max-w-96">
         <ItemContent>
             <ItemTitle>{exercise.name}</ItemTitle>
-            <ItemDescription>
+            <ItemDescription className="flex flex-col">
                 {exercise.description}
                 <Badge variant={"outline"} className="hover:cursor-pointer">{exercise.type}</Badge>
             </ItemDescription>

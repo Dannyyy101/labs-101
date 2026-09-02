@@ -4,19 +4,23 @@ import com.labs_101.backend.dtos.exercises.CreateExerciseDto;
 import com.labs_101.backend.dtos.exercises.ExerciseDto;
 import com.labs_101.backend.dtos.workout.CreateWorkoutDto;
 import com.labs_101.backend.dtos.workout.WorkoutDto;
+import com.labs_101.backend.dtos.workout.WorkoutHeaderDto;
 import com.labs_101.backend.dtos.workout.session.CreateWorkoutSessionDto;
-import com.labs_101.backend.dtos.workoutTemplate.CreateWorkoutTemplateDto;
-import com.labs_101.backend.dtos.workoutTemplate.GetWorkoutTemplateDto;
 import com.labs_101.backend.services.WorkoutService;
+
+import java.time.Instant;
 import java.util.List;
 
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController()
@@ -29,9 +33,24 @@ public class WorkoutController {
     }
 
     @PostMapping("")
-    public WorkoutDto createWorkout(@RequestBody CreateWorkoutDto workoutDto) {
+    public ResponseEntity<Void> createWorkout(@RequestBody CreateWorkoutDto workoutDto) {
         try {
-            return workoutService.createWorkout(workoutDto);
+            workoutService.create(workoutDto);
+            return ResponseEntity.noContent().build();
+        } catch (Exception e) {
+            throw e;
+        }
+    }
+
+    @GetMapping("{id}")
+    public WorkoutDto getWorkoutById(@PathVariable Long id) {
+        return workoutService.getById(id);
+    }
+
+    @GetMapping("")
+    public List<WorkoutHeaderDto> getAllWorkouts() {
+        try {
+            return workoutService.getAll();
         } catch (Exception e) {
             throw e;
         }
@@ -48,9 +67,24 @@ public class WorkoutController {
     }
 
     @GetMapping("/exercises")
-    public List<ExerciseDto> getAllExercises() {
+    public List<ExerciseDto> getAllExercises(@RequestParam(required = false) String name,
+            @RequestParam(required = false) String type) {
         try {
-            return workoutService.getAllExercises();
+            return workoutService.getAllExercises(name, type);
+        } catch (Exception e) {
+            throw e;
+        }
+    }
+
+    @PutMapping("/exercises/{id}")
+    public ExerciseDto updateExerciseById(@PathVariable String id, @RequestBody ExerciseDto exerciseDto) {
+        Long exerciseId = Long.parseLong(id);
+        if (!exerciseId.equals(exerciseDto.getId())) {
+            throw new Error("Ids must be equal");
+        }
+
+        try {
+            return workoutService.updateExerciseById(exerciseDto);
         } catch (Exception e) {
             throw e;
         }
@@ -61,25 +95,6 @@ public class WorkoutController {
         try {
             workoutService.deleteExercise(Long.parseLong(id));
             return ResponseEntity.ok().build();
-        } catch (Exception e) {
-            throw e;
-        }
-    }
-
-    @PostMapping("/templates")
-    public ResponseEntity<Void> createWorkoutTemplate(@RequestBody CreateWorkoutTemplateDto templateDto) {
-        try {
-            workoutService.createNewWorkoutTemplate(templateDto);
-            return ResponseEntity.noContent().build();
-        } catch (Exception e) {
-            throw e;
-        }
-    }
-
-    @GetMapping("/templates")
-    public List<GetWorkoutTemplateDto> getAllWorkoutTemplates() {
-        try {
-            return workoutService.getAllWorkoutTemplates();
         } catch (Exception e) {
             throw e;
         }
