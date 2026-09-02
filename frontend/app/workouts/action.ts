@@ -18,7 +18,7 @@ export async function getAllWorkouts(): Promise<Workout[]> {
 export async function getWorkoutById(id: number): Promise<Workout> {
     const url = new URL(`${BACKEND_URL}/workouts/${id}`)
 
-    const response = await fetch(url.toString())
+    const response = await fetch(url.toString(), { cache: "no-cache" })
 
     if (response.ok) {
         return await response.json() as Workout
