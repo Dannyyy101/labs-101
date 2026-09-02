@@ -38,8 +38,6 @@ export interface StretchingTraining extends BaseExercise {
     type: "Stretching"
 }
 
-
-
 export interface Set {
     count: number
     weight: number

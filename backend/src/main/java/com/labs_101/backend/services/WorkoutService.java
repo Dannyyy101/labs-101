@@ -5,7 +5,6 @@ import com.labs_101.backend.mapper.ExerciseMapper;
 import com.labs_101.backend.mapper.WorkoutMapper;
 import com.labs_101.backend.repositories.ExerciseRepository;
 import com.labs_101.backend.repositories.WorkoutRepository;
-import com.labs_101.backend.repositories.WorkoutTemplateRepository;
 
 import jakarta.transaction.Transactional;
 
@@ -22,33 +21,26 @@ import com.labs_101.backend.dtos.BodyPartDto;
 import com.labs_101.backend.dtos.exercises.CreateExerciseDto;
 import com.labs_101.backend.dtos.exercises.ExerciseDto;
 import com.labs_101.backend.dtos.workout.CreateWorkoutDto;
+import com.labs_101.backend.dtos.workout.ExerciseItem;
+import com.labs_101.backend.dtos.workout.StrengthItemDto;
 import com.labs_101.backend.dtos.workout.WorkoutDto;
-import com.labs_101.backend.dtos.workoutTemplate.CreateWorkoutTemplateDto;
-import com.labs_101.backend.dtos.workoutTemplate.GetWorkoutTemplateDto;
+import com.labs_101.backend.entities.workout.workoutExercises.StrengthItem;
+import com.labs_101.backend.exception.NotFoundException;
+import com.labs_101.backend.dtos.workout.WorkoutHeaderDto;
 import com.labs_101.backend.entities.BodyPart;
 import com.labs_101.backend.entities.Exercise;
 import com.labs_101.backend.entities.workout.Workout;
+import com.labs_101.backend.entities.workout.WorkoutExercise;
 
 @Service
 public class WorkoutService {
     private final WorkoutRepository workoutRepository;
     private final ExerciseRepository exerciseRepository;
-    private final WorkoutTemplateRepository workoutTemplateRepository;
 
-    WorkoutService(WorkoutTemplateRepository workoutTemplateRepository, ExerciseRepository exerciseRepository,
+    WorkoutService(ExerciseRepository exerciseRepository,
             WorkoutRepository workoutRepository) {
-        this.workoutTemplateRepository = workoutTemplateRepository;
         this.exerciseRepository = exerciseRepository;
         this.workoutRepository = workoutRepository;
-    }
-
-    public void createNewWorkoutTemplate(CreateWorkoutTemplateDto templateDto) {
-        workoutTemplateRepository.save(WorkoutMapper.fromCreateRunDto(templateDto));
-    }
-
-    public List<GetWorkoutTemplateDto> getAllWorkoutTemplates() {
-        return workoutTemplateRepository.findAll().stream()
-                .map((template) -> WorkoutMapper.toGetWorkoutTemplateDto(template)).toList();
     }
 
     @Transactional
@@ -75,13 +67,43 @@ public class WorkoutService {
                 .toList();
     }
 
-    public WorkoutDto createWorkout(CreateWorkoutDto workoutDto) {
-        List<Exercise> exercises = exerciseRepository.findAllById(
-                workoutDto.getItems().stream()
-                        .map(item -> item.exerciseId())
-                        .toList());
-        Workout workout = workoutRepository.save(WorkoutMapper.fromCreateWorkoutDto(workoutDto, exercises));
-        return WorkoutMapper.toWorkoutDto(workout);
+    @Transactional
+    public Workout create(CreateWorkoutDto request) {
+        Workout workout = new Workout();
+        workout.setName(request.name());
+        workout.setDuration(0.0);
+
+        for (ExerciseItem item : request.exercises()) {
+            Exercise exercise = exerciseRepository.getReferenceById(item.exercise().getId());
+            workout.addExercise(toEntity(exercise, item));
+        }
+
+        return workoutRepository.save(workout);
+    }
+
+    public List<WorkoutHeaderDto> getAll() {
+        List<Workout> workouts = workoutRepository.findAll();
+
+        return workouts.stream().map((workout) -> WorkoutMapper.fromWorkoutToWorkoutHeaderDto(workout)).toList();
+    }
+
+    public WorkoutDto getById(Long id) {
+        Workout workout = workoutRepository.findById(id).orElseThrow(() -> NotFoundException.workout(id));
+        return WorkoutMapper.fromWorkoutToWorkoutDto(workout);
+    }
+
+    private WorkoutExercise<?> toEntity(Exercise exercise, ExerciseItem item) {
+        return switch (item) {
+            case StrengthItemDto s -> new StrengthItem(
+                    exercise,
+                    new StrengthItem.Settings(
+                            s.sets().stream()
+                                    .map(d -> new StrengthItem.Set(d.order(), d.reps(), d.weightKg(), d.rpe()))
+                                    .toList()));
+            default ->
+                null;
+
+        };
     }
 
     public void deleteExercise(Long id) {

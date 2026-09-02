@@ -14,7 +14,7 @@ import {
     EmptyMedia,
     EmptyTitle,
 } from "@/components/ui/empty"
-import { ReactNode, useState } from "react";
+import { ReactNode, useEffect, useState } from "react";
 import { useExercisesStore, WorkoutState } from "@/lib/zustand/workoutStore";
 import {
     Dialog,
@@ -35,6 +35,10 @@ import {
 import { Exercise, ExerciseTraining, ExerciseTypes } from "@/utils/types/workoutTypes";
 import { getAllExercises } from "@/app/exercises/action";
 import { getNewSlugColor } from "@/lib/muscle-highlighter/muscle-highlighter";
+import { Field, FieldDescription, FieldLabel } from "@/components/ui/field";
+import { Input } from "@/components/ui/input";
+import { getWorkoutById } from "../action";
+import { BaseWorkoutExercise, WorkoutExercise, WorkoutExerciseType } from "@/utils/types/types";
 
 
 export default function WorkoutPage() {
@@ -45,8 +49,20 @@ export default function WorkoutPage() {
 
     const store = useExercisesStore()
     const { exercises, setExercises } = store
+
+    useEffect(() => {
+        const fetch = async () => {
+            const workout = await getWorkoutById(workoutId);
+            setExercises(workout.workoutExercises)
+        }
+        if (!isCreating) {
+            fetch()
+        }
+    }, [])
+
+
     const map = new Map<string, ExtendedBodyPart>()
-    exercises.forEach((exercise) => exercise.bodyParts.forEach((part) => {
+    exercises.forEach((exercise) => exercise.exercise.bodyParts.forEach((part) => {
         if (!part.slug) return
         const element = map.get(part.slug)
         if (element && element.intensity) {
@@ -60,16 +76,32 @@ export default function WorkoutPage() {
     }
     ))
 
+    const handleSaveWorkout = async () => {
+
+    }
+
     return <div className="w-full flex gap-32 mt-10 relative">
 
         <BodyModal bodyData={[...map.values()]} />
         <section className="w-full relative">
-            {exercises.length === 0 ? <EmptyExercises workoutState={store} /> : <div className="flex flex-col gap-4 overflow-y-auto p-2">
-                {exercises.map((exercise, index) => <ExerciseModal store={store} exercise={exercise} key={index} />)}</div>}
+            {exercises.length === 0 ? <EmptyExercises workoutState={store} /> :
+                <div className="">
+                    <Field>
+                        <FieldLabel htmlFor="input-field-username">Name</FieldLabel>
+                        <Input
+                            id="input-field-name"
+                            type="text"
+                        />
+                    </Field>
+                    <div className="flex flex-col gap-4 overflow-y-auto p-2 mt-2">
+                        {exercises.map((exercise, index) => <ExerciseModal store={store} exercise={exercise} key={index} />)}
+                    </div>
+                </div>}
         </section>
-        <div className="mr-8">
+        <div className="mr-8 flex gap-x-2">
+            <Button className="w-32 h-10" onClick={handleSaveWorkout}>Save Workout</Button>
             {exercises.length > 0 &&
-                <AddExerciseDialog className="w-32 border-accent shadow border px-2 py-1 rounded-2xl" workoutState={store}>Add Exercise</AddExerciseDialog>
+                <AddExerciseDialog className="hover:bg-accent w-32 h-10 border-accent shadow border px-2 py-1 rounded-2xl" workoutState={store}>Add Exercise</AddExerciseDialog>
             }
         </div>
     </div>
@@ -112,26 +144,20 @@ const AddExerciseDialog: React.FC<{ workoutState: WorkoutState, className?: stri
         setFoundExercises(exercises)
     }
 
-    function changeType(prev: Exercise, type: ExerciseTypes): ExerciseTraining {
-        if (prev.type === type) return prev as ExerciseTraining
+    function changeType(prev: BaseWorkoutExercise, type: WorkoutExerciseType): WorkoutExercise {
+        if (prev.type === type) return prev as WorkoutExercise
 
         const base = {
-            id: prev.id,
-            name: prev.name,
-            description: prev.description,
-            bodyParts: prev.bodyParts,
+            exercise: prev.exercise
         }
 
         switch (type) {
-            case "Strength Training":
+            case WorkoutExerciseType.STRENGTH_EXERCISE:
                 return { ...base, type, sets: [] }
-            case "Swimming":
-                return { ...base, type /* , swimming-specific defaults */ }
-            case "Running":
-                return { ...base, type /* , running-specific defaults */ }
-            case "Stretching":
-                return { ...base, type /* , stretching-specific defaults */ }
+            default:
+                throw new Error()
         }
+
     }
 
     return <Dialog>
@@ -147,7 +173,7 @@ const AddExerciseDialog: React.FC<{ workoutState: WorkoutState, className?: stri
                     <InputGroupAddon align="inline-end">{foundExercises.length} results</InputGroupAddon>
                 </InputGroup>
                 <div className="overflow-y-auto flex flex-col max-h-20">
-                    {foundExercises.map((found) => <button onClick={() => setExercises([...exercises, changeType(found, found.type)])} className="text-left hover:bg-accent p-1 pl-2 rounded-2xl" key={found.id}>{found.name}</button>)}
+                    {foundExercises.map((found) => <button onClick={() => setExercises([...exercises, changeType({ exercise: found, type: WorkoutExerciseType.STRENGTH_EXERCISE }, WorkoutExerciseType.STRENGTH_EXERCISE)])} className="text-left hover:bg-accent p-1 pl-2 rounded-2xl" key={found.id}>{found.name}</button>)}
                 </div>
             </DialogHeader>
         </DialogContent>
