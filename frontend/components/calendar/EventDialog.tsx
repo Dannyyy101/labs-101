@@ -70,7 +70,7 @@ export function EventDialog({ calendarEvent, closeDialog, startDate }: { calenda
                     <Input defaultValue={event.title} name="title" className="w-1/2 h-8" />
                 </div>
 
-                <div className="flex gap-2">
+                <div className="flex flex-col lg:flex-row gap-2">
                     <div className="grid gap-2">
                         <Label htmlFor="email">Start Date</Label>
                         <div className='flex'>
