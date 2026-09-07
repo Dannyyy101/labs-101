@@ -5,10 +5,10 @@ info:
 
 http:
   method: GET
-  url: "{{base_url}}/api/foods?page=2"
+  url: "{{base_url}}/api/foods?page=0"
   params:
     - name: page
-      value: "2"
+      value: "0"
       type: query
   auth: inherit
 

@@ -43,12 +43,9 @@ public class FoodController {
         return foodService.getAll(p);
     }
 
-    @GetMapping("/search")
-    public Page<FoodDto> search(Pageable p, @RequestParam(required = false) String name) {
-        if (name != null)
-            return foodService.searchByName(p, name);
-
-        return null;
+    @GetMapping("/search/byNameAndUser")
+    public Page<FoodDto> search(Pageable p, @RequestParam String name, @RequestParam String userId) {
+        return foodService.searchByNameAndUserId(p, name, userId);
     }
 
     @PostMapping("{id}/track")

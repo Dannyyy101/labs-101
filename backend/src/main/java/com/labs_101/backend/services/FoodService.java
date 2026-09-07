@@ -47,8 +47,8 @@ public class FoodService {
         return page;
     }
 
-    public Page<FoodDto> searchByName(Pageable p, String name) {
-        Page<Food> entities = foodRepository.findAll(p);
+    public Page<FoodDto> searchByNameAndUserId(Pageable p, String name, String userId) {
+        Page<Food> entities = foodRepository.findAllByNameAndUserId(p, name, userId);
 
         final Page<FoodDto> page = new PageImpl<>(
                 entities.stream().map((e) -> FoodMapper.mapFromEntityToFoodDto(e)).toList(), p,
