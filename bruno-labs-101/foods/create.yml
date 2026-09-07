@@ -1,0 +1,29 @@
+info:
+  name: create
+  type: http
+  seq: 2
+
+http:
+  method: POST
+  url: "{{base_url}}/api/foods"
+  body:
+    type: json
+    data: |-
+      {
+        "blsCode": "C131000",
+        "name": "Hafer ganzes Korn, roh",
+        "kcal": 343,
+        "water": 11.45,
+        "protein": 11.375,
+        "fat": 7.09,
+        "carbohydrates": 53.7,
+        "fiber": 9.3
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

@@ -11,4 +11,9 @@ public class NotFoundException extends BaseException {
                 "Workout %s not found".formatted(id));
     }
 
+    public static NotFoundException food(Long id) {
+        return new NotFoundException(ErrorCode.FOOD_NOT_FOUND,
+                "Food %s not found".formatted(id));
+    }
+
 }
