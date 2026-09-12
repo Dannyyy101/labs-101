@@ -1,7 +1,6 @@
 package com.labs_101.backend.config;
 
 import org.springframework.context.annotation.Configuration;
-import org.springframework.data.web.config.EnableSpringDataWebSupport;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
@@ -12,7 +11,6 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
  * configuration.
  */
 @Configuration
-@EnableSpringDataWebSupport(pageSerializationMode = EnableSpringDataWebSupport.PageSerializationMode.VIA_DTO)
 public class WebConfig implements WebMvcConfigurer {
 
     /**
