@@ -3,6 +3,10 @@ package com.labs_101.backend.services;
 import com.labs_101.backend.repositories.FoodRepository;
 
 import com.labs_101.backend.repositories.FoodUserRepository;
+
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneOffset;
 import java.util.List;
 
 import org.springframework.data.domain.Page;
@@ -13,7 +17,9 @@ import org.springframework.stereotype.Service;
 import com.labs_101.backend.dtos.food.CreateFoodDto;
 import com.labs_101.backend.dtos.food.CreateFoodUserDto;
 import com.labs_101.backend.dtos.food.FoodDto;
+import com.labs_101.backend.dtos.food.FoodUserDto;
 import com.labs_101.backend.entities.Food;
+import com.labs_101.backend.entities.FoodUser;
 import com.labs_101.backend.exception.NotFoundException;
 import com.labs_101.backend.mapper.FoodMapper;
 
@@ -59,5 +65,17 @@ public class FoodService {
 
     public void trackFood(CreateFoodUserDto dto) {
         foodUserRepository.save(FoodMapper.mapFromCreateFoodUserDto(dto));
+    }
+
+    public List<FoodUserDto> getTrackedFoodForUser(String id, Instant date) {
+        LocalDate day = date.atZone(ZoneOffset.UTC).toLocalDate();
+        Instant start = day.atStartOfDay(ZoneOffset.UTC).toInstant();
+        Instant end = day.plusDays(1).atStartOfDay(ZoneOffset.UTC).toInstant();
+
+        List<FoodUser> entries = foodUserRepository.findByUser_IdAndCreateDateBetween(id, start, end);
+
+        return entries.stream()
+                .map((foodUser) -> FoodMapper.mapFromFoodUser(foodUser))
+                .toList();
     }
 }

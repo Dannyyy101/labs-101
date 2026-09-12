@@ -36,6 +36,10 @@ public class FoodUser {
     @JoinColumn(name = "food_id")
     private Food food;
 
+    private Double amount;
+
+    private String meal;
+
     @CreationTimestamp
     @Column(name = "create_date")
     private Instant createDate;

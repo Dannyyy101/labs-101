@@ -11,7 +11,8 @@ http:
     data: |-
       {
         "foodId": 6760,
-        "userId": "0Hatub6x8Vxyp3L8YNG5QHG7s579dTai"
+        "userId": "0Hatub6x8Vxyp3L8YNG5QHG7s579dTai",
+        "meal": "Frühstück"
       }
   auth: inherit
 

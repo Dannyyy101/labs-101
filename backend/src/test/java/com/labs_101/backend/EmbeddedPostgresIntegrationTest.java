@@ -59,7 +59,7 @@ public class EmbeddedPostgresIntegrationTest {
         foodRepository.save(new Food("Ananas"));
         foodRepository.save(aubergine);
         User user = userRepository.save(new User("1"));
-        foodUserRepository.save(new FoodUser(null, user, aubergine, null, null));
+        foodUserRepository.save(new FoodUser(null, user, aubergine, 1.0, "", null, null));
 
         Page<Food> foods = foodRepository.findAllByNameAndUserId(Pageable.ofSize(5), "A", user.getId());
         assertEquals(foods.stream().toList().size(), 3);
