@@ -10,11 +10,13 @@ export default function TrackFood({ food }: { food: FoodWithAmount[] }) {
     const [trackedFood, setTrackedFood] = useState<Map<string, FoodWithAmount[]>>(new Map())
 
     useEffect(() => {
+
         const map = new Map<string, FoodWithAmount[]>()
-        food.forEach((f) => {
-            const temp = map.getOrInsert(f.meal, []);
-            map.set(f.meal, [...temp, f])
-        })
+        for (const f of food) {
+            const list = map.get(f.meal)
+            if (list) list.push(f)
+            else map.set(f.meal, [f])
+        }
         setTrackedFood(map)
 
     }, [food])
