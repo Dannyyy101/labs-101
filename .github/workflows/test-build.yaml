@@ -1,7 +1,7 @@
 name: Deploy to server
 
 on:
-    push:
+    pull_request:
         branches: "**"
 
 permissions:
@@ -10,7 +10,7 @@ permissions:
 jobs:
     backend:
         name: test and build
-        runs-on: self-hosted
+        runs-on: ubuntu-latest
         environment: production
 
         steps:
@@ -26,5 +26,7 @@ jobs:
               with:
                   java-version: "17"
                   distribution: "temurin"
+            - name: Enable a database
+              run: docker compose --env-file .env.example up -d db
             - name: Run the Maven verify phase
-              run: mvn --batch-mode --update-snapshots verify
+              run: cd backend && mvn --batch-mode --update-snapshots verify
