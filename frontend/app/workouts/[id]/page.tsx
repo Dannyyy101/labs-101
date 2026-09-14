@@ -110,7 +110,7 @@ export default function WorkoutPage() {
 
 
 
-export function EmptyExercises({ workoutState }: { workoutState: WorkoutState }) {
+function EmptyExercises({ workoutState }: { workoutState: WorkoutState }) {
 
     return (
         <Empty className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
