@@ -28,7 +28,7 @@ public class FoodMapper {
 
     public static FoodUser mapFromCreateFoodUserDto(CreateFoodUserDto dto) {
         return new FoodUser(null, new User(dto.userId()), new Food(dto.foodId()), dto.amount(),
-                MealType.valueOf(dto.meal()), null, null);
+                MealType.valueOf(dto.meal()), new FoodPortion(dto.portionId()), null, null);
     }
 
     public static FoodUserDto mapFromFoodUser(FoodUser foodUser) {
@@ -37,7 +37,8 @@ public class FoodMapper {
                 food.getWater(),
                 food.getProtein(), food.getFat(),
                 food.getCarbohydrates(), food.getFiber(), foodUser.getUser().getId(),
-                foodUser.getAmount(), new MealDto(foodUser.getMeal().name(), foodUser.getMeal().messageKey()));
+                foodUser.getAmount(), new MealDto(foodUser.getMeal().name(), foodUser.getMeal().messageKey()),
+                mapFromFoodPortionToFoodPortionDto(foodUser.getPortion()));
     }
 
     public static SearchFoodResponseDto mapFromEntityToSearchFoodResponseDto(Food e) {

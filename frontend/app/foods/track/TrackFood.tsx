@@ -4,6 +4,7 @@ import Meal from "./Meal"
 import { getTrackedFood } from "./action"
 import { useEffect, useState } from "react";
 import { FoodWithAmount } from "@/utils/types/food";
+import { getNutritionForAmount } from "@/utils/food";
 
 
 export default function TrackFood({ food }: { food: FoodWithAmount[] }) {
@@ -24,9 +25,9 @@ export default function TrackFood({ food }: { food: FoodWithAmount[] }) {
     const foodLabels = [{ type: "BREAKFAST" }, { type: "LUNCH" }, { type: "DINNER" }, { type: "SNACK" }]
 
     const foodWithAmount = food.filter((f) => f.amount > 0)
-    const totalProtein = Math.round(foodWithAmount.reduce((partialSum, a) => partialSum + (a.protein || 0) * a.amount / 100, 0));
-    const totalCarbs = Math.round(foodWithAmount.reduce((partialSum, a) => partialSum + (a.carbohydrates || 0) * a.amount / 100, 0));
-    const totalFat = Math.round(foodWithAmount.reduce((partialSum, a) => partialSum + (a.fat || 0) * a.amount / 100, 0));
+    const totalProtein = Math.round(foodWithAmount.reduce((partialSum, a) => partialSum + getNutritionForAmount(a, "protein"), 0));
+    const totalCarbs = Math.round(foodWithAmount.reduce((partialSum, a) => partialSum + getNutritionForAmount(a, "carbohydrates"), 0));
+    const totalFat = Math.round(foodWithAmount.reduce((partialSum, a) => partialSum + getNutritionForAmount(a, "fat"), 0));
 
     const nutritionCardsProps: NutritionCardProps[] = [
         { name: "Protein", value: totalProtein, goal: 100, color: "red" },

@@ -45,6 +45,10 @@ public class FoodUser {
     @Enumerated(EnumType.STRING)
     private MealType meal;
 
+    @ManyToOne
+    @JoinColumn(name = "portion_id")
+    private FoodPortion portion;
+
     @CreationTimestamp
     @Column(name = "create_date")
     private Instant createDate;
