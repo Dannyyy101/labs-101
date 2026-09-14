@@ -4,7 +4,6 @@ import java.io.IOException;
 
 import javax.sql.DataSource;
 
-import org.apache.catalina.User;
 import org.junit.jupiter.api.extension.AfterAllCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.springframework.boot.persistence.autoconfigure.EntityScan;
@@ -13,6 +12,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.testcontainers.utility.DockerImageName;
 
+import com.labs_101.backend.entities.User;
 import com.labs_101.backend.entities.food.Food;
 import com.labs_101.backend.entities.food.FoodUser;
 import com.labs_101.backend.repositories.FoodRepository;

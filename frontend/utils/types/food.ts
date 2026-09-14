@@ -32,7 +32,7 @@ export interface CreateFoodWithAmount {
 export interface FoodWithAmount extends Food {
     amount: number,
     meal: { type: string, typeLabel: string }
-    portions: FoodPortion[]
+    portion: FoodPortion | null
 }
 
 export interface FoodPortion {
