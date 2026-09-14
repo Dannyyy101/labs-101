@@ -11,9 +11,6 @@ jobs:
     backend:
         name: backend
         runs-on: ubuntu-latest
-        defaults:
-            run:
-                working-directory: backend
 
         steps:
             - uses: actions/checkout@v6
@@ -24,7 +21,7 @@ jobs:
             - name: Enable a database
               run: docker compose --env-file .env.example up -d db
             - name: Run the Maven verify phase
-              run: mvn --batch-mode --update-snapshots verify
+              run: cd backend && mvn --batch-mode --update-snapshots verify
     frontend:
         name: frontend
         runs-on: ubuntu-latest
