@@ -1,44 +1,41 @@
-'use client'
-import { Separator } from "@/components/ui/separator"
-import { Header } from "./header";
-import { WorkoutsTable } from "./table";
-import { useWorkoutData } from "@/hooks/useWorkoutData";
-import { WorkoutType } from "@/utils/types/types";
-import { WorkoutMap } from "./workoutMap";
-
-export default function WorkoutsPage() {
-    const { workoutHeaderData, workouts, workoutType, setWorkoutType } = useWorkoutData();
+import { Empty, EmptyHeader, EmptyTitle, EmptyDescription, EmptyContent } from "@/components/ui/empty";
+import { getAllWorkouts } from "./action";
+import Link from "next/link";
+import { Item, ItemContent, ItemTitle } from "@/components/ui/item";
 
 
-    if (!workoutHeaderData || !workouts) {
-        return <></>
+export default async function Workouts() {
+    const workouts = await getAllWorkouts()
+
+    if (workouts.length === 0) {
+        return <EmptyExercises />
     }
 
-
-    const showLastTrainingInformation = () => {
-        switch (workoutType) {
-            case WorkoutType.RUNNING:
-                return <WorkoutMap/>
-            case WorkoutType.CYCLING:
-                return <WorkoutMap/>
-            case null:
-                return <WorkoutsTable workouts={workouts} />
-            default:
-                return <></>;
-        }
-    }
-
-
-    return <main className="w-screen h-screen p-8 flex flex-col gap-8">
-        <div>
-            {workoutHeaderData && <Header workoutHeaderData={workoutHeaderData} setWorkoutType={setWorkoutType} />}
-        </div>
-
-        <Separator />
-
-        <div>
-            {showLastTrainingInformation()}
-        </div>
-    </main>
+    return <div className="flex">{workouts.map((workout) =>
+        <Item key={workout.id}>
+            <Link href={`/workouts/${workout.id}`}>
+                <ItemContent>
+                    <ItemTitle>{workout.name}</ItemTitle>
+                </ItemContent>
+            </Link>
+        </Item>
+    )}</div>
 }
 
+function EmptyExercises() {
+
+    return (
+        <Empty className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+            <EmptyHeader>
+                <EmptyTitle>No Workouts Yet</EmptyTitle>
+                <EmptyDescription>
+                    You haven&apos;t created any workouts yet. Get started by creating
+                    your first workout.
+                </EmptyDescription>
+            </EmptyHeader>
+            <EmptyContent className="flex-row justify-center gap-2">
+                <Link href={"/workouts/-1"}>Create Workout</Link>
+            </EmptyContent>
+        </Empty>
+    )
+}

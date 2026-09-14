@@ -1,3 +1,5 @@
+import { Exercise } from "./workoutTypes"
+
 export enum WorkoutType {
     CYCLING = 13,
     RUNNING = 37,
@@ -11,53 +13,33 @@ export interface Result<T> {
     error: Error | null
 }
 
-export interface WorkoutHeaderData {
-    totalWorkouts: number,
-    totalWorkoutTime: Item,
-    caloriesBurned: Item
-    restingHeartRateTimeline: Timeline[]
-    VO2MaxTimeline: Timeline[]
-    zone2Peace: Timeline[]
-}
-
-interface Timeline {
-    value: number,
-    date: Date
+export enum WorkoutExerciseType {
+    STRENGTH_EXERCISE = "STRENGTH_EXERCISE",
+    RUN_EXERCISE = "RUN_EXERCISE",
+    SWIMMING_EXERCISE = "SWIMMING_EXERCISE"
 }
 
 export interface Workout {
-    uuid: string,
-    workoutActivityType: WorkoutType,
-    workoutActivityTypeName: string,
-    startDate: Date,
-    endDate: Date,
-    duration: number,
-    totalEnergyBurned: Item,
-    HKQuantityTypeIdentifierHeartRate: HeartRate
+    id: number
+    name: string
+    workoutExercises: WorkoutExercise[]
 }
 
-interface Item {
-    unit: string,
-    value: number
+export type WorkoutExercise = StrengthExercise
+
+export interface BaseWorkoutExercise {
+    type: WorkoutExerciseType
+    exercise: Exercise
 }
 
-interface HeartRate {
-    sumQuantity: number | null,
-    averageQuantity: Item,
-    minimumQuantity: Item,
-    maximumQuantity: Item,
-    mostRecentQuantity: Item,
-    mostRecentQuantityDateInterval: {
-        start: Date,
-        end: Date
-    }
+export interface StrengthExercise extends BaseWorkoutExercise {
+    type: WorkoutExerciseType.STRENGTH_EXERCISE
+    sets: ExerciseSet[]
 }
 
-
-
-export interface Run extends Workout {
-    totalDistance: {
-        unit: string,
-        value: number
-    }
+export interface ExerciseSet {
+    order: number,
+    reps: number
+    weightKg: number
+    rpe: number
 }

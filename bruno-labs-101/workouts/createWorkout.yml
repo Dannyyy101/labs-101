@@ -10,8 +10,25 @@ http:
     type: json
     data: |-
       {
-        "name": "Upper Body",
-        "duration": 1000
+        "name": "Upper Body A",
+        "exercises": [
+          {
+            "type": "STRENGTH_EXERCISE",
+            "exerciseId": 1,
+            "sets": [
+              { "order": 1, "reps": 10, "weightKg": 60.0, "rpe": 7 },
+              { "order": 2,"reps": 8,  "weightKg": 70.0, "rpe": 8 },
+              { "order": 3,"reps": 6,  "weightKg": 80.0, "rpe": 9 }
+            ]
+          },
+          {
+            "type": "STRENGTH_EXERCISE",
+            "exerciseId": 1,
+            "sets": [
+              { "order": 1, "reps": 12, "weightKg": 20.0, "rpe": null }
+            ]
+          }
+        ]
       }
   auth: inherit
 

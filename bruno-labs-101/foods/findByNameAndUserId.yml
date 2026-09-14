@@ -1,0 +1,26 @@
+info:
+  name: findByNameAndUserId
+  type: http
+  seq: 4
+
+http:
+  method: GET
+  url: "{{base_url}}/api/foods/search/byNameAndUser?name=cap&userId=&page=3"
+  params:
+    - name: name
+      value: cap
+      type: query
+    - name: userId
+      value: ""
+      type: query
+    - name: page
+      value: "3"
+      type: query
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

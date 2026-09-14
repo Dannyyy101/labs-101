@@ -24,7 +24,7 @@ export function EventDialog({ calendarEvent, closeDialog, startDate }: { calenda
     endDate.setHours(endDate.getHours() + 1)
 
 
-    const [event, setEvent] = useState<CalendarEvent>(calendarEvent || { id: "", title: "", startDate: startDate || new Date(), endDate, exerciseIds: [] });
+    const [event, setEvent] = useState<CalendarEvent>(calendarEvent || { id: "", title: "", startDate: startDate || new Date(), endDate, exerciseIds: [], creatorId: "" });
     const [selectedExerciseIds, setSelectedExerciseIds] = useState<{ ids: Map<string, number>, len: number }>({ ids: new Map<string, number>(), len: 0 });
 
     const addTrainingToEvent = (training: WorkoutTemplate) => {
@@ -44,7 +44,7 @@ export function EventDialog({ calendarEvent, closeDialog, startDate }: { calenda
             await updateCalendarEvent(event)
             setEvents([...events.filter((e) => e.id !== event.id), event])
         }
-        setEvent({ id: "", title: "", startDate: new Date(), endDate: new Date(), exerciseIds: [...selectedExerciseIds.ids.entries().map((([key, value]) => ({ id: key, order: value })))] })
+        setEvent({ id: "", title: "", startDate: new Date(), endDate: new Date(), exerciseIds: [...selectedExerciseIds.ids.entries().map((([key, value]) => ({ id: key, order: value })))], creatorId: "" })
         closeDialog();
     }
 
@@ -52,7 +52,7 @@ export function EventDialog({ calendarEvent, closeDialog, startDate }: { calenda
         if (event.id) {
             await deleteCalendarEvent(event.id)
             setEvents([...events.filter((e) => e.id !== event.id)])
-            setEvent({ id: "", title: "", startDate: new Date(), endDate: new Date(), exerciseIds: [] })
+            setEvent({ id: "", title: "", startDate: new Date(), endDate: new Date(), exerciseIds: [], creatorId: "" })
             closeDialog();
         }
     }
@@ -70,7 +70,7 @@ export function EventDialog({ calendarEvent, closeDialog, startDate }: { calenda
                     <Input defaultValue={event.title} name="title" className="w-1/2 h-8" />
                 </div>
 
-                <div className="flex gap-2">
+                <div className="flex flex-col lg:flex-row gap-2">
                     <div className="grid gap-2">
                         <Label htmlFor="email">Start Date</Label>
                         <div className='flex'>
