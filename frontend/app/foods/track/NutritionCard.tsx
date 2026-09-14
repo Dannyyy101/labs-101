@@ -18,7 +18,7 @@ export default function NutritionCard({ props }: { props: NutritionCardProps }) 
     return <Card className="w-64 md:w-96">
         <CardHeader>
             <CardDescription>{props.name}</CardDescription>
-            <CardTitle className="text-2xl">{props.value}</CardTitle>
+            <CardTitle className="text-2xl">{props.value}&#8202;g</CardTitle>
         </CardHeader>
         <CardContent>
             <p>Goal {props.goal}</p>

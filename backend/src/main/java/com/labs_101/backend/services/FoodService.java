@@ -7,6 +7,7 @@ import com.labs_101.backend.repositories.FoodUserRepository;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneOffset;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -136,7 +137,7 @@ public class FoodService {
     public void createFoodPortion(Long foodId, CreateFoodPortionDto dto) {
         Food entity = foodRepository.findById(foodId).orElseThrow(() -> NotFoundException.food(foodId));
 
-        entity.addPortion(new FoodPortion(null, entity, dto.label(), dto.grams(), dto.isDefault()));
+        entity.addPortion(new FoodPortion(null, entity, new ArrayList<>(), dto.label(), dto.grams(), dto.isDefault()));
         foodRepository.save(entity);
     }
 
@@ -153,7 +154,7 @@ public class FoodService {
 
         for (UpdateFoodPortionDto p : incoming) {
             if (p.id() == null) {
-                FoodPortion neu = new FoodPortion(null, food, p.label(), p.grams(), p.isDefault());
+                FoodPortion neu = new FoodPortion(null, food, new ArrayList<>(), p.label(), p.grams(), p.isDefault());
                 food.addPortion(neu);
             } else {
                 FoodPortion old = existing.get(p.id());
