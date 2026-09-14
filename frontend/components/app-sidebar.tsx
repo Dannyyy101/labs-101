@@ -13,7 +13,7 @@ import {
     SidebarMenuItem,
 } from "@/components/ui/sidebar"
 import { authClient } from "@/lib/auth-client"
-import { Dumbbell, Plus, User2 } from "lucide-react"
+import { Dumbbell, Apple, User2 } from "lucide-react"
 import { Spinner } from "./ui/spinner"
 import Image from "next/image"
 import Link from "next/link"
@@ -53,6 +53,12 @@ export function AppSidebar() {
                                 <SidebarMenuButton render={<a href={"/exercises"} />}>
                                     <Dumbbell />
                                     <span>Exercises</span>
+                                </SidebarMenuButton>
+                            </SidebarMenuItem>
+                            <SidebarMenuItem>
+                                <SidebarMenuButton render={<a href={"/foods"} />}>
+                                    <Apple />
+                                    <span>Foods</span>
                                 </SidebarMenuButton>
                             </SidebarMenuItem>
                         </SidebarMenu>

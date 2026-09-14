@@ -1,14 +1,20 @@
 package com.labs_101.backend.exception;
 
 public abstract class BaseException extends RuntimeException {
-    private final ErrorCode code;
+    private final String code;
+    private final Object[] args;
 
-    protected BaseException(ErrorCode code, String message) {
-        super(message);
+    protected BaseException(String code, Object... args) {
+        super(code);
         this.code = code;
+        this.args = args;
     }
 
-    public ErrorCode getCode() {
+    public String getCode() {
         return code;
+    }
+
+    public Object[] getArgs() {
+        return args;
     }
 }

@@ -1,12 +1,16 @@
-package com.labs_101.backend.entities;
+package com.labs_101.backend.entities.food;
 
 import java.time.Instant;
 
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
+import com.labs_101.backend.entities.User;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -38,7 +42,8 @@ public class FoodUser {
 
     private Double amount;
 
-    private String meal;
+    @Enumerated(EnumType.STRING)
+    private MealType meal;
 
     @CreationTimestamp
     @Column(name = "create_date")

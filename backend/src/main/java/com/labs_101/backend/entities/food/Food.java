@@ -1,4 +1,4 @@
-package com.labs_101.backend.entities;
+package com.labs_101.backend.entities.food;
 
 import java.time.Instant;
 import java.util.List;
@@ -6,6 +6,7 @@ import java.util.List;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -45,11 +46,18 @@ public class Food {
     @OneToMany(mappedBy = "food")
     private List<FoodUser> foodUsers;
 
+    @OneToMany(mappedBy = "food", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<FoodPortion> portions;
+
     public Food(Long foodId) {
         this.id = foodId;
     }
 
     public Food(String name) {
         this.name = name;
+    }
+
+    public void addPortion(FoodPortion portion) {
+        this.portions.add(portion);
     }
 }

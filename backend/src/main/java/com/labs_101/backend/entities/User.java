@@ -3,6 +3,8 @@ package com.labs_101.backend.entities;
 import java.time.Instant;
 import java.util.List;
 
+import com.labs_101.backend.entities.food.FoodUser;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;

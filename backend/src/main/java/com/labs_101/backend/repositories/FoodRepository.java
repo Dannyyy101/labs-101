@@ -6,7 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-import com.labs_101.backend.entities.Food;
+import com.labs_101.backend.entities.food.Food;
 
 public interface FoodRepository extends JpaRepository<Food, Long> {
     @Query("""
@@ -17,4 +17,6 @@ public interface FoodRepository extends JpaRepository<Food, Long> {
             ORDER BY COUNT(fu) DESC, f.name ASC
             """)
     Page<Food> findAllByNameAndUserId(Pageable p, @Param("name") String name, @Param("userId") String userId);
+
+    Page<Food> findByNameContainingIgnoreCase(String name, Pageable p);
 }

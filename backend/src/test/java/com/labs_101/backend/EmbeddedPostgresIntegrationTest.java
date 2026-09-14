@@ -12,9 +12,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.test.context.ContextConfiguration;
 
 import com.labs_101.backend.EmbeddedPostgresConfiguration.EmbeddedPostgresExtension;
-import com.labs_101.backend.entities.Food;
-import com.labs_101.backend.entities.FoodUser;
 import com.labs_101.backend.entities.User;
+import com.labs_101.backend.entities.food.Food;
+import com.labs_101.backend.entities.food.FoodUser;
 import com.labs_101.backend.repositories.FoodRepository;
 import com.labs_101.backend.repositories.FoodUserRepository;
 import com.labs_101.backend.repositories.UserRepository;
@@ -59,7 +59,7 @@ public class EmbeddedPostgresIntegrationTest {
         foodRepository.save(new Food("Ananas"));
         foodRepository.save(aubergine);
         User user = userRepository.save(new User("1"));
-        foodUserRepository.save(new FoodUser(null, user, aubergine, 1.0, "", null, null));
+        foodUserRepository.save(new FoodUser(null, user, aubergine, 1.0, null, null, null));
 
         Page<Food> foods = foodRepository.findAllByNameAndUserId(Pageable.ofSize(5), "A", user.getId());
         assertEquals(foods.stream().toList().size(), 3);

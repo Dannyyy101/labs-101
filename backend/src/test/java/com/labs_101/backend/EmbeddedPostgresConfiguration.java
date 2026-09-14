@@ -13,8 +13,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.testcontainers.utility.DockerImageName;
 
-import com.labs_101.backend.entities.Food;
-import com.labs_101.backend.entities.FoodUser;
+import com.labs_101.backend.entities.food.Food;
+import com.labs_101.backend.entities.food.FoodUser;
 import com.labs_101.backend.repositories.FoodRepository;
 import com.labs_101.backend.repositories.FoodUserRepository;
 import com.labs_101.backend.repositories.UserRepository;

@@ -8,18 +8,32 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneOffset;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.labs_101.backend.dtos.food.CreateFoodDto;
+import com.labs_101.backend.dtos.food.CreateFoodPortionDto;
 import com.labs_101.backend.dtos.food.CreateFoodUserDto;
 import com.labs_101.backend.dtos.food.FoodDto;
 import com.labs_101.backend.dtos.food.FoodUserDto;
-import com.labs_101.backend.entities.Food;
-import com.labs_101.backend.entities.FoodUser;
+import com.labs_101.backend.dtos.food.SearchFoodResponseDto;
+import com.labs_101.backend.dtos.food.TrackedFoodDto;
+import com.labs_101.backend.dtos.food.UpdateFoodDto;
+import com.labs_101.backend.dtos.food.UpdateFoodPortionDto;
+import com.labs_101.backend.entities.food.Food;
+import com.labs_101.backend.entities.food.FoodPortion;
+import com.labs_101.backend.entities.food.FoodUser;
 import com.labs_101.backend.exception.NotFoundException;
 import com.labs_101.backend.mapper.FoodMapper;
 
@@ -43,21 +57,19 @@ public class FoodService {
         return FoodMapper.mapFromEntityToFoodDto(entity);
     }
 
-    public Page<FoodDto> getAll(Pageable p) {
-        Page<Food> entities = foodRepository.findAll(p);
+    public Page<FoodDto> getAll(String query, Pageable p) {
+        Page<Food> entities = (query == null || query.isBlank())
+                ? foodRepository.findAll(p)
+                : foodRepository.findByNameContainingIgnoreCase(query.trim(), p);
 
-        final Page<FoodDto> page = new PageImpl<>(
-                entities.stream().map((e) -> FoodMapper.mapFromEntityToFoodDto(e)).toList(), p,
-                entities.getSize());
-
-        return page;
+        return entities.map(FoodMapper::mapFromEntityToFoodDto);
     }
 
-    public Page<FoodDto> searchByNameAndUserId(Pageable p, String name, String userId) {
+    public Page<SearchFoodResponseDto> searchByNameAndUserId(Pageable p, String name, String userId) {
         Page<Food> entities = foodRepository.findAllByNameAndUserId(p, name, userId);
 
-        final Page<FoodDto> page = new PageImpl<>(
-                entities.stream().map((e) -> FoodMapper.mapFromEntityToFoodDto(e)).toList(), p,
+        final Page<SearchFoodResponseDto> page = new PageImpl<>(
+                entities.stream().map((e) -> FoodMapper.mapFromEntityToSearchFoodResponseDto(e)).toList(), p,
                 entities.getSize());
 
         return page;
@@ -65,6 +77,35 @@ public class FoodService {
 
     public void trackFood(CreateFoodUserDto dto) {
         foodUserRepository.save(FoodMapper.mapFromCreateFoodUserDto(dto));
+    }
+
+    @Transactional
+    public FoodDto update(UpdateFoodDto dto) {
+        Food food = foodRepository.findById(dto.id())
+                .orElseThrow(() -> NotFoundException.food(dto.id()));
+
+        if (dto.blsCode() != null)
+            food.setBlsCode(dto.blsCode());
+        if (dto.name() != null)
+            food.setName(dto.name());
+        if (dto.kcal() != null)
+            food.setKcal(dto.kcal());
+        if (dto.water() != null)
+            food.setWater(dto.water());
+        if (dto.protein() != null)
+            food.setProtein(dto.protein());
+        if (dto.fat() != null)
+            food.setFat(dto.fat());
+        if (dto.carbohydrates() != null)
+            food.setCarbohydrates(dto.carbohydrates());
+        if (dto.fiber() != null)
+            food.setFiber(dto.fiber());
+
+        if (dto.portions() != null) {
+            syncPortions(food, dto.portions());
+        }
+
+        return FoodMapper.mapFromEntityToFoodDto(foodRepository.save(food));
     }
 
     public List<FoodUserDto> getTrackedFoodForUser(String id, Instant date) {
@@ -77,5 +118,56 @@ public class FoodService {
         return entries.stream()
                 .map((foodUser) -> FoodMapper.mapFromFoodUser(foodUser))
                 .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public TrackedFoodDto getFoodWithLastEntry(String userId, Long foodId) {
+
+        Food food = foodRepository.findById(foodId)
+                .orElseThrow(() -> NotFoundException.food(foodId));
+
+        FoodUser lastEntry = foodUserRepository
+                .findFirstByUser_IdAndFood_IdOrderByCreateDateDesc(userId, foodId)
+                .orElse(null);
+
+        return FoodMapper.mapFromFoodAndFoodUserToTrackedFoodDto(food, lastEntry);
+    }
+
+    public void createFoodPortion(Long foodId, CreateFoodPortionDto dto) {
+        Food entity = foodRepository.findById(foodId).orElseThrow(() -> NotFoundException.food(foodId));
+
+        entity.addPortion(new FoodPortion(null, entity, dto.label(), dto.grams(), dto.isDefault()));
+        foodRepository.save(entity);
+    }
+
+    private void syncPortions(Food food, List<UpdateFoodPortionDto> incoming) {
+        Set<Long> keepIds = incoming.stream()
+                .map(UpdateFoodPortionDto::id)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toSet());
+
+        food.getPortions().removeIf(p -> !keepIds.contains(p.getId()));
+
+        Map<Long, FoodPortion> existing = food.getPortions().stream()
+                .collect(Collectors.toMap(FoodPortion::getId, Function.identity()));
+
+        for (UpdateFoodPortionDto p : incoming) {
+            if (p.id() == null) {
+                FoodPortion neu = new FoodPortion(null, food, p.label(), p.grams(), p.isDefault());
+                food.addPortion(neu);
+            } else {
+                FoodPortion old = existing.get(p.id());
+                if (old == null) {
+                    throw NotFoundException.foodPortion(p.id());
+                }
+                setIfNotNull(p.grams(), old::setGrams);
+                setIfNotNull(p.label(), old::setLabel);
+            }
+        }
+    }
+
+    private static <T> void setIfNotNull(T value, Consumer<T> setter) {
+        if (value != null)
+            setter.accept(value);
     }
 }

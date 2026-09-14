@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.labs_101.backend.dtos.food.CreateFoodUserDto;
 import com.labs_101.backend.dtos.food.FoodUserDto;
+import com.labs_101.backend.dtos.food.TrackedFoodDto;
 
 @RestController()
 @RequestMapping("/api/users")
@@ -31,5 +32,12 @@ public class UserController {
     public List<FoodUserDto> getTrackedFoodForUser(@PathVariable String id,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Instant date) {
         return foodService.getTrackedFoodForUser(id, date);
+    }
+
+    @GetMapping("/{userId}/foods/{foodId}/last")
+    public TrackedFoodDto getLastTracked(@PathVariable String userId,
+            @PathVariable Long foodId) {
+        return foodService.getFoodWithLastEntry(userId, foodId);
+
     }
 }

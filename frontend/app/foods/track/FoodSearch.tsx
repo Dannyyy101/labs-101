@@ -4,7 +4,7 @@ import { InputGroup, InputGroupInput, InputGroupAddon } from "@/components/ui/in
 import { Spinner } from "@/components/ui/spinner";
 import { Search } from "lucide-react";
 import InfiniteScroll from "react-infinite-scroll-component";
-import { Food } from "@/utils/types/food";
+import { Food, SearchFood } from "@/utils/types/food";
 import { useState } from "react";
 import { findFoodByNameAndUserId } from "./action";
 import { Button } from "@/components/ui/button";
@@ -12,10 +12,10 @@ import FoodTrackView from "./FoodTrackView";
 
 export default function FoodSearch({ meal }: { meal: string }) {
 
-    const [food, setFood] = useState<Food[]>([])
+    const [food, setFood] = useState<SearchFood[]>([])
     const [hasMore, setHasMore] = useState(true);
     const [searchInput, setSearchInput] = useState<string>("")
-    const [focusedFood, setFocusedFood] = useState<Food | null>(null)
+    const [focusedFood, setFocusedFood] = useState<SearchFood | null>(null)
     const [open, setOpen] = useState<boolean>(false)
 
     const findByName = async (name: string) => {
@@ -56,7 +56,7 @@ export default function FoodSearch({ meal }: { meal: string }) {
                             {food.map((f) => <Button className={"w-full text-left"} variant={"ghost"} onClick={() => setFocusedFood(f)} key={f.id}>{f.name}</Button>)}
                         </InfiniteScroll>
                     </>
-                    : <FoodTrackView props={{ meal: meal, food: focusedFood, back: () => setFocusedFood(null), closeView: () => setOpen(false) }} />}
+                    : <FoodTrackView props={{ meal: meal, foodId: focusedFood.id, back: () => setFocusedFood(null), closeView: () => setOpen(false) }} />}
             </section>
         </DialogContent>
     </Dialog>

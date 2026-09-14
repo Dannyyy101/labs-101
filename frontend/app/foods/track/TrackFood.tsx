@@ -13,19 +13,20 @@ export default function TrackFood({ food }: { food: FoodWithAmount[] }) {
 
         const map = new Map<string, FoodWithAmount[]>()
         for (const f of food) {
-            const list = map.get(f.meal)
+            const list = map.get(f.meal.type)
             if (list) list.push(f)
-            else map.set(f.meal, [f])
+            else map.set(f.meal.type, [f])
         }
         setTrackedFood(map)
 
     }, [food])
 
+    const foodLabels = [{ type: "BREAKFAST" }, { type: "LUNCH" }, { type: "DINNER" }, { type: "SNACK" }]
 
     const foodWithAmount = food.filter((f) => f.amount > 0)
-    const totalProtein = Math.round(foodWithAmount.reduce((partialSum, a) => partialSum + a.protein * a.amount / 100, 0));
-    const totalCarbs = Math.round(foodWithAmount.reduce((partialSum, a) => partialSum + a.carbohydrates * a.amount / 100, 0));
-    const totalFat = Math.round(foodWithAmount.reduce((partialSum, a) => partialSum + a.fat * a.amount / 100, 0));
+    const totalProtein = Math.round(foodWithAmount.reduce((partialSum, a) => partialSum + (a.protein || 0) * a.amount / 100, 0));
+    const totalCarbs = Math.round(foodWithAmount.reduce((partialSum, a) => partialSum + (a.carbohydrates || 0) * a.amount / 100, 0));
+    const totalFat = Math.round(foodWithAmount.reduce((partialSum, a) => partialSum + (a.fat || 0) * a.amount / 100, 0));
 
     const nutritionCardsProps: NutritionCardProps[] = [
         { name: "Protein", value: totalProtein, goal: 100, color: "red" },
@@ -39,8 +40,8 @@ export default function TrackFood({ food }: { food: FoodWithAmount[] }) {
                 {nutritionCardsProps.map((prop) => <NutritionCard key={prop.name} props={prop} />)}
             </div>
             <section className="mt-8 w-full">
-                {["Frühstück", "Mittagessen", "Abendessen", "Snack"].map((key) =>
-                    <Meal key={key} props={{ name: key, trackedFood: trackedFood.get(key) || [] }} />
+                {foodLabels.map((labels) =>
+                    <Meal key={labels.type} props={{ name: labels.type, trackedFood: trackedFood.get(labels.type) || [] }} />
                 )}
             </section>
         </div>

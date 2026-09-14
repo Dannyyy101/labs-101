@@ -2,18 +2,21 @@ package com.labs_101.backend.exception;
 
 public class NotFoundException extends BaseException {
 
-    protected NotFoundException(ErrorCode code, String message) {
-        super(code, message);
+    protected NotFoundException(String code, Object... args) {
+        super(code, args);
     }
 
     public static NotFoundException workout(Long id) {
-        return new NotFoundException(ErrorCode.WORKOUT_NOT_FOUND,
+        return new NotFoundException("",
                 "Workout %s not found".formatted(id));
     }
 
     public static NotFoundException food(Long id) {
-        return new NotFoundException(ErrorCode.FOOD_NOT_FOUND,
-                "Food %s not found".formatted(id));
+        return new NotFoundException("error.food.notFound", id);
+    }
+
+    public static NotFoundException foodPortion(Long id) {
+        return new NotFoundException("error.foodPortion.notFound", id);
     }
 
 }

@@ -5,10 +5,10 @@ info:
 
 http:
   method: GET
-  url: "{{base_url}}/api/foods/search/byNameAndUser?name=&userId=&page=3"
+  url: "{{base_url}}/api/foods/search/byNameAndUser?name=cap&userId=&page=3"
   params:
     - name: name
-      value: ""
+      value: cap
       type: query
     - name: userId
       value: ""

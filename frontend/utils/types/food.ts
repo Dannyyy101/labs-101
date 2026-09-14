@@ -3,17 +3,51 @@ export interface Food {
     id: number,
     blsCode: string,
     name: string,
-    kcal: number,
-    water: number,
-    protein: number,
-    fat: number,
-    carbohydrates: number
-    fiber: number
+    kcal: number | null,
+    water: number | null,
+    protein: number | null,
+    fat: number | null,
+    carbohydrates: number | null
+    fiber: number | null
+}
+
+export interface FoodWithPortion extends Food {
+    portions: FoodPortion[]
+
+}
+
+export interface SearchFood {
+    id: number,
+    name: string
+}
+
+export interface CreateFoodWithAmount {
+    foodId: number,
+    userId: string,
+    amount: number,
+    portionId: number | null
+    meal: string
 }
 
 export interface FoodWithAmount extends Food {
     amount: number,
-    meal: string
+    meal: { type: string, typeLabel: string }
+    portions: FoodPortion[]
+}
+
+export interface FoodPortion {
+    id: number,
+    grams: number,
+    label: string,
+    isDefault: boolean
+}
+
+export interface FoodWithLastEntry extends Food {
+    portions: FoodPortion[]
+    lastEntry?: {
+        amount: number,
+        meal: string
+    }
 }
 
 export interface TrackFoodForUser {
