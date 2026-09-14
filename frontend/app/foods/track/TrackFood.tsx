@@ -25,9 +25,9 @@ export default function TrackFood({ food }: { food: FoodWithAmount[] }) {
     const foodLabels = [{ type: "BREAKFAST" }, { type: "LUNCH" }, { type: "DINNER" }, { type: "SNACK" }]
 
     const foodWithAmount = food.filter((f) => f.amount > 0)
-    const totalProtein = Math.round(foodWithAmount.reduce((partialSum, a) => partialSum + getNutritionForAmount(a, "protein"), 0));
-    const totalCarbs = Math.round(foodWithAmount.reduce((partialSum, a) => partialSum + getNutritionForAmount(a, "carbohydrates"), 0));
-    const totalFat = Math.round(foodWithAmount.reduce((partialSum, a) => partialSum + getNutritionForAmount(a, "fat"), 0));
+    const totalProtein = foodWithAmount.reduce((partialSum, a) => partialSum + getNutritionForAmount(a, "protein"), 0);
+    const totalCarbs = foodWithAmount.reduce((partialSum, a) => partialSum + getNutritionForAmount(a, "carbohydrates"), 0);
+    const totalFat = foodWithAmount.reduce((partialSum, a) => partialSum + getNutritionForAmount(a, "fat"), 0);
 
     const nutritionCardsProps: NutritionCardProps[] = [
         { name: "Protein", value: totalProtein, goal: 100, color: "red" },

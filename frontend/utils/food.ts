@@ -10,5 +10,5 @@ export function getNutritionForAmount(
 ): number {
     const per100g = food[nutrition] ?? 0;
     const grams = food.amount * (food.portion?.grams ?? 1);
-    return (per100g * grams) / 100;
+    return Math.round((per100g * grams) / 100 * 10) / 10;
 }
