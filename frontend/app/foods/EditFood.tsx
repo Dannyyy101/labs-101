@@ -53,7 +53,7 @@ const NutrientInput: React.FC<{
     value: number | null | undefined
     onValueChange: (value: number | null) => void
     step?: number
-}> = ({ label, unit, value, onValueChange, step = 0.1 }) => (
+}> = ({ label, unit, value, onValueChange }) => (
     <Field className="gap-0">
         <FieldLabel className="flex items-center gap-1.5 text-muted-foreground">
             {label}
@@ -63,7 +63,7 @@ const NutrientInput: React.FC<{
                 type="number"
                 inputMode="decimal"
                 min={0}
-                step={step}
+                step="any"
                 placeholder="0"
                 value={toInput(value)}
                 onChange={(e) => onValueChange(parseNumber(e.target.value))}
@@ -405,7 +405,7 @@ const EditFood: React.FC<{
                                                     type="number"
                                                     inputMode="decimal"
                                                     min={0}
-                                                    step={1}
+                                                    step="any"
                                                     placeholder="0"
                                                     value={toInput(portion.grams)}
                                                     onChange={(e) =>
