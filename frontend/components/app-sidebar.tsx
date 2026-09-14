@@ -40,6 +40,9 @@ export function AppSidebar() {
             <SidebarHeader>Labs-101</SidebarHeader>
             <SidebarContent className="flex flex-col justify-center">
                 <SidebarGroup>
+                    <SidebarGroupLabel render={<a href={"/foods/track"} />}>Track Food</SidebarGroupLabel>
+                </SidebarGroup>
+                <SidebarGroup>
                     <SidebarGroupLabel render={<a href={"/planner"} />}>Calendar</SidebarGroupLabel>
                 </SidebarGroup>
                 <SidebarGroup>

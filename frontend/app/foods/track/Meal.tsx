@@ -16,7 +16,7 @@ export interface MealProps {
 }
 
 export default function Meal({ props }: { props: MealProps }) {
-    return <Card className="mx-auto w-full max-w-2xl mt-2">
+    return <Card className="w-full mt-2">
         <CardContent>
             <Collapsible className="rounded-md">
                 <CollapsibleTrigger render={<Button variant="ghost" className="w-full">{props.name}
