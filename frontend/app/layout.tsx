@@ -26,18 +26,17 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
-      lang="en"
-      className={cn("h-full", "antialiased", geistSans.variable, geistMono.variable, "font-sans", inter.variable)}
+      lang="de"
+      className={cn("h-full antialiased font-sans", inter.variable, geistMono.variable)}
     >
-      <body className="min-h-full flex flex-col">
-        <TooltipProvider>
-          <SidebarProvider>
-            <AppSidebar />
-            <main className="w-screen h-screen">
-              <SidebarTrigger />
-              {children}
-            </main>
-          </SidebarProvider></TooltipProvider>
+      <body className="min-h-full">
+        <SidebarProvider>
+          <AppSidebar />
+          <main className="flex-1 min-w-0 flex flex-col">
+            <SidebarTrigger />
+            {children}
+          </main>
+        </SidebarProvider>
       </body>
     </html>
   );

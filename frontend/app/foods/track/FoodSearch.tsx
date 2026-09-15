@@ -38,7 +38,7 @@ export default function FoodSearch({ meal }: { meal: string }) {
             <section>
                 {!focusedFood ?
                     <>
-                        <InputGroup className="max-w-xs ">
+                        <InputGroup className="max-w-xs mt-8 md:mt-0">
                             <InputGroupInput value={searchInput} placeholder="Search..." onChange={(e) => findByName(e.target.value)} />
                             <InputGroupAddon>
                                 <Search />
