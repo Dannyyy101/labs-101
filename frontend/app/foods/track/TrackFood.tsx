@@ -23,7 +23,11 @@ export default function TrackFood({ food }: { food: FoodWithAmount[] }) {
 
     }, [food])
 
-    const foodLabels = [{ type: "BREAKFAST" }, { type: "LUNCH" }, { type: "DINNER" }, { type: "SNACK" }]
+    const foodLabels = [
+        { type: "BREAKFAST", label: "Breakfast" },
+        { type: "LUNCH", label: "Lunch" },
+        { type: "DINNER", label: "Dinner" },
+        { type: "SNACK", label: "Snack" }]
 
     const foodWithAmount = food.filter((f) => f.amount > 0)
     const totalProtein = foodWithAmount.reduce((partialSum, a) => partialSum + getNutritionForAmount(a, "protein"), 0);
@@ -40,7 +44,7 @@ export default function TrackFood({ food }: { food: FoodWithAmount[] }) {
 
     return (
         <div className="w-full h-[90vh] relative flex flex-col items-center">
-            <div className="w-4/6">
+            <div className="p-4 w-full md:w-4/6">
                 <div className="w-full my-2">
                     <CalorieCard props={{ name: "Calories", color: "red", consumed: totalCalories, goal: 3000, burned: 0 }} />
                 </div>
@@ -49,7 +53,7 @@ export default function TrackFood({ food }: { food: FoodWithAmount[] }) {
                 </div>
                 <section className="mt-4 w-full">
                     {foodLabels.map((labels) =>
-                        <Meal key={labels.type} props={{ name: labels.type, trackedFood: trackedFood.get(labels.type) || [] }} />
+                        <Meal key={labels.type} props={{ name: labels.label, trackedFood: trackedFood.get(labels.type) || [] }} />
                     )}
                 </section>
             </div>
