@@ -1,11 +1,12 @@
 import { Button } from "@/components/ui/button"
 import { Field, FieldDescription, FieldLabel } from "@/components/ui/field"
-import { CreateFoodWithAmount, Food, FoodWithAmount, FoodWithPortion } from "@/utils/types/food"
+import { CreateFoodWithAmount, Food, FoodPortion, FoodWithAmount, FoodWithPortion } from "@/utils/types/food"
 import { Input } from "@base-ui/react"
 import { ArrowLeft } from "lucide-react"
 import { useEffect, useState } from "react"
 import { createTrackFood, getTrackedFoodByFoodId } from "./action"
 import { Badge } from "@/components/ui/badge"
+import { getNutritionForAmount } from "@/utils/food"
 
 interface FoodTrackViewProps {
     meal: string,
@@ -17,6 +18,7 @@ interface FoodTrackViewProps {
 export default function FoodTrackView({ props }: { props: FoodTrackViewProps }) {
     const [food, setFood] = useState<FoodWithPortion>()
     const [trackFood, setTrackFood] = useState<CreateFoodWithAmount | null>(null)
+    const [selectedPortion, setSelectedPortion] = useState<FoodPortion | null>(null)
 
     useEffect(() => {
         const fetch = async () => {
@@ -36,28 +38,31 @@ export default function FoodTrackView({ props }: { props: FoodTrackViewProps }) 
         props.closeView()
     }
 
-    const selectPortion = (portionId: number | null) => {
-        setTrackFood(() => ({ ...trackFood, portionId: trackFood.portionId === portionId ? null : portionId }))
+    const selectPortion = (portion: FoodPortion | null) => {
+        if (portion) {
+            setTrackFood(() => ({ ...trackFood, portionId: trackFood.portionId === portion?.id ? null : portion.id }))
+            setSelectedPortion(portion)
+        }
     }
 
     return <div>
         <Button onClick={props.back} variant={"secondary"}><ArrowLeft /> Search</Button>
         <div>
             <h1 className="text-xl font-semibold">{food.name}</h1>
-            <h2 className="text-center text-4xl font-semibold">{food.kcal}</h2>
+            <h2 className="text-center text-4xl font-semibold">{getNutritionForAmount({ ...food, amount: trackFood.amount, meal: { type: "", typeLabel: "" }, portion: selectedPortion }, "kcal")}</h2>
             <p className="text-center text-muted-foreground">kcal</p>
             <div className="flex justify-center gap-x-8 mt-4">
                 <div>
                     <p className="text-center text-sm text-muted-foreground font-semibold">PROTEIN</p>
-                    <h3 className="text-protein font-bold text-lg">{Math.round(food.protein || 0 * trackFood.amount / 100)}g</h3>
+                    <h3 className="text-protein font-bold text-lg">{getNutritionForAmount({ ...food, amount: trackFood.amount, meal: { type: "", typeLabel: "" }, portion: selectedPortion }, "protein")}g</h3>
                 </div>
                 <div>
                     <p className="text-center text-sm text-muted-foreground font-semibold">CH</p>
-                    <h3 className="text-carbohydrates font-bold text-lg">{Math.round(food.carbohydrates || 0 * trackFood.amount / 100)}g</h3>
+                    <h3 className="text-carbohydrates font-bold text-lg">{getNutritionForAmount({ ...food, amount: trackFood.amount, meal: { type: "", typeLabel: "" }, portion: selectedPortion }, "carbohydrates")}g</h3>
                 </div>
                 <div>
                     <p className="text-center text-sm text-muted-foreground font-semibold">FAT</p>
-                    <h3 className="text-fat font-bold text-lg">{Math.round(food.fat || 0 * trackFood.amount / 100)}g</h3>
+                    <h3 className="text-fat font-bold text-lg">{getNutritionForAmount({ ...food, amount: trackFood.amount, meal: { type: "", typeLabel: "" }, portion: selectedPortion }, "fat")}g</h3>
                 </div>
             </div>
             <div className="mt-4">
@@ -66,7 +71,7 @@ export default function FoodTrackView({ props }: { props: FoodTrackViewProps }) 
                     <div className="flex gap-x-2">
                         <Badge className="hover:cursor-pointer" variant={trackFood.portionId === null ? "default" : "outline"} onClick={() => selectPortion(null)}>Gram</Badge>
                         {food.portions.map((portion) =>
-                            <Badge className="hover:cursor-pointer" variant={trackFood.portionId === portion.id ? "default" : "outline"} onClick={() => selectPortion(portion.id)} key={portion.id}>{portion.label}</Badge>
+                            <Badge className="hover:cursor-pointer" variant={trackFood.portionId === portion.id ? "default" : "outline"} onClick={() => selectPortion(portion)} key={portion.id}>{portion.label}</Badge>
                         )}
 
                     </div>
@@ -75,7 +80,7 @@ export default function FoodTrackView({ props }: { props: FoodTrackViewProps }) 
                         className={"focus:outline-none border rounded-md pl-2 border-2"}
                         type="number"
                         value={trackFood.amount}
-                        onChange={(e) => setTrackFood({ ...trackFood, amount: parseInt(e.target.value) })}
+                        onChange={(e) => setTrackFood({ ...trackFood, amount: parseInt(e.target.value) || 0 })}
                     />
                 </Field>
             </div>

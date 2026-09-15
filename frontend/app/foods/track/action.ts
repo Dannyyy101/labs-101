@@ -89,3 +89,7 @@ export async function createTrackFood(foodWithAmount: CreateFoodWithAmount) {
     }
     throw new Error(await response.json())
 }
+
+export async function findAndSafeFoodIfNotExistByBarcode(code: string) {
+
+}

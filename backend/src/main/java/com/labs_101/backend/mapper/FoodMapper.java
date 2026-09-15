@@ -27,8 +27,12 @@ public class FoodMapper {
     }
 
     public static FoodUser mapFromCreateFoodUserDto(CreateFoodUserDto dto) {
+        FoodPortion portion = null;
+        if (dto.portionId() != null) {
+            new FoodPortion(dto.portionId());
+        }
         return new FoodUser(null, new User(dto.userId()), new Food(dto.foodId()), dto.amount(),
-                MealType.valueOf(dto.meal()), new FoodPortion(dto.portionId()), null, null);
+                MealType.valueOf(dto.meal()), portion, null, null);
     }
 
     public static FoodUserDto mapFromFoodUser(FoodUser foodUser) {
@@ -46,6 +50,8 @@ public class FoodMapper {
     }
 
     public static FoodPortionDto mapFromFoodPortionToFoodPortionDto(FoodPortion portion) {
+        if (portion == null)
+            return null;
         return new FoodPortionDto(portion.getId(), portion.getGrams(), portion.getLabel(), portion.getIsDefault());
     }
 
