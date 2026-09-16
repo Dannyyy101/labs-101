@@ -4,7 +4,6 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
-import org.hibernate.query.spi.Limit;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.labs_101.backend.entities.food.FoodUser;

@@ -5,7 +5,7 @@ info:
 
 http:
   method: GET
-  url: https://world.openfoodfacts.org/api/v2/product/3017624010701?fields=code,product_name,brands,quantity,serving_size,serving_quantity,nutriments,image_front_small_url
+  url: https://world.openfoodfacts.org/api/v2/product/8901764112270?fields=code,product_name,brands,quantity,serving_size,serving_quantity,nutriments,image_front_small_url
   headers:
     - name: User-Agent
       value: Labs101/1.0 (danielfelixstoecklein@gmail.com)

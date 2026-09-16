@@ -2,7 +2,7 @@
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { InputGroup, InputGroupInput, InputGroupAddon } from "@/components/ui/input-group";
 import { Spinner } from "@/components/ui/spinner";
-import { Barcode, Search } from "lucide-react";
+import { AlertCircle, Barcode, Search } from "lucide-react";
 import InfiniteScroll from "react-infinite-scroll-component";
 import { Food, SearchFood } from "@/utils/types/food";
 import { useState } from "react";
@@ -10,6 +10,7 @@ import { findAndSafeFoodIfNotExistByBarcode, findFoodByNameAndUserId } from "./a
 import { Button } from "@/components/ui/button";
 import FoodTrackView from "./FoodTrackView";
 import ScannerPanel from "@/components/ScannerPanel";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 export default function FoodSearch({ meal }: { meal: string }) {
 
@@ -34,12 +35,26 @@ export default function FoodSearch({ meal }: { meal: string }) {
         }
         setFood((prev) => [...prev, ...next.content]);
     };
+    const [error, setError] = useState<string | null>(null)
+    const [loading, setLoading] = useState(false)
 
     const lookupFood = async (code: string) => {
-        const food = await findAndSafeFoodIfNotExistByBarcode(code)
-        //setFocusedFood(food)
+        setError(null)
+        setLoading(true)
+        const result = await findAndSafeFoodIfNotExistByBarcode(code)
+        setLoading(false)
 
-        setShowBarcodeScanner(false)
+        if (result.ok) {
+            setFocusedFood(result.data)
+            setShowBarcodeScanner(false)
+        } else {
+            setError(result.error)
+        }
+    }
+
+    const toggleBarcodeScanner = () => {
+        setShowBarcodeScanner((prev) => !prev)
+        setError(null)
     }
 
     return <Dialog open={open} onOpenChange={setOpen}>
@@ -54,8 +69,16 @@ export default function FoodSearch({ meal }: { meal: string }) {
                             <InputGroupAddon>
                                 <Search />
                             </InputGroupAddon>
-                            <button className="mr-2" onClick={() => setShowBarcodeScanner((prev) => !prev)}><Barcode /></button>
+                            <button className="mr-2" onClick={toggleBarcodeScanner}><Barcode /></button>
                         </InputGroup>
+                        {error && (
+                            <Alert variant="destructive" className="mt-2">
+                                <AlertCircle className="size-4" />
+                                <AlertTitle>Fehler</AlertTitle>
+                                <AlertDescription>{error}</AlertDescription>
+                            </Alert>
+                        )}
+                        {loading && <div className="w-full flex justify-center mt-2"><Spinner className="size-4" /></div>}
                         {showBarcodeScanner ? <ScannerPanel
                             onDetected={(ean) => {
                                 setShowBarcodeScanner(false)
