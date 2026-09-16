@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.labs_101.backend.dtos.food.CreateFoodDto;
 import com.labs_101.backend.dtos.food.CreateFoodPortionDto;
 import com.labs_101.backend.dtos.food.CreateFoodUserDto;
+import com.labs_101.backend.dtos.food.CreateOpenFoodDto;
 import com.labs_101.backend.dtos.food.FoodDto;
 import com.labs_101.backend.dtos.food.SearchFoodResponseDto;
 import com.labs_101.backend.dtos.food.UpdateFoodDto;
@@ -41,6 +42,13 @@ public class FoodController {
         return ResponseEntity.noContent().build();
     }
 
+    @PostMapping("/open-food")
+    public ResponseEntity<Void> createOpenFood(@RequestBody CreateOpenFoodDto dto) {
+        foodService.createOpenFood(dto);
+
+        return ResponseEntity.noContent().build();
+    }
+
     @PostMapping("{id}/portions")
     public ResponseEntity<Void> addFoodPortions(@PathVariable Long id, @RequestBody CreateFoodPortionDto dto) {
         foodService.createFoodPortion(id, dto);
@@ -53,6 +61,11 @@ public class FoodController {
             @RequestParam(required = false) String query,
             Pageable pageable) {
         return foodService.getAll(query, pageable);
+    }
+
+    @GetMapping("/bar-code/{code}")
+    public FoodDto getByBarcode(@PathVariable String code) {
+        return foodService.getByBarcode(code);
     }
 
     @PutMapping("/{id}")

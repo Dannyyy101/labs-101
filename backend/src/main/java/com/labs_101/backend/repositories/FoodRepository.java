@@ -1,5 +1,7 @@
 package com.labs_101.backend.repositories;
 
+import java.util.Optional;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -19,4 +21,6 @@ public interface FoodRepository extends JpaRepository<Food, Long> {
     Page<Food> findAllByNameAndUserId(Pageable p, @Param("name") String name, @Param("userId") String userId);
 
     Page<Food> findByNameContainingIgnoreCase(String name, Pageable p);
+
+    Optional<Food> findByBarCode(String barcode);
 }

@@ -19,4 +19,8 @@ public class NotFoundException extends BaseException {
         return new NotFoundException("error.foodPortion.notFound", id);
     }
 
+    public static NotFoundException foodByBarcode(String code) {
+        return new NotFoundException("error.foodByBarcode.notFound", code);
+    }
+
 }

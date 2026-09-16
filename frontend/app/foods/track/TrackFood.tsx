@@ -7,6 +7,14 @@ import { FoodWithAmount } from "@/utils/types/food";
 import { getNutritionForAmount } from "@/utils/food";
 import CalorieCard from "./CalorieCard";
 
+import {
+    BarcodeScanner,
+    BarcodeScannerProvider,
+    useStreamState,
+    useTorch
+} from 'react-barcode-scanner'
+import ScannerPanel from "@/components/ScannerPanel";
+
 
 export default function TrackFood({ food }: { food: FoodWithAmount[] }) {
     const [trackedFood, setTrackedFood] = useState<Map<string, FoodWithAmount[]>>(new Map())
@@ -53,7 +61,7 @@ export default function TrackFood({ food }: { food: FoodWithAmount[] }) {
                 </div>
                 <section className="mt-4 w-full">
                     {foodLabels.map((labels) =>
-                        <Meal key={labels.type} props={{ name: labels.label, trackedFood: trackedFood.get(labels.type) || [] }} />
+                        <Meal key={labels.type} props={{ name: labels.type, trackedFood: trackedFood.get(labels.type) || [] }} />
                     )}
                 </section>
             </div>
