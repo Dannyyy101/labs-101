@@ -7,14 +7,6 @@ import { FoodWithAmount } from "@/utils/types/food";
 import { getNutritionForAmount } from "@/utils/food";
 import CalorieCard from "./CalorieCard";
 
-import {
-    BarcodeScanner,
-    BarcodeScannerProvider,
-    useStreamState,
-    useTorch
-} from 'react-barcode-scanner'
-import ScannerPanel from "@/components/ScannerPanel";
-
 
 export default function TrackFood({ food }: { food: FoodWithAmount[] }) {
     const [trackedFood, setTrackedFood] = useState<Map<string, FoodWithAmount[]>>(new Map())
