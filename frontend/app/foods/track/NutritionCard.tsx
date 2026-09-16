@@ -17,8 +17,8 @@ export const colorMap: Record<string, string> = {
 export default function NutritionCard({ props }: { props: NutritionCardProps }) {
     return <Card className="w-64 md:w-96">
         <CardHeader>
-            <CardDescription>{props.name}</CardDescription>
-            <CardTitle className="text-2xl">{props.value}&#8202;g</CardTitle>
+            <CardDescription className="break-all h-10">{props.name}</CardDescription>
+            <CardTitle className="text-2xl">{Math.round(props.value * 10) / 10}&#8202;g</CardTitle>
         </CardHeader>
         <CardContent>
             <p>Goal {props.goal}</p>

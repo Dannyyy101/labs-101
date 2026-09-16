@@ -2,8 +2,10 @@
 
 import { auth } from "@/lib/auth"
 import { BACKEND_URL } from "@/utils/constants"
+import { ApiError } from "@/utils/types/api"
 import { CreateFoodWithAmount, Food, FoodWithAmount, FoodWithLastEntry, SearchFood, TrackFoodForUser } from "@/utils/types/food"
 import { Page } from "@/utils/types/page"
+import { Result } from "@/utils/types/result"
 import { revalidatePath } from "next/cache"
 import { headers } from "next/headers"
 
@@ -88,4 +90,19 @@ export async function createTrackFood(foodWithAmount: CreateFoodWithAmount) {
         return
     }
     throw new Error(await response.json())
+}
+
+export async function findAndSafeFoodIfNotExistByBarcode(code: string): Promise<Result<Food>> {
+    const url = new URL(`${BACKEND_URL}/foods/bar-code/${code}`)
+    const response = await fetch(url.toString())
+
+    if (response.ok) {
+        return { ok: true, data: await response.json() as Food }
+    }
+
+    const apiError = await response.json().catch(() => null) as ApiError | null
+    return {
+        ok: false,
+        error: apiError?.errorMessage ?? ""
+    }
 }

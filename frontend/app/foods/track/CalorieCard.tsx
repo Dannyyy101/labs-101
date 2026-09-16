@@ -22,7 +22,7 @@ export default function CalorieCard({ props }: { props: CalorieCardProps }) {
                 <CardDescription>Consumption today</CardDescription>
                 <CardTitle className="text-xl -mt-1">{props.consumed} of {props.goal}&#8202;kcal</CardTitle>
             </div>
-            <div className="flex max-w-96 justify-between">
+            <div className="flex max-w-80 pr-4 md:max-w-96 justify-between">
                 <div>
                     <CardDescription>Goal</CardDescription>
                     <p className="text-lg font-semibold -mt-1.5">{props.goal}</p>

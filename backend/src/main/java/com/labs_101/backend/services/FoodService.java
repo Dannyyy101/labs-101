@@ -4,6 +4,7 @@ import com.labs_101.backend.repositories.FoodRepository;
 
 import com.labs_101.backend.repositories.FoodUserRepository;
 
+import com.labs_101.backend.repositories.OpenFoodRepository;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneOffset;
@@ -26,6 +27,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.labs_101.backend.dtos.food.CreateFoodDto;
 import com.labs_101.backend.dtos.food.CreateFoodPortionDto;
 import com.labs_101.backend.dtos.food.CreateFoodUserDto;
+import com.labs_101.backend.dtos.food.CreateOpenFoodDto;
 import com.labs_101.backend.dtos.food.FoodDto;
 import com.labs_101.backend.dtos.food.FoodUserDto;
 import com.labs_101.backend.dtos.food.SearchFoodResponseDto;
@@ -35,17 +37,21 @@ import com.labs_101.backend.dtos.food.UpdateFoodPortionDto;
 import com.labs_101.backend.entities.food.Food;
 import com.labs_101.backend.entities.food.FoodPortion;
 import com.labs_101.backend.entities.food.FoodUser;
+import com.labs_101.backend.entities.food.OpenFood;
 import com.labs_101.backend.exception.NotFoundException;
 import com.labs_101.backend.mapper.FoodMapper;
 
 @Service
 public class FoodService {
+    private final OpenFoodRepository openFoodRepository;
     private final FoodUserRepository foodUserRepository;
     private final FoodRepository foodRepository;
 
-    FoodService(FoodRepository foodRepository, FoodUserRepository foodUserRepository) {
+    FoodService(FoodRepository foodRepository, FoodUserRepository foodUserRepository,
+            OpenFoodRepository openFoodRepository) {
         this.foodRepository = foodRepository;
         this.foodUserRepository = foodUserRepository;
+        this.openFoodRepository = openFoodRepository;
     }
 
     public void create(CreateFoodDto dto) {
@@ -170,5 +176,19 @@ public class FoodService {
     private static <T> void setIfNotNull(T value, Consumer<T> setter) {
         if (value != null)
             setter.accept(value);
+    }
+
+    public void createOpenFood(CreateOpenFoodDto dto) {
+        openFoodRepository.save(FoodMapper.fromCreateOpenFoodDtoToOpenFood(dto));
+    }
+
+    public FoodDto getByBarcode(String code) {
+        Optional<Food> food = foodRepository.findByBarCode(code);
+        if (food.isPresent()) {
+            return FoodMapper.mapFromEntityToFoodDto(food.get());
+        }
+        OpenFood openFood = openFoodRepository.findByBarCode(code)
+                .orElseThrow(() -> NotFoundException.foodByBarcode(code));
+        return FoodMapper.mapFromEntityToFoodDto(foodRepository.save(FoodMapper.mapFromOpenFoodToFood(openFood)));
     }
 }
