@@ -21,6 +21,24 @@ export interface Training {
     duration: number
 }
 
+/** Setzt die Uhrzeit auf 00:00:00.000 und gibt ein neues Date zurück. */
+const startOfDay = (date: Date) => {
+    const newDate = new Date(date)
+    newDate.setHours(0, 0, 0, 0)
+    return newDate
+}
+
+/**
+ * Montag der Woche, in der `date` liegt.
+ * getDay(): 0 = Sonntag, 1 = Montag ... 6 = Samstag
+ * (getDay() + 6) % 7 ergibt den Abstand zum Montag.
+ */
+const startOfWeek = (date: Date) => {
+    const newDate = startOfDay(date)
+    newDate.setDate(newDate.getDate() - ((newDate.getDay() + 6) % 7))
+    return newDate
+}
+
 function useWindowSize() {
     const [windowSize, setWindowSize] = useState<{ width?: number, height?: number }>({
         width: undefined,
@@ -46,16 +64,22 @@ function useWindowSize() {
 
 export default function Calendar() {
     const size = useWindowSize();
-    const STEPS = size.width !== undefined ? size.width > 700 ? 7 : 1 : 1
+    // Erst nach dem Mount bekannt – vorher darf nicht gefetcht werden.
+    const isSizeKnown = size.width !== undefined
+    const STEPS = isSizeKnown ? (size.width! > 700 ? 7 : 1) : 1
 
-    const currentDate = new Date();
+    const [dateRange, setDateRange] = useState<Date>(() => startOfDay(new Date()))
 
-    if (STEPS === 7) {
-        currentDate.setDate(currentDate.getDate() - currentDate.getDay())
-        currentDate.setHours(0, 0, 0, 0)
-    }
+    // Sobald die Breite feststeht bzw. sich die Ansicht ändert:
+    // Wochenansicht auf Montag ausrichten, Tagesansicht auf den Tagesanfang.
+    useEffect(() => {
+        if (!isSizeKnown) return
 
-    const [dateRange, setDateRange] = useState<Date>(currentDate)
+        setDateRange((prev) => {
+            const next = STEPS === 7 ? startOfWeek(prev) : startOfDay(prev)
+            return next.getTime() === prev.getTime() ? prev : next
+        })
+    }, [STEPS, isSizeKnown])
 
     const increaseDateByDays = (date: Date, days: number) => {
         const newDate = new Date(date)
@@ -63,38 +87,42 @@ export default function Calendar() {
         return newDate
     }
 
-    const endDate = new Date()
-    endDate.setHours(endDate.getHours() + 1, 30)
-
     const setEvents = useEventStore((state) => state.setEvents)
 
-
-
     useEffect(() => {
+        if (!isSizeKnown) return
+
         const fetch = async () => {
             setEvents((await getAllCalendarEvents(dateRange, STEPS)).value || [])
         }
 
         fetch()
-    }, [dateRange, STEPS])
+    }, [dateRange, STEPS, isSizeKnown])
+
+    const WEEKDAYS = ['So.', 'Mo.', 'Di.', 'Mi.', 'Do.', 'Fr.', 'Sa.']
+
+    const pad = (value: number) => value.toString().padStart(2, '0')
+
+    const formatColumnDate = (date: Date) =>
+        `${WEEKDAYS[date.getDay()]} ${pad(date.getDate())}.${pad(date.getMonth() + 1)}.`
 
 
     return (
         <div className="px-4 w-full relative">
-            <div className="absolute -top-[40px] right-4 z-20 flex">
+            <div className="absolute right-4 z-20 flex">
                 <Button variant="secondary" onClick={() => setDateRange((prev) => increaseDateByDays(prev, -STEPS))}><ChevronLeft /></Button>
                 <Button variant="secondary" onClick={() => setDateRange((prev) => increaseDateByDays(prev, STEPS))}><ChevronRight /></Button>
             </div>
 
-            <div className="mt-10 grid h-10" style={{ gridTemplateColumns: `60px repeat(${STEPS}, 1fr)` }}>
+            <div className="mt-10 grid h-10" style={{ gridTemplateColumns: `60px repeat(${STEPS}, minmax(0, 1fr))` }}>
                 <div></div>
                 {Array(STEPS).fill(0).map((_, index) => (
-                    <div key={index} className="sticky top-0 z-10 bg-white flex items-center justify-center">
-                        <p className="text-center">{increaseDateByDays(dateRange, index).toDateString()}</p>
+                    <div key={index} className="sticky top-0 z-10 flex items-center justify-center">
+                        <p className="text-center whitespace-nowrap truncate">{formatColumnDate(increaseDateByDays(dateRange, index))}</p>
                     </div>
                 ))}
             </div>
-            <div className="grid overflow-y-auto max-h-150" style={{ gridTemplateColumns: `60px repeat(${STEPS}, 1fr)` }}>
+            <div className="grid overflow-y-auto max-h-150" style={{ gridTemplateColumns: `60px repeat(${STEPS}, minmax(0, 1fr))` }}>
                 <Time />
 
                 {Array.from(Array(STEPS).keys()).map((index) => {
