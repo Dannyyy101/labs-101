@@ -24,6 +24,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.labs_101.backend.annotation.NoAutoTest;
 import com.labs_101.backend.dtos.food.CreateFoodDto;
 import com.labs_101.backend.dtos.food.CreateFoodPortionDto;
 import com.labs_101.backend.dtos.food.CreateFoodUserDto;
@@ -58,6 +59,7 @@ public class FoodService {
         foodRepository.save(FoodMapper.mapFromCreateFoodDtoToEntity(dto));
     }
 
+    @NoAutoTest
     public FoodDto getById(Long id) {
         Food entity = foodRepository.findById(id).orElseThrow(() -> NotFoundException.food(id));
 

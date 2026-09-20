@@ -110,8 +110,8 @@ public class WorkoutService {
         exerciseRepository.deleteById(id);
     }
 
-    public ExerciseDto updateExerciseById(ExerciseDto exerciseDto) {
-        Exercise model = exerciseRepository.findById(exerciseDto.getId()).orElseThrow();
+    public ExerciseDto updateExerciseById(Long exerciseId, ExerciseDto exerciseDto) {
+        Exercise model = exerciseRepository.findById(exerciseId).orElseThrow();
         if (!exerciseDto.getName().equals(model.getName())) {
             model.setName(exerciseDto.getName());
         }

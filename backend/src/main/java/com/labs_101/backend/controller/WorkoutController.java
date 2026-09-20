@@ -84,7 +84,7 @@ public class WorkoutController {
         }
 
         try {
-            return workoutService.updateExerciseById(exerciseDto);
+            return workoutService.updateExerciseById(exerciseId, exerciseDto);
         } catch (Exception e) {
             throw e;
         }
