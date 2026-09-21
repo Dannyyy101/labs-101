@@ -23,4 +23,8 @@ public class NotFoundException extends BaseException {
         return new NotFoundException("error.foodByBarcode.notFound", code);
     }
 
+    public static NotFoundException trackedFood(Long id) {
+        return new NotFoundException("error.trackedFood.notFound", id);
+    }
+
 }

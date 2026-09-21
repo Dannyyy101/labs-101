@@ -29,11 +29,11 @@ public class FoodPortion {
     private Food food;
 
     @OneToMany(mappedBy = "portion")
-    private List<FoodUser> foodUser;
+    private List<TrackedFood> foodUser;
 
     private String label;
     private Double grams;
-    private Boolean isDefault;
+    private Boolean isDefault = false;
 
     public FoodPortion(Long id) {
         this.id = id;

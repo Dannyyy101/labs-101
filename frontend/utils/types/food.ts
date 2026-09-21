@@ -12,8 +12,7 @@ export interface Food {
 }
 
 export interface FoodWithPortion extends Food {
-    portions: FoodPortion[]
-
+    portions: FoodPortion[],
 }
 
 export interface SearchFood {
@@ -26,13 +25,23 @@ export interface CreateFoodWithAmount {
     userId: string,
     amount: number,
     portionId: number | null
-    meal: string
+    meal: Meal
 }
 
-export interface FoodWithAmount extends Food {
+export interface TrackedFood {
+    id: number
+    food: Food
     amount: number,
     meal: { type: string, typeLabel: string }
     portion: FoodPortion | null
+}
+
+export interface CreateTrackedFood {
+    id?: number | null;
+    foodId: number
+    amount: number,
+    meal: Meal
+    portionId: number | null
 }
 
 export interface FoodPortion {
@@ -46,7 +55,6 @@ export interface FoodWithLastEntry extends Food {
     portions: FoodPortion[]
     lastEntry?: {
         amount: number,
-        meal: string
     }
 }
 
@@ -54,4 +62,11 @@ export interface TrackFoodForUser {
     foodId: number,
     userId: string
     amount: number
+}
+
+export enum Meal {
+    BREAKFAST,
+    LUNCH,
+    DINNER,
+    SNACK
 }
