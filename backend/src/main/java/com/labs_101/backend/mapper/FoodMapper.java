@@ -7,7 +7,7 @@ import com.labs_101.backend.dtos.food.CreateFoodUserDto;
 import com.labs_101.backend.dtos.food.CreateOpenFoodDto;
 import com.labs_101.backend.dtos.food.FoodDto;
 import com.labs_101.backend.dtos.food.FoodPortionDto;
-import com.labs_101.backend.dtos.food.FoodUserDto;
+import com.labs_101.backend.dtos.food.FoodWithLastEntryAndPortionsDto;
 import com.labs_101.backend.dtos.food.MealDto;
 import com.labs_101.backend.dtos.food.SearchFoodResponseDto;
 import com.labs_101.backend.dtos.food.TrackedFoodDto;
@@ -26,8 +26,7 @@ public class FoodMapper {
 
     public static FoodDto mapFromEntityToFoodDto(Food entity) {
         return new FoodDto(entity.getId(), entity.getBlsCode(), entity.getName(), entity.getKcal(), entity.getWater(),
-                entity.getProtein(), entity.getFat(), entity.getCarbohydrates(), entity.getFiber(),
-                entity.getPortions().stream().map((portion) -> mapFromFoodPortionToFoodPortionDto(portion)).toList());
+                entity.getProtein(), entity.getFat(), entity.getCarbohydrates(), entity.getFiber());
     }
 
     public static TrackedFood mapFromCreateFoodUserDto(CreateFoodUserDto dto) {
@@ -39,13 +38,10 @@ public class FoodMapper {
                 MealType.valueOf(dto.meal()), portion, null, null);
     }
 
-    public static FoodUserDto mapFromTrackedFood(TrackedFood trackedFood) {
+    public static TrackedFoodDto mapFromTrackedFood(TrackedFood trackedFood) {
         Food food = trackedFood.getFood();
-        return new FoodUserDto(trackedFood.getFood().getId(), food.getBlsCode(), food.getName(), food.getKcal(),
-                food.getWater(),
-                food.getProtein(), food.getFat(),
-                food.getCarbohydrates(), food.getFiber(), trackedFood.getUser().getId(),
-                trackedFood.getAmount(), new MealDto(trackedFood.getMeal().name(), trackedFood.getMeal().messageKey()),
+        return new TrackedFoodDto(trackedFood.getId(), mapFromEntityToFoodDto(food), trackedFood.getAmount(),
+                new MealDto(trackedFood.getMeal().name(), trackedFood.getMeal().messageKey()),
                 mapFromFoodPortionToFoodPortionDto(trackedFood.getPortion()));
     }
 
@@ -59,18 +55,6 @@ public class FoodMapper {
         return new FoodPortionDto(portion.getId(), portion.getGrams(), portion.getLabel(), portion.getIsDefault());
     }
 
-    public static TrackedFoodDto mapFromFoodAndFoodUserToTrackedFoodDto(Food food, TrackedFood lastEntry) {
-        TrackedFoodDto.LastTrackedFoodEntryDto last = null;
-        if (lastEntry != null)
-            last = new TrackedFoodDto.LastTrackedFoodEntryDto(lastEntry.getAmount(),
-                    new MealDto(lastEntry.getMeal().name(), lastEntry.getMeal().messageKey()));
-        return new TrackedFoodDto(food.getId(), food.getBlsCode(), food.getName(), food.getKcal(),
-                food.getWater(),
-                food.getProtein(), food.getFat(),
-                food.getCarbohydrates(), food.getFiber(), last,
-                food.getPortions().stream().map((portion) -> mapFromFoodPortionToFoodPortionDto(portion)).toList());
-    }
-
     public static OpenFood fromCreateOpenFoodDtoToOpenFood(CreateOpenFoodDto dto) {
         return new OpenFood(null, dto.barCode(), dto.name(), dto.kcal(), dto.water(), dto.protein(), dto.fat(),
                 dto.carbohydrates(), dto.fiber(), dto.company(), null, null);
@@ -81,5 +65,17 @@ public class FoodMapper {
                 openFood.getFat(), openFood.getCarbohydrates(), openFood.getFiber(), openFood.getBarCode(), null, null,
                 new ArrayList<>(),
                 new ArrayList<>());
+    }
+
+    public static FoodWithLastEntryAndPortionsDto mapFromFoodAndTrackedFoodToFoodWithLastEntryDto(Food food,
+            TrackedFood lastEntry) {
+        FoodWithLastEntryAndPortionsDto.LastEntry last = null;
+        if (lastEntry != null) {
+            last = new FoodWithLastEntryAndPortionsDto.LastEntry(lastEntry.getAmount());
+        }
+        return new FoodWithLastEntryAndPortionsDto(food.getId(), food.getBlsCode(), food.getName(), food.getKcal(),
+                food.getWater(), food.getProtein(), food.getFat(), food.getCarbohydrates(), food.getFiber(),
+                last,
+                food.getPortions().stream().map((portion) -> mapFromFoodPortionToFoodPortionDto(portion)).toList());
     }
 }

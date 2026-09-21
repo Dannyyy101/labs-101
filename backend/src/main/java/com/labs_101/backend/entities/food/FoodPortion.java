@@ -33,7 +33,7 @@ public class FoodPortion {
 
     private String label;
     private Double grams;
-    private Boolean isDefault;
+    private Boolean isDefault = false;
 
     public FoodPortion(Long id) {
         this.id = id;

@@ -30,6 +30,7 @@ import com.labs_101.backend.dtos.food.CreateFoodUserDto;
 import com.labs_101.backend.dtos.food.CreateOpenFoodDto;
 import com.labs_101.backend.dtos.food.FoodDto;
 import com.labs_101.backend.dtos.food.FoodUserDto;
+import com.labs_101.backend.dtos.food.FoodWithLastEntryAndPortionsDto;
 import com.labs_101.backend.dtos.food.SearchFoodResponseDto;
 import com.labs_101.backend.dtos.food.TrackedFoodDto;
 import com.labs_101.backend.dtos.food.UpdateFoodDto;
@@ -86,15 +87,6 @@ public class FoodService {
         foodUserRepository.save(FoodMapper.mapFromCreateFoodUserDto(dto));
     }
 
-    public TrackedFoodDto updateTrackedFoodById(Long id, UpdateFoodPortionDto foodPortionDto) {
-        TrackedFood trackedFood = foodUserRepository.findById(id).orElseThrow(() -> NotFoundException.trackedFood(id));
-        if (foodPortionDto == null) {
-            return FoodMapper.mapFromFoodAndFoodUserToTrackedFoodDto(trackedFood.getFood(), trackedFood);
-        }
-
-        return null;
-    }
-
     @Transactional
     public FoodDto update(UpdateFoodDto dto) {
         Food food = foodRepository.findById(dto.id())
@@ -124,7 +116,7 @@ public class FoodService {
         return FoodMapper.mapFromEntityToFoodDto(foodRepository.save(food));
     }
 
-    public List<FoodUserDto> getTrackedFoodForUser(String id, Instant date) {
+    public List<TrackedFoodDto> getTrackedFoodForUser(String id, Instant date) {
         LocalDate day = date.atZone(ZoneOffset.UTC).toLocalDate();
         Instant start = day.atStartOfDay(ZoneOffset.UTC).toInstant();
         Instant end = day.plusDays(1).atStartOfDay(ZoneOffset.UTC).toInstant();
@@ -137,7 +129,7 @@ public class FoodService {
     }
 
     @Transactional(readOnly = true)
-    public TrackedFoodDto getFoodWithLastEntry(String userId, Long foodId) {
+    public FoodWithLastEntryAndPortionsDto getFoodWithLastEntry(String userId, Long foodId) {
 
         Food food = foodRepository.findById(foodId)
                 .orElseThrow(() -> NotFoundException.food(foodId));
@@ -146,7 +138,7 @@ public class FoodService {
                 .findFirstByUser_IdAndFood_IdOrderByCreateDateDesc(userId, foodId)
                 .orElse(null);
 
-        return FoodMapper.mapFromFoodAndFoodUserToTrackedFoodDto(food, lastEntry);
+        return FoodMapper.mapFromFoodAndTrackedFoodToFoodWithLastEntryDto(food, lastEntry);
     }
 
     public void createFoodPortion(Long foodId, CreateFoodPortionDto dto) {
@@ -182,11 +174,6 @@ public class FoodService {
         }
     }
 
-    private static <T> void setIfNotNull(T value, Consumer<T> setter) {
-        if (value != null)
-            setter.accept(value);
-    }
-
     public void createOpenFood(CreateOpenFoodDto dto) {
         openFoodRepository.save(FoodMapper.fromCreateOpenFoodDtoToOpenFood(dto));
     }
@@ -199,5 +186,29 @@ public class FoodService {
         OpenFood openFood = openFoodRepository.findByBarCode(code)
                 .orElseThrow(() -> NotFoundException.foodByBarcode(code));
         return FoodMapper.mapFromEntityToFoodDto(foodRepository.save(FoodMapper.mapFromOpenFoodToFood(openFood)));
+    }
+
+    public void deleteTrackedFoodById(String userId, Long trackedFoodId) {
+        foodUserRepository.deleteById(trackedFoodId);
+    }
+
+    public TrackedFoodDto updateTrackedFoodById(Long id, CreateFoodUserDto trackedFood) {
+        TrackedFood food = foodUserRepository.findById(id).orElseThrow(() -> NotFoundException.trackedFood(id));
+        setIfNotNull(trackedFood.amount(), food::setAmount);
+        if (trackedFood.portionId() != null) {
+            food.setPortion(new FoodPortion(trackedFood.portionId()));
+        }
+        return FoodMapper.mapFromTrackedFood(foodUserRepository.save(food));
+    }
+
+    public TrackedFoodDto getTrackedFoodById(Long trackedFoodId) {
+        TrackedFood food = foodUserRepository.findById(trackedFoodId)
+                .orElseThrow(() -> NotFoundException.trackedFood(trackedFoodId));
+        return FoodMapper.mapFromTrackedFood(food);
+    }
+
+    private static <T> void setIfNotNull(T value, Consumer<T> setter) {
+        if (value != null)
+            setter.accept(value);
     }
 }
