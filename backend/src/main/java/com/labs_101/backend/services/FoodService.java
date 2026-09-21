@@ -1,6 +1,5 @@
 package com.labs_101.backend.services;
 
-import com.labs_101.backend.controller.FoodController;
 import com.labs_101.backend.repositories.FoodRepository;
 
 import com.labs_101.backend.repositories.TrackedFoodRepository;
@@ -44,17 +43,15 @@ import com.labs_101.backend.mapper.FoodMapper;
 
 @Service
 public class FoodService {
-    private final FoodController foodController;
     private final OpenFoodRepository openFoodRepository;
     private final TrackedFoodRepository foodUserRepository;
     private final FoodRepository foodRepository;
 
     FoodService(FoodRepository foodRepository, TrackedFoodRepository foodUserRepository,
-            OpenFoodRepository openFoodRepository, FoodController foodController) {
+            OpenFoodRepository openFoodRepository) {
         this.foodRepository = foodRepository;
         this.foodUserRepository = foodUserRepository;
         this.openFoodRepository = openFoodRepository;
-        this.foodController = foodController;
     }
 
     public void create(CreateFoodDto dto) {

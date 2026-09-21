@@ -23,7 +23,7 @@ export default function Meal({ props }: { props: MealProps }) {
                     <ChevronDownIcon className="ml-auto group-data-panel-open/button:rotate-180" /></Button>} />
                 <CollapsibleContent className="flex flex-col items-start gap-2 p-2.5 pt-0 text-sm">
                     <div className="w-full">
-                        {props.trackedFood.map((food) => <Food key={food.id} foodWithAmount={food} />)}
+                        {props.trackedFood.map((food, index) => <Food key={`${food.id}-${index}`} foodWithAmount={food} />)}
                     </div>
                     <FoodSearch meal={props.name}></FoodSearch>
                 </CollapsibleContent>

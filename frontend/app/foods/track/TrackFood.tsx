@@ -11,6 +11,8 @@ import CalorieCard from "./CalorieCard";
 export default function TrackFood({ food }: { food: FoodWithAmount[] }) {
     const [trackedFood, setTrackedFood] = useState<Map<string, FoodWithAmount[]>>(new Map())
 
+    console.log(food)
+
     useEffect(() => {
 
         const map = new Map<string, FoodWithAmount[]>()

@@ -33,7 +33,7 @@ public class FoodMapper {
     public static TrackedFood mapFromCreateFoodUserDto(CreateFoodUserDto dto) {
         FoodPortion portion = null;
         if (dto.portionId() != null) {
-            new FoodPortion(dto.portionId());
+            portion = new FoodPortion(dto.portionId());
         }
         return new TrackedFood(null, new User(dto.userId()), new Food(dto.foodId()), dto.amount(),
                 MealType.valueOf(dto.meal()), portion, null, null);
