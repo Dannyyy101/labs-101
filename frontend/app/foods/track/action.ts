@@ -3,7 +3,7 @@
 import { auth } from "@/lib/auth"
 import { BACKEND_URL } from "@/utils/constants"
 import { ApiError } from "@/utils/types/api"
-import { CreateFoodWithAmount, Food, FoodWithAmount, FoodWithLastEntry, SearchFood, TrackFoodForUser } from "@/utils/types/food"
+import { CreateFoodWithAmount, CreateTrackedFood, Food, FoodWithLastEntry, SearchFood, TrackedFood, TrackFoodForUser } from "@/utils/types/food"
 import { Page } from "@/utils/types/page"
 import { Result } from "@/utils/types/result"
 import { revalidatePath } from "next/cache"
@@ -33,21 +33,21 @@ export async function findFoodByNameAndUserId(name: string, filter?: { page?: nu
     throw new Error("Error fetching foods")
 }
 
-export async function getTrackedFood(date: Date): Promise<FoodWithAmount[]> {
+export async function getTrackedFood(date: Date): Promise<TrackedFood[]> {
     const session = await auth.api.getSession({
         headers: await headers()
     })
 
     if (!session) throw new Error("User is currently not in a session")
 
-    const url = new URL(`${BACKEND_URL}/users/${session.user.id}/tracked-food`)
+    const url = new URL(`${BACKEND_URL}/users/${session.user.id}/tracked-foods`)
 
     url.searchParams.append("date", date.toISOString())
 
     const response = await fetch(url.toString(), { cache: 'no-store' })
 
     if (response.ok) {
-        return await response.json() as FoodWithAmount[]
+        return await response.json() as TrackedFood[]
     }
 
     throw new Error("Error fetching tracked foods")
@@ -68,10 +68,49 @@ export async function getTrackedFoodByFoodId(foodId: number): Promise<FoodWithLa
         return await response.json() as FoodWithLastEntry
     }
 
-    throw new Error(`Error fetching tracked food by ${foodId}`)
+    throw new Error(`Error fetching food by ${foodId}`)
 }
 
-export async function createTrackFood(foodWithAmount: CreateFoodWithAmount) {
+export async function getTrackedFoodByTrackedFoodId(trackedFoodId: number): Promise<TrackedFood> {
+    const session = await auth.api.getSession({
+        headers: await headers()
+    })
+
+    if (!session) throw new Error("User is currently not in a session")
+
+    const url = new URL(`${BACKEND_URL}/users/${session.user.id}/tracked-foods/${trackedFoodId}`)
+
+    const response = await fetch(url.toString(), { cache: 'no-store' })
+
+    if (response.ok) {
+        return await response.json() as TrackedFood
+    }
+
+    throw new Error(`Error fetching tracked food by ${trackedFoodId}`)
+}
+
+export async function updateTrackFood(foodWithAmount: CreateTrackedFood) {
+
+    const session = await auth.api.getSession({
+        headers: await headers()
+    })
+    if (!session) throw new Error("User is currently not in a session")
+    const url = new URL(`${BACKEND_URL}/users/${session.user.id}/tracked-foods/${foodWithAmount.id}`)
+
+    const response = await fetch(url.toString(), {
+        method: "PUT",
+        body: JSON.stringify({ ...foodWithAmount, userId: session.user.id }), headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+    if (response.ok) {
+        revalidatePath("/foods/track")
+        return
+    }
+    throw new Error(await response.json())
+}
+
+export async function createTrackFood(foodWithAmount: CreateTrackedFood) {
     const url = new URL(`${BACKEND_URL}/foods/${foodWithAmount.foodId}/track`)
 
     const session = await auth.api.getSession({
@@ -84,6 +123,22 @@ export async function createTrackFood(foodWithAmount: CreateFoodWithAmount) {
         body: JSON.stringify({ ...foodWithAmount, userId: session.user.id }), headers: {
             'Content-Type': 'application/json'
         }
+    })
+    if (response.ok) {
+        revalidatePath("/foods/track")
+        return
+    }
+    throw new Error(await response.json())
+}
+
+export async function deleteTrackedFood(trackedFoodId: number) {
+    const session = await auth.api.getSession({
+        headers: await headers()
+    })
+    if (!session) throw new Error("User is currently not in a session")
+    const url = new URL(`${BACKEND_URL}/users/${session.user.id}/tracked-foods/${trackedFoodId}`)
+    const response = await fetch(url.toString(), {
+        method: "DELETE",
     })
     if (response.ok) {
         revalidatePath("/foods/track")

@@ -14,9 +14,9 @@ import org.springframework.test.context.ContextConfiguration;
 import com.labs_101.backend.EmbeddedPostgresConfiguration.EmbeddedPostgresExtension;
 import com.labs_101.backend.entities.User;
 import com.labs_101.backend.entities.food.Food;
-import com.labs_101.backend.entities.food.FoodUser;
+import com.labs_101.backend.entities.food.TrackedFood;
 import com.labs_101.backend.repositories.FoodRepository;
-import com.labs_101.backend.repositories.FoodUserRepository;
+import com.labs_101.backend.repositories.TrackedFoodRepository;
 import com.labs_101.backend.repositories.UserRepository;
 
 @DataJpaTest
@@ -27,7 +27,7 @@ public class EmbeddedPostgresIntegrationTest {
     @Autowired
     private FoodRepository foodRepository;
     @Autowired
-    private FoodUserRepository foodUserRepository;
+    private TrackedFoodRepository foodUserRepository;
     @Autowired
     private UserRepository userRepository;
 
@@ -59,7 +59,7 @@ public class EmbeddedPostgresIntegrationTest {
         foodRepository.save(new Food("Ananas"));
         foodRepository.save(aubergine);
         User user = userRepository.save(new User("1"));
-        foodUserRepository.save(new FoodUser(null, user, aubergine, 1.0, null, null, null, null));
+        foodUserRepository.save(new TrackedFood(null, user, aubergine, 1.0, null, null, null, null));
 
         Page<Food> foods = foodRepository.findAllByNameAndUserId(Pageable.ofSize(5), "A", user.getId());
         assertEquals(foods.stream().toList().size(), 3);

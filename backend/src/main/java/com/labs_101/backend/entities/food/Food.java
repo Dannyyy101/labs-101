@@ -46,7 +46,7 @@ public class Food {
     private Instant updateDate;
 
     @OneToMany(mappedBy = "food")
-    private List<FoodUser> foodUsers;
+    private List<TrackedFood> foodUsers;
 
     @OneToMany(mappedBy = "food", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<FoodPortion> portions;

@@ -28,7 +28,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @Entity
 @Table(name = "foodUser")
-public class FoodUser {
+public class TrackedFood {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

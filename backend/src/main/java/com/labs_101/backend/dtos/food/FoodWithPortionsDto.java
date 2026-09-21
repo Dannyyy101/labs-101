@@ -1,12 +1,15 @@
 package com.labs_101.backend.dtos.food;
 
-public record FoodDto(Long id, String blsCode,
+import java.util.List;
+
+public record FoodWithPortionsDto(Long id, String blsCode,
         String name,
         Double kcal,
         Double water,
         Double protein,
         Double fat,
         Double carbohydrates,
-        Double fiber) {
+        Double fiber,
+        List<FoodPortionDto> portions) {
 
 }
