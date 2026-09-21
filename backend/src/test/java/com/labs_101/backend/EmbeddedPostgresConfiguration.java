@@ -14,15 +14,15 @@ import org.testcontainers.utility.DockerImageName;
 
 import com.labs_101.backend.entities.User;
 import com.labs_101.backend.entities.food.Food;
-import com.labs_101.backend.entities.food.FoodUser;
+import com.labs_101.backend.entities.food.TrackedFood;
 import com.labs_101.backend.repositories.FoodRepository;
-import com.labs_101.backend.repositories.FoodUserRepository;
+import com.labs_101.backend.repositories.TrackedFoodRepository;
 import com.labs_101.backend.repositories.UserRepository;
 import com.opentable.db.postgres.embedded.EmbeddedPostgres;
 
 @Configuration
-@EnableJpaRepositories(basePackageClasses = { FoodRepository.class, FoodUserRepository.class, UserRepository.class })
-@EntityScan(basePackageClasses = { Food.class, FoodUser.class, User.class })
+@EnableJpaRepositories(basePackageClasses = { FoodRepository.class, TrackedFoodRepository.class, UserRepository.class })
+@EntityScan(basePackageClasses = { Food.class, TrackedFood.class, User.class })
 public class EmbeddedPostgresConfiguration {
     private static EmbeddedPostgres embeddedPostgres;
 

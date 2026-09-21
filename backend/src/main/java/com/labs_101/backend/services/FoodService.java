@@ -1,8 +1,9 @@
 package com.labs_101.backend.services;
 
+import com.labs_101.backend.controller.FoodController;
 import com.labs_101.backend.repositories.FoodRepository;
 
-import com.labs_101.backend.repositories.FoodUserRepository;
+import com.labs_101.backend.repositories.TrackedFoodRepository;
 
 import com.labs_101.backend.repositories.OpenFoodRepository;
 import java.time.Instant;
@@ -36,22 +37,24 @@ import com.labs_101.backend.dtos.food.UpdateFoodDto;
 import com.labs_101.backend.dtos.food.UpdateFoodPortionDto;
 import com.labs_101.backend.entities.food.Food;
 import com.labs_101.backend.entities.food.FoodPortion;
-import com.labs_101.backend.entities.food.FoodUser;
+import com.labs_101.backend.entities.food.TrackedFood;
 import com.labs_101.backend.entities.food.OpenFood;
 import com.labs_101.backend.exception.NotFoundException;
 import com.labs_101.backend.mapper.FoodMapper;
 
 @Service
 public class FoodService {
+    private final FoodController foodController;
     private final OpenFoodRepository openFoodRepository;
-    private final FoodUserRepository foodUserRepository;
+    private final TrackedFoodRepository foodUserRepository;
     private final FoodRepository foodRepository;
 
-    FoodService(FoodRepository foodRepository, FoodUserRepository foodUserRepository,
-            OpenFoodRepository openFoodRepository) {
+    FoodService(FoodRepository foodRepository, TrackedFoodRepository foodUserRepository,
+            OpenFoodRepository openFoodRepository, FoodController foodController) {
         this.foodRepository = foodRepository;
         this.foodUserRepository = foodUserRepository;
         this.openFoodRepository = openFoodRepository;
+        this.foodController = foodController;
     }
 
     public void create(CreateFoodDto dto) {
@@ -84,6 +87,15 @@ public class FoodService {
 
     public void trackFood(CreateFoodUserDto dto) {
         foodUserRepository.save(FoodMapper.mapFromCreateFoodUserDto(dto));
+    }
+
+    public TrackedFoodDto updateTrackedFoodById(Long id, UpdateFoodPortionDto foodPortionDto) {
+        TrackedFood trackedFood = foodUserRepository.findById(id).orElseThrow(() -> NotFoundException.trackedFood(id));
+        if (foodPortionDto == null) {
+            return FoodMapper.mapFromFoodAndFoodUserToTrackedFoodDto(trackedFood.getFood(), trackedFood);
+        }
+
+        return null;
     }
 
     @Transactional
@@ -120,10 +132,10 @@ public class FoodService {
         Instant start = day.atStartOfDay(ZoneOffset.UTC).toInstant();
         Instant end = day.plusDays(1).atStartOfDay(ZoneOffset.UTC).toInstant();
 
-        List<FoodUser> entries = foodUserRepository.findByUser_IdAndCreateDateBetween(id, start, end);
+        List<TrackedFood> entries = foodUserRepository.findByUser_IdAndCreateDateBetween(id, start, end);
 
         return entries.stream()
-                .map((foodUser) -> FoodMapper.mapFromFoodUser(foodUser))
+                .map((foodUser) -> FoodMapper.mapFromTrackedFood(foodUser))
                 .toList();
     }
 
@@ -133,7 +145,7 @@ public class FoodService {
         Food food = foodRepository.findById(foodId)
                 .orElseThrow(() -> NotFoundException.food(foodId));
 
-        FoodUser lastEntry = foodUserRepository
+        TrackedFood lastEntry = foodUserRepository
                 .findFirstByUser_IdAndFood_IdOrderByCreateDateDesc(userId, foodId)
                 .orElse(null);
 

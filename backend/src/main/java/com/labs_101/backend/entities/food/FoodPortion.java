@@ -29,7 +29,7 @@ public class FoodPortion {
     private Food food;
 
     @OneToMany(mappedBy = "portion")
-    private List<FoodUser> foodUser;
+    private List<TrackedFood> foodUser;
 
     private String label;
     private Double grams;

@@ -3,7 +3,7 @@ package com.labs_101.backend.entities;
 import java.time.Instant;
 import java.util.List;
 
-import com.labs_101.backend.entities.food.FoodUser;
+import com.labs_101.backend.entities.food.TrackedFood;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -42,7 +42,7 @@ public class User {
     private List<CalendarEvent> calendarEvents;
 
     @OneToMany(mappedBy = "user")
-    private List<FoodUser> trackedFood;
+    private List<TrackedFood> trackedFood;
 
     public User(String id) {
         this.id = id;

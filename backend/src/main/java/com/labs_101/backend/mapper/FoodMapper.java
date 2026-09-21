@@ -14,7 +14,7 @@ import com.labs_101.backend.dtos.food.TrackedFoodDto;
 import com.labs_101.backend.entities.User;
 import com.labs_101.backend.entities.food.Food;
 import com.labs_101.backend.entities.food.FoodPortion;
-import com.labs_101.backend.entities.food.FoodUser;
+import com.labs_101.backend.entities.food.TrackedFood;
 import com.labs_101.backend.entities.food.MealType;
 import com.labs_101.backend.entities.food.OpenFood;
 
@@ -30,23 +30,23 @@ public class FoodMapper {
                 entity.getPortions().stream().map((portion) -> mapFromFoodPortionToFoodPortionDto(portion)).toList());
     }
 
-    public static FoodUser mapFromCreateFoodUserDto(CreateFoodUserDto dto) {
+    public static TrackedFood mapFromCreateFoodUserDto(CreateFoodUserDto dto) {
         FoodPortion portion = null;
         if (dto.portionId() != null) {
             new FoodPortion(dto.portionId());
         }
-        return new FoodUser(null, new User(dto.userId()), new Food(dto.foodId()), dto.amount(),
+        return new TrackedFood(null, new User(dto.userId()), new Food(dto.foodId()), dto.amount(),
                 MealType.valueOf(dto.meal()), portion, null, null);
     }
 
-    public static FoodUserDto mapFromFoodUser(FoodUser foodUser) {
-        Food food = foodUser.getFood();
-        return new FoodUserDto(foodUser.getFood().getId(), food.getBlsCode(), food.getName(), food.getKcal(),
+    public static FoodUserDto mapFromTrackedFood(TrackedFood trackedFood) {
+        Food food = trackedFood.getFood();
+        return new FoodUserDto(trackedFood.getFood().getId(), food.getBlsCode(), food.getName(), food.getKcal(),
                 food.getWater(),
                 food.getProtein(), food.getFat(),
-                food.getCarbohydrates(), food.getFiber(), foodUser.getUser().getId(),
-                foodUser.getAmount(), new MealDto(foodUser.getMeal().name(), foodUser.getMeal().messageKey()),
-                mapFromFoodPortionToFoodPortionDto(foodUser.getPortion()));
+                food.getCarbohydrates(), food.getFiber(), trackedFood.getUser().getId(),
+                trackedFood.getAmount(), new MealDto(trackedFood.getMeal().name(), trackedFood.getMeal().messageKey()),
+                mapFromFoodPortionToFoodPortionDto(trackedFood.getPortion()));
     }
 
     public static SearchFoodResponseDto mapFromEntityToSearchFoodResponseDto(Food e) {
@@ -59,7 +59,7 @@ public class FoodMapper {
         return new FoodPortionDto(portion.getId(), portion.getGrams(), portion.getLabel(), portion.getIsDefault());
     }
 
-    public static TrackedFoodDto mapFromFoodAndFoodUserToTrackedFoodDto(Food food, FoodUser lastEntry) {
+    public static TrackedFoodDto mapFromFoodAndFoodUserToTrackedFoodDto(Food food, TrackedFood lastEntry) {
         TrackedFoodDto.LastTrackedFoodEntryDto last = null;
         if (lastEntry != null)
             last = new TrackedFoodDto.LastTrackedFoodEntryDto(lastEntry.getAmount(),
