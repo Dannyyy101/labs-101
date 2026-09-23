@@ -41,8 +41,8 @@ export default function TrackFood({ food }: { food: TrackedFood[] }) {
 
 
     const nutritionCardsProps: NutritionCardProps[] = [
-        { name: "Protein", value: totalProtein, goal: 100, color: "red" },
-        { name: "Kohlenhydrate", value: totalCarbs, goal: 100, color: "orange" },
+        { name: "Protein", value: totalProtein, goal: 165, color: "red" },
+        { name: "Kohlenhydrate", value: totalCarbs, goal: 360, color: "orange" },
         { name: "Fett", value: totalFat, goal: 100, color: "blue" }
     ]
 
