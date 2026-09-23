@@ -67,7 +67,7 @@ public class FoodController {
 
     @PutMapping("/{id}")
     public FoodDto updateFood(@PathVariable Long id, @RequestBody UpdateFoodDto dto) {
-        return foodService.update(dto);
+        return foodService.updateById(dto);
     }
 
     @GetMapping("/search/byNameAndUser")

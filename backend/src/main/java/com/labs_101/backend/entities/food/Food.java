@@ -1,6 +1,7 @@
 package com.labs_101.backend.entities.food;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.hibernate.annotations.CreationTimestamp;
@@ -49,7 +50,7 @@ public class Food {
     private List<TrackedFood> foodUsers;
 
     @OneToMany(mappedBy = "food", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<FoodPortion> portions;
+    private List<FoodPortion> portions = new ArrayList<>();
 
     public Food(Long foodId) {
         this.id = foodId;
