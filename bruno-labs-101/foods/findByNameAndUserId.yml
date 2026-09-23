@@ -5,16 +5,16 @@ info:
 
 http:
   method: GET
-  url: "{{base_url}}/api/foods/search/byNameAndUser?name=cap&userId=&page=3"
+  url: "{{base_url}}/api/foods/search/byNameAndUser?name=Cappuccino&userId=&page=0"
   params:
     - name: name
-      value: cap
+      value: Cappuccino
       type: query
     - name: userId
       value: ""
       type: query
     - name: page
-      value: "3"
+      value: "0"
       type: query
   auth: inherit
 

@@ -62,9 +62,7 @@ export default function FoodSearch({ meal, selectedFoodStore }: {
     return <Dialog open={selectedFoodStore.showSearch} onOpenChange={selectedFoodStore.setShowSearch}>
         <DialogTrigger className="">Add Food</DialogTrigger>
         <DialogContent className="w-4xl flex flex-col ">
-
             <section>
-
                 <>
                     <InputGroup className="max-w-xs mt-8 mb-2 md:mt-0">
                         <InputGroupInput value={searchInput} placeholder="Search..." onChange={(e) => findByName(e.target.value)} />
@@ -95,7 +93,16 @@ export default function FoodSearch({ meal, selectedFoodStore }: {
                             loader={<div className="w-full flex justify-center"><Spinner className="size-4" /></div>}
                             endMessage={<p style={{ textAlign: 'center' }}>All items loaded.</p>}
                         >
-                            {food.map((f) => <Button className={"w-full text-left"} variant={"ghost"} onClick={() => selectedFoodStore.selectFood(meal as any, f.id, SelectedFoodAction.CREATING)} key={f.id}>{f.name}</Button>)}
+                            {food.map((f) => (
+                                <Button
+                                    className="max-w-96 text-left flex justify-start whitespace-normal h-auto py-2"
+                                    variant="ghost"
+                                    onClick={() => selectedFoodStore.selectFood(meal as any, f.id, SelectedFoodAction.CREATING)}
+                                    key={f.id}
+                                >
+                                    {f.name}
+                                </Button>
+                            ))}
                         </InfiniteScroll>
                     }
                 </>

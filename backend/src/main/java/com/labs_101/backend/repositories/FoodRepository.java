@@ -23,4 +23,13 @@ public interface FoodRepository extends JpaRepository<Food, Long> {
     Page<Food> findByNameContainingIgnoreCase(String name, Pageable p);
 
     Optional<Food> findByBarCode(String barcode);
+
+    @Query("""
+                        SELECT f FROM TrackedFood fu
+            JOIN fu.food f
+            WHERE fu.user.id = :userId
+            GROUP BY f, fu.createDate
+            ORDER BY fu.createDate DESC
+                        """)
+    Page<Food> findAllByLastUsed(Pageable p, String userId);
 }
