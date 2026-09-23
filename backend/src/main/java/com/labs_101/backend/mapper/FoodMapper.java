@@ -2,7 +2,10 @@ package com.labs_101.backend.mapper;
 
 import java.util.ArrayList;
 
+import org.springframework.stereotype.Service;
+
 import com.labs_101.backend.dtos.food.CreateFoodDto;
+import com.labs_101.backend.dtos.food.CreateFoodPortionDto;
 import com.labs_101.backend.dtos.food.CreateFoodUserDto;
 import com.labs_101.backend.dtos.food.CreateOpenFoodDto;
 import com.labs_101.backend.dtos.food.FoodDto;
@@ -18,13 +21,14 @@ import com.labs_101.backend.entities.food.TrackedFood;
 import com.labs_101.backend.entities.food.MealType;
 import com.labs_101.backend.entities.food.OpenFood;
 
+@Service
 public class FoodMapper {
-    public static Food mapFromCreateFoodDtoToEntity(CreateFoodDto dto) {
+    public Food mapFromCreateFoodDtoToEntity(CreateFoodDto dto) {
         return new Food(null, dto.blsCode(), dto.name(), dto.kcal(), dto.water(), dto.protein(), dto.fat(),
                 dto.carbohydrates(), dto.fiber(), "", null, null, null, null);
     }
 
-    public static FoodDto mapFromEntityToFoodDto(Food entity) {
+    public FoodDto mapFromEntityToFoodDto(Food entity) {
         return new FoodDto(entity.getId(), entity.getBlsCode(), entity.getName(), entity.getKcal(), entity.getWater(),
                 entity.getProtein(), entity.getFat(), entity.getCarbohydrates(), entity.getFiber());
     }
@@ -38,7 +42,7 @@ public class FoodMapper {
                 MealType.valueOf(dto.meal()), portion, null, null);
     }
 
-    public static TrackedFoodDto mapFromTrackedFood(TrackedFood trackedFood) {
+    public TrackedFoodDto mapFromTrackedFood(TrackedFood trackedFood) {
         Food food = trackedFood.getFood();
         return new TrackedFoodDto(trackedFood.getId(), mapFromEntityToFoodDto(food), trackedFood.getAmount(),
                 new MealDto(trackedFood.getMeal().name(), trackedFood.getMeal().messageKey()),
@@ -67,7 +71,11 @@ public class FoodMapper {
                 new ArrayList<>());
     }
 
-    public static FoodWithLastEntryAndPortionsDto mapFromFoodAndTrackedFoodToFoodWithLastEntryDto(Food food,
+    public FoodPortion mapFromCreateFoodPortionDtoToFoodPortion(CreateFoodPortionDto dto) {
+        return new FoodPortion(null, null, new ArrayList<>(), dto.label(), dto.grams(), dto.isDefault());
+    }
+
+    public FoodWithLastEntryAndPortionsDto mapFromFoodAndTrackedFoodToFoodWithLastEntryDto(Food food,
             TrackedFood lastEntry) {
         FoodWithLastEntryAndPortionsDto.LastEntry last = null;
         if (lastEntry != null) {
