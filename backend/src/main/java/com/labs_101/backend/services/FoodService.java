@@ -103,7 +103,12 @@ public class FoodService {
 
     @Transactional(readOnly = true)
     public Page<SearchFoodResponseDto> searchByNameAndUserId(Pageable p, String name, String userId) {
-        Page<Food> entities = foodRepository.findAllByNameAndUserId(p, name, userId);
+        Page<Food> entities = null;
+        if (name == null || name.isBlank()) {
+            entities = foodRepository.findAllByLastUsed(p, userId);
+        } else {
+            entities = foodRepository.findAllByNameAndUserId(p, name, userId);
+        }
 
         return entities.map(FoodMapper::mapFromEntityToSearchFoodResponseDto);
     }
