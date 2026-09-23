@@ -22,11 +22,21 @@ export async function getAllFoods(page: number = 0, sort: string = "asc", query:
 }
 
 export async function createFood(food: Omit<FoodWithPortion, "id">) {
+    const response = await fetch(BACKEND_URL + "/foods", {
+        method: "POST", body: JSON.stringify(food), headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+
+    if (response.ok) {
+        revalidatePath("/foods")
+        return
+    }
 
 }
 
 export async function updateFood(food: FoodWithPortion) {
-    console.log(food)
+
     const response = await fetch(BACKEND_URL + "/foods/" + food.id, {
         method: "PUT", body: JSON.stringify(food), headers: {
             'Content-Type': 'application/json'

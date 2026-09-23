@@ -20,7 +20,7 @@ import { createFood, deleteFood, updateFood } from "./action"
 
 type PortionRow = Omit<FoodPortion, "id"> & { id: number; key: string }
 
-const EMPTY_FOOD: FoodWithPortion = {
+export const EMPTY_FOOD: FoodWithPortion = {
     id: -1,
     blsCode: "",
     name: "",
