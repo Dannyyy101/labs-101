@@ -3,8 +3,6 @@ package com.labs_101.backend.dtos.workout;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.labs_101.backend.entities.workout.WorkoutExercise;
-
 import lombok.Getter;
 import lombok.Setter;
 

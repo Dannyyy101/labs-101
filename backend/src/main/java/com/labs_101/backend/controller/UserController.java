@@ -1,5 +1,6 @@
 package com.labs_101.backend.controller;
 
+import com.labs_101.backend.services.HealthDataService;
 import java.time.Instant;
 import java.util.List;
 
@@ -8,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -15,20 +17,24 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.labs_101.backend.dtos.food.CreateFoodDto;
 import com.labs_101.backend.dtos.food.CreateFoodUserDto;
 import com.labs_101.backend.dtos.food.FoodUserDto;
 import com.labs_101.backend.dtos.food.FoodWithLastEntryAndPortionsDto;
 import com.labs_101.backend.dtos.food.TrackedFoodDto;
+import com.labs_101.backend.dtos.healthData.SyncHealthData;
 import com.labs_101.backend.services.FoodService;
 
 @RestController()
 @RequestMapping("/api/users")
 public class UserController {
 
+    private final HealthDataService healthDataService;
     private final FoodService foodService;
 
-    UserController(FoodService foodService) {
+    UserController(FoodService foodService, HealthDataService healthDataService) {
         this.foodService = foodService;
+        this.healthDataService = healthDataService;
     }
 
     @GetMapping("{id}/tracked-foods")
@@ -60,5 +66,11 @@ public class UserController {
             @PathVariable Long foodId) {
         return foodService.getFoodWithLastEntry(userId, foodId);
 
+    }
+
+    @PostMapping("/{userId}/sync/apple-health")
+    public ResponseEntity<Void> syncAppleHealth(@RequestBody SyncHealthData dto) {
+        healthDataService.syncAppleHealth(dto);
+        return ResponseEntity.noContent().build();
     }
 }

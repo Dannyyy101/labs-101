@@ -14,7 +14,7 @@ struct ContentView: View {
 
     var body: some View {
         Button("Fetch Workouts") {
-            manager.requestExerciseData()
+            manager.requestStepsData()
         }
         Button("Access health data") {
             // OK to read or write HealthKit data here.
