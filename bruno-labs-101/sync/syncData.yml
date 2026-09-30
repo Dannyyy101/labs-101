@@ -1,0 +1,24 @@
+info:
+  name: syncData
+  type: websocket
+  seq: 2
+
+websocket:
+  url: ws://home-server:9001
+  headers:
+    - name: Sec-WebSocket-Protocol
+      value: mqtt
+  message:
+    - title: message 1
+      selected: false
+      message:
+        type: json
+        data: Hallo
+  auth:
+    type: basic
+    username: labs_101_user
+    password: 15leinad
+
+settings:
+  timeout: 0
+  keepAliveInterval: 0

@@ -1,0 +1,19 @@
+info:
+  name: SyncAppleHealthData
+  type: http
+  seq: 1
+
+http:
+  method: POST
+  url: "{{base_url}}/api/users/0Hatub6x8Vxyp3L8YNG5QHG7s579dTai/sync/apple-health"
+  body:
+    type: json
+    data: ""
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false
