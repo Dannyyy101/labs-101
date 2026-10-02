@@ -67,6 +67,15 @@ public class FoodService {
         return entities.map(foodMapper::mapFromEntityToFoodDto);
     }
 
+    @Transactional(readOnly = true)
+    public Page<FoodDto> getAllOpenFood(String query, Pageable p) {
+        Page<OpenFood> entities = (query == null || query.isBlank())
+                ? openFoodRepository.findAll(p)
+                : openFoodRepository.findByNameContainingIgnoreCase(query.trim(), p);
+
+        return entities.map(foodMapper::mapFromOpenFoodToFoodDto);
+    }
+
     public FoodDto create(CreateFoodDto dto) {
         Food entity = foodRepository.save(foodMapper.mapFromCreateFoodDtoToEntity(dto));
         logger.info("Food was created successfully with id: " + entity.getId());

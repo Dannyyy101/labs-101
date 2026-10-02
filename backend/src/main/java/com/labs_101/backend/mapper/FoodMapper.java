@@ -30,7 +30,7 @@ public class FoodMapper {
 
     public FoodDto mapFromEntityToFoodDto(Food entity) {
         return new FoodDto(entity.getId(), entity.getBlsCode(), entity.getName(), entity.getKcal(), entity.getWater(),
-                entity.getProtein(), entity.getFat(), entity.getCarbohydrates(), entity.getFiber());
+                entity.getProtein(), entity.getFat(), entity.getCarbohydrates(), entity.getFiber(), "BLS");
     }
 
     public static TrackedFood mapFromCreateFoodUserDto(CreateFoodUserDto dto) {
@@ -40,6 +40,11 @@ public class FoodMapper {
         }
         return new TrackedFood(null, new User(dto.userId()), new Food(dto.foodId()), dto.amount(),
                 MealType.valueOf(dto.meal()), portion, null, null);
+    }
+
+    public FoodDto mapFromOpenFoodToFoodDto(OpenFood food) {
+        return new FoodDto(food.getId(), null, food.getName(), food.getKcal(), food.getWater(), food.getProtein(),
+                food.getFat(), food.getCarbohydrates(), food.getFiber(), "OPEN_FOOD");
     }
 
     public TrackedFoodDto mapFromTrackedFood(TrackedFood trackedFood) {

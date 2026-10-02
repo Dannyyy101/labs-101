@@ -27,7 +27,10 @@ export async function findFoodByNameAndUserId(name: string, filter?: { page?: nu
     const response = await fetch(url.toString(), { cache: 'no-store' })
 
     if (response.ok) {
-        return await response.json() as Page<SearchFood>
+        const result = await response.json() as Page<SearchFood>
+        if (result.empty) {
+
+        }
     }
 
     throw new Error("Error fetching foods")

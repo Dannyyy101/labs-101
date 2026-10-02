@@ -5,7 +5,7 @@ import { Spinner } from "@/components/ui/spinner";
 import { AlertCircle, Barcode, Search } from "lucide-react";
 import InfiniteScroll from "react-infinite-scroll-component";
 import { Food, Meal, SearchFood } from "@/utils/types/food";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { findAndSafeFoodIfNotExistByBarcode, findFoodByNameAndUserId } from "./action";
 import { Button } from "@/components/ui/button";
 import FoodTrackView from "./FoodTrackView";
@@ -18,25 +18,49 @@ export default function FoodSearch({ meal, selectedFoodStore }: {
 }) {
 
     const [food, setFood] = useState<SearchFood[]>([])
+    const [page, setPage] = useState(0)
     const [hasMore, setHasMore] = useState(true);
     const [searchInput, setSearchInput] = useState<string>("")
     const [open, setOpen] = useState<boolean>(false)
     const [showBarcodeScanner, setShowBarcodeScanner] = useState<boolean>(false)
+    const requestId = useRef(0)
+
+    useEffect(() => {
+        const query = searchInput.trim()
+        const id = ++requestId.current
+
+        if (!query) {
+            setFood([]); setHasMore(false); setPage(0)
+            return
+        }
+
+        const t = setTimeout(async () => {
+            const res = await findFoodByNameAndUserId(query, { page: 0 })
+            if (id !== requestId.current) return
+            setFood(res.content)
+            setPage(0)
+            setHasMore(!res.last)
+        }, 300)
+
+        return () => clearTimeout(t)
+    }, [searchInput])
 
     const findByName = async (name: string) => {
         setSearchInput(name)
         const foundFood = await findFoodByNameAndUserId(name)
         setFood(foundFood.content)
-        setHasMore(foundFood.totalElements % foundFood.size !== 0)
+        setHasMore(!foundFood.last)
     }
 
     const fetchMore = async () => {
-        const next = await findFoodByNameAndUserId(searchInput, { page: food.length / 20 });
-        if (next.totalElements % next.size !== 0) {
-            setHasMore(false)
-        }
-        setFood((prev) => [...prev, ...next.content]);
-    };
+        const id = requestId.current
+        const nextPage = page + 1
+        const res = await findFoodByNameAndUserId(searchInput.trim(), { page: nextPage })
+        if (id !== requestId.current) return
+        setFood(prev => [...prev, ...res.content])
+        setPage(nextPage)
+        setHasMore(!res.last)
+    }
     const [error, setError] = useState<string | null>(null)
     const [loading, setLoading] = useState(false)
 
@@ -85,25 +109,28 @@ export default function FoodSearch({ meal, selectedFoodStore }: {
                             lookupFood(ean)
                         }}
                     /> :
-                        <InfiniteScroll
-                            className="bg-accent rounded-2xl w-full max-h-96 overflow-y-auto p-2 mt-2 flex flex-col"
-                            dataLength={food.length}
-                            next={fetchMore}
-                            hasMore={hasMore}
-                            loader={<div className="w-full flex justify-center"><Spinner className="size-4" /></div>}
-                            endMessage={<p style={{ textAlign: 'center' }}>All items loaded.</p>}
-                        >
-                            {food.map((f) => (
-                                <Button
-                                    className="max-w-96 text-left flex justify-start whitespace-normal h-auto py-2"
-                                    variant="ghost"
-                                    onClick={() => selectedFoodStore.selectFood(meal as any, f.id, SelectedFoodAction.CREATING)}
-                                    key={f.id}
-                                >
-                                    {f.name}
-                                </Button>
-                            ))}
-                        </InfiniteScroll>
+                        <div id="food-scroll" className="bg-accent rounded-2xl w-full max-h-96 overflow-y-auto p-2 mt-2">
+                            <InfiniteScroll
+                                scrollableTarget="food-scroll"
+                                className="flex flex-col"
+                                dataLength={food.length}
+                                next={fetchMore}
+                                hasMore={hasMore}
+                                loader={<div className="w-full flex justify-center"><Spinner className="size-4" /></div>}
+                                endMessage={food.length > 0 && <p className="text-center">All items loaded.</p>}
+                            >
+                                {food.map((f) => (
+                                    <Button
+                                        className="max-w-96 text-left flex justify-start whitespace-normal h-auto py-2"
+                                        variant="ghost"
+                                        onClick={() => selectedFoodStore.selectFood(meal as any, f.id, SelectedFoodAction.CREATING)}
+                                        key={f.id}
+                                    >
+                                        {f.name}
+                                    </Button>
+                                ))}
+                            </InfiniteScroll>
+                        </div>
                     }
                 </>
 

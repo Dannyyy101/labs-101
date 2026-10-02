@@ -5,13 +5,13 @@ info:
 
 http:
   method: GET
-  url: "{{base_url}}/api/foods/search/byNameAndUser?name=Cappuccino&userId=&page=0"
+  url: "{{base_url}}/api/foods/search/byNameAndUser?name=Fa&userId=0Hatub6x8Vxyp3L8YNG5QHG7s579dTai&page=0"
   params:
     - name: name
-      value: Cappuccino
+      value: Fa
       type: query
     - name: userId
-      value: ""
+      value: 0Hatub6x8Vxyp3L8YNG5QHG7s579dTai
       type: query
     - name: page
       value: "0"
