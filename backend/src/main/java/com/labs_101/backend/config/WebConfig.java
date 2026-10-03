@@ -23,7 +23,8 @@ public class WebConfig implements WebMvcConfigurer {
     public void addCorsMappings(CorsRegistry registry) {
         // Configure CORS settings for endpoints matching "/api/**"
         registry.addMapping("/api/**")
-                .allowedOrigins("http://localhost:3000", "http://frontend:3000", "https://labs-101.project101.tech")
+                .allowedOrigins("http://localhost:3000", "http://frontend:3000", "https://labs-101.project101.tech",
+                        "https://project101.tech")
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                 .allowCredentials(true)
                 .allowedHeaders("*");
