@@ -12,6 +12,7 @@ import FoodTrackView from "./FoodTrackView";
 import ScannerPanel from "@/components/ScannerPanel";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { SelectedFoodAction, SelectedFoodState } from "@/lib/zustand/selectedFood";
+import { MEALS } from "./MealView";
 
 const FoodSearch: React.FC<{ meal: Meal, selectedFoodStore: SelectedFoodState, children?: ReactNode, className?: string }> = ({ meal, selectedFoodStore, children, className }) => {
 
@@ -59,24 +60,43 @@ const FoodSearch: React.FC<{ meal: Meal, selectedFoodStore: SelectedFoodState, c
     }
     const [showDialog, setShowDialog] = useState<"SEARCH" | "TEXT">("SEARCH")
 
-    return <Dialog open={selectedFoodStore.showSearch} onOpenChange={selectedFoodStore.setShowSearch}>
+    const close = () => {
+        selectedFoodStore.unselect()
+        selectedFoodStore.setShowSearch(false)
+    }
+
+    // a food selected from the search is shown right here instead of the list
+    const selectedFood = selectedFoodStore.action === SelectedFoodAction.CREATING ? selectedFoodStore.foodId : null
+
+    return <Dialog open={selectedFoodStore.showSearch} onOpenChange={(open) => { if (open) selectedFoodStore.setShowSearch(true); else close() }}>
         <DialogTrigger className={className}>{children}</DialogTrigger>
-        <DialogContent className="w-4xl flex flex-col ">
-            <DialogHeader>
-                <DialogTitle className="text-center">Essen hinzufügen</DialogTitle>
+        <DialogContent className="w-4xl flex flex-col" showCloseButton={false}>
+            <DialogHeader className="grid grid-cols-[1fr_auto_1fr] items-center">
+                <button className="text-blue-500 hover:text-blue-600 justify-self-start" onClick={close}>Abbrechen</button>
+                <DialogTitle className="text-center text-lg">Essen hinzufügen</DialogTitle>
             </DialogHeader>
             <section>
-                <div className="flex gap-x-1">
-                    <button style={{ backgroundColor: showDialog === "TEXT" ? "black" : "var(--accent)", color: showDialog === "TEXT" ? "white" : "black" }} onClick={() => setShowDialog("TEXT")} className="rounded-xl bg-accent px-3 py-1">Per Text</button>
-                    <button style={{ backgroundColor: showDialog === "SEARCH" ? "black" : "var(--accent)", color: showDialog === "SEARCH" ? "white" : "black" }} onClick={() => setShowDialog("SEARCH")} className="rounded-xl bg-accent px-3 py-1">Suchen</button>
+                <div className="flex gap-x-2">
+                    {(["TEXT", "SEARCH"] as const).map((mode) =>
+                        <button key={mode} onClick={() => { setShowDialog(mode); selectedFoodStore.setFoodId(null) }}
+                            className={`rounded-full px-4 py-1.5 font-medium ${showDialog === mode ? "bg-foreground text-background" : "bg-accent"}`}>
+                            {mode === "TEXT" ? "Per Text" : "Suchen"}
+                        </button>
+                    )}
                 </div>
-                <div className="bg-accent flex rounded-md h-8 p-0.5 mt-2">
-                    <button className="w-full rounded-md font-semibold text-sm" style={{ backgroundColor: selectedFoodStore.meal === Meal.BREAKFAST ? "white" : "transparent" }} onClick={() => selectedFoodStore.setMeal(Meal.BREAKFAST)}>Frühstück</button>
-                    <button className="w-full rounded-md font-semibold" style={{ backgroundColor: selectedFoodStore.meal === Meal.LUNCH ? "white" : "transparent" }} onClick={() => selectedFoodStore.setMeal(Meal.LUNCH)}>Mittagessen</button>
-                    <button className="w-full rounded-md font-semibold" style={{ backgroundColor: selectedFoodStore.meal === Meal.DINNER ? "white" : "transparent" }} onClick={() => selectedFoodStore.setMeal(Meal.DINNER)}>Abendessen</button>
-                    <button className="w-full rounded-md font-semibold" style={{ backgroundColor: selectedFoodStore.meal === Meal.SNACK ? "white" : "transparent" }} onClick={() => selectedFoodStore.setMeal(Meal.SNACK)}>Snack</button>
-                </div>
-                {showDialog === "SEARCH" ?
+                <MealTabs meal={selectedFoodStore.meal ?? meal} onChange={selectedFoodStore.setMeal} />
+                {selectedFood != null ?
+                    <div className="mt-4">
+                        <FoodTrackView key={selectedFood} props={{
+                            meal: selectedFoodStore.meal ?? meal,
+                            foodId: selectedFood,
+                            back: () => selectedFoodStore.setFoodId(null),
+                            closeView: close,
+                            selectedFoodStore,
+                        }} />
+                    </div>
+                    :
+                    showDialog === "SEARCH" ?
                     <>
                         <InputGroup className="w-full mt-2 h-10 mb-2 rounded-md">
                             <InputGroupInput value={searchInput} placeholder="Suchen..." onChange={(e) => findByName(e.target.value)} />
@@ -132,6 +152,16 @@ const FoodSearch: React.FC<{ meal: Meal, selectedFoodStore: SelectedFoodState, c
         </DialogContent>
     </Dialog>
 }
+
+export const MealTabs: React.FC<{ meal: Meal, onChange: (meal: Meal) => void }> = ({ meal, onChange }) =>
+    <div className="bg-accent flex rounded-xl p-1 mt-3">
+        {MEALS.map((m) =>
+            <button key={m.type} onClick={() => onChange(m.type)}
+                className={`w-full rounded-lg py-1.5 font-semibold ${meal === m.type ? "bg-background shadow-sm" : ""}`}>
+                {m.label}
+            </button>
+        )}
+    </div>
 
 type PreviewStatus = "OK" | "NEW_UNIT" | "NOT_FOUND"
 

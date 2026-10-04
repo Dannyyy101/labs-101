@@ -4,10 +4,10 @@ import MealView, { MEALS } from "./MealView"
 import { TrackedFood, Meal } from "@/utils/types/food";
 import { getNutritionForAmount } from "@/utils/food";
 import CalorieCard from "./CalorieCard";
-import { useSelectedFoodStore } from "@/lib/zustand/selectedFood";
+import { SelectedFoodAction, useSelectedFoodStore } from "@/lib/zustand/selectedFood";
 import FoodTrackView from "./FoodTrackView";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
-import FoodSearch from "./FoodSearch";
+import FoodSearch, { MealTabs } from "./FoodSearch";
 import { Plus } from "lucide-react";
 import { formatDayTitle, formatLongDay } from "./format";
 
@@ -81,19 +81,21 @@ export default function TrackFood({ food, day }: { food: TrackedFood[], day: str
 
             <FoodSearch meal={selectedFoodStore.meal ?? Meal.BREAKFAST} selectedFoodStore={selectedFoodStore} className="hidden" />
 
-            <Dialog open={selectedFoodStore.foodId != null} onOpenChange={(open) => { if (!open) selectedFoodStore.unselect() }}>
+            <Dialog open={selectedFoodStore.foodId != null && selectedFoodStore.action === SelectedFoodAction.EDITING} onOpenChange={(open) => { if (!open) selectedFoodStore.unselect() }}>
                 <DialogContent className="w-4xl flex flex-col">
-                    <DialogTitle className="sr-only">Eintrag bearbeiten</DialogTitle>
-                    {selectedFoodStore.foodId != null &&
-                        <FoodTrackView key={`${selectedFoodStore.foodId}-${selectedFoodStore.trackedFoodId}`} props={{
-                            meal: selectedFoodStore.meal ?? Meal.BREAKFAST,
-                            foodId: selectedFoodStore.foodId,
-                            // back to the search, it stays open underneath
-                            back: () => selectedFoodStore.setFoodId(null),
-                            closeView: closeDialog,
-                            selectedFoodStore,
-                        }} />
-                    }
+                    <DialogTitle className="text-center text-lg">Eintrag bearbeiten</DialogTitle>
+                    {selectedFoodStore.foodId != null && <>
+                        <MealTabs meal={selectedFoodStore.meal ?? Meal.BREAKFAST} onChange={selectedFoodStore.setMeal} />
+                        <div className="mt-2">
+                            <FoodTrackView key={`${selectedFoodStore.foodId}-${selectedFoodStore.trackedFoodId}`} props={{
+                                meal: selectedFoodStore.meal ?? Meal.BREAKFAST,
+                                foodId: selectedFoodStore.foodId,
+                                back: () => selectedFoodStore.setFoodId(null),
+                                closeView: closeDialog,
+                                selectedFoodStore,
+                            }} />
+                        </div>
+                    </>}
                 </DialogContent>
             </Dialog>
         </div>

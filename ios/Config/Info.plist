@@ -8,6 +8,17 @@
 	<string>$(API_KEY)</string>
 	<key>UserID</key>
 	<string>$(USER_ID)</string>
+	<!-- health sync while the app is closed, see HealthBackgroundSync.swift -->
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>fetch</string>
+		<string>processing</string>
+	</array>
+	<key>BGTaskSchedulerPermittedIdentifiers</key>
+	<array>
+		<string>labs-101.labs-101.health-refresh</string>
+		<string>labs-101.labs-101.health-processing</string>
+	</array>
 	<key>NSAppTransportSecurity</key>
 	<dict>
 		<!-- plain http to the backend in the local network during development -->
