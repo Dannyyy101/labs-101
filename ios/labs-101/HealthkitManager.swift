@@ -13,7 +13,7 @@ struct Workout: Encodable {
 }
 
 class HealthKitManager {
-    let url = URL(string: "http://192.168.178.54:8080/api/workouts/sync")!
+    let url = AppConfig.current.apiBaseURL.appending(path: "workouts/sync")
 
     let healthStore = HKHealthStore();
     
@@ -45,7 +45,6 @@ class HealthKitManager {
             
             var last = samples.last
             
-            HKQuery.predicateForObject(with: <#T##UUID#>)
             
             for sample in samples {
                 workouts.append(Workout(uuid: sample.uuid,
@@ -63,6 +62,7 @@ class HealthKitManager {
                 "application/json",
                 forHTTPHeaderField: "Content-Type"
             )
+            request.setValue(AppConfig.current.apiKey, forHTTPHeaderField: APIClient.apiKeyHeader)
             
             let task = URLSession.shared.dataTask(with: request) { data, response, error in
                 let statusCode = (response as! HTTPURLResponse).statusCode

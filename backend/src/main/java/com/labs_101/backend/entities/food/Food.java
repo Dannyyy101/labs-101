@@ -61,6 +61,7 @@ public class Food {
     }
 
     public void addPortion(FoodPortion portion) {
+        portion.setFood(this);
         this.portions.add(portion);
     }
 }

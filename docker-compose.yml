@@ -20,6 +20,7 @@ services:
       - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
       - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
       - BACKEND_URL= http://backend:8080/api
+      - API_KEY=${API_KEY}
     
   backend:
     container_name: spring-boot-labs-101
@@ -37,6 +38,7 @@ services:
       - SPRING_DATASOURCE_USERNAME=${POSTGRES_USERNAME}
       - SPRING_DATASOURCE_PASSWORD=${POSTGRES_PASSWORD}
       - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+      - API_KEY=${API_KEY}
   db:
     container_name: postgres-labs-101
     image: postgres

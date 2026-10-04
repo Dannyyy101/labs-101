@@ -3,6 +3,7 @@
 import { auth } from "@/lib/auth"
 import { mapFromCalendarEventDto } from "@/lib/mapper/calendarMapper"
 import { BACKEND_URL } from "@/utils/constants"
+import { backendFetch } from "@/utils/backend"
 import { CalendarEvent, CalendarEventDto } from "@/utils/types/calendarTypes"
 import { Result } from "@/utils/types/types"
 import { Exercise, WorkoutTemplate } from "@/utils/types/workoutTypes"
@@ -11,7 +12,7 @@ import { revalidatePath } from "next/cache"
 import { headers } from "next/headers"
 
 export async function getAllWorkoutTemplates(): Promise<Result<Map<string, WorkoutTemplate[]>>> {
-    const response = await fetch(BACKEND_URL + "/workouts/templates")
+    const response = await backendFetch(BACKEND_URL + "/workouts/templates")
 
     if (response.ok) {
         try {
@@ -26,7 +27,7 @@ export async function getAllWorkoutTemplates(): Promise<Result<Map<string, Worko
 }
 
 export async function getAllExercises(): Promise<Exercise[]> {
-    const response = await fetch(BACKEND_URL + "/workouts/exercises")
+    const response = await backendFetch(BACKEND_URL + "/workouts/exercises")
 
     if (response.ok) {
         return await response.json() as Exercise[]
@@ -42,7 +43,7 @@ export async function getAllCalendarEvents(dateRange: Date, steps: number): Prom
     endDate.setDate(endDate.getDate() + steps)
     url.searchParams.append("endDate", endDate.toISOString())
 
-    const response = await fetch(url.toString())
+    const response = await backendFetch(url.toString())
 
     if (response.ok) {
         try {
@@ -61,7 +62,7 @@ export async function createCalendarEvent(calendarEvent: CalendarEvent): Promise
         headers: await headers()
     })
     if (!session) throw new Error("User is currently not in a session")
-    const response = await fetch(BACKEND_URL + "/calendar", {
+    const response = await backendFetch(BACKEND_URL + "/calendar", {
         method: "POST", body: JSON.stringify({ ...calendarEvent, startDate: calendarEvent.startDate.toISOString(), endDate: calendarEvent.endDate.toISOString(), creatorId: session.user.id }), headers: {
             'Content-Type': 'application/json'
         }
@@ -76,7 +77,7 @@ export async function createCalendarEvent(calendarEvent: CalendarEvent): Promise
     throw new Error("Error creating calendar events")
 }
 export async function updateCalendarEvent(calendarEvent: CalendarEvent): Promise<Result<void>> {
-    const response = await fetch(BACKEND_URL + "/calendar/" + calendarEvent.id, {
+    const response = await backendFetch(BACKEND_URL + "/calendar/" + calendarEvent.id, {
         method: "PUT", body: JSON.stringify({ ...calendarEvent, startDate: calendarEvent.startDate.toISOString(), endDate: calendarEvent.endDate.toISOString() }), headers: {
             'Content-Type': 'application/json'
         }
@@ -95,7 +96,7 @@ export async function updateCalendarEvent(calendarEvent: CalendarEvent): Promise
 
 
 export async function deleteCalendarEvent(id: string): Promise<Result<void>> {
-    const response = await fetch(BACKEND_URL + "/calendar/" + id, {
+    const response = await backendFetch(BACKEND_URL + "/calendar/" + id, {
         method: "DELETE"
     })
 

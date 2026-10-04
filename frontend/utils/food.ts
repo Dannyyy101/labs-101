@@ -5,7 +5,7 @@ type NumberKeys<T> = {
 }[keyof T];
 
 export function getNutritionForAmount(
-    food: Omit<TrackedFood, 'id' | 'meal'>,
+    food: Omit<TrackedFood, 'id' | 'meal' | 'createDate'>,
     nutrition: Exclude<NumberKeys<Food>, "id">
 ): number {
     const per100g = food.food[nutrition] ?? 0;
