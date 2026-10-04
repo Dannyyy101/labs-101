@@ -32,4 +32,12 @@ public interface FoodRepository extends JpaRepository<Food, Long> {
             ORDER BY fu.createDate DESC
                         """)
     Page<Food> findAllByLastUsed(Pageable p, String userId);
+
+    @Query(value = """
+            SELECT * FROM food
+            WHERE lower(name) % :query
+            ORDER BY similarity(lower(name), :query) DESC
+            LIMIT 1
+            """, nativeQuery = true)
+    Food findSimilar(@Param("query") String query);
 }

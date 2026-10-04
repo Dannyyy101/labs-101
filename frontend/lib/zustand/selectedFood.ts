@@ -16,6 +16,7 @@ export interface SelectedFoodState {
     unselect: () => void;
     setFoodId: (foodId: number | null) => void
     setTrackedFoodId: (trackedFoodId: number | null) => void
+    setMeal: (meal: Meal) => void
     showSearch: boolean
     setShowSearch: (showSearch: boolean) => void
 }
@@ -30,6 +31,7 @@ export const useSelectedFoodStore = create<SelectedFoodState>((set) => ({
     unselect: () => set(() => ({ meal: null, foodId: null, action: null, trackedFoodId: null })),
     setFoodId: (foodId) => set((state) => ({ ...state, foodId })),
     setTrackedFoodId: (trackedFoodId) => set((state) => ({ ...state, trackedFoodId })),
-    setShowSearch: (showSearch) => set((state) => ({ ...state, showSearch }))
+    setShowSearch: (showSearch) => set((state) => ({ ...state, showSearch })),
+    setMeal: (meal) => set((state) => ({ ...state, meal }))
 
 }))

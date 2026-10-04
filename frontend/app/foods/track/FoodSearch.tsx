@@ -5,7 +5,7 @@ import { Spinner } from "@/components/ui/spinner";
 import { AlertCircle, Barcode, Search } from "lucide-react";
 import InfiniteScroll from "react-infinite-scroll-component";
 import { Food, Meal, SearchFood } from "@/utils/types/food";
-import { useState } from "react";
+import { ReactNode, useState } from "react";
 import { findAndSafeFoodIfNotExistByBarcode, findFoodByNameAndUserId } from "./action";
 import { Button } from "@/components/ui/button";
 import FoodTrackView from "./FoodTrackView";
@@ -13,9 +13,7 @@ import ScannerPanel from "@/components/ScannerPanel";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { SelectedFoodAction, SelectedFoodState } from "@/lib/zustand/selectedFood";
 
-export default function FoodSearch({ meal, selectedFoodStore }: {
-    meal: string, selectedFoodStore: SelectedFoodState
-}) {
+const FoodSearch: React.FC<{ meal: Meal, selectedFoodStore: SelectedFoodState, children?: ReactNode, className?: string }> = ({ meal, selectedFoodStore, children, className }) => {
 
     const [food, setFood] = useState<SearchFood[]>([])
     const [hasMore, setHasMore] = useState(true);
@@ -58,57 +56,75 @@ export default function FoodSearch({ meal, selectedFoodStore }: {
         setShowBarcodeScanner((prev) => !prev)
         setError(null)
     }
+    const [showDialog, setShowDialog] = useState<"SEARCH" | "TEXT">("SEARCH")
 
     return <Dialog open={selectedFoodStore.showSearch} onOpenChange={selectedFoodStore.setShowSearch}>
-        <DialogTrigger className="">Add Food</DialogTrigger>
+        <DialogTrigger className={className}>{children}</DialogTrigger>
         <DialogContent className="w-4xl flex flex-col ">
             <section>
-                <>
-                    <InputGroup className="max-w-xs mt-8 mb-2 md:mt-0">
-                        <InputGroupInput value={searchInput} placeholder="Search..." onChange={(e) => findByName(e.target.value)} />
-                        <InputGroupAddon>
-                            <Search />
-                        </InputGroupAddon>
-                        <button className="mr-2" onClick={toggleBarcodeScanner}><Barcode /></button>
-                    </InputGroup>
-                    {error && (
-                        <Alert variant="destructive" className="mt-2">
-                            <AlertCircle className="size-4" />
-                            <AlertTitle>Fehler</AlertTitle>
-                            <AlertDescription>{error}</AlertDescription>
-                        </Alert>
-                    )}
-                    {loading && <div className="w-full flex justify-center mt-2"><Spinner className="size-4" /></div>}
-                    {showBarcodeScanner ? <ScannerPanel
-                        onDetected={(ean) => {
-                            setShowBarcodeScanner(false)
-                            lookupFood(ean)
-                        }}
-                    /> :
-                        <InfiniteScroll
-                            className="bg-accent rounded-2xl w-full max-h-96 overflow-y-auto p-2 mt-2 flex flex-col"
-                            dataLength={food.length}
-                            next={fetchMore}
-                            hasMore={hasMore}
-                            loader={<div className="w-full flex justify-center"><Spinner className="size-4" /></div>}
-                            endMessage={<p style={{ textAlign: 'center' }}>All items loaded.</p>}
-                        >
-                            {food.map((f) => (
-                                <Button
-                                    className="max-w-96 text-left flex justify-start whitespace-normal h-auto py-2"
-                                    variant="ghost"
-                                    onClick={() => selectedFoodStore.selectFood(meal as any, f.id, SelectedFoodAction.CREATING)}
-                                    key={f.id}
-                                >
-                                    {f.name}
-                                </Button>
-                            ))}
-                        </InfiniteScroll>
-                    }
-                </>
+                <div className="flex gap-x-1">
+                    <button style={{ backgroundColor: showDialog === "TEXT" ? "black" : "var(--accent)", color: showDialog === "TEXT" ? "white" : "black" }} onClick={() => setShowDialog("TEXT")} className="rounded-xl bg-accent w-16 py-1">Text</button>
+                    <button style={{ backgroundColor: showDialog === "SEARCH" ? "black" : "var(--accent)", color: showDialog === "SEARCH" ? "white" : "black" }} onClick={() => setShowDialog("SEARCH")} className="rounded-xl bg-accent w-16 py-1">Suchen</button>
+                </div>
+                <div className="bg-accent flex rounded-md h-8 p-0.5 mt-2">
+                    <button className="w-full rounded-md font-semibold text-sm" style={{ backgroundColor: selectedFoodStore.meal === Meal.BREAKFAST ? "white" : "transparent" }} onClick={() => selectedFoodStore.setMeal(Meal.BREAKFAST)}>Frühstück</button>
+                    <button className="w-full rounded-md font-semibold" style={{ backgroundColor: selectedFoodStore.meal === Meal.LUNCH ? "white" : "transparent" }} onClick={() => selectedFoodStore.setMeal(Meal.LUNCH)}>Mittagessen</button>
+                    <button className="w-full rounded-md font-semibold" style={{ backgroundColor: selectedFoodStore.meal === Meal.DINNER ? "white" : "transparent" }} onClick={() => selectedFoodStore.setMeal(Meal.DINNER)}>Abendessen</button>
+                    <button className="w-full rounded-md font-semibold" style={{ backgroundColor: selectedFoodStore.meal === Meal.SNACK ? "white" : "transparent" }} onClick={() => selectedFoodStore.setMeal(Meal.SNACK)}>Snack</button>
+                </div>
+                {showDialog === "SEARCH" ?
+                    <>
+                        <InputGroup className="w-full mt-2 h-10 mb-2 rounded-md">
+                            <InputGroupInput value={searchInput} placeholder="Suchen..." onChange={(e) => findByName(e.target.value)} />
+                            <InputGroupAddon>
+                                <Search />
+                            </InputGroupAddon>
+                            <button className="mr-2" onClick={toggleBarcodeScanner}><Barcode /></button>
+                        </InputGroup>
+                        {error && (
+                            <Alert variant="destructive" className="mt-2">
+                                <AlertCircle className="size-4" />
+                                <AlertTitle>Fehler</AlertTitle>
+                                <AlertDescription>{error}</AlertDescription>
+                            </Alert>
+                        )}
+                        {loading && <div className="w-full flex justify-center mt-2"><Spinner className="size-4" /></div>}
+                        {showBarcodeScanner ? <ScannerPanel
+                            onDetected={(ean) => {
+                                setShowBarcodeScanner(false)
+                                lookupFood(ean)
+                            }}
+                        /> :
+                            <InfiniteScroll
+                                className="rounded-2xl w-full max-h-96 overflow-y-auto mt-2 flex flex-col"
+                                dataLength={food.length}
+                                next={fetchMore}
+                                hasMore={hasMore}
+                                loader={<div className="w-full flex justify-center"><Spinner className="size-4" /></div>}
+                                endMessage={<p style={{ textAlign: 'center' }}>All items loaded.</p>}
+                            >
+                                {food.map((f) => (
+                                    <Button
+                                        className="hover:bg-accent  max-w-96 text-left flex justify-start whitespace-normal h-auto py-2"
+                                        variant="ghost"
+                                        onClick={() => selectedFoodStore.selectFood(meal as any, f.id, SelectedFoodAction.CREATING)}
+                                        key={f.id}
+                                    >
+                                        {f.name}
+                                    </Button>
+                                ))}
+                            </InfiniteScroll>
+                        }
+                    </>
+                    :
+                    <div></div>
+                }
 
             </section>
 
         </DialogContent>
     </Dialog>
 }
+
+
+export default FoodSearch;

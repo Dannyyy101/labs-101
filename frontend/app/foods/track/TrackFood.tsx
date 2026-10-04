@@ -1,6 +1,6 @@
 'use client'
 import NutritionCard, { NutritionCardProps } from "./NutritionCard"
-import MealView from "./Meal"
+import MealView from "./MealView"
 import { getTrackedFood } from "./action"
 import { useEffect, useState } from "react";
 import { TrackedFood, Meal } from "@/utils/types/food";
@@ -9,6 +9,10 @@ import CalorieCard from "./CalorieCard";
 import { useSelectedFoodStore } from "@/lib/zustand/selectedFood";
 import FoodTrackView from "./FoodTrackView";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
+import { Card } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
+import FoodSearch from "./FoodSearch";
+import { Plus } from "lucide-react";
 
 
 export default function TrackFood({ food }: { food: TrackedFood[] }) {
@@ -39,41 +43,38 @@ export default function TrackFood({ food }: { food: TrackedFood[] }) {
     const totalFat = foodWithAmount.reduce((partialSum, a) => partialSum + getNutritionForAmount(a, "fat"), 0);
     const totalCalories = foodWithAmount.reduce((partialSum, a) => partialSum + getNutritionForAmount(a, "kcal"), 0);
 
-
-    const nutritionCardsProps: NutritionCardProps[] = [
-        { name: "Protein", value: totalProtein, goal: 165, color: "red" },
-        { name: "Kohlenhydrate", value: totalCarbs, goal: 360, color: "orange" },
-        { name: "Fett", value: totalFat, goal: 100, color: "blue" }
-    ]
-
     const closeDialog = () => {
         selectedFoodStore.unselect()
         selectedFoodStore.setShowSearch(false)
     }
 
-    return (
-        <div className="w-full h-[90vh] relative flex flex-col items-center">
-            <div className="p-4 w-full md:w-4/6">
-                <Dialog open={selectedFoodStore.foodId != null} onOpenChange={selectedFoodStore.unselect}>
-                    <DialogContent className="w-4xl flex flex-col ">
-                        <section>
-                            <FoodTrackView props={{ meal: selectedFoodStore.meal || Meal.BREAKFAST, foodId: selectedFoodStore.foodId || -1, back: () => selectedFoodStore.unselect(), closeView: closeDialog, selectedFoodStore }} />
-                        </section>
-                    </DialogContent>
-                </Dialog>
+    const formattedDate = new Date().toLocaleDateString('de-DE');
 
-                <div className="w-full my-2">
-                    <CalorieCard props={{ name: "Calories", color: "red", consumed: totalCalories, goal: 3000, burned: 0 }} />
-                </div>
-                <div className="w-full flex justify-center gap-x-4">
-                    {nutritionCardsProps.map((prop) => <NutritionCard key={prop.name} props={prop} />)}
-                </div>
-                <section className="mt-4 w-full">
+    return (
+        <div className="w-full h-[90vh] relative flex p-8 gap-x-4">
+            <section className="w-1/3">
+                <h1 className="text-2xl font-bold">Heute</h1>
+                <p className="text-muted-foreground text-sm">{formattedDate}</p>
+                <Card className={"w-full p-6 w-full mt-4"}>
+                    <CalorieCard props={{ color: "red", consumed: totalCalories, goal: 3000, burned: 0 }} />
+                    <Separator />
+                    <div className="flex flex-col gap-y-3">
+                        <NutritionCard props={{ name: "Protein", color: "protein", consumed: totalProtein, goal: 165 }} />
+                        <NutritionCard props={{ name: "Kohlenhydrate", color: "carbohydrates", consumed: totalCarbs, goal: 360 }} />
+                        <NutritionCard props={{ name: "Fett", color: "fat", consumed: totalFat, goal: 100 }} />
+                    </div>
+                </Card>
+            </section>
+            <section className="w-full mt-6">
+                <h1 className="text-2xl font-bold mb-2">Mahlzeiten</h1>
+                <div className="flex flex-wrap grid grid-cols-2 gap-4">
                     {foodLabels.map((labels) =>
                         <MealView key={labels.type} props={{ name: labels.type, trackedFood: trackedFood.get(labels.type) || [], selectedFoodStore }} />
                     )}
-                </section>
-            </div>
+                </div>
+            </section>
+            <FoodSearch meal={selectedFoodStore.meal || Meal.BREAKFAST} selectedFoodStore={selectedFoodStore} className="bg-transparent flex justify-center items-center gap-x-1 mt-2">
+            </FoodSearch>
         </div>
     )
 

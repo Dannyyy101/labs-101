@@ -1,10 +1,9 @@
-import { Card, CardHeader, CardDescription, CardTitle, CardContent } from "@/components/ui/card";
-import { colorMap } from "./NutritionCard";
-import { Progress } from "@/components/ui/progress";
+import { Card, CardDescription, CardTitle } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
+import NutritionCard from "./NutritionCard";
 
 export interface CalorieCardProps {
-    name: string,
     color: string
     consumed: number
     goal: number
@@ -12,32 +11,27 @@ export interface CalorieCardProps {
 }
 
 export default function CalorieCard({ props }: { props: CalorieCardProps }) {
-    return <Card className="w-full flex items-center flex-row">
-        <CircularProgress value={props.consumed} max={props.goal} className={props.consumed > props.goal ? "stroke-destructive" : "stroke-primary"} >
+    return <div className="flex flex items-center w-full gap-x-4">
+        <CircularProgress value={props.consumed} max={props.goal} className={props.consumed > props.goal ? "stroke-destructive" : "stroke-amber-500"} >
             <h3 className="text-2xl font-semibold">{props.goal - props.consumed}</h3>
-            <p>left</p>
+            <p>kcal übrig</p>
         </CircularProgress>
-        <div className="flex flex-col gap-y-2 w-full">
-            <div>
-                <CardDescription>Consumption today</CardDescription>
-                <CardTitle className="text-xl -mt-1">{props.consumed} of {props.goal}&#8202;kcal</CardTitle>
+        <div className="flex flex-col gap-1 w-full h-fit">
+            <div className="flex justify-between w-full">
+                <p className="text-muted-foreground text-sm">Ziel</p>
+                <p className="font-semibold">{props.goal}</p>
             </div>
-            <div className="flex max-w-80 pr-4 md:max-w-96 justify-between">
-                <div>
-                    <CardDescription>Goal</CardDescription>
-                    <p className="text-lg font-semibold -mt-1.5">{props.goal}</p>
-                </div>
-                <div>
-                    <CardDescription>Consumed</CardDescription>
-                    <p className="text-lg font-semibold -mt-1.5">{props.consumed}</p>
-                </div>
-                <div>
-                    <CardDescription>Burned</CardDescription>
-                    <p className="text-lg font-semibold -mt-1.5">{props.burned}</p>
-                </div>
+            <div className="flex justify-between w-full">
+                <p className="text-muted-foreground text-sm">Gegessen</p>
+                <p className="font-semibold">{props.consumed}</p>
+            </div>
+            <div className="flex justify-between w-full">
+                <p className="text-muted-foreground text-sm">Verbrannt</p>
+                <p className="font-semibold">+{props.burned}</p>
             </div>
         </div>
-    </Card>
+    </div>
+
 }
 
 function CircularProgress({
@@ -48,7 +42,7 @@ function CircularProgress({
     const pct = Math.min(value / max, 1)
 
     return (
-        <div className="ml-8 relative shrink-0" style={{ width: size, height: size }}>
+        <div className="relative shrink-0" style={{ width: size, height: size }}>
             <svg width={size} height={size} className="-rotate-90" role="img" aria-label={`${Math.round(pct * 100)}%`}>
                 <circle cx={size / 2} cy={size / 2} r={r} strokeWidth={strokeWidth} fill="none" className="stroke-muted" />
                 <circle

@@ -185,6 +185,10 @@ public class FoodService {
         return foodMapper.mapFromTrackedFood(food);
     }
 
+    public void getFoodsByText(String text) {
+
+    }
+
     private void syncPortions(Food food, List<UpdateFoodPortionDto> incoming) {
         if (incoming == null || incoming.isEmpty()) {
             if (food.getPortions() != null) {
