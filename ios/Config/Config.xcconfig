@@ -1,0 +1,9 @@
+// Settings the app reads at runtime through Info.plist (see AppConfig.swift).
+// Real values belong into the git ignored Secrets.xcconfig, copy Secrets.example.xcconfig to start.
+// "//" starts a comment in xcconfig files, so URLs are written as http:/$()/host
+
+API_BASE_URL = http:/$()/localhost:8080/api
+API_KEY =
+USER_ID =
+
+#include? "Secrets.xcconfig"

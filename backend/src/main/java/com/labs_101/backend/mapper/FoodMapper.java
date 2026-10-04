@@ -11,6 +11,7 @@ import com.labs_101.backend.dtos.food.CreateOpenFoodDto;
 import com.labs_101.backend.dtos.food.FoodDto;
 import com.labs_101.backend.dtos.food.FoodPortionDto;
 import com.labs_101.backend.dtos.food.FoodWithLastEntryAndPortionsDto;
+import com.labs_101.backend.dtos.food.FoodWithPortionsDto;
 import com.labs_101.backend.dtos.food.MealDto;
 import com.labs_101.backend.dtos.food.SearchFoodResponseDto;
 import com.labs_101.backend.dtos.food.TrackedFoodDto;
@@ -33,6 +34,18 @@ public class FoodMapper {
                 entity.getProtein(), entity.getFat(), entity.getCarbohydrates(), entity.getFiber());
     }
 
+    public FoodWithPortionsDto mapFromEntityToFoodWithPortionsDto(Food entity) {
+        return new FoodWithPortionsDto(entity.getId(), entity.getBlsCode(), entity.getName(), entity.getKcal(),
+                entity.getWater(), entity.getProtein(), entity.getFat(), entity.getCarbohydrates(), entity.getFiber(),
+                entity.getPortions().stream().map(FoodMapper::mapFromFoodPortionToFoodPortionDto).toList());
+    }
+
+    public static FoodWithPortionsDto mapFromOpenFoodToFoodWithPortionsDto(OpenFood openFood) {
+        return new FoodWithPortionsDto(null, null, openFood.getName(), openFood.getKcal(), openFood.getWater(),
+                openFood.getProtein(), openFood.getFat(), openFood.getCarbohydrates(), openFood.getFiber(),
+                java.util.List.of());
+    }
+
     public static TrackedFood mapFromCreateFoodUserDto(CreateFoodUserDto dto) {
         FoodPortion portion = null;
         if (dto.portionId() != null) {
@@ -46,7 +59,7 @@ public class FoodMapper {
         Food food = trackedFood.getFood();
         return new TrackedFoodDto(trackedFood.getId(), mapFromEntityToFoodDto(food), trackedFood.getAmount(),
                 new MealDto(trackedFood.getMeal().name(), trackedFood.getMeal().messageKey()),
-                mapFromFoodPortionToFoodPortionDto(trackedFood.getPortion()));
+                mapFromFoodPortionToFoodPortionDto(trackedFood.getPortion()), trackedFood.getCreateDate());
     }
 
     public static SearchFoodResponseDto mapFromEntityToSearchFoodResponseDto(Food e) {

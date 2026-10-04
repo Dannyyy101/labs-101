@@ -30,6 +30,7 @@ import com.labs_101.backend.dtos.food.CreateFoodUserDto;
 import com.labs_101.backend.dtos.food.CreateOpenFoodDto;
 import com.labs_101.backend.dtos.food.FoodDto;
 import com.labs_101.backend.dtos.food.FoodWithLastEntryAndPortionsDto;
+import com.labs_101.backend.dtos.food.FoodWithPortionsDto;
 import com.labs_101.backend.dtos.food.SearchFoodResponseDto;
 import com.labs_101.backend.dtos.food.TrackedFoodDto;
 import com.labs_101.backend.dtos.food.UpdateFoodDto;
@@ -162,7 +163,38 @@ public class FoodService {
         }
         OpenFood openFood = openFoodRepository.findByBarCode(code)
                 .orElseThrow(() -> NotFoundException.foodByBarcode(code));
-        return foodMapper.mapFromEntityToFoodDto(foodRepository.save(FoodMapper.mapFromOpenFoodToFood(openFood)));
+        return foodMapper.mapFromEntityToFoodDto(importOpenFood(openFood));
+    }
+
+    /**
+     * Copies an open food into our foods so it can be tracked and get portions.
+     * Importing the same open food again returns the already imported food.
+     */
+    @Transactional
+    public FoodWithPortionsDto importOpenFood(Long openFoodId) {
+        OpenFood openFood = openFoodRepository.findById(openFoodId)
+                .orElseThrow(() -> NotFoundException.openFood(openFoodId));
+        return foodMapper.mapFromEntityToFoodWithPortionsDto(importOpenFood(openFood));
+    }
+
+    @Transactional
+    public TrackedFoodDto trackOpenFood(Long openFoodId, CreateFoodUserDto dto) {
+        OpenFood openFood = openFoodRepository.findById(openFoodId)
+                .orElseThrow(() -> NotFoundException.openFood(openFoodId));
+        Food food = importOpenFood(openFood);
+        return trackFood(new CreateFoodUserDto(food.getId(), dto.userId(), dto.amount(), dto.meal(),
+                dto.portionId()));
+    }
+
+    private Food importOpenFood(OpenFood openFood) {
+        if (openFood.getBarCode() != null) {
+            Optional<Food> imported = foodRepository.findByBarCode(openFood.getBarCode());
+            if (imported.isPresent())
+                return imported.get();
+        }
+        Food food = foodRepository.save(FoodMapper.mapFromOpenFoodToFood(openFood));
+        logger.info("Open food " + openFood.getId() + " was imported as food " + food.getId());
+        return food;
     }
 
     public void deleteTrackedFoodById(String userId, Long trackedFoodId) {

@@ -27,5 +27,6 @@ jobs:
                   GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
                   GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
                   BETTER_AUTH_URL: ${{ secrets.BETTER_AUTH_URL }}
+                  API_KEY: ${{ secrets.API_KEY }}
 
               run: docker compose up -d --build

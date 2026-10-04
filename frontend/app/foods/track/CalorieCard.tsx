@@ -1,54 +1,44 @@
-import { Card, CardHeader, CardDescription, CardTitle, CardContent } from "@/components/ui/card";
-import { colorMap } from "./NutritionCard";
-import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
+import { formatNumber } from "./format";
 
 export interface CalorieCardProps {
-    name: string,
-    color: string
     consumed: number
     goal: number
     burned: number
 }
 
 export default function CalorieCard({ props }: { props: CalorieCardProps }) {
-    return <Card className="w-full flex items-center flex-row">
-        <CircularProgress value={props.consumed} max={props.goal} className={props.consumed > props.goal ? "stroke-destructive" : "stroke-primary"} >
-            <h3 className="text-2xl font-semibold">{props.goal - props.consumed}</h3>
-            <p>left</p>
+    const remaining = props.goal - props.consumed + props.burned
+
+    return <div className="flex items-center w-full gap-x-6">
+        <CircularProgress value={props.consumed} max={props.goal + props.burned} className={remaining < 0 ? "stroke-destructive" : "stroke-orange-400"}>
+            <p className="text-3xl font-bold tabular-nums">{formatNumber(remaining)}</p>
+            <p className="text-sm text-muted-foreground">kcal übrig</p>
         </CircularProgress>
-        <div className="flex flex-col gap-y-2 w-full">
-            <div>
-                <CardDescription>Consumption today</CardDescription>
-                <CardTitle className="text-xl -mt-1">{props.consumed} of {props.goal}&#8202;kcal</CardTitle>
-            </div>
-            <div className="flex max-w-80 pr-4 md:max-w-96 justify-between">
-                <div>
-                    <CardDescription>Goal</CardDescription>
-                    <p className="text-lg font-semibold -mt-1.5">{props.goal}</p>
-                </div>
-                <div>
-                    <CardDescription>Consumed</CardDescription>
-                    <p className="text-lg font-semibold -mt-1.5">{props.consumed}</p>
-                </div>
-                <div>
-                    <CardDescription>Burned</CardDescription>
-                    <p className="text-lg font-semibold -mt-1.5">{props.burned}</p>
-                </div>
-            </div>
-        </div>
-    </Card>
+        <dl className="flex flex-col gap-y-2">
+            <Stat label="Ziel" value={formatNumber(props.goal)} />
+            <Stat label="Gegessen" value={formatNumber(props.consumed)} />
+            <Stat label="Verbrannt" value={`+${formatNumber(props.burned)}`} />
+        </dl>
+    </div>
+}
+
+function Stat({ label, value }: { label: string, value: string }) {
+    return <div>
+        <dt className="text-sm text-muted-foreground">{label}</dt>
+        <dd className="text-2xl font-semibold tabular-nums leading-tight">{value}</dd>
+    </div>
 }
 
 function CircularProgress({
-    value, max, size = 116, strokeWidth = 10, className, children,
+    value, max, size = 150, strokeWidth = 16, className, children,
 }: { value: number; max: number; size?: number; strokeWidth?: number; className?: string; children?: React.ReactNode }) {
     const r = (size - strokeWidth) / 2
     const c = 2 * Math.PI * r
-    const pct = Math.min(value / max, 1)
+    const pct = max > 0 ? Math.min(value / max, 1) : 0
 
     return (
-        <div className="ml-8 relative shrink-0" style={{ width: size, height: size }}>
+        <div className="relative shrink-0" style={{ width: size, height: size }}>
             <svg width={size} height={size} className="-rotate-90" role="img" aria-label={`${Math.round(pct * 100)}%`}>
                 <circle cx={size / 2} cy={size / 2} r={r} strokeWidth={strokeWidth} fill="none" className="stroke-muted" />
                 <circle

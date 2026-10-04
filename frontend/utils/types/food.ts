@@ -34,6 +34,7 @@ export interface TrackedFood {
     amount: number,
     meal: { type: string, typeLabel: string }
     portion: FoodPortion | null
+    createDate: string
 }
 
 export interface CreateTrackedFood {
@@ -65,8 +66,17 @@ export interface TrackFoodForUser {
 }
 
 export enum Meal {
-    BREAKFAST,
-    LUNCH,
-    DINNER,
-    SNACK
+    BREAKFAST = "BREAKFAST",
+    LUNCH = "LUNCH",
+    DINNER = "DINNER",
+    SNACK = "SNACK"
+}
+
+export interface ExtractedFood {
+    query: string,
+    amount: number,
+    unit: string | null,
+    // id is null for open foods, they are only copied into our foods once tracked
+    food: (Omit<FoodWithPortion, "id"> & { id: number | null }) | null
+    openFoodId: number | null
 }

@@ -1,28 +1,31 @@
-import { Card, CardAction, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Progress } from "@/components/ui/progress";
+import { formatNumber } from "./format";
 
 export interface NutritionCardProps {
     name: string,
     color: string
-    value: number
+    consumed: number
     goal: number
 }
 
 export const colorMap: Record<string, string> = {
-    red: 'bg-protein',
-    orange: 'bg-carbohydrates',
-    blue: 'bg-fat',
+    protein: 'bg-protein',
+    carbohydrates: 'bg-carbohydrates',
+    fat: 'bg-fat',
 };
 
 export default function NutritionCard({ props }: { props: NutritionCardProps }) {
-    return <Card className="w-64 md:w-96">
-        <CardHeader>
-            <CardDescription className="break-all h-10">{props.name}</CardDescription>
-            <CardTitle className="text-2xl">{Math.round(props.value * 10) / 10}&#8202;g</CardTitle>
-        </CardHeader>
-        <CardContent>
-            <p>Goal {props.goal}</p>
-            <Progress className={`${colorMap[props.color]} rounded-md`} value={props.value / props.goal * 100} />
-        </CardContent>
-    </Card>
+    const pct = props.goal > 0 ? Math.min(props.consumed / props.goal, 1) * 100 : 0
+
+    return <div>
+        <div className="flex items-baseline justify-between gap-x-2">
+            <span className="font-semibold">{props.name}</span>
+            <span className="tabular-nums whitespace-nowrap">
+                <span className="font-semibold">{formatNumber(props.consumed)} g</span>
+                <span className="text-muted-foreground"> / {formatNumber(props.goal)} g</span>
+            </span>
+        </div>
+        <div className="h-2.5 rounded-full bg-muted mt-1.5 overflow-hidden" role="progressbar" aria-valuenow={Math.round(props.consumed)} aria-valuemax={props.goal} aria-label={props.name}>
+            <div className={`h-full rounded-full transition-[width] duration-500 ${colorMap[props.color]}`} style={{ width: `${pct}%` }} />
+        </div>
+    </div>
 }

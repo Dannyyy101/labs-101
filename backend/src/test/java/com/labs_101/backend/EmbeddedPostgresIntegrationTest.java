@@ -3,7 +3,6 @@ package com.labs_101.backend;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
 import org.springframework.boot.jdbc.test.autoconfigure.AutoConfigureTestDatabase;
@@ -11,7 +10,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.test.context.ContextConfiguration;
 
-import com.labs_101.backend.EmbeddedPostgresConfiguration.EmbeddedPostgresExtension;
 import com.labs_101.backend.entities.User;
 import com.labs_101.backend.entities.food.Food;
 import com.labs_101.backend.entities.food.TrackedFood;
@@ -20,7 +18,6 @@ import com.labs_101.backend.repositories.TrackedFoodRepository;
 import com.labs_101.backend.repositories.UserRepository;
 
 @DataJpaTest
-@ExtendWith(EmbeddedPostgresExtension.class)
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @ContextConfiguration(classes = { EmbeddedPostgresConfiguration.class })
 public class EmbeddedPostgresIntegrationTest {

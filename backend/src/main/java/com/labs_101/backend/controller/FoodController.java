@@ -10,9 +10,15 @@ import com.labs_101.backend.dtos.food.CreateFoodPortionDto;
 import com.labs_101.backend.dtos.food.CreateFoodUserDto;
 import com.labs_101.backend.dtos.food.CreateOpenFoodDto;
 import com.labs_101.backend.dtos.food.FoodDto;
+import com.labs_101.backend.dtos.food.FoodWithPortionsDto;
 import com.labs_101.backend.dtos.food.SearchFoodResponseDto;
 import com.labs_101.backend.dtos.food.UpdateFoodDto;
+import com.labs_101.backend.dtos.food.ExtractFoodRequestDto;
+import com.labs_101.backend.dtos.food.ExtractedFoodDto;
 import com.labs_101.backend.exception.BadRequestException;
+import com.labs_101.backend.foodExtractor.FoodExtractor;
+
+import java.util.List;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -27,9 +33,11 @@ import org.springframework.web.bind.annotation.PathVariable;
 @RequestMapping("/api/foods")
 public class FoodController {
     private final FoodService foodService;
+    private final FoodExtractor foodExtractor;
 
-    FoodController(FoodService foodService) {
+    FoodController(FoodService foodService, FoodExtractor foodExtractor) {
         this.foodService = foodService;
+        this.foodExtractor = foodExtractor;
     }
 
     @PostMapping("")
@@ -49,6 +57,23 @@ public class FoodController {
     @PostMapping("{id}/portions")
     public ResponseEntity<Void> addFoodPortions(@PathVariable Long id, @RequestBody CreateFoodPortionDto dto) {
         foodService.createFoodPortion(id, dto);
+
+        return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/extract")
+    public List<ExtractedFoodDto> extract(@RequestBody ExtractFoodRequestDto dto) {
+        return foodExtractor.extract(dto.text());
+    }
+
+    @PostMapping("/open-food/{openFoodId}/import")
+    public FoodWithPortionsDto importOpenFood(@PathVariable Long openFoodId) {
+        return foodService.importOpenFood(openFoodId);
+    }
+
+    @PostMapping("/open-food/{openFoodId}/track")
+    public ResponseEntity<Void> trackOpenFood(@PathVariable Long openFoodId, @RequestBody CreateFoodUserDto dto) {
+        foodService.trackOpenFood(openFoodId, dto);
 
         return ResponseEntity.noContent().build();
     }

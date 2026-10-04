@@ -1,6 +1,7 @@
 'use server'
 
 import { BACKEND_URL } from "@/utils/constants";
+import { backendFetch } from "@/utils/backend";
 import { CreateExercise, Exercise } from "@/utils/types/workoutTypes";
 import { revalidatePath } from "next/cache";
 
@@ -12,7 +13,7 @@ export async function getAllExercises(filter?: { type?: string, name?: string })
         if (filter.type)
             url.searchParams.append("type", filter.type)
     }
-    const response = await fetch(url.toString(), { cache: 'no-store' })
+    const response = await backendFetch(url.toString(), { cache: 'no-store' })
 
     if (response.ok) {
         return await response.json() as Exercise[]
@@ -23,7 +24,7 @@ export async function getAllExercises(filter?: { type?: string, name?: string })
 
 export async function createExercise(exercise: CreateExercise): Promise<void> {
 
-    const response = await fetch(BACKEND_URL + "/workouts/exercises", {
+    const response = await backendFetch(BACKEND_URL + "/workouts/exercises", {
         method: "POST", body: JSON.stringify(exercise), headers: {
             'Content-Type': 'application/json'
         }
@@ -39,7 +40,7 @@ export async function createExercise(exercise: CreateExercise): Promise<void> {
 
 
 export async function updateExercise(exercise: Exercise): Promise<void> {
-    const response = await fetch(BACKEND_URL + "/workouts/exercises/" + exercise.id, {
+    const response = await backendFetch(BACKEND_URL + "/workouts/exercises/" + exercise.id, {
         method: "PUT", body: JSON.stringify(exercise), headers: {
             'Content-Type': 'application/json'
         }
@@ -54,7 +55,7 @@ export async function updateExercise(exercise: Exercise): Promise<void> {
 }
 
 export async function deleteExercise(id: number): Promise<void> {
-    const response = await fetch(BACKEND_URL + "/workouts/exercises/" + id, {
+    const response = await backendFetch(BACKEND_URL + "/workouts/exercises/" + id, {
         method: "DELETE",
     })
 
