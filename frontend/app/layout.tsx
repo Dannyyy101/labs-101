@@ -3,8 +3,7 @@ import { Geist, Geist_Mono, Inter } from "next/font/google";
 import "./globals.css";
 import { cn } from "@/lib/utils";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
-import { AppSidebar } from "@/components/app-sidebar";
+import { AppNavbar } from "@/components/app-navbar";
 import { ThemeProvider } from "@/components/theme-provider";
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-sans' });
@@ -31,20 +30,17 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       suppressHydrationWarning
       className={cn("h-full antialiased font-sans", inter.variable, geistMono.variable)}
     >
-      <body className="min-h-full">
+      <body className="min-h-full flex flex-col">
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
           enableSystem
           disableTransitionOnChange
         >
-          <SidebarProvider>
-            <AppSidebar />
-            <main className="flex-1 min-w-0 flex flex-col">
-              <SidebarTrigger />
-              {children}
-            </main>
-          </SidebarProvider>
+          <AppNavbar />
+          <main className="flex-1 min-w-0 flex flex-col">
+            {children}
+          </main>
         </ThemeProvider>
       </body>
     </html>

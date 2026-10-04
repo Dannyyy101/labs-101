@@ -1,45 +1,41 @@
-import { Card, CardDescription, CardTitle } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
-import NutritionCard from "./NutritionCard";
+import { formatNumber } from "./format";
 
 export interface CalorieCardProps {
-    color: string
     consumed: number
     goal: number
     burned: number
 }
 
 export default function CalorieCard({ props }: { props: CalorieCardProps }) {
-    return <div className="flex flex items-center w-full gap-x-4">
-        <CircularProgress value={props.consumed} max={props.goal} className={props.consumed > props.goal ? "stroke-destructive" : "stroke-amber-500"} >
-            <h3 className="text-2xl font-semibold">{props.goal - props.consumed}</h3>
-            <p>kcal übrig</p>
-        </CircularProgress>
-        <div className="flex flex-col gap-1 w-full h-fit">
-            <div className="flex justify-between w-full">
-                <p className="text-muted-foreground text-sm">Ziel</p>
-                <p className="font-semibold">{props.goal}</p>
-            </div>
-            <div className="flex justify-between w-full">
-                <p className="text-muted-foreground text-sm">Gegessen</p>
-                <p className="font-semibold">{props.consumed}</p>
-            </div>
-            <div className="flex justify-between w-full">
-                <p className="text-muted-foreground text-sm">Verbrannt</p>
-                <p className="font-semibold">+{props.burned}</p>
-            </div>
-        </div>
-    </div>
+    const remaining = props.goal - props.consumed + props.burned
 
+    return <div className="flex items-center w-full gap-x-6">
+        <CircularProgress value={props.consumed} max={props.goal + props.burned} className={remaining < 0 ? "stroke-destructive" : "stroke-orange-400"}>
+            <p className="text-3xl font-bold tabular-nums">{formatNumber(remaining)}</p>
+            <p className="text-sm text-muted-foreground">kcal übrig</p>
+        </CircularProgress>
+        <dl className="flex flex-col gap-y-2">
+            <Stat label="Ziel" value={formatNumber(props.goal)} />
+            <Stat label="Gegessen" value={formatNumber(props.consumed)} />
+            <Stat label="Verbrannt" value={`+${formatNumber(props.burned)}`} />
+        </dl>
+    </div>
+}
+
+function Stat({ label, value }: { label: string, value: string }) {
+    return <div>
+        <dt className="text-sm text-muted-foreground">{label}</dt>
+        <dd className="text-2xl font-semibold tabular-nums leading-tight">{value}</dd>
+    </div>
 }
 
 function CircularProgress({
-    value, max, size = 116, strokeWidth = 10, className, children,
+    value, max, size = 150, strokeWidth = 16, className, children,
 }: { value: number; max: number; size?: number; strokeWidth?: number; className?: string; children?: React.ReactNode }) {
     const r = (size - strokeWidth) / 2
     const c = 2 * Math.PI * r
-    const pct = Math.min(value / max, 1)
+    const pct = max > 0 ? Math.min(value / max, 1) : 0
 
     return (
         <div className="relative shrink-0" style={{ width: size, height: size }}>

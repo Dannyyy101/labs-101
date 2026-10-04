@@ -89,8 +89,8 @@ body {
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
   --protein: oklch(65.8% 0.232 16);
-  --carbohydrates: oklch(78.2% 0.171 67.2);
-  --fat: oklch(70% 0.111 212.7);
+  --carbohydrates: oklch(62.3% 0.214 259.8);
+  --fat: oklch(72.3% 0.219 149.6);
 }
 
 .dark {

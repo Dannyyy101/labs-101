@@ -3,7 +3,7 @@
 import { auth } from "@/lib/auth"
 import { BACKEND_URL } from "@/utils/constants"
 import { ApiError } from "@/utils/types/api"
-import { CreateFoodWithAmount, CreateTrackedFood, Food, FoodWithLastEntry, SearchFood, TrackedFood, TrackFoodForUser } from "@/utils/types/food"
+import { CreateFoodWithAmount, CreateTrackedFood, ExtractedFood, Food, FoodPortion, FoodWithPortion, FoodWithLastEntry, SearchFood, TrackedFood, TrackFoodForUser } from "@/utils/types/food"
 import { Page } from "@/utils/types/page"
 import { Result } from "@/utils/types/result"
 import { revalidatePath } from "next/cache"
@@ -160,4 +160,66 @@ export async function findAndSafeFoodIfNotExistByBarcode(code: string): Promise<
         ok: false,
         error: apiError?.errorMessage ?? ""
     }
+}
+export async function extractFoodsFromText(text: string): Promise<ExtractedFood[]> {
+    const url = new URL(`${BACKEND_URL}/foods/extract`)
+    const response = await fetch(url.toString(), {
+        method: "POST",
+        body: JSON.stringify({ text }), headers: {
+            'Content-Type': 'application/json'
+        },
+        cache: 'no-store'
+    })
+
+    if (response.ok) {
+        return await response.json() as ExtractedFood[]
+    }
+
+    throw new Error("Error extracting foods from text")
+}
+
+export async function addFoodPortion(foodId: number, portion: Omit<FoodPortion, "id">): Promise<FoodPortion[]> {
+    const url = new URL(`${BACKEND_URL}/foods/${foodId}/portions`)
+    const response = await fetch(url.toString(), {
+        method: "POST",
+        body: JSON.stringify(portion), headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+
+    if (!response.ok) throw new Error(`Error adding portion to food ${foodId}`)
+
+    const food = await getTrackedFoodByFoodId(foodId)
+    return food.portions
+}
+
+export async function importOpenFood(openFoodId: number): Promise<FoodWithPortion> {
+    const url = new URL(`${BACKEND_URL}/foods/open-food/${openFoodId}/import`)
+    const response = await fetch(url.toString(), { method: "POST" })
+
+    if (response.ok) {
+        return await response.json() as FoodWithPortion
+    }
+
+    throw new Error(`Error importing open food ${openFoodId}`)
+}
+
+export async function trackOpenFood(openFoodId: number, trackedFood: Omit<CreateTrackedFood, "foodId">) {
+    const session = await auth.api.getSession({
+        headers: await headers()
+    })
+    if (!session) throw new Error("User is currently not in a session")
+
+    const url = new URL(`${BACKEND_URL}/foods/open-food/${openFoodId}/track`)
+    const response = await fetch(url.toString(), {
+        method: "POST",
+        body: JSON.stringify({ ...trackedFood, userId: session.user.id }), headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+    if (response.ok) {
+        revalidatePath("/foods/track")
+        return
+    }
+    throw new Error(`Error tracking open food ${openFoodId}`)
 }
