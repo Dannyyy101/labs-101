@@ -85,7 +85,15 @@ nonisolated struct APIClient: Sendable {
         return [body.errorMessage, body.message].compactMap { $0 }.first { !$0.isEmpty }
     }
 
-    private static let encoder = JSONEncoder()
+    private static let encoder: JSONEncoder = {
+        let encoder = JSONEncoder()
+        // Java Instants, the default would be seconds since 2001
+        encoder.dateEncodingStrategy = .custom { date, encoder in
+            var container = encoder.singleValueContainer()
+            try container.encode(date.ISO8601Format(.iso8601WithFractionalSeconds))
+        }
+        return encoder
+    }()
 
     private static let decoder: JSONDecoder = {
         let decoder = JSONDecoder()

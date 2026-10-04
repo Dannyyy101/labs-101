@@ -1,5 +1,7 @@
 package com.labs_101.backend.exception;
 
+import java.util.UUID;
+
 public class NotFoundException extends BaseException {
 
     protected NotFoundException(String code, Object... args) {
@@ -29,6 +31,14 @@ public class NotFoundException extends BaseException {
 
     public static NotFoundException trackedFood(Long id) {
         return new NotFoundException("error.trackedFood.notFound", id);
+    }
+
+    public static NotFoundException healthWriteRequest(Long id) {
+        return new NotFoundException("error.healthWriteRequest.notFound", id);
+    }
+
+    public static NotFoundException run(UUID id) {
+        return new NotFoundException("error.run.notFound", id);
     }
 
 }

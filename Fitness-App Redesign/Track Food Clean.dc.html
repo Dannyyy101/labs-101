@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<style>
+body{margin:0;background:#d8d8dc;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;padding:0;text-align:left}
+input{font:inherit;color:inherit}
+input::placeholder{color:var(--t3)}
+a{color:#0a84ff}a:hover{color:#0060df}
+[data-theme]{font-variant-numeric:tabular-nums;--kcal:#ff9f0a;--pro:#ff375f;--carb:#0a84ff;--fat:#30d158;--acc:#0a84ff}
+[data-theme="light"]{--bg:#f2f2f7;--card:#ffffff;--t1:#1c1c1e;--t2:rgba(60,60,67,.6);--t3:rgba(60,60,67,.3);--sep:rgba(60,60,67,.14);--fill:rgba(120,120,128,.12);--bar:rgba(255,255,255,.72);--sel:#ffffff;--shadow:0 1px 2px rgba(0,0,0,.04),0 8px 24px rgba(0,0,0,.05)}
+[data-theme="dark"]{--bg:#000000;--card:#1c1c1e;--t1:#f5f5f7;--t2:rgba(235,235,245,.6);--t3:rgba(235,235,245,.3);--sep:rgba(84,84,88,.55);--fill:rgba(120,120,128,.24);--bar:rgba(22,22,24,.78);--sel:#636366;--shadow:none}
+</style>
+</helmet>
+<section data-theme="{{ theme }}" style="padding:48px;display:flex;flex-direction:column;gap:28px">
+  <div style="display:flex;align-items:flex-end;gap:24px;flex-wrap:wrap;color:#1c1c1e">
+    <div style="display:flex;flex-direction:column;gap:6px">
+      <div style="font-size:13px;font-weight:600;color:#6e6e73">Labs-101 · Track Food</div>
+      <div style="font-size:36px;font-weight:700;letter-spacing:-.02em;line-height:1.05">Clean — ruhig, weich, aufgeräumt</div>
+      <div style="font-size:15px;color:#6e6e73;max-width:680px;text-wrap:pretty">Klickbar: „+“ öffnet das Sheet, Einträge lassen sich entfernen, alle Werte rechnen live mit.</div>
+    </div>
+    <div style="margin-left:auto;display:flex;padding:2px;background:rgba(120,120,128,.16);border-radius:9px">
+      <button onClick="{{ setLight }}" style="padding:6px 16px;border-radius:7px;font-size:13px;font-weight:600;background:{{ tLightBg }};box-shadow:{{ tLightSh }}">Light</button>
+      <button onClick="{{ setDark }}" style="padding:6px 16px;border-radius:7px;font-size:13px;font-weight:600;background:{{ tDarkBg }};box-shadow:{{ tDarkSh }}">Dark</button>
+    </div>
+  </div>
+
+  <div id="2a" style="display:flex;gap:40px;align-items:flex-start">
+    <div data-theme="{{ theme }}" data-screen-label="Desktop" style="width:1280px;height:800px;flex:none;background:var(--bg);color:var(--t1);display:flex;flex-direction:column;overflow:hidden;position:relative;border-radius:14px;box-shadow:0 30px 80px rgba(0,0,0,.22)">
+      <div style="height:60px;flex:none;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;padding:0 24px;border-bottom:1px solid var(--sep);background:var(--bar)">
+        <div style="font-size:15px;font-weight:600">Labs-101</div>
+        <div style="display:flex;padding:2px;background:var(--fill);border-radius:9px;font-size:13px;font-weight:500;white-space:nowrap">
+          <div style="padding:5px 16px;border-radius:7px;background:var(--sel);box-shadow:0 1px 3px rgba(0,0,0,.12);font-weight:600">Track Food</div>
+          <div style="padding:5px 16px;color:var(--t2)">Calendar</div>
+          <div style="padding:5px 16px;color:var(--t2)">Workouts</div>
+          <div style="padding:5px 16px;color:var(--t2)">Exercises</div>
+          <div style="padding:5px 16px;color:var(--t2)">Foods</div>
+        </div>
+        <div style="display:flex;justify-content:flex-end;align-items:center;gap:12px">
+          <div style="display:flex;align-items:center;gap:2px;font-size:13px;font-weight:500">
+            <div style="width:28px;height:28px;display:grid;place-items:center;color:var(--acc)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"></path></svg></div>
+            <div style="padding:0 4px">Mi, 30. Sep</div>
+            <div style="width:28px;height:28px;display:grid;place-items:center;color:var(--acc)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"></path></svg></div>
+          </div>
+          <div style="width:30px;height:30px;border-radius:50%;background:linear-gradient(#a0a0a8,#7c7c84);color:#fff;display:grid;place-items:center;font-size:13px;font-weight:600">D</div>
+        </div>
+      </div>
+
+      <div style="flex:1;display:grid;grid-template-columns:360px minmax(0,1fr);gap:24px;padding:28px 32px 0;min-height:0">
+        <div style="display:flex;flex-direction:column;gap:16px">
+          <div>
+            <div style="font-size:34px;font-weight:700;letter-spacing:-.025em;line-height:1.1">Heute</div>
+            <div style="font-size:15px;color:var(--t2)">Mittwoch, 30. September</div>
+          </div>
+          <div style="background:var(--card);border-radius:18px;box-shadow:var(--shadow);padding:22px;display:flex;flex-direction:column;gap:20px">
+            <div style="display:flex;align-items:center;gap:20px">
+              <div style="position:relative;width:148px;height:148px;flex:none">
+                <svg width="148" height="148" viewBox="0 0 148 148" style="transform:rotate(-90deg)">
+                  <circle cx="74" cy="74" r="64" fill="none" stroke="var(--fill)" stroke-width="14"></circle>
+                  <circle cx="74" cy="74" r="64" fill="none" stroke="var(--kcal)" stroke-width="14" stroke-linecap="round" stroke-dasharray="{{ ring.d }}"></circle>
+                </svg>
+                <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center"><div style="font-size:30px;font-weight:700;letter-spacing:-.02em;line-height:1">{{ t.left }}</div><div style="font-size:12px;color:var(--t2);margin-top:3px">kcal übrig</div></div>
+              </div>
+              <div style="display:flex;flex-direction:column;gap:12px;flex:1">
+                <div><div style="font-size:12px;color:var(--t2)">Ziel</div><div style="font-size:19px;font-weight:600">{{ t.goal }}</div></div>
+                <div><div style="font-size:12px;color:var(--t2)">Gegessen</div><div style="font-size:19px;font-weight:600">{{ t.consumed }}</div></div>
+                <div><div style="font-size:12px;color:var(--t2)">Verbrannt</div><div style="font-size:19px;font-weight:600">+{{ t.burned }}</div></div>
+              </div>
+            </div>
+            <div style="height:1px;background:var(--sep)"></div>
+            <div style="display:flex;flex-direction:column;gap:14px">
+              <sc-for list="{{ macros }}" as="m" hint-placeholder-count="3">
+                <div style="display:flex;flex-direction:column;gap:6px">
+                  <div style="display:flex;align-items:baseline;gap:6px;font-size:14px"><div style="font-weight:600">{{ m.name }}</div><div style="margin-left:auto;font-weight:600">{{ m.val }} g</div><div style="color:var(--t2)">/ {{ m.goal }} g</div></div>
+                  <div style="height:8px;border-radius:4px;background:var(--fill);overflow:hidden"><div style="height:8px;border-radius:4px;width:{{ m.pct }};background:{{ m.color }}"></div></div>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+          <div style="background:var(--card);border-radius:18px;box-shadow:var(--shadow);padding:14px 18px;display:flex;align-items:center;gap:12px">
+            <div style="width:32px;height:32px;border-radius:9px;background:var(--pro);display:grid;place-items:center;color:#fff"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"></path></svg></div>
+            <div style="flex:1"><div style="font-size:14px;font-weight:600">Push Day</div><div style="font-size:12px;color:var(--t2)">48 min · heute 07:00</div></div>
+            <div style="font-size:15px;font-weight:600">{{ t.burned }} kcal</div>
+          </div>
+        </div>
+
+        <div style="display:flex;flex-direction:column;min-height:0">
+          <div style="display:flex;align-items:center;height:79px;flex:none">
+            <div style="font-size:22px;font-weight:700;letter-spacing:-.01em">Mahlzeiten</div>
+            <button onClick="{{ openD }}" style="margin-left:auto;height:36px;padding:0 16px;border-radius:18px;background:var(--acc);color:#fff;font-size:14px;font-weight:600;display:flex;align-items:center;gap:6px" style-hover="filter:brightness(1.08)"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M5 12h14M12 5v14"></path></svg>Essen hinzufügen</button>
+          </div>
+          <div style="flex:1;overflow:auto;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;align-content:start;padding-bottom:28px">
+            <sc-for list="{{ meals }}" as="meal" hint-placeholder-count="4">
+              <div style="background:var(--card);border-radius:18px;box-shadow:var(--shadow);display:flex;flex-direction:column;overflow:hidden">
+                <div style="display:flex;align-items:center;gap:10px;padding:16px 18px 12px">
+                  <div style="width:8px;height:8px;border-radius:50%;background:{{ meal.color }}"></div>
+                  <div style="font-size:17px;font-weight:600">{{ meal.label }}</div>
+                  <div style="font-size:13px;color:var(--t2)">{{ meal.time }}</div>
+                  <div style="margin-left:auto;font-size:17px;font-weight:600">{{ meal.kcal }}<span style="font-size:13px;color:var(--t2);font-weight:400"> kcal</span></div>
+                </div>
+                <sc-for list="{{ meal.items }}" as="it" hint-placeholder-count="2">
+                  <div style="display:flex;align-items:center;gap:12px;padding:0 0 0 18px">
+                    <div style="flex:1;display:flex;align-items:center;gap:12px;padding:10px 18px 10px 0;border-top:1px solid var(--sep)">
+                      <div style="flex:1;min-width:0"><div style="font-size:15px">{{ it.name }}</div><div style="font-size:12px;color:var(--t2)">{{ it.portion }} · {{ it.macro }}</div></div>
+                      <div style="font-size:15px;color:var(--t2)">{{ it.kcal }}</div>
+                      <button onClick="{{ it.remove }}" style="width:22px;height:22px;border-radius:50%;background:var(--fill);color:var(--t2);display:grid;place-items:center;opacity:.6" style-hover="opacity:1;background:#ff3b30;color:#fff"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round"><path d="M5 12h14"></path></svg></button>
+                    </div>
+                  </div>
+                </sc-for>
+                <sc-if value="{{ meal.empty }}" hint-placeholder-val="{{ false }}">
+                  <div style="margin:0 18px;padding:18px 0;border-top:1px solid var(--sep);font-size:14px;color:var(--t2)">Noch nichts eingetragen. {{ t.left }} kcal stehen dir noch zur Verfügung.</div>
+                </sc-if>
+                <button onClick="{{ meal.add.d }}" style="margin-top:auto;display:flex;align-items:center;gap:8px;padding:12px 18px;border-top:1px solid var(--sep);color:var(--acc);font-size:15px;font-weight:500" style-hover="background:var(--fill)"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="11"></circle><path d="M12 7v10M7 12h10" stroke="var(--card)" stroke-width="2.4" stroke-linecap="round"></path></svg>Hinzufügen</button>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </div>
+
+      <sc-if value="{{ tx.toastOn }}" hint-placeholder-val="{{ false }}"><div style="position:absolute;left:50%;bottom:28px;transform:translateX(-50%);background:var(--t1);color:var(--bg);padding:10px 18px;border-radius:20px;font-size:14px;font-weight:600;white-space:nowrap;box-shadow:0 8px 24px rgba(0,0,0,.2)">{{ tx.toast }}</div></sc-if>
+      <sc-if value="{{ p.d }}" hint-placeholder-val="{{ false }}">
+        <div onClick="{{ close }}" style="position:absolute;inset:0;background:rgba(0,0,0,.28);backdrop-filter:blur(6px)"></div>
+        <div style="position:absolute;left:50%;top:84px;transform:translateX(-50%);width:520px;height:620px;background:var(--card);border-radius:22px;box-shadow:0 24px 70px rgba(0,0,0,.3);display:flex;flex-direction:column;overflow:hidden">
+          <div style="display:grid;grid-template-columns:1fr auto 1fr;align-items:center;padding:16px 20px 8px">
+            <button onClick="{{ close }}" style="color:var(--acc);font-size:15px">Abbrechen</button>
+            <div style="font-size:16px;font-weight:600">Essen hinzufügen</div>
+            <div></div>
+          </div>
+          <div style="padding:4px 20px 0;display:flex;flex-direction:column;gap:10px">
+            <div style="display:flex;gap:6px"><sc-for list="{{ modeTabs }}" as="md" hint-placeholder-count="2"><button onClick="{{ md.select }}" style="flex:none;white-space:nowrap;height:30px;padding:0 14px;border-radius:15px;font-size:13px;font-weight:600;background:{{ md.bg }};color:{{ md.fg }}">{{ md.name }}</button></sc-for></div>
+            <div style="display:flex;padding:2px;background:var(--fill);border-radius:9px"><sc-for list="{{ mealTabs }}" as="tb" hint-placeholder-count="4"><button onClick="{{ tb.select }}" style="flex:1;text-align:center;padding:6px 0;border-radius:7px;font-size:13px;font-weight:600;background:{{ tb.bg }};box-shadow:{{ tb.sh }}">{{ tb.name }}</button></sc-for></div>
+          </div>
+          <sc-if value="{{ mode.text }}" hint-placeholder-val="{{ true }}"><div style="flex:1;display:flex;flex-direction:column;min-height:0">
+            <div style="padding:12px 20px 0">
+              <div style="border-radius:14px;background:var(--fill);padding:12px 14px 10px;display:flex;flex-direction:column;gap:8px">
+                <textarea value="{{ tx.input }}" onChange="{{ tx.onInput }}" onKeyDown="{{ tx.onKey }}" rows="2" placeholder="z. B. 2 Eier, eine Tasse Cappuccino und 1 Banane" style="width:100%;border:0;background:none;outline:none;resize:none;font-size:16px;line-height:1.4;color:var(--t1);font-family:inherit;padding:0"></textarea>
+                <div style="display:flex;align-items:center;gap:8px"><div style="font-size:12px;color:var(--t2)">Menge · Einheit · Lebensmittel, getrennt durch Komma oder „und“</div><button onClick="{{ tx.parse }}" style="margin-left:auto;height:30px;padding:0 14px;border-radius:15px;background:var(--acc);color:#fff;font-size:13px;font-weight:600">Erkennen</button></div>
+              </div>
+            </div>
+            <div style="font-size:13px;color:var(--t2);padding:16px 20px 6px;text-transform:uppercase;letter-spacing:.02em">Vorschau</div>
+            <div style="flex:1;overflow:auto;padding:0 20px 12px;display:flex;flex-direction:column;gap:8px">
+              <sc-for list="{{ tx.rows }}" as="r" hint-placeholder-count="3">
+                <div style="border-radius:14px;background:var(--bg);overflow:hidden;flex:none;box-shadow:inset 0 0 0 {{ r.ring }}">
+                  <div style="display:flex;align-items:center;gap:12px;padding:10px 12px">
+                    <sc-if value="{{ r.ok }}" hint-placeholder-val="{{ true }}"><div style="width:24px;height:24px;border-radius:50%;background:#30d158;color:#fff;display:grid;place-items:center;flex:none"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"></path></svg></div></sc-if>
+                    <sc-if value="{{ r.pending }}" hint-placeholder-val="{{ false }}"><div style="width:24px;height:24px;border-radius:50%;background:#ff9f0a;color:#fff;display:grid;place-items:center;flex:none;font-size:14px;font-weight:700">?</div></sc-if>
+                    <sc-if value="{{ r.unknown }}" hint-placeholder-val="{{ false }}"><div style="width:24px;height:24px;border-radius:50%;background:var(--fill);color:var(--t2);display:grid;place-items:center;flex:none;font-size:14px;font-weight:700">!</div></sc-if>
+                    <div style="flex:1;min-width:0"><div style="font-size:15px;font-weight:500">{{ r.name }}</div><div style="font-size:12px;color:var(--t2)">{{ r.detail }}</div></div>
+                    <div style="text-align:right"><div style="font-size:15px;font-weight:600">{{ r.kcal }}</div><div style="font-size:11px;color:var(--t2)">kcal</div></div>
+                    <button onClick="{{ r.remove }}" style="width:22px;height:22px;border-radius:50%;background:var(--fill);color:var(--t2);display:grid;place-items:center;flex:none" style-hover="background:#ff3b30;color:#fff"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"></path></svg></button>
+                  </div>
+                  <sc-if value="{{ r.pending }}" hint-placeholder-val="{{ false }}">
+                    <div style="margin:0 12px 12px;padding:12px;border-radius:10px;background:var(--card);display:flex;flex-direction:column;gap:10px">
+                      <div style="font-size:13px;line-height:1.35;text-wrap:pretty"><b>Neue Einheit:</b> „{{ r.unit }}“ gibt es für {{ r.name }} noch nicht. Wie viel Gramm sind 1 {{ r.unit }}?</div>
+                      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+                        <div style="display:flex;align-items:center;height:32px;border-radius:8px;background:var(--fill)">
+                          <button onClick="{{ r.dec }}" style="width:32px;height:32px;display:grid;place-items:center;color:var(--acc);font-size:18px">−</button>
+                          <input value="{{ r.pg }}" onChange="{{ r.onPg }}" inputMode="numeric" style="width:40px;text-align:right;border:0;background:none;outline:none;font-size:15px;font-weight:600;padding:0">
+                          <div style="font-size:15px;padding:0 4px;color:var(--t2)">g</div>
+                          <button onClick="{{ r.inc }}" style="width:32px;height:32px;display:grid;place-items:center;color:var(--acc);font-size:18px">+</button>
+                        </div>
+                        <sc-for list="{{ r.chips }}" as="ch" hint-placeholder-count="3"><button onClick="{{ ch.pick }}" style="height:32px;padding:0 10px;border-radius:16px;font-size:13px;font-weight:500;background:{{ ch.bg }};color:{{ ch.fg }}">{{ ch.label }}</button></sc-for>
+                      </div>
+                      <div style="display:flex;align-items:center;gap:10px"><div style="font-size:12px;color:var(--t2);flex:1">{{ r.calc }}</div><button onClick="{{ r.confirm }}" style="height:32px;padding:0 14px;border-radius:16px;background:#ff9f0a;color:#fff;font-size:13px;font-weight:600">Einheit speichern</button></div>
+                    </div>
+                  </sc-if>
+                </div>
+              </sc-for>
+              <sc-if value="{{ tx.none }}" hint-placeholder-val="{{ false }}"><div style="padding:16px 4px;font-size:14px;color:var(--t2);text-wrap:pretty">Schreib, was du gegessen hast. Mengen werden erkannt und in Gramm umgerechnet.</div></sc-if>
+            </div>
+            <div style="display:flex;align-items:center;gap:12px;padding:12px 20px 16px;border-top:1px solid var(--sep)">
+              <div style="flex:1"><div style="font-size:12px;color:var(--t2)">{{ tx.note }}</div><div style="font-size:17px;font-weight:600">{{ tx.total }} kcal</div></div>
+              <button onClick="{{ tx.commitD }}" style="height:40px;padding:0 20px;border-radius:20px;background:{{ tx.btnBg }};color:{{ tx.btnFg }};font-size:15px;font-weight:600">Eintragen</button>
+            </div>
+          </div></sc-if>
+          <sc-if value="{{ mode.search }}" hint-placeholder-val="{{ false }}"><div style="flex:1;display:flex;flex-direction:column;min-height:0">
+          <sc-if value="{{ dt.list }}" hint-placeholder-val="{{ true }}"><div style="flex:1;display:flex;flex-direction:column;min-height:0">
+          <div style="padding:12px 20px 0">
+            <div style="display:flex;align-items:center;gap:8px;height:38px;padding:0 10px;border-radius:10px;background:var(--fill);color:var(--t2)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.5-3.5"></path></svg><input value="{{ query }}" onChange="{{ onQuery }}" autoFocus="{{ true }}" placeholder="Suchen" style="flex:1;border:0;background:none;outline:none;font-size:15px;color:var(--t1)"></div>
+          </div>
+          <div style="font-size:13px;color:var(--t2);padding:16px 20px 6px;text-transform:uppercase;letter-spacing:.02em">Vorschläge</div>
+          <div style="flex:1;overflow:auto;padding-bottom:12px">
+            <sc-for list="{{ foods }}" as="fd" hint-placeholder-count="6">
+              <button onClick="{{ fd.add }}" style="width:100%;display:flex;align-items:center;gap:12px;padding:0 0 0 20px" style-hover="background:var(--fill)">
+                <div style="flex:1;display:flex;align-items:center;gap:12px;padding:10px 20px 10px 0;border-bottom:1px solid var(--sep)">
+                  <div style="flex:1;min-width:0"><div style="font-size:15px">{{ fd.name }}</div><div style="font-size:12px;color:var(--t2)">{{ fd.portion }} · {{ fd.macro }}</div></div>
+                  <div style="font-size:15px;color:var(--t2)">{{ fd.kcal }} kcal</div>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--t3)" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"></path></svg>
+                </div>
+              </button>
+            </sc-for>
+          </div>
+          </div></sc-if>
+          <sc-if value="{{ dt.on }}" hint-placeholder-val="{{ false }}"><div style="flex:1;display:flex;flex-direction:column;min-height:0">
+            <div style="flex:1;overflow:auto;padding:14px 20px 14px;display:flex;flex-direction:column;gap:18px">
+              <button onClick="{{ dt.back }}" style="display:flex;align-items:center;gap:2px;color:var(--acc);font-size:15px;align-self:flex-start;white-space:nowrap;flex:none"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"></path></svg>Alle Lebensmittel</button>
+              <div><div style="font-size:24px;font-weight:700;letter-spacing:-.01em">{{ dt.name }}</div><div style="font-size:13px;color:var(--t2)">pro 100 g · {{ dt.per }}</div></div>
+              <div style="display:flex;flex-direction:column;gap:8px">
+                <div style="font-size:13px;color:var(--t2);text-transform:uppercase;letter-spacing:.02em">Portion</div>
+                <div style="display:flex;flex-wrap:wrap;gap:6px">
+                  <sc-for list="{{ dt.units }}" as="u" hint-placeholder-count="2"><button onClick="{{ u.pick }}" style="height:34px;padding:0 12px;border-radius:17px;font-size:14px;font-weight:500;background:{{ u.bg }};color:{{ u.fg }};white-space:nowrap;display:flex;gap:5px;align-items:center"><div>{{ u.name }}</div><div style="opacity:.6">{{ u.g }}</div></button></sc-for>
+                  <button onClick="{{ dt.toggleNew }}" style="height:34px;padding:0 12px;border-radius:17px;font-size:14px;font-weight:500;color:var(--acc);box-shadow:inset 0 0 0 1.5px var(--acc);white-space:nowrap">+ Portion</button>
+                </div>
+                <sc-if value="{{ dt.newOpen }}" hint-placeholder-val="{{ false }}">
+                  <div style="border-radius:12px;background:var(--bg);padding:12px;display:flex;flex-direction:column;gap:10px">
+                    <div style="font-size:13px;font-weight:600">Neue Portion für {{ dt.name }}</div>
+                    <div style="display:grid;grid-template-columns:minmax(0,1fr) 110px;gap:8px">
+                      <input value="{{ dt.newName }}" onChange="{{ dt.onNewName }}" placeholder="Name, z. B. Becher" style="height:38px;padding:0 10px;border-radius:9px;border:0;background:var(--card);outline:none;font-size:15px;min-width:0">
+                      <div style="display:flex;align-items:center;height:38px;padding:0 10px;border-radius:9px;background:var(--card)"><input value="{{ dt.newG }}" onChange="{{ dt.onNewG }}" inputMode="numeric" placeholder="0" style="width:100%;min-width:0;border:0;background:none;outline:none;font-size:15px;text-align:right;font-weight:600;padding:0"><div style="color:var(--t2);padding-left:4px">g</div></div>
+                    </div>
+                    <div style="display:flex;align-items:center;gap:10px"><div style="font-size:12px;color:var(--t2);flex:1">{{ dt.newHint }}</div><button onClick="{{ dt.saveNew }}" style="height:32px;padding:0 14px;border-radius:16px;background:{{ dt.saveBg }};color:{{ dt.saveFg }};font-size:13px;font-weight:600;white-space:nowrap">Portion speichern</button></div>
+                  </div>
+                </sc-if>
+              </div>
+              <div style="display:flex;flex-direction:column;gap:8px">
+                <div style="font-size:13px;color:var(--t2);text-transform:uppercase;letter-spacing:.02em">Menge</div>
+                <div style="display:flex;align-items:center;gap:12px">
+                  <div style="display:flex;align-items:center;height:44px;border-radius:10px;background:var(--fill)">
+                    <button onClick="{{ dt.dec }}" style="width:44px;height:44px;display:grid;place-items:center;color:var(--acc);font-size:22px">−</button>
+                    <input value="{{ dt.qty }}" onChange="{{ dt.onQty }}" inputMode="decimal" style="width:56px;text-align:right;border:0;background:none;outline:none;font-size:20px;font-weight:600;padding:0">
+                    <div style="font-size:16px;padding:0 6px;color:var(--t2);white-space:nowrap">{{ dt.unitLabel }}</div>
+                    <button onClick="{{ dt.inc }}" style="width:44px;height:44px;display:grid;place-items:center;color:var(--acc);font-size:22px">+</button>
+                  </div>
+                  <div style="font-size:15px;color:var(--t2)">= {{ dt.grams }} g</div>
+                </div>
+              </div>
+              <div style="border-radius:14px;background:var(--bg);padding:14px;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px">
+                <div style="display:flex;flex-direction:column;gap:4px"><div style="font-size:12px;color:var(--t2)">Kalorien</div><div style="font-size:18px;font-weight:700">{{ dt.kcal }}</div><div style="height:5px;border-radius:3px;background:var(--fill);overflow:hidden"><div style="height:5px;width:{{ dt.kcalPct }};background:var(--kcal)"></div></div></div>
+                <sc-for list="{{ dt.macros }}" as="m" hint-placeholder-count="3"><div style="display:flex;flex-direction:column;gap:4px"><div style="font-size:12px;color:var(--t2)">{{ m.name }}</div><div style="font-size:18px;font-weight:700">{{ m.val }}</div><div style="height:5px;border-radius:3px;background:var(--fill);overflow:hidden"><div style="height:5px;width:{{ m.pct }};background:{{ m.color }}"></div></div></div></sc-for>
+              </div>
+              <div style="font-size:12px;color:var(--t2);margin-top:-10px">Balken = Anteil am Tagesziel</div>
+            </div>
+            <div style="display:flex;align-items:center;gap:12px;padding:12px 20px 16px;border-top:1px solid var(--sep)">
+              <div style="flex:1;min-width:0"><div style="font-size:12px;color:var(--t2)">{{ dt.summary }}</div><div style="font-size:17px;font-weight:600">{{ dt.kcal }} kcal</div></div>
+              <button onClick="{{ dt.add }}" style="height:40px;padding:0 20px;border-radius:20px;background:{{ dt.addBg }};color:#fff;font-size:15px;font-weight:600;white-space:nowrap">{{ dt.target }}</button>
+            </div>
+          </div></sc-if>
+          </div></sc-if>
+        </div>
+      </sc-if>
+    </div>
+
+    <div data-theme="{{ theme }}" data-screen-label="Mobile" style="width:390px;height:844px;flex:none;background:var(--bg);color:var(--t1);display:flex;flex-direction:column;overflow:hidden;position:relative;border-radius:48px;box-shadow:0 30px 80px rgba(0,0,0,.22),0 0 0 10px #1c1c1e">
+      <div style="height:50px;flex:none;display:flex;align-items:flex-end;justify-content:space-between;padding:0 32px 6px;font-size:15px;font-weight:600"><div>17:32</div><div style="display:flex;gap:6px;align-items:center"><svg width="18" height="12" viewBox="0 0 18 12" fill="currentColor"><rect x="0" y="8" width="3" height="4" rx="1"></rect><rect x="5" y="5" width="3" height="7" rx="1"></rect><rect x="10" y="2" width="3" height="10" rx="1"></rect><rect x="15" y="0" width="3" height="12" rx="1"></rect></svg><svg width="26" height="12" viewBox="0 0 26 12"><rect x=".5" y=".5" width="22" height="11" rx="3.5" fill="none" stroke="currentColor" opacity=".4"></rect><rect x="2" y="2" width="16" height="8" rx="2" fill="currentColor"></rect></svg></div></div>
+      <div style="flex:1;overflow:auto;padding:0 16px">
+        <div style="display:flex;align-items:flex-end;padding:14px 4px 14px">
+          <div><div style="font-size:13px;color:var(--t2);font-weight:600;text-transform:uppercase">Mittwoch, 30. Sep</div><div style="font-size:34px;font-weight:700;letter-spacing:-.025em;line-height:1.15">Heute</div></div>
+          <button onClick="{{ openM }}" style="margin-left:auto;width:36px;height:36px;border-radius:50%;background:var(--fill);color:var(--acc);display:grid;place-items:center;margin-bottom:4px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M5 12h14M12 5v14"></path></svg></button>
+        </div>
+        <div style="background:var(--card);border-radius:18px;box-shadow:var(--shadow);padding:18px;display:flex;flex-direction:column;gap:16px">
+          <div style="display:flex;align-items:center;gap:18px">
+            <div style="position:relative;width:120px;height:120px;flex:none">
+              <svg width="120" height="120" viewBox="0 0 148 148" style="transform:rotate(-90deg)">
+                <circle cx="74" cy="74" r="64" fill="none" stroke="var(--fill)" stroke-width="16"></circle>
+                <circle cx="74" cy="74" r="64" fill="none" stroke="var(--kcal)" stroke-width="16" stroke-linecap="round" stroke-dasharray="{{ ring.d }}"></circle>
+              </svg>
+              <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center"><div style="font-size:24px;font-weight:700;line-height:1">{{ t.left }}</div><div style="font-size:11px;color:var(--t2);margin-top:2px">übrig</div></div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:8px;flex:1;font-size:14px">
+              <div style="display:flex"><div style="color:var(--t2)">Ziel</div><div style="margin-left:auto;font-weight:600">{{ t.goal }}</div></div>
+              <div style="display:flex"><div style="color:var(--t2)">Gegessen</div><div style="margin-left:auto;font-weight:600">{{ t.consumed }}</div></div>
+              <div style="display:flex"><div style="color:var(--t2)">Verbrannt</div><div style="margin-left:auto;font-weight:600">+{{ t.burned }}</div></div>
+            </div>
+          </div>
+          <div style="height:1px;background:var(--sep)"></div>
+          <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px">
+            <sc-for list="{{ macros }}" as="m" hint-placeholder-count="3">
+              <div style="display:flex;flex-direction:column;gap:6px">
+                <div style="font-size:12px;color:var(--t2)">{{ m.short }}</div>
+                <div style="font-size:16px;font-weight:600">{{ m.val }}<span style="font-size:12px;color:var(--t2);font-weight:400"> / {{ m.goal }} g</span></div>
+                <div style="height:6px;border-radius:3px;background:var(--fill);overflow:hidden"><div style="height:6px;border-radius:3px;width:{{ m.pct }};background:{{ m.color }}"></div></div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+        <sc-for list="{{ meals }}" as="meal" hint-placeholder-count="4">
+          <div style="margin-top:24px">
+            <div style="display:flex;align-items:baseline;padding:0 4px 8px;gap:8px"><div style="font-size:20px;font-weight:700">{{ meal.label }}</div><div style="font-size:13px;color:var(--t2)">{{ meal.time }}</div><div style="margin-left:auto;font-size:15px;color:var(--t2)">{{ meal.kcal }} kcal</div></div>
+            <div style="background:var(--card);border-radius:14px;box-shadow:var(--shadow);overflow:hidden">
+              <sc-for list="{{ meal.items }}" as="it" hint-placeholder-count="2">
+                <div style="padding-left:16px"><div style="display:flex;align-items:center;gap:10px;padding:11px 16px 11px 0;border-bottom:1px solid var(--sep)"><div style="flex:1;min-width:0"><div style="font-size:16px">{{ it.name }}</div><div style="font-size:12px;color:var(--t2)">{{ it.portion }}</div></div><div style="font-size:15px;color:var(--t2)">{{ it.kcal }}</div></div></div>
+              </sc-for>
+              <button onClick="{{ meal.add.m }}" style="width:100%;display:flex;align-items:center;gap:10px;padding:12px 16px;color:var(--acc);font-size:16px;min-height:44px"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="11"></circle><path d="M12 7v10M7 12h10" stroke="var(--card)" stroke-width="2.4" stroke-linecap="round"></path></svg>Essen hinzufügen</button>
+            </div>
+          </div>
+        </sc-for>
+        <div style="height:110px"></div>
+      </div>
+      <div style="position:absolute;left:0;right:0;bottom:0;height:84px;background:var(--bar);backdrop-filter:blur(20px);border-top:1px solid var(--sep);display:grid;grid-template-columns:repeat(4,minmax(0,1fr));padding-top:8px;font-size:10px;font-weight:500">
+        <div style="display:flex;flex-direction:column;align-items:center;gap:3px;color:var(--acc)"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2M7 2v20M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7"></path></svg>Track</div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:3px;color:var(--t2)"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="3"></rect><path d="M16 2v4M8 2v4M3 10h18"></path></svg>Calendar</div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:3px;color:var(--t2)"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"></path></svg>Workouts</div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:3px;color:var(--t2)"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"></ellipse><path d="M3 5v14a9 3 0 0 0 18 0V5M3 12a9 3 0 0 0 18 0"></path></svg>Foods</div>
+      </div>
+      <sc-if value="{{ p.m }}" hint-placeholder-val="{{ false }}">
+        <div onClick="{{ close }}" style="position:absolute;inset:0;background:rgba(0,0,0,.35)"></div>
+        <div style="position:absolute;left:0;right:0;bottom:0;top:60px;background:var(--card);border-radius:14px 14px 0 0;display:flex;flex-direction:column;overflow:hidden">
+          <div style="width:36px;height:5px;border-radius:3px;background:var(--t3);margin:6px auto 0"></div>
+          <div style="display:grid;grid-template-columns:1fr auto 1fr;align-items:center;padding:12px 16px">
+            <button onClick="{{ close }}" style="color:var(--acc);font-size:16px">Abbrechen</button>
+            <div style="font-size:16px;font-weight:600">{{ picker.mealName }}</div>
+            <div></div>
+          </div>
+          <div style="padding:0 16px;display:flex;flex-direction:column;gap:12px">
+            <div style="display:flex;padding:2px;background:var(--fill);border-radius:9px"><sc-for list="{{ mealTabs }}" as="tb" hint-placeholder-count="4"><button onClick="{{ tb.select }}" style="flex:1;text-align:center;padding:6px 0;border-radius:7px;font-size:13px;font-weight:600;background:{{ tb.bg }};box-shadow:{{ tb.sh }}">{{ tb.name }}</button></sc-for></div>
+            <div style="display:flex;align-items:center;gap:8px;height:38px;padding:0 10px;border-radius:10px;background:var(--fill);color:var(--t2)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.5-3.5"></path></svg><input value="{{ query }}" onChange="{{ onQuery }}" placeholder="Suchen" style="flex:1;border:0;background:none;outline:none;font-size:16px;color:var(--t1)"></div>
+          </div>
+          <sc-if value="{{ dt.list }}" hint-placeholder-val="{{ true }}"><div style="flex:1;overflow:auto;margin-top:10px">
+            <sc-for list="{{ foods }}" as="fd" hint-placeholder-count="6">
+              <button onClick="{{ fd.add }}" style="width:100%;display:flex;padding-left:16px">
+                <div style="flex:1;display:flex;align-items:center;gap:12px;padding:11px 16px 11px 0;border-bottom:1px solid var(--sep)">
+                  <div style="flex:1;min-width:0"><div style="font-size:16px">{{ fd.name }}</div><div style="font-size:12px;color:var(--t2)">{{ fd.portion }} · {{ fd.kcal }} kcal</div></div>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--t3)" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"></path></svg>
+                </div>
+              </button>
+            </sc-for>
+          </div></sc-if>
+          <sc-if value="{{ dt.on }}" hint-placeholder-val="{{ false }}">
+            <div style="flex:1;overflow:auto;padding:14px 16px;display:flex;flex-direction:column;gap:16px">
+              <button onClick="{{ dt.back }}" style="display:flex;align-items:center;gap:2px;color:var(--acc);font-size:16px;align-self:flex-start;min-height:32px;white-space:nowrap;flex:none"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"></path></svg>Alle</button>
+              <div><div style="font-size:24px;font-weight:700;letter-spacing:-.01em">{{ dt.name }}</div><div style="font-size:13px;color:var(--t2)">pro 100 g · {{ dt.per }}</div></div>
+              <div style="display:flex;flex-direction:column;gap:8px">
+                <div style="font-size:13px;color:var(--t2);text-transform:uppercase;letter-spacing:.02em">Portion</div>
+                <div style="display:flex;flex-wrap:wrap;gap:6px">
+                  <sc-for list="{{ dt.units }}" as="u" hint-placeholder-count="2"><button onClick="{{ u.pick }}" style="height:36px;padding:0 12px;border-radius:18px;font-size:14px;font-weight:500;background:{{ u.bg }};color:{{ u.fg }};white-space:nowrap;display:flex;gap:5px;align-items:center"><div>{{ u.name }}</div><div style="opacity:.6">{{ u.g }}</div></button></sc-for>
+                  <button onClick="{{ dt.toggleNew }}" style="height:36px;padding:0 12px;border-radius:18px;font-size:14px;font-weight:500;color:var(--acc);box-shadow:inset 0 0 0 1.5px var(--acc);white-space:nowrap">+ Portion</button>
+                </div>
+                <sc-if value="{{ dt.newOpen }}" hint-placeholder-val="{{ false }}">
+                  <div style="border-radius:12px;background:var(--bg);padding:12px;display:flex;flex-direction:column;gap:10px">
+                    <div style="font-size:14px;font-weight:600">Neue Portion für {{ dt.name }}</div>
+                    <div style="display:grid;grid-template-columns:minmax(0,1fr) 96px;gap:8px">
+                      <input value="{{ dt.newName }}" onChange="{{ dt.onNewName }}" placeholder="z. B. Becher" style="height:44px;padding:0 10px;border-radius:9px;border:0;background:var(--card);outline:none;font-size:16px;min-width:0">
+                      <div style="display:flex;align-items:center;height:44px;padding:0 10px;border-radius:9px;background:var(--card)"><input value="{{ dt.newG }}" onChange="{{ dt.onNewG }}" inputMode="numeric" placeholder="0" style="width:100%;min-width:0;border:0;background:none;outline:none;font-size:16px;text-align:right;font-weight:600;padding:0"><div style="color:var(--t2);padding-left:4px">g</div></div>
+                    </div>
+                    <div style="font-size:12px;color:var(--t2)">{{ dt.newHint }}</div>
+                    <button onClick="{{ dt.saveNew }}" style="height:44px;border-radius:12px;background:{{ dt.saveBg }};color:{{ dt.saveFg }};font-size:15px;font-weight:600;text-align:center">Portion speichern</button>
+                  </div>
+                </sc-if>
+              </div>
+              <div style="display:flex;flex-direction:column;gap:8px">
+                <div style="font-size:13px;color:var(--t2);text-transform:uppercase;letter-spacing:.02em">Menge</div>
+                <div style="display:flex;align-items:center;gap:12px">
+                  <div style="display:flex;align-items:center;height:48px;border-radius:12px;background:var(--fill)">
+                    <button onClick="{{ dt.dec }}" style="width:48px;height:48px;display:grid;place-items:center;color:var(--acc);font-size:24px">−</button>
+                    <input value="{{ dt.qty }}" onChange="{{ dt.onQty }}" inputMode="decimal" style="width:52px;text-align:right;border:0;background:none;outline:none;font-size:20px;font-weight:600;padding:0">
+                    <div style="font-size:16px;padding:0 6px;color:var(--t2);white-space:nowrap">{{ dt.unitLabel }}</div>
+                    <button onClick="{{ dt.inc }}" style="width:48px;height:48px;display:grid;place-items:center;color:var(--acc);font-size:24px">+</button>
+                  </div>
+                  <div style="font-size:15px;color:var(--t2)">= {{ dt.grams }} g</div>
+                </div>
+              </div>
+              <div style="border-radius:14px;background:var(--bg);padding:14px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px">
+                <div style="display:flex;flex-direction:column;gap:4px"><div style="font-size:12px;color:var(--t2)">Kalorien</div><div style="font-size:18px;font-weight:700">{{ dt.kcal }}</div><div style="height:5px;border-radius:3px;background:var(--fill);overflow:hidden"><div style="height:5px;width:{{ dt.kcalPct }};background:var(--kcal)"></div></div></div>
+                <sc-for list="{{ dt.macros }}" as="m" hint-placeholder-count="3"><div style="display:flex;flex-direction:column;gap:4px"><div style="font-size:12px;color:var(--t2)">{{ m.name }}</div><div style="font-size:18px;font-weight:700">{{ m.val }}</div><div style="height:5px;border-radius:3px;background:var(--fill);overflow:hidden"><div style="height:5px;width:{{ m.pct }};background:{{ m.color }}"></div></div></div></sc-for>
+              </div>
+            </div>
+            <div style="display:flex;align-items:center;gap:12px;padding:12px 16px 30px;border-top:1px solid var(--sep)">
+              <div style="flex:1;min-width:0"><div style="font-size:12px;color:var(--t2)">{{ dt.summary }}</div><div style="font-size:18px;font-weight:600">{{ dt.kcal }} kcal</div></div>
+              <button onClick="{{ dt.add }}" style="height:48px;padding:0 22px;border-radius:24px;background:{{ dt.addBg }};color:#fff;font-size:16px;font-weight:600">Hinzufügen</button>
+            </div>
+          </sc-if>
+        </div>
+      </sc-if>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:14px;flex:none">
+    <div data-theme="{{ theme }}" data-screen-label="Mobile Text" style="width:390px;height:844px;flex:none;background:#000;color:var(--t1);display:flex;flex-direction:column;overflow:hidden;position:relative;border-radius:48px;box-shadow:0 30px 80px rgba(0,0,0,.22),0 0 0 10px #1c1c1e">
+      <div style="height:50px;flex:none;display:flex;align-items:flex-end;justify-content:space-between;padding:0 32px 6px;font-size:15px;font-weight:600;color:#fff"><div>17:32</div><div style="display:flex;gap:6px;align-items:center"><svg width="18" height="12" viewBox="0 0 18 12" fill="currentColor"><rect x="0" y="8" width="3" height="4" rx="1"></rect><rect x="5" y="5" width="3" height="7" rx="1"></rect><rect x="10" y="2" width="3" height="10" rx="1"></rect><rect x="15" y="0" width="3" height="12" rx="1"></rect></svg><svg width="26" height="12" viewBox="0 0 26 12"><rect x=".5" y=".5" width="22" height="11" rx="3.5" fill="none" stroke="currentColor" opacity=".4"></rect><rect x="2" y="2" width="16" height="8" rx="2" fill="currentColor"></rect></svg></div></div>
+      <div style="flex:1;margin-top:8px;background:var(--card);border-radius:14px 14px 0 0;display:flex;flex-direction:column;overflow:hidden;min-height:0">
+        <div style="width:36px;height:5px;border-radius:3px;background:var(--t3);margin:6px auto 0;flex:none"></div>
+        <div style="display:grid;grid-template-columns:1fr auto 1fr;align-items:center;padding:12px 16px;flex:none">
+          <div style="color:var(--acc);font-size:16px">Abbrechen</div>
+          <div style="font-size:16px;font-weight:600">Per Text eintragen</div>
+          <div></div>
+        </div>
+        <div style="padding:0 16px;display:flex;flex-direction:column;gap:12px;flex:none">
+          <div style="display:flex;padding:2px;background:var(--fill);border-radius:9px"><sc-for list="{{ txTabs }}" as="tb" hint-placeholder-count="4"><button onClick="{{ tb.select }}" style="flex:1;text-align:center;padding:6px 0;border-radius:7px;font-size:13px;font-weight:600;background:{{ tb.bg }};box-shadow:{{ tb.sh }}">{{ tb.name }}</button></sc-for></div>
+          <div style="border-radius:14px;background:var(--fill);padding:12px 14px 10px;display:flex;flex-direction:column;gap:8px">
+            <textarea value="{{ tx.input }}" onChange="{{ tx.onInput }}" onKeyDown="{{ tx.onKey }}" rows="3" placeholder="z. B. 2 Eier, eine Tasse Cappuccino und 1 Banane" style="width:100%;border:0;background:none;outline:none;resize:none;font-size:17px;line-height:1.4;color:var(--t1);font-family:inherit;padding:0"></textarea>
+            <div style="display:flex;align-items:center;gap:8px">
+              <div style="width:32px;height:32px;border-radius:50%;display:grid;place-items:center;color:var(--t2)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2" width="6" height="12" rx="3"></rect><path d="M19 10v1a7 7 0 0 1-14 0v-1M12 18v4"></path></svg></div>
+              <button onClick="{{ tx.parse }}" style="margin-left:auto;height:32px;padding:0 16px;border-radius:16px;background:var(--acc);color:#fff;font-size:14px;font-weight:600">Erkennen</button>
+            </div>
+          </div>
+        </div>
+        <div style="font-size:13px;color:var(--t2);padding:16px 20px 6px;text-transform:uppercase;letter-spacing:.02em;flex:none">Vorschau</div>
+        <div style="flex:1;overflow:auto;padding:0 16px 12px;display:flex;flex-direction:column;gap:8px">
+          <sc-for list="{{ tx.rows }}" as="r" hint-placeholder-count="3">
+            <div style="border-radius:14px;background:var(--bg);overflow:hidden;flex:none;box-shadow:inset 0 0 0 {{ r.ring }}">
+              <div style="display:flex;align-items:center;gap:12px;padding:11px 12px">
+                <sc-if value="{{ r.ok }}" hint-placeholder-val="{{ true }}"><div style="width:24px;height:24px;border-radius:50%;background:#30d158;color:#fff;display:grid;place-items:center;flex:none"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"></path></svg></div></sc-if>
+                <sc-if value="{{ r.pending }}" hint-placeholder-val="{{ false }}"><div style="width:24px;height:24px;border-radius:50%;background:#ff9f0a;color:#fff;display:grid;place-items:center;flex:none;font-size:14px;font-weight:700">?</div></sc-if>
+                <sc-if value="{{ r.unknown }}" hint-placeholder-val="{{ false }}"><div style="width:24px;height:24px;border-radius:50%;background:var(--fill);color:var(--t2);display:grid;place-items:center;flex:none;font-size:14px;font-weight:700">!</div></sc-if>
+                <div style="flex:1;min-width:0"><div style="font-size:16px;font-weight:500">{{ r.name }}</div><div style="font-size:12px;color:var(--t2)">{{ r.detail }}</div></div>
+                <div style="text-align:right"><div style="font-size:16px;font-weight:600">{{ r.kcal }}</div><div style="font-size:11px;color:var(--t2)">kcal</div></div>
+                <button onClick="{{ r.remove }}" style="width:24px;height:24px;border-radius:50%;background:var(--fill);color:var(--t2);display:grid;place-items:center;flex:none"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"></path></svg></button>
+              </div>
+              <sc-if value="{{ r.pending }}" hint-placeholder-val="{{ false }}">
+                <div style="margin:0 10px 10px;padding:12px;border-radius:10px;background:var(--card);display:flex;flex-direction:column;gap:10px">
+                  <div style="font-size:14px;line-height:1.35;text-wrap:pretty"><b>Neue Einheit:</b> „{{ r.unit }}“ gibt es für {{ r.name }} noch nicht. Wie viel Gramm sind 1 {{ r.unit }}?</div>
+                  <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+                    <div style="display:flex;align-items:center;height:36px;border-radius:8px;background:var(--fill)">
+                      <button onClick="{{ r.dec }}" style="width:36px;height:36px;display:grid;place-items:center;color:var(--acc);font-size:20px">−</button>
+                      <input value="{{ r.pg }}" onChange="{{ r.onPg }}" inputMode="numeric" style="width:38px;text-align:right;border:0;background:none;outline:none;font-size:16px;font-weight:600;padding:0">
+                      <div style="font-size:16px;padding:0 4px;color:var(--t2)">g</div>
+                      <button onClick="{{ r.inc }}" style="width:36px;height:36px;display:grid;place-items:center;color:var(--acc);font-size:20px">+</button>
+                    </div>
+                    <sc-for list="{{ r.chips }}" as="ch" hint-placeholder-count="3"><button onClick="{{ ch.pick }}" style="height:36px;padding:0 9px;border-radius:18px;font-size:13px;font-weight:500;background:{{ ch.bg }};color:{{ ch.fg }}">{{ ch.label }}</button></sc-for>
+                  </div>
+                  <div style="font-size:12px;color:var(--t2)">{{ r.calc }}</div>
+                  <button onClick="{{ r.confirm }}" style="height:44px;border-radius:12px;background:#ff9f0a;color:#fff;font-size:15px;font-weight:600;text-align:center">„{{ r.unit }}“ für {{ r.name }} speichern</button>
+                </div>
+              </sc-if>
+            </div>
+          </sc-for>
+          <sc-if value="{{ tx.none }}" hint-placeholder-val="{{ false }}"><div style="padding:16px 4px;font-size:14px;color:var(--t2);text-wrap:pretty">Schreib, was du gegessen hast. Mengen werden erkannt und in Gramm umgerechnet.</div></sc-if>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px;padding:12px 16px 30px;border-top:1px solid var(--sep);flex:none">
+          <div style="flex:1"><div style="font-size:12px;color:var(--t2)">{{ tx.note }}</div><div style="font-size:18px;font-weight:600">{{ tx.total }} kcal</div></div>
+          <button onClick="{{ tx.commitP }}" style="height:48px;padding:0 24px;border-radius:24px;background:{{ tx.btnBg }};color:{{ tx.btnFg }};font-size:16px;font-weight:600">Eintragen</button>
+        </div>
+      </div>
+      <sc-if value="{{ tx.toastOn }}" hint-placeholder-val="{{ false }}"><div style="position:absolute;left:50%;bottom:110px;transform:translateX(-50%);background:var(--t1);color:var(--bg);padding:10px 18px;border-radius:20px;font-size:14px;font-weight:600;white-space:nowrap;box-shadow:0 8px 24px rgba(0,0,0,.2)">{{ tx.toast }}</div></sc-if>
+    </div>
+    <div style="font-size:13px;color:#6e6e73;max-width:390px;text-wrap:pretty">Per Text eintragen: Grün = erkannt · Orange = neue Einheit, Gramm bestätigen · Grau = unbekannt, wird übersprungen.</div>
+    </div>
+  </div>
+</section>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;theme&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;light&quot;,&quot;dark&quot;],&quot;default&quot;:&quot;light&quot;,&quot;tsType&quot;:&quot;'light'|'dark'&quot;},&quot;goal&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:3000,&quot;min&quot;:1200,&quot;max&quot;:5000,&quot;step&quot;:50,&quot;unit&quot;:&quot;kcal&quot;,&quot;tsType&quot;:&quot;number&quot;}}">
+const FOODS = [
+  {name:'Vollkornbrot',portion:'2 Scheiben · 100 g',kcal:220,p:8,k:38,f:2},
+  {name:'Eier',portion:'2 Stück · 120 g',kcal:172,p:15,k:1,f:12},
+  {name:'Lachsfilet',portion:'150 g',kcal:312,p:30,k:0,f:21},
+  {name:'Magerquark',portion:'250 g',kcal:168,p:30,k:10,f:1},
+  {name:'Kartoffeln',portion:'300 g',kcal:231,p:6,k:48,f:0},
+  {name:'Vollkornnudeln',portion:'125 g roh',kcal:436,p:17,k:80,f:3},
+  {name:'Avocado',portion:'½ Stück · 80 g',kcal:128,p:2,k:1,f:12},
+  {name:'Apfel',portion:'1 Stück · 180 g',kcal:94,p:0,k:21,f:0},
+  {name:'Haferflocken',portion:'80 g',kcal:300,p:11,k:47,f:6},
+  {name:'Whey Shake',portion:'30 g',kcal:120,p:24,k:3,f:2},
+  {name:'Skyr natur',portion:'250 g',kcal:158,p:28,k:10,f:0}
+];
+let uid = 100;
+const mk = (name, portion, kcal, p, k, f) => ({id: uid++, name, portion, kcal, p, k, f});
+const INIT = [
+  {id:'breakfast', label:'Breakfast', time:'07:30', items:[mk('Haferflocken','80 g',300,11,47,6), mk('Skyr natur','250 g',158,28,10,0), mk('Banane','120 g',107,1,23,0)]},
+  {id:'lunch', label:'Lunch', time:'12:45', items:[mk('Hähnchenbrust','200 g',330,62,0,7), mk('Basmatireis','150 g gekocht',195,4,43,1), mk('Brokkoli','150 g',51,4,7,1)]},
+  {id:'snack', label:'Snack', time:'16:00', items:[mk('Whey Shake','30 g',120,24,3,2), mk('Mandeln','30 g',180,6,3,15)]},
+  {id:'dinner', label:'Dinner', time:'19:00', items:[]}
+];
+const GOALS = {p:165, k:360, f:100};
+const COLORS = {breakfast:'var(--kcal)', lunch:'var(--carb)', snack:'var(--fat)', dinner:'var(--pro)'};
+const fmt = n => Math.round(n).toLocaleString('de-DE');
+const pct = (a, b) => Math.max(0, Math.min(100, b ? a / b * 100 : 0));
+
+const DB = [
+  {id:'ei',name:'Ei',al:['eier','ei'],per:{kcal:143,p:13,k:1,f:10},units:{'Stück':60}},
+  {id:'capp',name:'Cappuccino',al:['cappuccino','cappucino','capuccino'],per:{kcal:38,p:2,k:3,f:2},units:{ml:1}},
+  {id:'kaffee',name:'Kaffee schwarz',al:['kaffee'],per:{kcal:2,p:0,k:0,f:0},units:{Tasse:150,ml:1}},
+  {id:'banane',name:'Banane',al:['bananen','banane'],per:{kcal:89,p:1,k:23,f:0},units:{'Stück':120}},
+  {id:'apfel',name:'Apfel',al:['äpfel','apfel'],per:{kcal:52,p:0,k:12,f:0},units:{'Stück':180}},
+  {id:'mandeln',name:'Mandeln',al:['mandeln'],per:{kcal:600,p:21,k:9,f:50},units:{}},
+  {id:'hafer',name:'Haferflocken',al:['haferflocken','hafer'],per:{kcal:372,p:13,k:59,f:7},units:{EL:10}},
+  {id:'brot',name:'Vollkornbrot',al:['vollkornbrot','brot'],per:{kcal:220,p:8,k:38,f:2},units:{Scheibe:50}},
+  {id:'skyr',name:'Skyr natur',al:['skyr'],per:{kcal:63,p:11,k:4,f:0},units:{Becher:450}},
+  {id:'quark',name:'Magerquark',al:['magerquark','quark'],per:{kcal:67,p:12,k:4,f:0},units:{Becher:250}},
+  {id:'milch',name:'Milch 1,5 %',al:['milch'],per:{kcal:47,p:3,k:5,f:2},units:{Glas:200,ml:1}},
+  {id:'whey',name:'Whey Shake',al:['whey','proteinshake'],per:{kcal:400,p:80,k:10,f:6},units:{Messlöffel:30}},
+  {id:'avocado',name:'Avocado',al:['avocado'],per:{kcal:160,p:2,k:2,f:15},units:{'Stück':160}},
+  {id:'huhn',name:'Hähnchenbrust',al:['hähnchenbrust','hähnchen'],per:{kcal:165,p:31,k:0,f:4},units:{}},
+  {id:'reis',name:'Basmatireis gekocht',al:['reis'],per:{kcal:130,p:3,k:28,f:0},units:{}}
+];
+const UNITS = [[/^(g|gr|gramm)$/,'g'],[/^ml$/,'ml'],[/^(stück|stk)$/,'Stück'],[/^tassen?$/,'Tasse'],[/^scheiben?$/,'Scheibe'],[/^(el|esslöffel)$/,'EL'],[/^(tl|teelöffel)$/,'TL'],[/^(glas|gläser)$/,'Glas'],[/^becher$/,'Becher'],[/^handvoll$/,'Handvoll'],[/^(schüssel|schale)n?$/,'Schüssel'],[/^portion(en)?$/,'Portion'],[/^messlöffel$/,'Messlöffel']];
+const GUESS = {Tasse:200,Glas:250,Becher:250,Handvoll:30,'Schüssel':300,Portion:150,EL:15,TL:5,Scheibe:30,'Stück':100,'Messlöffel':30};
+const CHIPS = {Tasse:[150,200,250],Glas:[200,250,300],Becher:[150,250,500],Handvoll:[20,30,40],'Schüssel':[200,300,400],Portion:[100,150,200],Scheibe:[20,30,50]};
+const PLURAL = {Tasse:'Tassen',Scheibe:'Scheiben',Portion:'Portionen','Schüssel':'Schüsseln','Glas':'Gläser'};
+const NUMW = {ein:1,eine:1,einen:1,einem:1,einer:1,zwei:2,drei:3,vier:4,'fünf':5,sechs:6,halbe:.5,halber:.5,halbes:.5,'½':.5};
+const DEFAULT_TX = '2 Eier, eine Tasse Cappuccino, 1 Banane und 30 g Mandeln';
+const fq = q => q === .5 ? '½' : q.toLocaleString('de-DE');
+const unitLabel = (u, q) => q > 1 && PLURAL[u] ? PLURAL[u] : u;
+const portionLabel = r => (r.unit === 'g' || r.unit === 'ml') ? `${fq(r.qty)} ${r.unit}` : `${fq(r.qty)} ${unitLabel(r.unit, r.qty)} · ${Math.round(r.grams).toLocaleString('de-DE')} g`;
+let rk = 1;
+function parseText(txt, custom) {
+  return txt.toLowerCase().split(/,|;|\n|\+|\bund\b|\bmit\b/).map(s => s.trim()).filter(Boolean).map(chunk => {
+    const toks = chunk.replace(/(\d)(g|ml)\b/g, '$1 $2').split(/\s+/);
+    let qty = 1, unit = null;
+    if (/^\d+([.,]\d+)?$/.test(toks[0])) qty = parseFloat(toks.shift().replace(',', '.'));
+    else if (NUMW[toks[0]] != null) qty = NUMW[toks.shift()];
+    while (toks.length > 1 && /^(kleine[nrs]?|große[nrs]?|grosse[nrs]?)$/.test(toks[0])) toks.shift();
+    if (toks.length > 1) { const u = UNITS.find(([re]) => re.test(toks[0])); if (u) { unit = u[1]; toks.shift(); } }
+    const rest = toks.join(' ');
+    const key = rk++;
+    const food = DB.find(f => f.al.some(a => rest.includes(a)));
+    if (!food) return { key, status: 'unknown', name: rest.charAt(0).toUpperCase() + rest.slice(1), qty, unit };
+    const units = { ...food.units, ...(custom[food.id] || {}) };
+    if (!unit) unit = units['Stück'] ? 'Stück' : (Object.keys(units).find(u => u !== 'ml') || 'Portion');
+    if (unit === 'g' || unit === 'ml') return { key, food, qty, unit, grams: qty, status: 'ok' };
+    if (units[unit]) return { key, food, qty, unit, grams: qty * units[unit], status: 'ok' };
+    return { key, food, qty, unit, pg: GUESS[unit] || 100, status: 'pending' };
+  });
+}
+
+class Component extends DCLogic {
+  state = { theme: null, meals: INIT, adding: null, query: '', txInput: DEFAULT_TX, rows: parseText(DEFAULT_TX, {}), custom: {}, mode: 'text', textMeal: 'breakfast', toast: null };
+  parse = () => this.setState(s => ({ rows: parseText(s.txInput, s.custom) }));
+  setRow = (key, patch) => this.setState(s => ({ rows: s.rows.map(r => r.key === key ? { ...r, ...patch } : r) }));
+  confirmUnit = key => this.setState(s => {
+    const r = s.rows.find(x => x.key === key); if (!r) return null;
+    const pg = Math.max(1, Math.round(r.pg || 0));
+    const custom = { ...s.custom, [r.food.id]: { ...(s.custom[r.food.id] || {}), [r.unit]: pg } };
+    return { custom, rows: s.rows.map(x => x.status === 'pending' && x.food.id === r.food.id && x.unit === r.unit ? { ...x, status: 'ok', grams: x.qty * pg, isNew: true } : x) };
+  });
+  commitText = (mealId, closeAfter) => {
+    const { rows, meals } = this.state;
+    const ok = rows.filter(r => r.status === 'ok');
+    if (!ok.length || rows.some(r => r.status === 'pending')) return;
+    const items = ok.map(r => { const g = r.grams / 100, pr = r.food.per; return { id: uid++, name: r.food.name, portion: portionLabel(r), kcal: Math.round(g * pr.kcal), p: Math.round(g * pr.p), k: Math.round(g * pr.k), f: Math.round(g * pr.f) }; });
+    const meal = meals.find(m => m.id === mealId);
+    this.setState(s => ({ meals: s.meals.map(m => m.id === mealId ? { ...m, items: [...m.items, ...items] } : m), rows: [], txInput: '', adding: closeAfter ? null : s.adding,
+      toast: `${items.length} ${items.length === 1 ? 'Eintrag' : 'Einträge'} zu ${meal.label} hinzugefügt` }));
+    clearTimeout(this._t); this._t = setTimeout(() => this.setState({ toast: null }), 2600);
+  };
+  open = (loc, meal) => this.setState(s => s.rows.length || s.txInput ? { adding: { loc, meal }, query: '', detail: null } : { adding: { loc, meal }, query: '', detail: null, txInput: DEFAULT_TX, rows: parseText(DEFAULT_TX, s.custom) });
+  close = () => this.setState({ adding: null, detail: null });
+  openDetail = id => this.setState({ detail: { id, unit: 'g', qty: '100', newOpen: false, newName: '', newG: '' } });
+  setDt = patch => this.setState(s => ({ detail: { ...s.detail, ...patch } }));
+  addDetail = (food, unit, q, grams) => {
+    const a = this.state.adding; if (!a) return;
+    const g = grams / 100, pr = food.per;
+    const item = { id: uid++, name: food.name, portion: unit === 'g' ? `${fmt(grams)} g` : `${fq(q)} ${unitLabel(unit, q)} · ${fmt(grams)} g`, kcal: Math.round(g * pr.kcal), p: Math.round(g * pr.p), k: Math.round(g * pr.k), f: Math.round(g * pr.f) };
+    const meal = this.state.meals.find(m => m.id === a.meal);
+    this.setState(s => ({ meals: s.meals.map(m => m.id === a.meal ? { ...m, items: [...m.items, item] } : m), adding: null, detail: null, toast: `${food.name} zu ${meal.label} hinzugefügt` }));
+    clearTimeout(this._t); this._t = setTimeout(() => this.setState({ toast: null }), 2600);
+  };
+  add = food => {
+    const a = this.state.adding; if (!a) return;
+    this.setState(s => ({ adding: null, meals: s.meals.map(m => m.id === a.meal ? { ...m, items: [...m.items, { ...food, id: uid++ }] } : m) }));
+  };
+  remove = (mid, iid) => this.setState(s => ({ meals: s.meals.map(m => m.id === mid ? { ...m, items: m.items.filter(i => i.id !== iid) } : m) }));
+  componentDidMount() { this._k = e => { if (e.key === 'Escape') this.close(); }; window.addEventListener('keydown', this._k); }
+  componentWillUnmount() { window.removeEventListener('keydown', this._k); }
+
+  renderVals() {
+    const theme = this.state.theme || this.props.theme || 'light';
+    const goal = this.props.goal ?? 3000, burned = 320;
+    const { adding, query } = this.state;
+    const sum = (a, k) => a.reduce((s, i) => s + i[k], 0);
+    const all = this.state.meals.flatMap(m => m.items);
+    const consumed = sum(all, 'kcal');
+    const left = goal - consumed + burned;
+    const meals = this.state.meals.map(m => ({
+      ...m, kcal: fmt(sum(m.items, 'kcal')), color: COLORS[m.id], empty: !m.items.length,
+      add: { d: () => this.open('d', m.id), m: () => this.open('m', m.id) },
+      items: m.items.map(i => ({ ...i, kcal: fmt(i.kcal), macro: `P ${i.p} · K ${i.k} · F ${i.f}`, remove: () => this.remove(m.id, i.id) }))
+    }));
+    const macros = [['p','Protein','Protein','var(--pro)'],['k','Kohlenhydrate','Carbs','var(--carb)'],['f','Fett','Fett','var(--fat)']].map(([k, name, short, color]) => {
+      const v = sum(all, k); return { name, short, color, val: fmt(v), goal: GOALS[k], pct: pct(v, GOALS[k]) + '%' };
+    });
+    const c = 2 * Math.PI * 64;
+    const pm = adding ? this.state.meals.find(m => m.id === adding.meal) : null;
+    const q = query.trim().toLowerCase();
+    const foods = DB.filter(f => !q || f.name.toLowerCase().includes(q) || f.al.some(a => a.includes(q))).map(f => {
+      const us = Object.entries({ ...f.units, ...(this.state.custom[f.id] || {}) }).filter(([u]) => u !== 'ml');
+      return { name: f.name, kcal: f.per.kcal, portion: 'pro 100 g', macro: us.length ? us.map(([u, g]) => `${u} ${g} g`).join(' · ') : `P ${f.per.p} · K ${f.per.k} · F ${f.per.f}`, add: () => this.openDetail(f.id) };
+    });
+    const mealTabs = this.state.meals.map(m => {
+      const on = adding && adding.meal === m.id;
+      return { name: m.label, bg: on ? 'var(--sel)' : 'transparent', sh: on ? '0 1px 3px rgba(0,0,0,.12)' : 'none', select: () => this.setState(s => ({ adding: { ...s.adding, meal: m.id } })) };
+    });
+    const dark = theme === 'dark', loc = adding && adding.loc;
+    const segOn = '#ffffff', segSh = '0 1px 3px rgba(0,0,0,.12)';
+    const d = this.state.detail, dFood = d && DB.find(f => f.id === d.id);
+    let dt = { on: !!dFood, list: !dFood };
+    if (dFood) {
+      const units = { ...dFood.units, ...(this.state.custom[dFood.id] || {}) };
+      const ulist = [['g', 1], ...Object.entries(units).filter(([u]) => u !== 'ml')];
+      const dq = parseFloat(String(d.qty).replace(',', '.')) || 0;
+      const grams = dq * (d.unit === 'g' ? 1 : (units[d.unit] || 1));
+      const kc = grams * dFood.per.kcal / 100;
+      const step = d.unit === 'g' ? 10 : 0.5;
+      const fmtQ = v => String(Math.round(v * 10) / 10).replace('.', ',');
+      const nn = d.newName.trim(), ng = parseInt(d.newG, 10) || 0, canNew = !!nn && ng > 0;
+      const pr = dFood.per, ul = d.unit === 'g' ? 'g' : unitLabel(d.unit, dq);
+      dt = {
+        ...dt, name: dFood.name, per: `${pr.kcal} kcal · P ${pr.p} · K ${pr.k} · F ${pr.f}`,
+        units: ulist.map(([u, g]) => ({ name: u === 'g' ? 'Gramm' : u, g: u === 'g' ? '' : `${g} g`, bg: d.unit === u ? 'var(--acc)' : 'var(--fill)', fg: d.unit === u ? '#fff' : 'var(--t1)', pick: () => this.setDt({ unit: u, qty: u === 'g' ? '100' : '1' }) })),
+        newOpen: d.newOpen, toggleNew: () => this.setDt({ newOpen: !d.newOpen }), newName: d.newName, newG: d.newG,
+        onNewName: e => this.setDt({ newName: e.target.value }), onNewG: e => this.setDt({ newG: e.target.value.replace(/\D/g, '') }),
+        newHint: canNew ? `1 ${nn} = ${ng} g · ${fmt(ng * pr.kcal / 100)} kcal` : 'Wird für dieses Lebensmittel gespeichert und steht danach überall zur Wahl.',
+        saveBg: canNew ? 'var(--acc)' : 'var(--fill)', saveFg: canNew ? '#fff' : 'var(--t3)',
+        saveNew: () => canNew && this.setState(s => ({ custom: { ...s.custom, [dFood.id]: { ...(s.custom[dFood.id] || {}), [nn]: ng } }, detail: { ...s.detail, unit: nn, qty: '1', newOpen: false, newName: '', newG: '' } })),
+        qty: String(d.qty), onQty: e => this.setDt({ qty: e.target.value.replace(/[^\d.,]/g, '') }),
+        dec: () => this.setDt({ qty: fmtQ(Math.max(0, dq - step)) }), inc: () => this.setDt({ qty: fmtQ(dq + step) }),
+        unitLabel: ul, grams: fmt(grams), kcal: fmt(kc), kcalPct: pct(kc, goal) + '%',
+        macros: [['p', 'Protein', 'var(--pro)'], ['k', 'Carbs', 'var(--carb)'], ['f', 'Fett', 'var(--fat)']].map(([k, name, color]) => { const v = grams * pr[k] / 100; return { name, color, val: fmt(v) + ' g', pct: pct(v, GOALS[k]) + '%' }; }),
+        summary: d.unit === 'g' ? `${fmt(grams)} g` : `${fmtQ(dq)} ${ul} · ${fmt(grams)} g`,
+        addBg: grams > 0 ? 'var(--acc)' : 'var(--t3)',
+        add: () => grams > 0 && this.addDetail(dFood, d.unit, dq, grams),
+        back: () => this.setState({ detail: null }),
+        target: `Zu ${pm ? pm.label : ''} hinzufügen`
+      };
+    }
+    const txRows = this.state.rows.map(r => {
+      const ok = r.status === 'ok', pending = r.status === 'pending', unknown = r.status === 'unknown';
+      const grams = pending ? r.qty * (r.pg || 0) : r.grams;
+      const kcal = r.food ? Math.round(grams * r.food.per.kcal / 100) : 0;
+      const ul = r.unit ? unitLabel(r.unit, r.qty) : '';
+      return {
+        key: r.key, ok, pending, unknown, unit: r.unit, name: r.food ? r.food.name : r.name,
+        detail: unknown ? 'Nicht erkannt · wird übersprungen' : pending ? `${fq(r.qty)} ${ul} · ≈ ${fmt(grams)} g` : portionLabel(r) + (r.isNew ? ' · neue Einheit' : ''),
+        kcal: unknown ? '–' : (pending ? '≈ ' : '') + fmt(kcal),
+        ring: pending ? '1.5px #ff9f0a' : '0 transparent',
+        pg: String(r.pg ?? ''),
+        onPg: e => this.setRow(r.key, { pg: parseInt(e.target.value.replace(/\D/g, ''), 10) || 0 }),
+        dec: () => this.setRow(r.key, { pg: Math.max(0, (r.pg || 0) - 10) }),
+        inc: () => this.setRow(r.key, { pg: (r.pg || 0) + 10 }),
+        chips: (CHIPS[r.unit] || [50, 100, 150]).map(v => ({ label: `${v} g`, bg: r.pg === v ? 'var(--acc)' : 'var(--fill)', fg: r.pg === v ? '#fff' : 'var(--t1)', pick: () => this.setRow(r.key, { pg: v }) })),
+        calc: pending ? `${fq(r.qty)} ${ul} = ${fmt(grams)} g · ${fmt(kcal)} kcal` : '',
+        confirm: () => this.confirmUnit(r.key),
+        remove: () => this.setState(s => ({ rows: s.rows.filter(x => x.key !== r.key) }))
+      };
+    });
+    const okR = this.state.rows.filter(r => r.status === 'ok');
+    const pendN = this.state.rows.filter(r => r.status === 'pending').length;
+    const unkN = this.state.rows.filter(r => r.status === 'unknown').length;
+    const txKcal = okR.reduce((a, r) => a + r.grams * r.food.per.kcal / 100, 0);
+    const txG = okR.reduce((a, r) => a + r.grams, 0);
+    const can = okR.length > 0 && !pendN;
+    const tx = {
+      input: this.state.txInput, rows: txRows, none: !txRows.length, total: fmt(txKcal),
+      note: pendN ? `${pendN === 1 ? '1 neue Einheit' : pendN + ' neue Einheiten'} bestätigen` : unkN ? `${okR.length} erkannt · ${unkN} übersprungen` : okR.length ? `${okR.length} Lebensmittel · ${fmt(txG)} g` : 'Noch nichts erkannt',
+      btnBg: can ? 'var(--acc)' : 'var(--fill)', btnFg: can ? '#fff' : 'var(--t3)',
+      onInput: e => this.setState({ txInput: e.target.value }),
+      onKey: e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); this.parse(); } },
+      parse: this.parse,
+      commitD: () => adding && this.commitText(adding.meal, true),
+      commitP: () => this.commitText(this.state.textMeal, false),
+      toastOn: !!this.state.toast, toast: this.state.toast || ''
+    };
+    const segTab = on => ({ bg: on ? 'var(--sel)' : 'transparent', sh: on ? '0 1px 3px rgba(0,0,0,.12)' : 'none' });
+    const txTabs = this.state.meals.map(m => ({ name: m.label, ...segTab(this.state.textMeal === m.id), select: () => this.setState({ textMeal: m.id }) }));
+    const modeTabs = [['text', 'Per Text'], ['search', 'Suchen']].map(([id, name]) => {
+      const on = this.state.mode === id;
+      return { name, bg: on ? 'var(--t1)' : 'var(--fill)', fg: on ? 'var(--card)' : 'var(--t1)', select: () => this.setState({ mode: id }) };
+    });
+    return {
+      tx, dt, txTabs, modeTabs, mode: { text: this.state.mode === 'text', search: this.state.mode === 'search' },
+      theme,
+      setDark: () => this.setState({ theme: 'dark' }), setLight: () => this.setState({ theme: 'light' }),
+      tLightBg: dark ? 'transparent' : segOn, tLightSh: dark ? 'none' : segSh,
+      tDarkBg: dark ? segOn : 'transparent', tDarkSh: dark ? segSh : 'none',
+      t: { goal: fmt(goal), consumed: fmt(consumed), burned: fmt(burned), left: fmt(left) },
+      ring: { d: `${c * Math.max(0.5, pct(consumed, goal)) / 100} ${c}` },
+      macros, meals, foods, mealTabs, query,
+      p: { d: loc === 'd', m: loc === 'm' },
+      picker: { mealName: pm ? pm.label : '' },
+      onQuery: e => this.setState({ query: e.target.value }),
+      close: this.close,
+      openD: () => this.open('d', 'dinner'),
+      openM: () => this.open('m', 'dinner')
+    };
+  }
+}
+</script>
+</body>
+</html>

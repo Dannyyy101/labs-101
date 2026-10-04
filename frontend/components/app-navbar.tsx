@@ -24,6 +24,7 @@ const NAV = [
     { href: "/foods/track", label: "Track Food" },
     { href: "/planner", label: "Calendar" },
     { href: "/workouts", label: "Workouts" },
+    { href: "/runs", label: "Laufen" },
     { href: "/exercises", label: "Exercises" },
     { href: "/foods", label: "Foods" },
 ]

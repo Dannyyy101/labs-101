@@ -274,8 +274,8 @@
 				INFOPLIST_KEY_NSLocalNetworkUsageDescription = "Die App verbindet sich mit dem Backend in deinem lokalen Netzwerk";
 				INFOPLIST_KEY_NSCameraUsageDescription = "Die Kamera wird zum Scannen von Barcodes auf Lebensmitteln verwendet";
 				INFOPLIST_KEY_NSHealthClinicalHealthRecordsShareUsageDescription = "Diese App liest deine Trainingsdaten, um deinen Fortschritt anzuzeigen";
-				INFOPLIST_KEY_NSHealthShareUsageDescription = "Diese App liest deine Trainingsdaten, um deinen Fortschritt anzuzeigen";
-				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "Diese App speichert deine Trainingsdaten in Health";
+				INFOPLIST_KEY_NSHealthShareUsageDescription = "Diese App liest deine Health-Daten und synchronisiert sie mit deinem Backend";
+				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "Diese App speichert Einträge, die du auf der Website erstellst, in Health";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -314,8 +314,8 @@
 				INFOPLIST_KEY_NSLocalNetworkUsageDescription = "Die App verbindet sich mit dem Backend in deinem lokalen Netzwerk";
 				INFOPLIST_KEY_NSCameraUsageDescription = "Die Kamera wird zum Scannen von Barcodes auf Lebensmitteln verwendet";
 				INFOPLIST_KEY_NSHealthClinicalHealthRecordsShareUsageDescription = "Diese App liest deine Trainingsdaten, um deinen Fortschritt anzuzeigen";
-				INFOPLIST_KEY_NSHealthShareUsageDescription = "Diese App liest deine Trainingsdaten, um deinen Fortschritt anzuzeigen";
-				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "Diese App speichert deine Trainingsdaten in Health";
+				INFOPLIST_KEY_NSHealthShareUsageDescription = "Diese App liest deine Health-Daten und synchronisiert sie mit deinem Backend";
+				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "Diese App speichert Einträge, die du auf der Website erstellst, in Health";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;

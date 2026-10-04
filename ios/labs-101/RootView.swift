@@ -11,7 +11,11 @@ struct RootView: View {
                 }
             }
             Tab("Health", systemImage: "heart.fill") {
-                ContentView()
+                if AppConfig.current.isComplete {
+                    HealthSyncView()
+                } else {
+                    MissingConfigurationView()
+                }
             }
         }
     }
