@@ -20,21 +20,22 @@ const FoodSearch: React.FC<{ meal: Meal, selectedFoodStore: SelectedFoodState, c
     const [searchInput, setSearchInput] = useState<string>("")
     const [open, setOpen] = useState<boolean>(false)
     const [showBarcodeScanner, setShowBarcodeScanner] = useState<boolean>(false)
+    const [page, setPage] = useState(0)
 
     const findByName = async (name: string) => {
         setSearchInput(name)
-        const foundFood = await findFoodByNameAndUserId(name)
-        setFood(foundFood.content)
-        setHasMore(foundFood.totalElements % foundFood.size !== 0)
+        const result = await findFoodByNameAndUserId(name)
+        setFood(result.content)
+        setPage(0)
+        setHasMore(!result.last)
     }
 
     const fetchMore = async () => {
-        const next = await findFoodByNameAndUserId(searchInput, { page: food.length / 20 });
-        if (next.totalElements % next.size !== 0) {
-            setHasMore(false)
-        }
-        setFood((prev) => [...prev, ...next.content]);
-    };
+        const next = await findFoodByNameAndUserId(searchInput, { page: page + 1 })
+        setFood((prev) => [...prev, ...next.content])
+        setPage(next.number)
+        setHasMore(!next.last)
+    }
     const [error, setError] = useState<string | null>(null)
     const [loading, setLoading] = useState(false)
 

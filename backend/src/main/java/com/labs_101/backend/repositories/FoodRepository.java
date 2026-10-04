@@ -11,33 +11,36 @@ import org.springframework.data.repository.query.Param;
 import com.labs_101.backend.entities.food.Food;
 
 public interface FoodRepository extends JpaRepository<Food, Long> {
-    @Query("""
-            SELECT f FROM Food f
-            LEFT JOIN f.foodUsers fu WITH fu.user.id = :userId
-            WHERE f.name LIKE CONCAT('%', :name, '%')
-            GROUP BY f
-            ORDER BY COUNT(fu) DESC, f.name ASC
-            """)
-    Page<Food> findAllByNameAndUserId(Pageable p, @Param("name") String name, @Param("userId") String userId);
+        @Query(value = """
+                        SELECT f.* FROM food f
+                        LEFT JOIN food_user fu ON fu.food_id = f.id AND fu.user_id = :userId
+                        WHERE lower(f.name) % :name
+                        GROUP BY f.id
+                        ORDER BY similarity(lower(f.name), :name) DESC, COUNT(fu.id) DESC, f.name ASC
+                        """, countQuery = """
+                        SELECT count(*) FROM food f
+                        WHERE lower(f.name) % :name
+                        """, nativeQuery = true)
+        Page<Food> findAllByNameAndUserId(Pageable p, @Param("name") String name, @Param("userId") String userId);
 
-    Page<Food> findByNameContainingIgnoreCase(String name, Pageable p);
+        Page<Food> findByNameContainingIgnoreCase(String name, Pageable p);
 
-    Optional<Food> findByBarCode(String barcode);
+        Optional<Food> findByBarCode(String barcode);
 
-    @Query("""
-                        SELECT f FROM TrackedFood fu
-            JOIN fu.food f
-            WHERE fu.user.id = :userId
-            GROUP BY f, fu.createDate
-            ORDER BY fu.createDate DESC
-                        """)
-    Page<Food> findAllByLastUsed(Pageable p, String userId);
+        @Query("""
+                                    SELECT f FROM TrackedFood fu
+                        JOIN fu.food f
+                        WHERE fu.user.id = :userId
+                        GROUP BY f, fu.createDate
+                        ORDER BY fu.createDate DESC
+                                    """)
+        Page<Food> findAllByLastUsed(Pageable p, String userId);
 
-    @Query(value = """
-            SELECT * FROM food
-            WHERE lower(name) % :query
-            ORDER BY similarity(lower(name), :query) DESC
-            LIMIT 1
-            """, nativeQuery = true)
-    Food findSimilar(@Param("query") String query);
+        @Query(value = """
+                        SELECT * FROM food
+                        WHERE lower(name) % :query
+                        ORDER BY similarity(lower(name), :query) DESC
+                        LIMIT 1
+                        """, nativeQuery = true)
+        Food findSimilar(@Param("query") String query);
 }
