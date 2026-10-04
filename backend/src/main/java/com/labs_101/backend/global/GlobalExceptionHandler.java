@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.server.ResponseStatusException;
 
+import com.labs_101.backend.exception.BadRequestException;
 import com.labs_101.backend.exception.ErrorResponse;
 import com.labs_101.backend.exception.NotFoundException;
 
@@ -58,6 +59,23 @@ public class GlobalExceptionHandler {
                 msg,
                 request.getRequestURI());
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(body);
+    }
+
+    /**
+     * Handles BadRequestException by returning a localized message with a
+     * BAD_REQUEST status.
+     */
+    @ExceptionHandler(BadRequestException.class)
+    public ResponseEntity<ErrorResponse> handleBadRequest(BadRequestException ex, Locale locale,
+            HttpServletRequest request) {
+        String msg = messageSource.getMessage(ex.getCode(), ex.getArgs(), ex.getCode(), locale);
+        ErrorResponse body = new ErrorResponse(
+                Instant.now(),
+                HttpStatus.BAD_REQUEST.value(),
+                HttpStatus.BAD_REQUEST.getReasonPhrase(),
+                msg,
+                request.getRequestURI());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
     }
 
     /**

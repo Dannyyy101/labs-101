@@ -41,5 +41,31 @@ export interface ExerciseSet {
     order: number,
     reps: number
     weightKg: number
-    rpe: number
+    rpe: number | null
+}
+
+// a workout of the user, see WorkoutSessionController in the backend
+export interface WorkoutSession {
+    id: number
+    // the template it was started from, null for a free workout
+    workoutId: number | null
+    name: string
+    startedAt: string
+    // null while the workout is running
+    endedAt: string | null
+    exercises: SessionExercise[]
+}
+
+export interface SessionExercise {
+    exerciseId: number | null
+    // kept so the history still reads right after the exercise is renamed or deleted
+    name: string
+    sets: SessionSet[]
+}
+
+export interface SessionSet {
+    reps: number
+    weightKg: number
+    rpe: number | null
+    done: boolean
 }

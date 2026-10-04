@@ -5,11 +5,12 @@ info:
 
 http:
   method: POST
-  url: "{{base_url}}/api/workouts/sessions"
+  url: "{{base_url}}/api/users/0Hatub6x8Vxyp3L8YNG5QHG7s579dTai/workout-sessions"
   body:
     type: json
     data: |-
       {
+        "workoutId": 1,
         "name": "Upper body"
       }
   auth: inherit
