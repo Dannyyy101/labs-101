@@ -10,4 +10,12 @@ public class BadRequestException extends BaseException {
         return new BadRequestException("error.pathVariable.idMismatch",
                 id1, id2);
     }
+
+    public static BadRequestException workoutSessionActive(Long activeId) {
+        return new BadRequestException("error.workoutSession.active", activeId);
+    }
+
+    public static BadRequestException workoutSessionFinished(Long id) {
+        return new BadRequestException("error.workoutSession.finished", id);
+    }
 }

@@ -2,6 +2,7 @@
 
 import { RunPoint, RunSummary } from "@/utils/types/run"
 import { useEffect, useMemo, useRef, useState } from "react"
+import { Period } from "@/components/dashboard"
 import { de, formatDate, formatDuration, formatPace, WEEKDAY } from "./format"
 
 const PACE = "#0a84ff"
@@ -10,7 +11,7 @@ const RUN = "#30d158"
 export const WEEKLY_GOAL_KM = 30
 
 // width of the chart container, the SVGs are drawn in real pixels so the text never scales
-function useWidth() {
+export function useWidth() {
     const ref = useRef<HTMLDivElement>(null)
     const [width, setWidth] = useState(0)
     useEffect(() => {
@@ -22,7 +23,7 @@ function useWidth() {
     return [ref, width] as const
 }
 
-function Tooltip({ x, y, children }: { x: number, y: number, children: React.ReactNode }) {
+export function Tooltip({ x, y, children }: { x: number, y: number, children: React.ReactNode }) {
     return <div className="pointer-events-none absolute z-10 whitespace-nowrap rounded-[10px] bg-card px-2.5 py-2 text-xs shadow-[0_6px_20px_rgba(0,0,0,.18)]" style={{ left: x, top: y }}>
         {children}
     </div>
@@ -116,7 +117,6 @@ export function ProfileChart({ points, onHover }: { points: RunPoint[], onHover:
     </div>
 }
 
-export type Period = "7" | "30" | "year"
 
 interface Bucket {
     label: string
