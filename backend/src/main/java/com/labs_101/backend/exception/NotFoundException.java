@@ -9,8 +9,7 @@ public class NotFoundException extends BaseException {
     }
 
     public static NotFoundException workout(Long id) {
-        return new NotFoundException("",
-                "Workout %s not found".formatted(id));
+        return new NotFoundException("error.workout.notFound", id);
     }
 
     public static NotFoundException food(Long id) {
@@ -35,6 +34,14 @@ public class NotFoundException extends BaseException {
 
     public static NotFoundException healthWriteRequest(Long id) {
         return new NotFoundException("error.healthWriteRequest.notFound", id);
+    }
+
+    public static NotFoundException exercise(Long id) {
+        return new NotFoundException("error.exercise.notFound", id);
+    }
+
+    public static NotFoundException workoutSession(Long id) {
+        return new NotFoundException("error.workoutSession.notFound", id);
     }
 
     public static NotFoundException run(UUID id) {

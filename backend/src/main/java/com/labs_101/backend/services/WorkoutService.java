@@ -5,6 +5,7 @@ import com.labs_101.backend.mapper.ExerciseMapper;
 import com.labs_101.backend.mapper.WorkoutMapper;
 import com.labs_101.backend.repositories.ExerciseRepository;
 import com.labs_101.backend.repositories.WorkoutRepository;
+import com.labs_101.backend.repositories.WorkoutSessionRepository;
 
 import jakarta.transaction.Transactional;
 
@@ -26,7 +27,6 @@ import com.labs_101.backend.dtos.workout.StrengthItemDto;
 import com.labs_101.backend.dtos.workout.WorkoutDto;
 import com.labs_101.backend.entities.workout.workoutExercises.StrengthItem;
 import com.labs_101.backend.exception.NotFoundException;
-import com.labs_101.backend.dtos.workout.WorkoutHeaderDto;
 import com.labs_101.backend.entities.BodyPart;
 import com.labs_101.backend.entities.Exercise;
 import com.labs_101.backend.entities.workout.Workout;
@@ -36,11 +36,13 @@ import com.labs_101.backend.entities.workout.WorkoutExercise;
 public class WorkoutService {
     private final WorkoutRepository workoutRepository;
     private final ExerciseRepository exerciseRepository;
+    private final WorkoutSessionRepository sessionRepository;
 
     WorkoutService(ExerciseRepository exerciseRepository,
-            WorkoutRepository workoutRepository) {
+            WorkoutRepository workoutRepository, WorkoutSessionRepository sessionRepository) {
         this.exerciseRepository = exerciseRepository;
         this.workoutRepository = workoutRepository;
+        this.sessionRepository = sessionRepository;
     }
 
     @Transactional
@@ -68,28 +70,50 @@ public class WorkoutService {
     }
 
     @Transactional
-    public Workout create(CreateWorkoutDto request) {
+    public WorkoutDto create(CreateWorkoutDto request) {
         Workout workout = new Workout();
-        workout.setName(request.name());
         workout.setDuration(0.0);
-
-        for (ExerciseItem item : request.exercises()) {
-            Exercise exercise = exerciseRepository.getReferenceById(item.exercise().getId());
-            workout.addExercise(toEntity(exercise, item));
-        }
-
-        return workoutRepository.save(workout);
+        apply(workout, request);
+        return WorkoutMapper.fromWorkoutToWorkoutDto(workoutRepository.save(workout));
     }
 
-    public List<WorkoutHeaderDto> getAll() {
-        List<Workout> workouts = workoutRepository.findAll();
-
-        return workouts.stream().map((workout) -> WorkoutMapper.fromWorkoutToWorkoutHeaderDto(workout)).toList();
+    /** Replaces name and exercises, sessions started from the workout keep their copy. */
+    @Transactional
+    public WorkoutDto update(Long id, CreateWorkoutDto request) {
+        Workout workout = workoutRepository.findById(id).orElseThrow(() -> NotFoundException.workout(id));
+        workout.getExercises().clear();
+        // removes the old rows before the new ones are inserted
+        workoutRepository.flush();
+        apply(workout, request);
+        return WorkoutMapper.fromWorkoutToWorkoutDto(workoutRepository.save(workout));
     }
 
+    @Transactional
+    public void delete(Long id) {
+        Workout workout = workoutRepository.findById(id).orElseThrow(() -> NotFoundException.workout(id));
+        // the history stays, only the link to the template is removed
+        sessionRepository.findByWorkout_Id(id).forEach((session) -> session.setWorkout(null));
+        workoutRepository.delete(workout);
+    }
+
+    @Transactional
+    public List<WorkoutDto> getAll() {
+        return workoutRepository.findAll().stream().map(WorkoutMapper::fromWorkoutToWorkoutDto).toList();
+    }
+
+    @Transactional
     public WorkoutDto getById(Long id) {
         Workout workout = workoutRepository.findById(id).orElseThrow(() -> NotFoundException.workout(id));
         return WorkoutMapper.fromWorkoutToWorkoutDto(workout);
+    }
+
+    private void apply(Workout workout, CreateWorkoutDto request) {
+        workout.setName(request.name() == null || request.name().isBlank() ? "Workout" : request.name().trim());
+        for (ExerciseItem item : request.exercises()) {
+            Exercise exercise = exerciseRepository.findById(item.exercise().getId())
+                    .orElseThrow(() -> NotFoundException.exercise(item.exercise().getId()));
+            workout.addExercise(toEntity(exercise, item));
+        }
     }
 
     private WorkoutExercise<?> toEntity(Exercise exercise, ExerciseItem item) {
@@ -100,9 +124,6 @@ public class WorkoutService {
                             s.sets().stream()
                                     .map(d -> new StrengthItem.Set(d.order(), d.reps(), d.weightKg(), d.rpe()))
                                     .toList()));
-            default ->
-                null;
-
         };
     }
 

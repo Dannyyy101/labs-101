@@ -4,14 +4,10 @@ import com.labs_101.backend.dtos.exercises.CreateExerciseDto;
 import com.labs_101.backend.dtos.exercises.ExerciseDto;
 import com.labs_101.backend.dtos.workout.CreateWorkoutDto;
 import com.labs_101.backend.dtos.workout.WorkoutDto;
-import com.labs_101.backend.dtos.workout.WorkoutHeaderDto;
-import com.labs_101.backend.dtos.workout.session.CreateWorkoutSessionDto;
 import com.labs_101.backend.services.WorkoutService;
 
-import java.time.Instant;
 import java.util.List;
 
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -33,13 +29,8 @@ public class WorkoutController {
     }
 
     @PostMapping("")
-    public ResponseEntity<Void> createWorkout(@RequestBody CreateWorkoutDto workoutDto) {
-        try {
-            workoutService.create(workoutDto);
-            return ResponseEntity.noContent().build();
-        } catch (Exception e) {
-            throw e;
-        }
+    public WorkoutDto createWorkout(@RequestBody CreateWorkoutDto workoutDto) {
+        return workoutService.create(workoutDto);
     }
 
     @GetMapping("{id}")
@@ -47,13 +38,20 @@ public class WorkoutController {
         return workoutService.getById(id);
     }
 
+    @PutMapping("{id}")
+    public WorkoutDto updateWorkout(@PathVariable Long id, @RequestBody CreateWorkoutDto workoutDto) {
+        return workoutService.update(id, workoutDto);
+    }
+
+    @DeleteMapping("{id}")
+    public ResponseEntity<Void> deleteWorkout(@PathVariable Long id) {
+        workoutService.delete(id);
+        return ResponseEntity.noContent().build();
+    }
+
     @GetMapping("")
-    public List<WorkoutHeaderDto> getAllWorkouts() {
-        try {
-            return workoutService.getAll();
-        } catch (Exception e) {
-            throw e;
-        }
+    public List<WorkoutDto> getAllWorkouts() {
+        return workoutService.getAll();
     }
 
     @PostMapping("/exercises")
@@ -95,15 +93,6 @@ public class WorkoutController {
         try {
             workoutService.deleteExercise(Long.parseLong(id));
             return ResponseEntity.ok().build();
-        } catch (Exception e) {
-            throw e;
-        }
-    }
-
-    @PostMapping("/sessions")
-    public ResponseEntity<Void> createWorkoutSession(@RequestBody CreateWorkoutSessionDto workoutSessionDto) {
-        try {
-            return ResponseEntity.noContent().build();
         } catch (Exception e) {
             throw e;
         }
