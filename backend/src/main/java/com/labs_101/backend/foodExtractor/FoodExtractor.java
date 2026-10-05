@@ -23,12 +23,10 @@ import com.labs_101.backend.repositories.OpenFoodRepository;
  */
 @Service
 public class FoodExtractor {
-    /** matches below this score are treated as not found */
-    static final double MIN_SCORE = 0.3;
+    static final double MIN_SCORE = FoodMatchProjection.MIN_SCORE;
     /** singular/plural variants should only win if they are clearly better */
     static final double VARIANT_PENALTY = 0.05;
-    /** our own foods are more reliable than open food entries */
-    static final double FOOD_BONUS = 0.15;
+    static final double FOOD_BONUS = FoodMatchProjection.FOOD_BONUS;
 
     private final FoodRepository foodRepository;
     private final OpenFoodRepository openFoodRepository;

@@ -12,24 +12,35 @@ import com.labs_101.backend.entities.food.Food;
 
 public interface FoodRepository extends JpaRepository<Food, Long> {
         /**
-         * Fuzzy (trigram) or substring match, so short inputs like "a" or parts
-         * of a word like "pfe" are found too. Foods the user has tracked before
-         * and names starting with the input come first.
+         * Our foods and the open food database ranked together by
+         * {@link FoodMatchProjection#SCORE}, like the food extractor does. Our
+         * foods also match by substring, so short inputs like "a" or parts of a
+         * word like "pfe" are found too. They get a bonus, foods the user has
+         * tracked before an even bigger one. Open foods that were already
+         * imported only show up as food.
          */
-        @Query(value = """
-                        SELECT f.* FROM food f
-                        LEFT JOIN food_user fu ON fu.food_id = f.id AND fu.user_id = :userId
-                        WHERE lower(f.name) % lower(:name) OR strpos(lower(f.name), lower(:name)) > 0
-                        GROUP BY f.id
-                        ORDER BY similarity(lower(f.name), lower(:name))
-                                + CASE WHEN starts_with(lower(f.name), lower(:name)) THEN 0.2 ELSE 0 END
-                                + CASE WHEN COUNT(fu.id) > 0 THEN 0.3 ELSE 0 END DESC,
-                                COUNT(fu.id) DESC, f.name ASC
-                        """, countQuery = """
-                        SELECT count(*) FROM food f
-                        WHERE lower(f.name) % lower(:name) OR strpos(lower(f.name), lower(:name)) > 0
-                        """, nativeQuery = true)
-        Page<Food> findAllByNameAndUserId(Pageable p, @Param("name") String name, @Param("userId") String userId);
+        String SEARCH = "SELECT f.id, f.name, false AS open_food, " + FoodMatchProjection.SCORE
+                        + " + " + FoodMatchProjection.FOOD_BONUS
+                        + " + CASE WHEN EXISTS (SELECT 1 FROM food_user fu"
+                        + "     WHERE fu.food_id = f.id AND fu.user_id = :userId) THEN 0.3 ELSE 0 END AS score"
+                        + " FROM food f"
+                        + " WHERE " + FoodMatchProjection.CANDIDATES + " OR strpos(lower(f.name), :query) > 0"
+                        + " UNION ALL"
+                        + " SELECT o.id, o.name, true, " + FoodMatchProjection.SCORE
+                        + " FROM open_food o"
+                        + " WHERE " + FoodMatchProjection.CANDIDATES + " AND o.kcal IS NOT NULL"
+                        + " AND NOT EXISTS (SELECT 1 FROM food f WHERE f.bar_code = o.bar_code)";
+
+        String SEARCH_FILTER = " WHERE NOT m.open_food OR m.score >= " + FoodMatchProjection.MIN_SCORE;
+
+        /**
+         * @param query lowercase food name
+         */
+        @Query(value = "SELECT m.id, m.name, m.open_food AS \"openFood\" FROM (" + SEARCH + ") m" + SEARCH_FILTER
+                        + " ORDER BY m.score DESC, m.open_food, m.name, m.id",
+                        countQuery = "SELECT count(*) FROM (" + SEARCH + ") m" + SEARCH_FILTER,
+                        nativeQuery = true)
+        Page<SearchFoodProjection> search(Pageable p, @Param("query") String query, @Param("userId") String userId);
 
         Page<Food> findByNameContainingIgnoreCase(String name, Pageable p);
 

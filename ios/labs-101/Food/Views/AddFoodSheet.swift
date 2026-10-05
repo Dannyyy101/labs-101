@@ -67,7 +67,8 @@ struct MealPicker: View {
     }
 }
 
-/// Searches our foods by name, page by page, and looks up scanned barcodes.
+/// Searches our foods and the open food database by name, page by page, and
+/// looks up scanned barcodes.
 private struct FoodSearchView: View {
     @Binding var meal: Meal
     let onSelect: (Int) -> Void
@@ -92,7 +93,16 @@ private struct FoodSearchView: View {
 
             Section {
                 ForEach(results) { food in
-                    Button(food.name) { onSelect(food.id) }
+                    Button { Task { await select(food) } } label: {
+                        VStack(alignment: .leading) {
+                            Text(food.name)
+                            if food.openFoodID != nil {
+                                Text("Open Food Facts")
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                            }
+                        }
+                    }
                         .tint(.primary)
                         .onAppear {
                             if food.id == results.last?.id {
@@ -173,6 +183,23 @@ private struct FoodSearchView: View {
             guard name == trimmedQuery else { return }
             results += next.content
             nextPage = next.last ? nil : next.number + 1
+        } catch {
+            self.error = error.localizedDescription
+        }
+    }
+
+    /// Open foods get copied into our foods first, so they can be tracked.
+    private func select(_ result: FoodSearchResult) async {
+        if let foodID = result.foodID {
+            onSelect(foodID)
+            return
+        }
+        guard let openFoodID = result.openFoodID else { return }
+        isLoading = true
+        defer { isLoading = false }
+        do {
+            let food = try await foodService.importOpenFood(openFoodID)
+            if let foodID = food.id { onSelect(foodID) }
         } catch {
             self.error = error.localizedDescription
         }

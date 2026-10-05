@@ -16,8 +16,10 @@ export interface FoodWithPortion extends Food {
 }
 
 export interface SearchFood {
-    id: number,
-    name: string
+    // null while the food only exists in the open food database
+    id: number | null,
+    name: string,
+    openFoodId: number | null
 }
 
 export interface CreateFoodWithAmount {
