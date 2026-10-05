@@ -41,6 +41,11 @@ public interface FoodMatchProjection {
     // uses the trigram index on lower(name)
     String CANDIDATES = "(lower(name) % :query OR :query <% lower(name))";
 
+    /** matches below this score are treated as not found */
+    double MIN_SCORE = 0.3;
+    /** our own foods are more reliable than open food entries */
+    double FOOD_BONUS = 0.15;
+
     Long getId();
 
     String getName();

@@ -54,6 +54,24 @@ const FoodSearch: React.FC<{ meal: Meal, selectedFoodStore: SelectedFoodState, c
         }
     }
 
+    // open foods get copied into our foods first, so they can be tracked
+    const selectSearchFood = async (f: SearchFood) => {
+        if (f.id !== null) {
+            selectedFoodStore.selectFood(meal, f.id, SelectedFoodAction.CREATING)
+            return
+        }
+        setError(null)
+        setLoading(true)
+        try {
+            const imported = await importOpenFood(f.openFoodId!)
+            selectedFoodStore.selectFood(meal, imported.id!, SelectedFoodAction.CREATING)
+        } catch {
+            setError(`„${f.name}“ konnte nicht geladen werden`)
+        } finally {
+            setLoading(false)
+        }
+    }
+
     const toggleBarcodeScanner = () => {
         setShowBarcodeScanner((prev) => !prev)
         setError(null)
@@ -129,12 +147,13 @@ const FoodSearch: React.FC<{ meal: Meal, selectedFoodStore: SelectedFoodState, c
                             >
                                 {food.map((f) => (
                                     <Button
-                                        className="hover:bg-accent  max-w-96 text-left flex justify-start whitespace-normal h-auto py-2"
+                                        className="hover:bg-accent  max-w-96 text-left flex flex-col items-start whitespace-normal h-auto py-2 gap-0"
                                         variant="ghost"
-                                        onClick={() => selectedFoodStore.selectFood(meal, f.id, SelectedFoodAction.CREATING)}
-                                        key={f.id}
+                                        onClick={() => selectSearchFood(f)}
+                                        key={f.id ?? `open-${f.openFoodId}`}
                                     >
                                         {f.name}
+                                        {f.openFoodId !== null && <span className="text-xs text-muted-foreground font-normal">Open Food Facts</span>}
                                     </Button>
                                 ))}
                             </InfiniteScroll>

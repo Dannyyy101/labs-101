@@ -21,6 +21,7 @@ import com.labs_101.backend.entities.food.FoodPortion;
 import com.labs_101.backend.entities.food.TrackedFood;
 import com.labs_101.backend.entities.food.MealType;
 import com.labs_101.backend.entities.food.OpenFood;
+import com.labs_101.backend.repositories.SearchFoodProjection;
 
 @Service
 public class FoodMapper {
@@ -63,7 +64,13 @@ public class FoodMapper {
     }
 
     public static SearchFoodResponseDto mapFromEntityToSearchFoodResponseDto(Food e) {
-        return new SearchFoodResponseDto(e.getId(), e.getName());
+        return new SearchFoodResponseDto(e.getId(), e.getName(), null);
+    }
+
+    public static SearchFoodResponseDto mapFromSearchFoodProjectionToSearchFoodResponseDto(SearchFoodProjection p) {
+        return p.getOpenFood()
+                ? new SearchFoodResponseDto(null, p.getName(), p.getId())
+                : new SearchFoodResponseDto(p.getId(), p.getName(), null);
     }
 
     public static FoodPortionDto mapFromFoodPortionToFoodPortionDto(FoodPortion portion) {
