@@ -21,6 +21,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { Suspense } from "react"
 
 const NAV = [
+    { href: "/", label: "Heute" },
     { href: "/foods/track", label: "Track Food" },
     { href: "/planner", label: "Calendar" },
     { href: "/workouts", label: "Workouts" },
