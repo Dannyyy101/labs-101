@@ -138,8 +138,21 @@ nonisolated struct NewFoodPortion: Encodable, Sendable {
 }
 
 nonisolated struct FoodSearchResult: Codable, Hashable, Identifiable, Sendable {
-    let id: Int
+    /// nil while the food only exists in the open food database
+    let foodID: Int?
     let name: String
+    /// set if the food has to be imported from the open food database before it can be tracked
+    let openFoodID: Int?
+
+    var id: String {
+        if let foodID { "food-\(foodID)" } else { "open-food-\(openFoodID ?? 0)" }
+    }
+
+    enum CodingKeys: String, CodingKey {
+        case foodID = "id"
+        case name
+        case openFoodID = "openFoodId"
+    }
 }
 
 nonisolated struct ExtractedFood: Codable, Sendable {
