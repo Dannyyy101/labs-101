@@ -4,6 +4,8 @@ import SwiftUI
 struct FoodEntryView: View {
     enum Mode: Hashable {
         case create(foodID: Int)
+        /// an open food only gets imported into our foods when it is tracked
+        case createOpenFood(openFoodID: Int)
         case edit(TrackedFood)
     }
 
@@ -26,13 +28,6 @@ struct FoodEntryView: View {
         self.mode = mode
         self.onDone = onDone
         _meal = State(initialValue: meal)
-    }
-
-    private var foodID: Int {
-        switch mode {
-        case .create(let foodID): foodID
-        case .edit(let entry): entry.food.id
-        }
     }
 
     private var isEditing: Bool {
@@ -62,7 +57,7 @@ struct FoodEntryView: View {
             .alert("Fehler", isPresented: $actionError.isPresent) {} message: {
                 Text(actionError ?? "")
             }
-            .task(id: foodID) { await load() }
+            .task(id: mode) { await load() }
     }
 
     @ViewBuilder
@@ -170,9 +165,13 @@ struct FoodEntryView: View {
     private func load() async {
         loadError = nil
         do {
-            let details = try await foodService.details(foodID: foodID)
+            let details = switch mode {
+            case .create(let foodID): try await foodService.details(foodID: foodID)
+            case .createOpenFood(let openFoodID): try await foodService.openFood(openFoodID)
+            case .edit(let entry): try await foodService.details(foodID: entry.food.id)
+            }
             switch mode {
-            case .create:
+            case .create, .createOpenFood:
                 amount = details.lastEntry?.amount ?? 100
                 portionID = nil
             case .edit(let entry):
@@ -193,6 +192,8 @@ struct FoodEntryView: View {
             switch mode {
             case .create(let foodID):
                 try await foodService.track(foodID: foodID, amount: amount, portionID: portionID, meal: meal)
+            case .createOpenFood(let openFoodID):
+                try await foodService.trackOpenFood(openFoodID, amount: amount, portionID: portionID, meal: meal)
             case .edit(let entry):
                 try await foodService.update(entry, amount: amount, portionID: portionID, meal: meal)
             }

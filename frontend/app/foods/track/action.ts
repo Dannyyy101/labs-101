@@ -194,6 +194,18 @@ export async function addFoodPortion(foodId: number, portion: Omit<FoodPortion, 
     return food.portions
 }
 
+// only reads the open food, it gets imported when it is tracked
+export async function getOpenFood(openFoodId: number): Promise<FoodWithPortion> {
+    const url = new URL(`${BACKEND_URL}/foods/open-food/${openFoodId}`)
+    const response = await backendFetch(url.toString(), { cache: 'no-store' })
+
+    if (response.ok) {
+        return await response.json() as FoodWithPortion
+    }
+
+    throw new Error(`Error fetching open food ${openFoodId}`)
+}
+
 export async function importOpenFood(openFoodId: number): Promise<FoodWithPortion> {
     const url = new URL(`${BACKEND_URL}/foods/open-food/${openFoodId}/import`)
     const response = await backendFetch(url.toString(), { method: "POST" })

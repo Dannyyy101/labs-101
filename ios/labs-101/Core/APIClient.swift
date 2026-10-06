@@ -37,6 +37,12 @@ nonisolated struct APIClient: Sendable {
         return try Self.decoder.decode(Response.self, from: data)
     }
 
+    /// For endpoints that answer 204 when there is nothing.
+    func getIfPresent<Response: Decodable>(_ path: String, query: [URLQueryItem] = []) async throws -> Response? {
+        let data = try await perform("GET", path, query: query)
+        return data.isEmpty ? nil : try Self.decoder.decode(Response.self, from: data)
+    }
+
     func send<Response: Decodable>(_ method: String, _ path: String, body: (some Encodable)? = nil as Never?) async throws -> Response {
         let data = try await perform(method, path, body: body.map(Self.encoder.encode))
         return try Self.decoder.decode(Response.self, from: data)

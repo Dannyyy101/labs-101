@@ -5,7 +5,7 @@ import { Spinner } from "@/components/ui/spinner";
 import { AlertCircle, Barcode, Check, Minus, Plus, Search, X } from "lucide-react";
 import InfiniteScroll from "react-infinite-scroll-component";
 import { ExtractedFood, Food, FoodPortion, FoodWithPortion, Meal, SearchFood } from "@/utils/types/food";
-import { ReactNode, useState } from "react";
+import { ReactNode, useRef, useState } from "react";
 import { addFoodPortion, createTrackFood, extractFoodsFromText, findAndSafeFoodIfNotExistByBarcode, findFoodByNameAndUserId, importOpenFood, trackOpenFood } from "./action";
 import { Button } from "@/components/ui/button";
 import FoodTrackView from "./FoodTrackView";
@@ -23,19 +23,46 @@ const FoodSearch: React.FC<{ meal: Meal, selectedFoodStore: SelectedFoodState, c
     const [showBarcodeScanner, setShowBarcodeScanner] = useState<boolean>(false)
     const [page, setPage] = useState(0)
 
-    const findByName = async (name: string) => {
+    // like on iOS: debounce typing and drop answers of outdated queries,
+    // otherwise a slow answer for a shorter query overwrites the current one
+    const searchTimeout = useRef<ReturnType<typeof setTimeout> | null>(null)
+    const searchId = useRef(0)
+
+    const findByName = (name: string) => {
         setSearchInput(name)
-        const result = await findFoodByNameAndUserId(name)
-        setFood(result.content)
-        setPage(0)
-        setHasMore(!result.last)
+        setError(null)
+        if (searchTimeout.current) clearTimeout(searchTimeout.current)
+        const id = ++searchId.current
+        const query = name.trim()
+        if (query === "") {
+            setFood([])
+            setHasMore(false)
+            return
+        }
+        searchTimeout.current = setTimeout(async () => {
+            try {
+                const result = await findFoodByNameAndUserId(query)
+                if (id !== searchId.current) return
+                setFood(result.content)
+                setPage(0)
+                setHasMore(!result.last)
+            } catch {
+                if (id === searchId.current) setError("Suche fehlgeschlagen")
+            }
+        }, 250)
     }
 
     const fetchMore = async () => {
-        const next = await findFoodByNameAndUserId(searchInput, { page: page + 1 })
-        setFood((prev) => [...prev, ...next.content])
-        setPage(next.number)
-        setHasMore(!next.last)
+        const id = searchId.current
+        try {
+            const next = await findFoodByNameAndUserId(searchInput.trim(), { page: page + 1 })
+            if (id !== searchId.current) return
+            setFood((prev) => [...prev, ...next.content])
+            setPage(next.number)
+            setHasMore(!next.last)
+        } catch {
+            if (id === searchId.current) setHasMore(false)
+        }
     }
     const [error, setError] = useState<string | null>(null)
     const [loading, setLoading] = useState(false)
@@ -54,22 +81,10 @@ const FoodSearch: React.FC<{ meal: Meal, selectedFoodStore: SelectedFoodState, c
         }
     }
 
-    // open foods get copied into our foods first, so they can be tracked
-    const selectSearchFood = async (f: SearchFood) => {
-        if (f.id !== null) {
-            selectedFoodStore.selectFood(meal, f.id, SelectedFoodAction.CREATING)
-            return
-        }
-        setError(null)
-        setLoading(true)
-        try {
-            const imported = await importOpenFood(f.openFoodId!)
-            selectedFoodStore.selectFood(meal, imported.id!, SelectedFoodAction.CREATING)
-        } catch {
-            setError(`„${f.name}“ konnte nicht geladen werden`)
-        } finally {
-            setLoading(false)
-        }
+    // open foods only get copied into our foods when they are tracked
+    const selectSearchFood = (f: SearchFood) => {
+        if (f.id !== null) selectedFoodStore.selectFood(meal, f.id, SelectedFoodAction.CREATING)
+        else selectedFoodStore.selectOpenFood(meal, f.openFoodId!)
     }
 
     const toggleBarcodeScanner = () => {
@@ -84,7 +99,9 @@ const FoodSearch: React.FC<{ meal: Meal, selectedFoodStore: SelectedFoodState, c
     }
 
     // a food selected from the search is shown right here instead of the list
-    const selectedFood = selectedFoodStore.action === SelectedFoodAction.CREATING ? selectedFoodStore.foodId : null
+    const creating = selectedFoodStore.action === SelectedFoodAction.CREATING
+    const selectedFood = creating ? selectedFoodStore.foodId : null
+    const selectedOpenFood = creating ? selectedFoodStore.openFoodId : null
 
     return <Dialog open={selectedFoodStore.showSearch} onOpenChange={(open) => { if (open) selectedFoodStore.setShowSearch(true); else close() }}>
         <DialogTrigger className={className}>{children}</DialogTrigger>
@@ -103,11 +120,12 @@ const FoodSearch: React.FC<{ meal: Meal, selectedFoodStore: SelectedFoodState, c
                     )}
                 </div>
                 <MealTabs meal={selectedFoodStore.meal ?? meal} onChange={selectedFoodStore.setMeal} />
-                {selectedFood != null ?
+                {selectedFood != null || selectedOpenFood != null ?
                     <div className="mt-4">
-                        <FoodTrackView key={selectedFood} props={{
+                        <FoodTrackView key={selectedFood ?? `open-${selectedOpenFood}`} props={{
                             meal: selectedFoodStore.meal ?? meal,
                             foodId: selectedFood,
+                            openFoodId: selectedOpenFood,
                             back: () => selectedFoodStore.setFoodId(null),
                             closeView: close,
                             selectedFoodStore,

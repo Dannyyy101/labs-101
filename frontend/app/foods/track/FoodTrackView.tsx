@@ -1,7 +1,7 @@
 import { CreateTrackedFood, FoodPortion, FoodWithPortion, Meal } from "@/utils/types/food"
 import { ChevronLeft, Minus, Plus, Trash2 } from "lucide-react"
 import { useEffect, useState } from "react"
-import { addFoodPortion, createTrackFood, deleteTrackedFood, getTrackedFoodByFoodId, getTrackedFoodByTrackedFoodId, updateTrackFood } from "./action"
+import { addFoodPortion, createTrackFood, deleteTrackedFood, getOpenFood, getTrackedFoodByFoodId, getTrackedFoodByTrackedFoodId, importOpenFood, trackOpenFood, updateTrackFood } from "./action"
 import { getNutritionForAmount } from "@/utils/food"
 import { SelectedFoodAction, SelectedFoodState } from "@/lib/zustand/selectedFood"
 import { Spinner } from "@/components/ui/spinner"
@@ -10,7 +10,9 @@ import { formatNumber } from "./format"
 
 interface FoodTrackViewProps {
     meal: Meal,
-    foodId: number
+    foodId: number | null
+    // an open food is only imported into our foods when it gets tracked
+    openFoodId?: number | null
     closeView: () => void
     back: () => void
     selectedFoodStore: SelectedFoodState
@@ -30,12 +32,19 @@ export default function FoodTrackView({ props }: { props: FoodTrackViewProps }) 
     const [loading, setLoading] = useState(true)
     const [saving, setSaving] = useState(false)
     const [showPortionForm, setShowPortionForm] = useState(false)
+    const [openFoodId, setOpenFoodId] = useState(props.openFoodId ?? null)
 
     const creating = props.selectedFoodStore.action === SelectedFoodAction.CREATING
 
     useEffect(() => {
         const fetch = async () => {
-            const food = await getTrackedFoodByFoodId(props.foodId)
+            if (openFoodId !== null) {
+                setFood(await getOpenFood(openFoodId))
+                setTrackFood({ foodId: 0, amount: 100, portionId: null, meal: props.meal })
+                setLoading(false)
+                return
+            }
+            const food = await getTrackedFoodByFoodId(props.foodId!)
             const { lastEntry, ...rest } = food
             setFood({ ...rest })
             if (props.selectedFoodStore.trackedFoodId) {
@@ -43,7 +52,7 @@ export default function FoodTrackView({ props }: { props: FoodTrackViewProps }) 
                 setSelectedPortion(food.portions.find((portion) => portion.id === trackedFood?.portion?.id) || null)
                 setTrackFood({ id: trackedFood.id, foodId: trackedFood.food.id, amount: trackedFood.amount, portionId: trackedFood.portion?.id || null, meal: props.meal })
             } else {
-                setTrackFood({ id: props.selectedFoodStore.trackedFoodId, foodId: props.foodId, amount: lastEntry?.amount || 100, portionId: null, meal: props.meal })
+                setTrackFood({ id: props.selectedFoodStore.trackedFoodId, foodId: props.foodId!, amount: lastEntry?.amount || 100, portionId: null, meal: props.meal })
             }
             setLoading(false)
 
@@ -63,7 +72,8 @@ export default function FoodTrackView({ props }: { props: FoodTrackViewProps }) 
 
     const save = async () => {
         setSaving(true)
-        if (creating) await createTrackFood(entry)
+        if (openFoodId !== null) await trackOpenFood(openFoodId, { amount: entry.amount, portionId: entry.portionId, meal: entry.meal })
+        else if (creating) await createTrackFood(entry)
         else await updateTrackFood(entry)
         props.closeView()
     }
@@ -83,8 +93,18 @@ export default function FoodTrackView({ props }: { props: FoodTrackViewProps }) 
 
     const setAmount = (amount: number) => setTrackFood({ ...trackFood, amount: Math.max(0, Math.round(amount * 10) / 10) })
 
+    // a portion needs a food, so an open food gets imported first
+    const importFood = async () => {
+        if (openFoodId === null) return food.id
+        const imported = await importOpenFood(openFoodId)
+        setOpenFoodId(null)
+        setFood(imported)
+        setTrackFood({ ...trackFood, foodId: imported.id })
+        return imported.id
+    }
+
     const portionAdded = (portions: FoodPortion[], label: string) => {
-        setFood({ ...food, portions })
+        setFood((prev) => prev && { ...prev, portions })
         setShowPortionForm(false)
         const portion = portions.find((p) => p.label.trim().toLowerCase() === label.trim().toLowerCase())
         if (portion) selectPortion(portion)
@@ -117,7 +137,7 @@ export default function FoodTrackView({ props }: { props: FoodTrackViewProps }) 
                 </button>
             }
         </div>
-        {showPortionForm && <NewPortionForm foodId={food.id} kcal={food.kcal ?? 0} onAdded={portionAdded} onCancel={() => setShowPortionForm(false)} />}
+        {showPortionForm && <NewPortionForm getFoodId={importFood} kcal={food.kcal ?? 0} onAdded={portionAdded} onCancel={() => setShowPortionForm(false)} />}
 
         <h2 className="text-sm uppercase tracking-wide text-muted-foreground mt-5 mb-2">Menge</h2>
         <div className="flex items-center gap-x-4">
@@ -176,7 +196,7 @@ function PortionPill({ selected, onClick, children }: { selected: boolean, onCli
     </button>
 }
 
-function NewPortionForm({ foodId, kcal, onAdded, onCancel }: { foodId: number, kcal: number, onAdded: (portions: FoodPortion[], label: string) => void, onCancel: () => void }) {
+function NewPortionForm({ getFoodId, kcal, onAdded, onCancel }: { getFoodId: () => Promise<number>, kcal: number, onAdded: (portions: FoodPortion[], label: string) => void, onCancel: () => void }) {
     const [label, setLabel] = useState("")
     const [grams, setGrams] = useState(100)
     const [saving, setSaving] = useState(false)
@@ -186,7 +206,7 @@ function NewPortionForm({ foodId, kcal, onAdded, onCancel }: { foodId: number, k
         setSaving(true)
         setError(null)
         try {
-            onAdded(await addFoodPortion(foodId, { label: label.trim(), grams, isDefault: false }), label)
+            onAdded(await addFoodPortion(await getFoodId(), { label: label.trim(), grams, isDefault: false }), label)
         } catch {
             setError("Portion konnte nicht gespeichert werden")
             setSaving(false)

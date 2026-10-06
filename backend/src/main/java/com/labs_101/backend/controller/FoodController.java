@@ -66,6 +66,11 @@ public class FoodController {
         return foodExtractor.extract(dto.text());
     }
 
+    @GetMapping("/open-food/{openFoodId}")
+    public FoodWithPortionsDto getOpenFood(@PathVariable Long openFoodId) {
+        return foodService.getOpenFood(openFoodId);
+    }
+
     @PostMapping("/open-food/{openFoodId}/import")
     public FoodWithPortionsDto importOpenFood(@PathVariable Long openFoodId) {
         return foodService.importOpenFood(openFoodId);

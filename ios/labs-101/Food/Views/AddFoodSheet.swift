@@ -11,7 +11,7 @@ struct AddFoodSheet: View {
     @Environment(\.dismiss) private var dismiss
     @State private var meal: Meal
     @State private var mode = Mode.search
-    @State private var path: [Int] = []
+    @State private var path: [FoodEntryView.Mode] = []
 
     init(meal: Meal, onTracked: @escaping () -> Void) {
         self.onTracked = onTracked
@@ -23,7 +23,7 @@ struct AddFoodSheet: View {
             Group {
                 switch mode {
                 case .search:
-                    FoodSearchView(meal: $meal) { foodID in path.append(foodID) }
+                    FoodSearchView(meal: $meal) { entry in path.append(entry) }
                 case .text:
                     TextFoodInputView(meal: $meal, onTracked: finish)
                 }
@@ -43,8 +43,8 @@ struct AddFoodSheet: View {
                     .fixedSize()
                 }
             }
-            .navigationDestination(for: Int.self) { foodID in
-                FoodEntryView(mode: .create(foodID: foodID), meal: meal, onDone: finish)
+            .navigationDestination(for: FoodEntryView.Mode.self) { entry in
+                FoodEntryView(mode: entry, meal: meal, onDone: finish)
             }
         }
     }
@@ -71,7 +71,7 @@ struct MealPicker: View {
 /// looks up scanned barcodes.
 private struct FoodSearchView: View {
     @Binding var meal: Meal
-    let onSelect: (Int) -> Void
+    let onSelect: (FoodEntryView.Mode) -> Void
 
     @Environment(\.foodService) private var foodService
     @State private var query = ""
@@ -93,7 +93,7 @@ private struct FoodSearchView: View {
 
             Section {
                 ForEach(results) { food in
-                    Button { Task { await select(food) } } label: {
+                    Button { select(food) } label: {
                         VStack(alignment: .leading) {
                             Text(food.name)
                             if food.openFoodID != nil {
@@ -188,20 +188,12 @@ private struct FoodSearchView: View {
         }
     }
 
-    /// Open foods get copied into our foods first, so they can be tracked.
-    private func select(_ result: FoodSearchResult) async {
+    /// Open foods only get copied into our foods when they are tracked.
+    private func select(_ result: FoodSearchResult) {
         if let foodID = result.foodID {
-            onSelect(foodID)
-            return
-        }
-        guard let openFoodID = result.openFoodID else { return }
-        isLoading = true
-        defer { isLoading = false }
-        do {
-            let food = try await foodService.importOpenFood(openFoodID)
-            if let foodID = food.id { onSelect(foodID) }
-        } catch {
-            self.error = error.localizedDescription
+            onSelect(.create(foodID: foodID))
+        } else if let openFoodID = result.openFoodID {
+            onSelect(.createOpenFood(openFoodID: openFoodID))
         }
     }
 
@@ -210,7 +202,7 @@ private struct FoodSearchView: View {
         defer { isLoading = false }
         do {
             let food = try await foodService.food(barcode: barcode)
-            onSelect(food.id)
+            onSelect(.create(foodID: food.id))
         } catch {
             self.error = error.localizedDescription
         }

@@ -12,8 +12,9 @@ import com.labs_101.backend.entities.food.Food;
 
 public interface FoodRepository extends JpaRepository<Food, Long> {
         /**
-         * Our foods and the open food database ranked together by
+         * Our foods and the open food database ranked by
          * {@link FoodMatchProjection#SCORE}, like the food extractor does. Our
+         * foods always come first, open foods after them. Our
          * foods also match by substring, so short inputs like "a" or parts of a
          * word like "pfe" are found too. They get a bonus, foods the user has
          * tracked before an even bigger one. Open foods that were already
@@ -33,12 +34,22 @@ public interface FoodRepository extends JpaRepository<Food, Long> {
 
         String SEARCH_FILTER = " WHERE NOT m.open_food OR m.score >= " + FoodMatchProjection.MIN_SCORE;
 
+        /** names that only differ in case or spaces are the same */
+        String SEARCH_NAME = "lower(trim(regexp_replace(m.name, '\\s+', ' ', 'g')))";
+
+        /**
+         * Open food has many entries with the same name, so every name only
+         * shows up once: the best match, our foods before open foods.
+         */
+        String UNIQUE_SEARCH = "SELECT DISTINCT ON (" + SEARCH_NAME + ") m.* FROM (" + SEARCH + ") m" + SEARCH_FILTER
+                        + " ORDER BY " + SEARCH_NAME + ", m.score DESC, m.open_food, m.id";
+
         /**
          * @param query lowercase food name
          */
-        @Query(value = "SELECT m.id, m.name, m.open_food AS \"openFood\" FROM (" + SEARCH + ") m" + SEARCH_FILTER
-                        + " ORDER BY m.score DESC, m.open_food, m.name, m.id",
-                        countQuery = "SELECT count(*) FROM (" + SEARCH + ") m" + SEARCH_FILTER,
+        @Query(value = "SELECT u.id, u.name, u.open_food AS \"openFood\" FROM (" + UNIQUE_SEARCH + ") u"
+                        + " ORDER BY u.open_food, u.score DESC, u.name, u.id",
+                        countQuery = "SELECT count(DISTINCT " + SEARCH_NAME + ") FROM (" + SEARCH + ") m" + SEARCH_FILTER,
                         nativeQuery = true)
         Page<SearchFoodProjection> search(Pageable p, @Param("query") String query, @Param("userId") String userId);
 

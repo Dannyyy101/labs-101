@@ -104,4 +104,40 @@ public class EmbeddedPostgresIntegrationTest {
         assertEquals(imported.getId(), skyr.getFirst().getId());
         assertFalse(skyr.getFirst().getOpenFood());
     }
+
+    @Test
+    void testSearchShowsEveryNameOnce() {
+        Food own = foodRepository.save(new Food("Skyr Natur"));
+        openFoodRepository.save(new OpenFood(null, "1", "Skyr natur", 60.0, null, null, null, null, null, null,
+                null, null));
+        openFoodRepository.save(new OpenFood(null, "2", "Skyr  Natur", 62.0, null, null, null, null, null, null,
+                null, null));
+        openFoodRepository.save(new OpenFood(null, "3", "Skyr Vanille", 80.0, null, null, null, null, null, null,
+                null, null));
+        openFoodRepository.save(new OpenFood(null, "4", "Skyr Vanille", 82.0, null, null, null, null, null, null,
+                null, null));
+
+        Page<SearchFoodProjection> skyr = foodRepository.search(Pageable.ofSize(5), "skyr", null);
+        assertEquals(2, skyr.getTotalElements());
+        assertEquals(2, skyr.getContent().size());
+        assertEquals(own.getId(), skyr.getContent().get(0).getId());
+        assertFalse(skyr.getContent().get(0).getOpenFood());
+        assertEquals("Skyr Vanille", skyr.getContent().get(1).getName());
+
+        // the count of a partial page comes from the count query
+        assertEquals(2, foodRepository.search(Pageable.ofSize(1), "skyr", null).getTotalElements());
+    }
+
+    @Test
+    void testSearchShowsOurFoodsBeforeOpenFood() {
+        foodRepository.save(new Food("Joghurt mit Skyr Kulturen"));
+        openFoodRepository.save(new OpenFood(null, "1", "Skyr", 60.0, null, null, null, null, null, null,
+                null, null));
+
+        List<SearchFoodProjection> skyr = foodRepository.search(Pageable.ofSize(5), "skyr", null).getContent();
+        assertEquals(2, skyr.size());
+        assertFalse(skyr.get(0).getOpenFood());
+        assertEquals("Skyr", skyr.get(1).getName());
+        assertTrue(skyr.get(1).getOpenFood());
+    }
 }
