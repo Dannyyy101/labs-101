@@ -10,6 +10,13 @@ struct RootView: View {
                     MissingConfigurationView()
                 }
             }
+            Tab("Training", systemImage: "dumbbell.fill") {
+                if AppConfig.current.isComplete {
+                    WorkoutsView()
+                } else {
+                    MissingConfigurationView()
+                }
+            }
             Tab("Health", systemImage: "heart.fill") {
                 if AppConfig.current.isComplete {
                     HealthSyncView()

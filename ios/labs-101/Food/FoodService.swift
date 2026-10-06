@@ -69,6 +69,11 @@ nonisolated struct FoodService: Sendable {
         return try await details(foodID: foodID).portions
     }
 
+    /// A food of the open food database, without importing it.
+    func openFood(_ openFoodID: Int) async throws -> FoodDetails {
+        try await client.get("foods/open-food/\(openFoodID)")
+    }
+
     /// Copies a food of the open food database into our foods.
     func importOpenFood(_ openFoodID: Int) async throws -> FoodDetails {
         try await client.send("POST", "foods/open-food/\(openFoodID)/import")
