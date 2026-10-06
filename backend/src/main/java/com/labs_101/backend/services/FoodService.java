@@ -166,6 +166,17 @@ public class FoodService {
     }
 
     /**
+     * Shows an open food without importing it, it only gets imported when it is
+     * tracked, see {@link #trackOpenFood}.
+     */
+    @Transactional(readOnly = true)
+    public FoodWithPortionsDto getOpenFood(Long openFoodId) {
+        OpenFood openFood = openFoodRepository.findById(openFoodId)
+                .orElseThrow(() -> NotFoundException.openFood(openFoodId));
+        return FoodMapper.mapFromOpenFoodToFoodWithPortionsDto(openFood);
+    }
+
+    /**
      * Copies an open food into our foods so it can be tracked and get portions.
      * Importing the same open food again returns the already imported food.
      */
