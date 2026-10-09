@@ -26,4 +26,12 @@ public class BadRequestException extends BaseException {
     public static BadRequestException calorieGoal(Integer calorieGoal) {
         return new BadRequestException("error.userSettings.calorieGoal", calorieGoal);
     }
+
+    public static BadRequestException notificationTitle() {
+        return new BadRequestException("error.notification.title");
+    }
+
+    public static BadRequestException notificationLink(String link) {
+        return new BadRequestException("error.notification.link", link);
+    }
 }

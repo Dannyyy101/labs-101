@@ -56,4 +56,7 @@ public class NotFoundException extends BaseException {
         return new NotFoundException("error.userSettings.notFound", userId);
     }
 
+    public static NotFoundException notification(Long id) {
+        return new NotFoundException("error.notification.notFound", id);
+    }
 }

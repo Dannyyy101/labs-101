@@ -1,17 +1,21 @@
-import { Training } from "@/components/calendar/calendar"
-import { WorkoutTemplate } from "./workoutTypes"
+/** What the calendar shows of a person. */
+export interface CalendarUser {
+    id: string
+    name: string | null
+    image: string | null
+}
 
 export interface CalendarEvent {
     id: string,
     title: string
     startDate: Date
     endDate: Date
-    training?: Training | WorkoutTemplate
-    exerciseIds: {
-        id: string,
-        order: number
-    }[]
+    /** The workout planned for this event, null for a plain event. */
+    workoutId: number | null
+    workoutName?: string | null
     creatorId: string
+    creator?: CalendarUser
+    invitees: CalendarUser[]
 }
 
 export interface CalendarEventDto {
@@ -19,6 +23,9 @@ export interface CalendarEventDto {
     title: string
     startDate: string
     endDate: string
-    training?: Training | WorkoutTemplate
+    workoutId: number | null
+    workoutName: string | null
     creatorId: string
+    creator: CalendarUser
+    invitees: CalendarUser[]
 }

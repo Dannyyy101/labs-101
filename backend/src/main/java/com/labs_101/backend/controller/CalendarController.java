@@ -30,22 +30,23 @@ public class CalendarController {
     this.calendarService = calendarService;
   }
 
+  /** With {@code userId} only the events the user created or was invited to. */
   @GetMapping("")
   public List<CalendarEventDto> getAllCalendarEvents(
+      @RequestParam(required = false) String userId,
       @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Instant startDate,
       @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Instant endDate) {
     try {
-      return calendarService.getAllCalendarEvents(startDate, endDate);
+      return calendarService.getAllCalendarEvents(userId, startDate, endDate);
     } catch (Exception e) {
       throw e;
     }
   }
 
   @PostMapping("")
-  public ResponseEntity<Void> createCalendarEvent(@RequestBody CreateCalendarEventDto eventDto) {
+  public ResponseEntity<CalendarEventDto> createCalendarEvent(@RequestBody CreateCalendarEventDto eventDto) {
     try {
-      calendarService.createCalendarEvent(eventDto);
-      return ResponseEntity.noContent().build();
+      return ResponseEntity.ok(calendarService.createCalendarEvent(eventDto));
     } catch (Exception e) {
       return ResponseEntity.internalServerError().build();
     }

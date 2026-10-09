@@ -11,6 +11,7 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { NotificationBell } from "@/components/notifications/NotificationBell"
 import { authClient } from "@/lib/auth-client"
 import { addDays, formatShortDay, today } from "@/app/foods/track/format"
 import { ChevronLeft, ChevronRight, LogOut, Settings } from "lucide-react"
@@ -70,6 +71,7 @@ export function AppNavbar() {
 
                 <div className="flex items-center justify-self-end gap-x-4">
                     {activeHref === "/foods/track" && <Suspense><DateNav /></Suspense>}
+                    <NotificationBell />
                     <UserMenu />
                 </div>
             </div>
