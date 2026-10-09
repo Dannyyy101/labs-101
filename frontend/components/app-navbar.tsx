@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { authClient } from "@/lib/auth-client"
 import { addDays, formatShortDay, today } from "@/app/foods/track/format"
-import { ChevronLeft, ChevronRight, LogOut } from "lucide-react"
+import { ChevronLeft, ChevronRight, LogOut, Settings } from "lucide-react"
 import { useTheme } from "next-themes"
 import Image from "next/image"
 import Link from "next/link"
@@ -128,6 +128,7 @@ function UserMenu() {
             </DropdownMenuGroup>
             {session && <>
                 <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => router.push("/settings")}><Settings />Einstellungen</DropdownMenuItem>
                 <DropdownMenuItem onClick={signOut}><LogOut />Abmelden</DropdownMenuItem>
             </>}
         </DropdownMenuContent>

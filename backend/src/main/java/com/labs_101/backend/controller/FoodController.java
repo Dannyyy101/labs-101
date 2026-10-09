@@ -22,6 +22,7 @@ import java.util.List;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -101,7 +102,7 @@ public class FoodController {
     }
 
     @GetMapping("/search/byNameAndUser")
-    public Page<SearchFoodResponseDto> search(Pageable p, @RequestParam String name, @RequestParam String userId) {
+    public Slice<SearchFoodResponseDto> search(Pageable p, @RequestParam String name, @RequestParam String userId) {
         return foodService.searchByNameAndUserId(p, name, userId);
     }
 

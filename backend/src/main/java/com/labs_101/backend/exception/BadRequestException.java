@@ -18,4 +18,12 @@ public class BadRequestException extends BaseException {
     public static BadRequestException workoutSessionFinished(Long id) {
         return new BadRequestException("error.workoutSession.finished", id);
     }
+
+    public static BadRequestException userSettingsExist(String userId) {
+        return new BadRequestException("error.userSettings.exist", userId);
+    }
+
+    public static BadRequestException calorieGoal(Integer calorieGoal) {
+        return new BadRequestException("error.userSettings.calorieGoal", calorieGoal);
+    }
 }
