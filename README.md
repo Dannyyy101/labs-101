@@ -96,7 +96,7 @@ cd backend
 
 ### Frontend
 
-Benötigt Node.js 22+. `AUTH_ISSUER`, `APP_URL`, `AUTH_CLIENT_ID`, `AUTH_CLIENT_SECRET` und `AUTH_SECRET` gehören in `frontend/.env`, zusätzlich `BACKEND_URL=http://localhost:8080/api`.
+Benötigt Node.js 22+. `AUTH_ISSUER`, `APP_URL`, `AUTH_CLIENT_ID`, `AUTH_CLIENT_SECRET`, `AUTH_SECRET` und `BACKEND_URL=http://localhost:8080/api` gehören in `frontend/.env`, Vorlage: `cp frontend/.env.example frontend/.env`.
 
 ```sh
 cd frontend
