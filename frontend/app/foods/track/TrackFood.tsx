@@ -8,10 +8,10 @@ import { SelectedFoodAction, useSelectedFoodStore } from "@/lib/zustand/selected
 import FoodTrackView from "./FoodTrackView";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import FoodSearch, { MealTabs } from "./FoodSearch";
-import { Plus } from "lucide-react";
+import { AlertCircle, Plus } from "lucide-react";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { formatDayTitle, formatLongDay } from "./format";
 
-const CALORIE_GOAL = 3000
 const NUTRITION_GOALS = { protein: 165, carbohydrates: 360, fat: 100 }
 
 // meal that fits the current time of day
@@ -23,7 +23,7 @@ const currentMeal = () => {
     return Meal.DINNER
 }
 
-export default function TrackFood({ food, day }: { food: TrackedFood[], day: string }) {
+export default function TrackFood({ food, day, calorieGoal, settingsError }: { food: TrackedFood[], day: string, calorieGoal: number, settingsError?: string }) {
     const selectedFoodStore = useSelectedFoodStore();
 
     const foodWithAmount = food.filter((f) => f.amount > 0)
@@ -48,8 +48,15 @@ export default function TrackFood({ food, day }: { food: TrackedFood[], day: str
                     <h1 className="text-4xl font-bold tracking-tight">{formatDayTitle(day)}</h1>
                     <p className="text-muted-foreground mt-1">{formatLongDay(day)}</p>
 
+                    {settingsError && (
+                        <Alert className="mt-5">
+                            <AlertCircle className="size-4" />
+                            <AlertTitle>Kalorienziel nicht geladen</AlertTitle>
+                            <AlertDescription>{settingsError}. Es wird das Standardziel von {calorieGoal} kcal verwendet.</AlertDescription>
+                        </Alert>
+                    )}
                     <div className="rounded-3xl bg-card shadow-sm p-6 mt-5">
-                        <CalorieCard props={{ consumed: totalCalories, goal: CALORIE_GOAL, burned: 0 }} />
+                        <CalorieCard props={{ consumed: totalCalories, goal: calorieGoal, burned: 0 }} />
                         <div className="border-t my-5" />
                         <div className="flex flex-col gap-y-4">
                             <NutritionCard props={{ name: "Protein", color: "protein", consumed: total("protein"), goal: NUTRITION_GOALS.protein }} />
@@ -71,7 +78,7 @@ export default function TrackFood({ food, day }: { food: TrackedFood[], day: str
                             <MealView key={meal.type} props={{
                                 meal: meal.type,
                                 trackedFood: food.filter((f) => f.meal.type === meal.type),
-                                remainingCalories: CALORIE_GOAL - totalCalories,
+                                remainingCalories: calorieGoal - totalCalories,
                                 selectedFoodStore,
                             }} />
                         )}

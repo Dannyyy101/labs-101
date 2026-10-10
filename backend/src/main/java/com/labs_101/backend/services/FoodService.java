@@ -21,6 +21,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -103,7 +104,7 @@ public class FoodService {
     }
 
     @Transactional(readOnly = true)
-    public Page<SearchFoodResponseDto> searchByNameAndUserId(Pageable p, String name, String userId) {
+    public Slice<SearchFoodResponseDto> searchByNameAndUserId(Pageable p, String name, String userId) {
         if (name == null || name.isBlank()) {
             return foodRepository.findAllByLastUsed(p, userId)
                     .map(FoodMapper::mapFromEntityToSearchFoodResponseDto);

@@ -1,6 +1,7 @@
 package com.labs_101.backend.dtos.calendar;
 
 import java.time.Instant;
+import java.util.List;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -14,4 +15,8 @@ public class UpdateCalendarEventDto {
     private String title;
     private Instant startDate;
     private Instant endDate;
+    /** Always applied, null removes the planned workout. */
+    private Long workoutId;
+    /** Replaces the invitees, null keeps them. */
+    private List<String> inviteeIds;
 }

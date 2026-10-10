@@ -1,8 +1,7 @@
 package com.labs_101.backend.dtos.calendar;
 
 import java.time.Instant;
-
-import com.labs_101.backend.dtos.workout.CreateWorkoutDto;
+import java.util.List;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -16,4 +15,6 @@ public class CreateCalendarEventDto {
     private Instant startDate;
     private Instant endDate;
     private String creatorId;
+    private Long workoutId;
+    private List<String> inviteeIds;
 }

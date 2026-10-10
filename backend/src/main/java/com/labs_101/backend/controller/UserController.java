@@ -19,16 +19,26 @@ import com.labs_101.backend.dtos.food.CreateFoodUserDto;
 import com.labs_101.backend.dtos.food.FoodUserDto;
 import com.labs_101.backend.dtos.food.FoodWithLastEntryAndPortionsDto;
 import com.labs_101.backend.dtos.food.TrackedFoodDto;
+import com.labs_101.backend.dtos.calendar.CalendarUserDto;
 import com.labs_101.backend.services.FoodService;
+import com.labs_101.backend.services.UserService;
 
 @RestController()
 @RequestMapping("/api/users")
 public class UserController {
 
     private final FoodService foodService;
+    private final UserService userService;
 
-    UserController(FoodService foodService) {
+    UserController(FoodService foodService, UserService userService) {
         this.foodService = foodService;
+        this.userService = userService;
+    }
+
+    /** People to invite, matched by name or email. */
+    @GetMapping("")
+    public List<CalendarUserDto> searchUsers(@RequestParam String query) {
+        return userService.search(query);
     }
 
     @GetMapping("{id}/tracked-foods")

@@ -10,8 +10,9 @@ import { EventDialog } from './EventDialog';
 import { CalendarEvent } from '@/utils/types/calendarTypes';
 import { getAllCalendarEvents } from './action';
 import { Button } from "../ui/button";
-import { ChevronRight, ChevronLeft } from "lucide-react";
+import { ChevronRight, ChevronLeft, Dumbbell } from "lucide-react";
 import { startAtTime } from "@/utils/date";
+import { AvatarStack } from "./UserAvatar";
 
 
 export interface Training {
@@ -162,7 +163,7 @@ const TimeSlot = ({ hour, events, columnDate }: { hour: number, events: Calendar
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger className="w-full h-20">
             </DialogTrigger>
-            <DialogContent className="sm:max-w-[80vw]">
+            <DialogContent showCloseButton={false} className="gap-0 overflow-hidden bg-muted p-0 sm:max-w-md">
                 <EventDialog calendarEvent={null} closeDialog={() => setOpen(false)} startDate={startDate} />
             </DialogContent>
         </Dialog>
@@ -192,9 +193,12 @@ const Event = ({ event }: { event: CalendarEvent }) => {
                     :
                     {event.endDate.getMinutes().toString().padStart(2, "0")}
                 </p>
+                {event.workoutName && <p className='flex items-center gap-1 text-white text-xs truncate'><Dumbbell className="size-3 shrink-0" />{event.workoutName}</p>}
+                {/* everyone taking part, the creator first */}
+                {event.invitees.length > 0 && <AvatarStack className="mt-1" users={[...(event.creator ? [event.creator] : []), ...event.invitees]} />}
             </div>
         </DialogTrigger>
-        <DialogContent className="sm:max-w-[80vw]">
+        <DialogContent showCloseButton={false} className="gap-0 overflow-hidden bg-muted p-0 sm:max-w-md">
             <EventDialog calendarEvent={event} closeDialog={() => setOpen(false)} startDate={null} />
         </DialogContent>
     </Dialog>

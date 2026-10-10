@@ -4,7 +4,7 @@ import { auth } from "@/lib/auth"
 import { mapFromCalendarEventDto } from "@/lib/mapper/calendarMapper"
 import { BACKEND_URL } from "@/utils/constants"
 import { backendFetch } from "@/utils/backend"
-import { CalendarEvent, CalendarEventDto } from "@/utils/types/calendarTypes"
+import { CalendarEvent, CalendarEventDto, CalendarUser } from "@/utils/types/calendarTypes"
 import { Result } from "@/utils/types/types"
 import { Exercise, WorkoutTemplate } from "@/utils/types/workoutTypes"
 import { sortWorkoutTemplates } from "@/utils/workout"
@@ -37,7 +37,13 @@ export async function getAllExercises(): Promise<Exercise[]> {
 }
 
 export async function getAllCalendarEvents(dateRange: Date, steps: number): Promise<Result<CalendarEvent[]>> {
+    const session = await auth.api.getSession({
+        headers: await headers()
+    })
+    if (!session) throw new Error("User is currently not in a session")
     const url = new URL(BACKEND_URL + "/calendar")
+    // only the user's own events and the ones they were invited to
+    url.searchParams.append("userId", session.user.id)
     url.searchParams.append("startDate", dateRange.toISOString())
     const endDate = new Date(dateRange)
     endDate.setDate(endDate.getDate() + steps)
@@ -57,20 +63,43 @@ export async function getAllCalendarEvents(dateRange: Date, steps: number): Prom
     return { value: null, error: new Error("Error fetching calendar events") }
 }
 
-export async function createCalendarEvent(calendarEvent: CalendarEvent): Promise<void> {
+/** The ids of the invitees instead of the people, the backend only needs those. */
+const toRequestBody = (calendarEvent: CalendarEvent) => ({
+    ...calendarEvent,
+    startDate: calendarEvent.startDate.toISOString(),
+    endDate: calendarEvent.endDate.toISOString(),
+    invitees: undefined,
+    inviteeIds: calendarEvent.invitees.map((user) => user.id),
+})
+
+/** People to invite, matched by name or email. */
+export async function searchUsers(query: string): Promise<CalendarUser[]> {
+    const url = new URL(BACKEND_URL + "/users")
+    url.searchParams.append("query", query)
+
+    const response = await backendFetch(url.toString(), { cache: "no-store" })
+
+    if (response.ok) {
+        return await response.json() as CalendarUser[]
+    }
+
+    throw new Error("Error searching users")
+}
+
+export async function createCalendarEvent(calendarEvent: CalendarEvent): Promise<CalendarEvent> {
     const session = await auth.api.getSession({
         headers: await headers()
     })
     if (!session) throw new Error("User is currently not in a session")
     const response = await backendFetch(BACKEND_URL + "/calendar", {
-        method: "POST", body: JSON.stringify({ ...calendarEvent, startDate: calendarEvent.startDate.toISOString(), endDate: calendarEvent.endDate.toISOString(), creatorId: session.user.id }), headers: {
+        method: "POST", body: JSON.stringify({ ...toRequestBody(calendarEvent), creatorId: session.user.id }), headers: {
             'Content-Type': 'application/json'
         }
     })
 
     if (response.ok) {
         revalidatePath("/planner")
-        return
+        return mapFromCalendarEventDto(await response.json() as CalendarEventDto)
     }
     console.error(response.status, response.statusText, response.body)
 
@@ -78,7 +107,7 @@ export async function createCalendarEvent(calendarEvent: CalendarEvent): Promise
 }
 export async function updateCalendarEvent(calendarEvent: CalendarEvent): Promise<Result<void>> {
     const response = await backendFetch(BACKEND_URL + "/calendar/" + calendarEvent.id, {
-        method: "PUT", body: JSON.stringify({ ...calendarEvent, startDate: calendarEvent.startDate.toISOString(), endDate: calendarEvent.endDate.toISOString() }), headers: {
+        method: "PUT", body: JSON.stringify(toRequestBody(calendarEvent)), headers: {
             'Content-Type': 'application/json'
         }
     })

@@ -3,6 +3,7 @@ package com.labs_101.backend.services;
 import com.labs_101.backend.mapper.BodyPartMapper;
 import com.labs_101.backend.mapper.ExerciseMapper;
 import com.labs_101.backend.mapper.WorkoutMapper;
+import com.labs_101.backend.repositories.CalendarRepository;
 import com.labs_101.backend.repositories.ExerciseRepository;
 import com.labs_101.backend.repositories.WorkoutRepository;
 import com.labs_101.backend.repositories.WorkoutSessionRepository;
@@ -37,12 +38,15 @@ public class WorkoutService {
     private final WorkoutRepository workoutRepository;
     private final ExerciseRepository exerciseRepository;
     private final WorkoutSessionRepository sessionRepository;
+    private final CalendarRepository calendarRepository;
 
     WorkoutService(ExerciseRepository exerciseRepository,
-            WorkoutRepository workoutRepository, WorkoutSessionRepository sessionRepository) {
+            WorkoutRepository workoutRepository, WorkoutSessionRepository sessionRepository,
+            CalendarRepository calendarRepository) {
         this.exerciseRepository = exerciseRepository;
         this.workoutRepository = workoutRepository;
         this.sessionRepository = sessionRepository;
+        this.calendarRepository = calendarRepository;
     }
 
     @Transactional
@@ -93,6 +97,8 @@ public class WorkoutService {
         Workout workout = workoutRepository.findById(id).orElseThrow(() -> NotFoundException.workout(id));
         // the history stays, only the link to the template is removed
         sessionRepository.findByWorkout_Id(id).forEach((session) -> session.setWorkout(null));
+        // planned events stay in the calendar without a workout
+        calendarRepository.findByWorkout_Id(id).forEach((event) -> event.setWorkout(null));
         workoutRepository.delete(workout);
     }
 

@@ -1,0 +1,16 @@
+info:
+  name: deleteSettings
+  type: http
+  seq: 7
+
+http:
+  method: DELETE
+  url: "{{base_url}}/api/users/0Hatub6x8Vxyp3L8YNG5QHG7s579dTai/settings"
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false
