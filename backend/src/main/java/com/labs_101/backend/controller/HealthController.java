@@ -25,11 +25,12 @@ import com.labs_101.backend.dtos.health.HealthWriteRequestDto;
 import com.labs_101.backend.dtos.health.HealthWriteRequestStatus;
 import com.labs_101.backend.dtos.health.UploadHealthSamplesDto;
 import com.labs_101.backend.services.HealthService;
+import com.labs_101.backend.security.CurrentUser;
 
 import tools.jackson.databind.JsonNode;
 
 @RestController()
-@RequestMapping("/api/users/{userId}/health")
+@RequestMapping("/api/users/me/health")
 public class HealthController {
 
     private final HealthService healthService;
@@ -41,22 +42,22 @@ public class HealthController {
     // MARK: sync from the app
 
     @PostMapping("/samples")
-    public HealthSyncResultDto uploadSamples(@PathVariable String userId, @RequestBody UploadHealthSamplesDto dto) {
+    public HealthSyncResultDto uploadSamples(@CurrentUser String userId, @RequestBody UploadHealthSamplesDto dto) {
         return healthService.upload(userId, dto);
     }
 
     @PostMapping("/samples/delete")
-    public HealthSyncResultDto deleteSamples(@PathVariable String userId, @RequestBody DeleteHealthSamplesDto dto) {
+    public HealthSyncResultDto deleteSamples(@CurrentUser String userId, @RequestBody DeleteHealthSamplesDto dto) {
         return healthService.delete(userId, dto);
     }
 
     @PostMapping("/sync/complete")
-    public HealthSyncResultDto completeFullSync(@PathVariable String userId, @RequestBody CompleteFullSyncDto dto) {
+    public HealthSyncResultDto completeFullSync(@CurrentUser String userId, @RequestBody CompleteFullSyncDto dto) {
         return healthService.completeFullSync(userId, dto);
     }
 
     @PutMapping("/characteristics")
-    public ResponseEntity<Void> saveCharacteristics(@PathVariable String userId, @RequestBody JsonNode payload) {
+    public ResponseEntity<Void> saveCharacteristics(@CurrentUser String userId, @RequestBody JsonNode payload) {
         healthService.saveCharacteristics(userId, payload);
         return ResponseEntity.noContent().build();
     }
@@ -64,17 +65,17 @@ public class HealthController {
     // MARK: reading
 
     @GetMapping("/characteristics")
-    public ResponseEntity<JsonNode> getCharacteristics(@PathVariable String userId) {
+    public ResponseEntity<JsonNode> getCharacteristics(@CurrentUser String userId) {
         return ResponseEntity.of(healthService.getCharacteristics(userId));
     }
 
     @GetMapping("/types")
-    public List<HealthTypeSummaryDto> getSummary(@PathVariable String userId) {
+    public List<HealthTypeSummaryDto> getSummary(@CurrentUser String userId) {
         return healthService.getSummary(userId);
     }
 
     @GetMapping("/samples")
-    public List<HealthSampleDto> getSamples(@PathVariable String userId,
+    public List<HealthSampleDto> getSamples(@CurrentUser String userId,
             @RequestParam(required = false) String type,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Instant from,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Instant to,
@@ -86,19 +87,19 @@ public class HealthController {
     // MARK: writing into HealthKit (picked up by the app on its next sync)
 
     @PostMapping("/write-requests")
-    public HealthWriteRequestDto createWriteRequest(@PathVariable String userId,
+    public HealthWriteRequestDto createWriteRequest(@CurrentUser String userId,
             @RequestBody CreateHealthWriteRequestDto dto) {
         return healthService.createWriteRequest(userId, dto);
     }
 
     @GetMapping("/write-requests")
-    public List<HealthWriteRequestDto> getWriteRequests(@PathVariable String userId,
+    public List<HealthWriteRequestDto> getWriteRequests(@CurrentUser String userId,
             @RequestParam(defaultValue = "PENDING") HealthWriteRequestStatus status) {
         return healthService.getWriteRequests(userId, status);
     }
 
     @PostMapping("/write-requests/{id}/ack")
-    public HealthWriteRequestDto acknowledgeWriteRequest(@PathVariable String userId, @PathVariable Long id,
+    public HealthWriteRequestDto acknowledgeWriteRequest(@CurrentUser String userId, @PathVariable Long id,
             @RequestBody AckHealthWriteRequestDto dto) {
         return healthService.acknowledgeWriteRequest(userId, id, dto);
     }

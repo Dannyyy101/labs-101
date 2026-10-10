@@ -38,7 +38,9 @@ services:
       - SPRING_DATASOURCE_USERNAME=${POSTGRES_USERNAME}
       - SPRING_DATASOURCE_PASSWORD=${POSTGRES_PASSWORD}
       - SPRING_JPA_HIBERNATE_DDL_AUTO=update
-      - API_KEY=${API_KEY}
+      # public URL of zitadel, has to match the iss claim of the tokens
+      - AUTH_ISSUER=${AUTH_ISSUER:-https://auth.project101.tech}
+      - AUTH_AUDIENCE=${AUTH_AUDIENCE:-}
   zitadel:
     container_name: zitadel-labs-101
     image: ghcr.io/zitadel/zitadel:v4.19.4

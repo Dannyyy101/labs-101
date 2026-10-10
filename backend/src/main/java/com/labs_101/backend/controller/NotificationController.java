@@ -18,9 +18,10 @@ import com.labs_101.backend.dtos.notification.CreateNotificationDto;
 import com.labs_101.backend.dtos.notification.NotificationDto;
 import com.labs_101.backend.dtos.notification.UnreadCountDto;
 import com.labs_101.backend.services.NotificationService;
+import com.labs_101.backend.security.CurrentUser;
 
 @RestController()
-@RequestMapping("/api/users/{userId}/notifications")
+@RequestMapping("/api/users/me/notifications")
 public class NotificationController {
 
     private final NotificationService notificationService;
@@ -30,41 +31,41 @@ public class NotificationController {
     }
 
     @GetMapping("")
-    public List<NotificationDto> getNotifications(@PathVariable String userId,
+    public List<NotificationDto> getNotifications(@CurrentUser String userId,
             @RequestParam(defaultValue = "false") boolean unreadOnly,
             @RequestParam(required = false) Integer limit) {
         return notificationService.getNotifications(userId, unreadOnly, limit);
     }
 
     @GetMapping("/unread-count")
-    public UnreadCountDto getUnreadCount(@PathVariable String userId) {
+    public UnreadCountDto getUnreadCount(@CurrentUser String userId) {
         return new UnreadCountDto(notificationService.countUnread(userId));
     }
 
     @PostMapping("")
-    public ResponseEntity<NotificationDto> createNotification(@PathVariable String userId,
+    public ResponseEntity<NotificationDto> createNotification(@CurrentUser String userId,
             @RequestBody CreateNotificationDto dto) {
         return ResponseEntity.status(HttpStatus.CREATED).body(notificationService.create(userId, dto));
     }
 
     @PutMapping("/{id}/read")
-    public NotificationDto markRead(@PathVariable String userId, @PathVariable Long id) {
+    public NotificationDto markRead(@CurrentUser String userId, @PathVariable Long id) {
         return notificationService.markRead(userId, id);
     }
 
     @DeleteMapping("/{id}/read")
-    public NotificationDto markUnread(@PathVariable String userId, @PathVariable Long id) {
+    public NotificationDto markUnread(@CurrentUser String userId, @PathVariable Long id) {
         return notificationService.markUnread(userId, id);
     }
 
     @PutMapping("/read")
-    public ResponseEntity<Void> markAllRead(@PathVariable String userId) {
+    public ResponseEntity<Void> markAllRead(@CurrentUser String userId) {
         notificationService.markAllRead(userId);
         return ResponseEntity.noContent().build();
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteNotification(@PathVariable String userId, @PathVariable Long id) {
+    public ResponseEntity<Void> deleteNotification(@CurrentUser String userId, @PathVariable Long id) {
         notificationService.delete(userId, id);
         return ResponseEntity.noContent().build();
     }

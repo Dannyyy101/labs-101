@@ -22,6 +22,7 @@ import com.labs_101.backend.dtos.food.TrackedFoodDto;
 import com.labs_101.backend.dtos.calendar.CalendarUserDto;
 import com.labs_101.backend.services.FoodService;
 import com.labs_101.backend.services.UserService;
+import com.labs_101.backend.security.CurrentUser;
 
 @RestController()
 @RequestMapping("/api/users")
@@ -41,32 +42,32 @@ public class UserController {
         return userService.search(query);
     }
 
-    @GetMapping("{id}/tracked-foods")
-    public List<TrackedFoodDto> getTrackedFoodForUser(@PathVariable String id,
+    @GetMapping("/me/tracked-foods")
+    public List<TrackedFoodDto> getTrackedFoodForUser(@CurrentUser String id,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Instant date) {
         return foodService.getTrackedFoodForUser(id, date);
     }
 
-    @DeleteMapping("/{userId}/tracked-foods/{trackedFoodId}")
-    public ResponseEntity<Void> deleteTrackedFoodById(@PathVariable String userId, @PathVariable Long trackedFoodId) {
+    @DeleteMapping("/me/tracked-foods/{trackedFoodId}")
+    public ResponseEntity<Void> deleteTrackedFoodById(@CurrentUser String userId, @PathVariable Long trackedFoodId) {
         foodService.deleteTrackedFoodById(userId, trackedFoodId);
         return ResponseEntity.ok().build();
     }
 
-    @PutMapping("/{userId}/tracked-foods/{trackedFoodId}")
-    public ResponseEntity<Void> updateTrackedFoodById(@PathVariable String userId, @PathVariable Long trackedFoodId,
+    @PutMapping("/me/tracked-foods/{trackedFoodId}")
+    public ResponseEntity<Void> updateTrackedFoodById(@CurrentUser String userId, @PathVariable Long trackedFoodId,
             @RequestBody CreateFoodUserDto dto) {
         foodService.updateTrackedFoodById(trackedFoodId, dto);
         return ResponseEntity.ok().build();
     }
 
-    @GetMapping("/{userId}/tracked-foods/{trackedFoodId}")
-    public TrackedFoodDto getTrackedFoodById(@PathVariable String userId, @PathVariable Long trackedFoodId) {
+    @GetMapping("/me/tracked-foods/{trackedFoodId}")
+    public TrackedFoodDto getTrackedFoodById(@CurrentUser String userId, @PathVariable Long trackedFoodId) {
         return foodService.getTrackedFoodById(trackedFoodId);
     }
 
-    @GetMapping("/{userId}/foods/{foodId}/last")
-    public FoodWithLastEntryAndPortionsDto getLastTracked(@PathVariable String userId,
+    @GetMapping("/me/foods/{foodId}/last")
+    public FoodWithLastEntryAndPortionsDto getLastTracked(@CurrentUser String userId,
             @PathVariable Long foodId) {
         return foodService.getFoodWithLastEntry(userId, foodId);
 

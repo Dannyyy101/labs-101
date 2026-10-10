@@ -17,6 +17,7 @@ import com.labs_101.backend.dtos.food.ExtractFoodRequestDto;
 import com.labs_101.backend.dtos.food.ExtractedFoodDto;
 import com.labs_101.backend.exception.BadRequestException;
 import com.labs_101.backend.foodExtractor.FoodExtractor;
+import com.labs_101.backend.security.CurrentUser;
 
 import java.util.List;
 
@@ -102,16 +103,18 @@ public class FoodController {
     }
 
     @GetMapping("/search/byNameAndUser")
-    public Slice<SearchFoodResponseDto> search(Pageable p, @RequestParam String name, @RequestParam String userId) {
+    public Slice<SearchFoodResponseDto> search(Pageable p, @RequestParam String name, @CurrentUser String userId) {
         return foodService.searchByNameAndUserId(p, name, userId);
     }
 
     @PostMapping("{id}/track")
-    public ResponseEntity<Void> trackFoodForUser(@PathVariable Long id, @RequestBody CreateFoodUserDto dto) {
+    public ResponseEntity<Void> trackFoodForUser(@PathVariable Long id, @CurrentUser String userId,
+            @RequestBody CreateFoodUserDto dto) {
         if (!id.equals(dto.foodId()))
             throw BadRequestException.workout(id, dto.foodId());
 
-        foodService.trackFood(dto);
+        // always for the signed in user, whatever the body says
+        foodService.trackFood(new CreateFoodUserDto(dto.foodId(), userId, dto.amount(), dto.meal(), dto.portionId()));
 
         return ResponseEntity.noContent().build();
     }
