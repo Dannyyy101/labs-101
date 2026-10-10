@@ -79,8 +79,10 @@ public class FoodController {
     }
 
     @PostMapping("/open-food/{openFoodId}/track")
-    public ResponseEntity<Void> trackOpenFood(@PathVariable Long openFoodId, @RequestBody CreateFoodUserDto dto) {
-        foodService.trackOpenFood(openFoodId, dto);
+    public ResponseEntity<Void> trackOpenFood(@PathVariable Long openFoodId, @CurrentUser String userId,
+            @RequestBody CreateFoodUserDto dto) {
+        foodService.trackOpenFood(openFoodId,
+                new CreateFoodUserDto(dto.foodId(), userId, dto.amount(), dto.meal(), dto.portionId()));
 
         return ResponseEntity.noContent().build();
     }
