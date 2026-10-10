@@ -10,6 +10,7 @@ import org.springframework.web.server.ResponseStatusException;
 import com.labs_101.backend.exception.BadRequestException;
 import com.labs_101.backend.exception.ErrorResponse;
 import com.labs_101.backend.exception.NotFoundException;
+import com.labs_101.backend.exception.TooManyRequestsException;
 
 import jakarta.servlet.http.HttpServletRequest;
 
@@ -76,6 +77,23 @@ public class GlobalExceptionHandler {
                 msg,
                 request.getRequestURI());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
+    }
+
+    /**
+     * Handles TooManyRequestsException (a limit of the user is reached) by
+     * returning a localized message with a TOO_MANY_REQUESTS status.
+     */
+    @ExceptionHandler(TooManyRequestsException.class)
+    public ResponseEntity<ErrorResponse> handleTooManyRequests(TooManyRequestsException ex, Locale locale,
+            HttpServletRequest request) {
+        String msg = messageSource.getMessage(ex.getCode(), ex.getArgs(), ex.getCode(), locale);
+        ErrorResponse body = new ErrorResponse(
+                Instant.now(),
+                HttpStatus.TOO_MANY_REQUESTS.value(),
+                HttpStatus.TOO_MANY_REQUESTS.getReasonPhrase(),
+                msg,
+                request.getRequestURI());
+        return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body(body);
     }
 
     /**

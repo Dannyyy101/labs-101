@@ -42,6 +42,10 @@ services:
       - AUTH_AUDIENCE=${AUTH_AUDIENCE:-}
       # organization of the users in zitadel, for the URLs of the profile pictures
       - ZITADEL_ORG_ID=${ZITADEL_ORG_ID:-}
+      # photos of meals are analyzed by Gemini, key from https://aistudio.google.com/apikey
+      - GEMINI_API_KEY=${GEMINI_API_KEY:-}
+      - GEMINI_MODEL=${GEMINI_MODEL:-gemini-3.8-flash,gemini-3.6-flash,gemini-3.5-flash-lite}
+      - FOOD_IMAGE_DAILY_LIMIT=${FOOD_IMAGE_DAILY_LIMIT:-5}
   zitadel:
     container_name: zitadel-labs-101
     image: ghcr.io/zitadel/zitadel:v4.19.4
