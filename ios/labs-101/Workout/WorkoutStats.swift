@@ -12,6 +12,15 @@ nonisolated enum WorkoutStats {
         kg >= 10_000 ? "\((kg / 1000).compactFormatted) t" : "\(kg.roundedFormatted) kg"
     }
 
+    static let defaultRest = 90
+    /// 0 turns the rest timer off
+    static let restOptions = [0, 30, 45, 60, 90, 120, 150, 180, 240, 300]
+
+    /// "1:30", "0:45" or "Aus"
+    static func formattedRest(_ seconds: Int) -> String {
+        seconds == 0 ? "Aus" : String(format: "%d:%02d", seconds / 60, seconds % 60)
+    }
+
     /// The done sets of the exercise in the newest of the sessions (sorted newest first) that contains it.
     static func lastSets(of exerciseId: Int?, in sessions: [WorkoutSession]) -> [SessionSet]? {
         guard let exerciseId else { return nil }

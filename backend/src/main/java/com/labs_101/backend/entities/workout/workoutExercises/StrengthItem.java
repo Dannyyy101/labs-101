@@ -24,6 +24,7 @@ public class StrengthItem extends WorkoutExercise<StrengthItem.Settings> {
     public record Settings(List<Set> sets) implements IExercise {
     }
 
-    public record Set(int order, int reps, double weightKg, Integer rpe) {
+    /** {@code restSeconds} is the rest after the set, null for the default. */
+    public record Set(int order, int reps, double weightKg, Integer rpe, Integer restSeconds) {
     }
 }

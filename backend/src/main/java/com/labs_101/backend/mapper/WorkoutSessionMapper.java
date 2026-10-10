@@ -19,7 +19,7 @@ public class WorkoutSessionMapper {
                 session.getLog().exercises().stream()
                         .map((entry) -> new SessionExerciseDto(entry.exerciseId(), entry.name(),
                                 entry.sets().stream()
-                                        .map((set) -> new SessionSetDto(set.reps(), set.weightKg(), set.rpe(), set.done()))
+                                        .map((set) -> new SessionSetDto(set.reps(), set.weightKg(), set.rpe(), set.done(), set.restSeconds()))
                                         .toList()))
                         .toList());
     }
@@ -29,7 +29,7 @@ public class WorkoutSessionMapper {
                 .map((exercise) -> new WorkoutSession.Entry(exercise.exerciseId(), exercise.name(),
                         exercise.sets() == null ? List.of()
                                 : exercise.sets().stream()
-                                        .map((set) -> new WorkoutSession.Set(set.reps(), set.weightKg(), set.rpe(), set.done()))
+                                        .map((set) -> new WorkoutSession.Set(set.reps(), set.weightKg(), set.rpe(), set.done(), set.restSeconds()))
                                         .toList()))
                 .toList());
     }

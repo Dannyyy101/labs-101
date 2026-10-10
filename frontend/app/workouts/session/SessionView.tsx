@@ -13,11 +13,11 @@ import { formatDuration } from "../../runs/format"
 import { deleteSession, finishSession, updateSession } from "../action"
 import ExercisePicker from "../ExercisePicker"
 import NumberInput from "../NumberInput"
+import RestPicker from "../RestPicker"
 import MuscleMap from "../MuscleMap"
-import { COLORS, formatSet, formatVolume, formatWeight, lastSets, MUSCLES, sessionDuration, setsPerMuscle, volume } from "../stats"
+import { COLORS, DEFAULT_REST, formatSet, formatVolume, formatWeight, lastSets, MUSCLES, restOf, sessionDuration, setsPerMuscle, volume } from "../stats"
 import { useNow } from "../useNow"
 
-const REST_SECONDS = 90
 const SAVE_DELAY = 700
 
 type SaveState = "saved" | "pending" | "saving" | "error"
@@ -41,12 +41,14 @@ export default function SessionView({ session, exercises, history }: { session: 
     const update = (index: number, item: SessionExercise) => setItems((prev) => prev.map((e, i) => i === index ? item : e))
     const add = (exercise: Exercise) => setItems((prev) => {
         const last = lastSets(history, exercise.id)
-        const fresh: SessionSet = { reps: 10, weightKg: 0, rpe: null, done: false }
+        const fresh: SessionSet = { reps: 10, weightKg: 0, rpe: null, done: false, restSeconds: DEFAULT_REST }
         const template = last?.length ? last : [fresh, fresh, fresh]
         return [...prev, { exerciseId: exercise.id, name: exercise.name, sets: template.map((s) => ({ ...s, done: false })) }]
     })
+    // checking a set off starts its rest
     const toggled = (set: SessionSet) => {
-        if (set.done) setRest({ until: Date.now() + REST_SECONDS * 1000, total: REST_SECONDS })
+        const seconds = restOf(set)
+        if (set.done && seconds > 0) setRest({ until: Date.now() + seconds * 1000, total: seconds })
     }
 
     return <div className="flex-1 w-full bg-muted/50 px-3.5 pb-36 pt-5 md:px-6 md:pt-7">
@@ -189,7 +191,7 @@ function ExerciseLog({ item, exercise, previous, onChange, onToggle, onRemove }:
         onChange({ ...item, sets: item.sets.map((s, i) => i === index ? { ...s, ...set } : s) })
     const addSet = () => {
         const last = item.sets[item.sets.length - 1]
-        onChange({ ...item, sets: [...item.sets, { reps: last?.reps ?? 10, weightKg: last?.weightKg ?? 0, rpe: null, done: false }] })
+        onChange({ ...item, sets: [...item.sets, { reps: last?.reps ?? 10, weightKg: last?.weightKg ?? 0, rpe: null, done: false, restSeconds: last?.restSeconds ?? DEFAULT_REST }] })
     }
 
     return <Card className={cn("transition-shadow", finished && "ring-2 ring-[#30d158]/40")}>
@@ -206,11 +208,12 @@ function ExerciseLog({ item, exercise, previous, onChange, onToggle, onRemove }:
             <button type="button" aria-label="Übung entfernen" title="Übung entfernen" onClick={onRemove}
                 className="grid size-8 flex-none place-items-center rounded-full text-[#ff453a] hover:bg-muted"><Trash2 className="size-4" /></button>
         </div>
-        <div className="grid grid-cols-[28px_minmax(0,0.9fr)_minmax(0,1fr)_minmax(0,1fr)_40px_24px] items-center gap-x-2 gap-y-1.5 md:gap-x-3">
+        <div className="grid grid-cols-[24px_minmax(0,0.9fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,0.9fr)_40px_24px] items-center gap-x-2 gap-y-1.5 md:gap-x-3">
             <span className="text-center text-xs font-medium text-muted-foreground">Satz</span>
             <span className="text-xs font-medium text-muted-foreground">Vorher</span>
             <span className="text-xs font-medium text-muted-foreground">kg</span>
             <span className="text-xs font-medium text-muted-foreground">Wdh</span>
+            <span className="text-xs font-medium text-muted-foreground">Pause</span>
             <span />
             <span />
             {item.sets.map((set, i) => {
@@ -225,6 +228,8 @@ function ExerciseLog({ item, exercise, previous, onChange, onToggle, onRemove }:
                     <NumberInput value={set.weightKg} onChange={(weightKg) => updateSet(i, { weightKg })} label={`Gewicht Satz ${i + 1}`} decimal
                         className={cn(set.done && "bg-[#30d158]/12")} />
                     <NumberInput value={set.reps} onChange={(reps) => updateSet(i, { reps: Math.round(reps) })} label={`Wiederholungen Satz ${i + 1}`}
+                        className={cn(set.done && "bg-[#30d158]/12")} />
+                    <RestPicker value={restOf(set)} onChange={(restSeconds) => updateSet(i, { restSeconds })} label={`Ruhezeit nach Satz ${i + 1}`}
                         className={cn(set.done && "bg-[#30d158]/12")} />
                     <button type="button" aria-label={set.done ? `Satz ${i + 1} nicht erledigt` : `Satz ${i + 1} erledigt`} aria-pressed={set.done}
                         onClick={() => {

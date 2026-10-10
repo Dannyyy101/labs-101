@@ -46,6 +46,16 @@ export function lastSets(sessions: WorkoutSession[], exerciseId: number | null):
     return null
 }
 
+export const DEFAULT_REST = 90
+// 0 turns the rest timer off
+export const REST_OPTIONS = [0, 30, 45, 60, 90, 120, 150, 180, 240, 300]
+
+export const restOf = (set: { restSeconds: number | null }) => set.restSeconds ?? DEFAULT_REST
+
+// "1:30", "0:45" or "Aus"
+export const formatRest = (seconds: number) =>
+    seconds ? `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, "0")}` : "Aus"
+
 export const MUSCLES: Record<string, string> = {
     "chest": "Brust", "biceps": "Bizeps", "triceps": "Trizeps", "deltoids": "Schultern", "abs": "Bauch",
     "obliques": "Seitlicher Bauch", "quadriceps": "Quadrizeps", "hamstring": "Beinbeuger", "gluteal": "Gesäß",

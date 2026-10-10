@@ -13,7 +13,6 @@ final class WorkoutSessionModel {
         let total: TimeInterval
     }
 
-    static let restSeconds: TimeInterval = 90
     private static let saveDelay: Duration = .milliseconds(700)
 
     let session: WorkoutSession
@@ -54,22 +53,24 @@ final class WorkoutSessionModel {
         let last = WorkoutStats.lastSets(of: exercise.id, in: history) ?? []
         let sets = last.isEmpty
             ? Array(repeating: SessionSet(reps: 10, weightKg: 0), count: 3)
-            : last.map { SessionSet(reps: $0.reps, weightKg: $0.weightKg) }
+            : last.map { SessionSet(reps: $0.reps, weightKg: $0.weightKg, restSeconds: $0.rest) }
         exercises.append(SessionExercise(exerciseId: exercise.id, name: exercise.name, sets: sets))
     }
 
     func addSet(to exerciseID: SessionExercise.ID) {
         guard let index = exercises.firstIndex(where: { $0.id == exerciseID }) else { return }
         let last = exercises[index].sets.last
-        exercises[index].sets.append(SessionSet(reps: last?.reps ?? 10, weightKg: last?.weightKg ?? 0))
+        exercises[index].sets.append(SessionSet(reps: last?.reps ?? 10, weightKg: last?.weightKg ?? 0, restSeconds: last?.rest ?? WorkoutStats.defaultRest))
     }
 
     func toggle(_ setID: SessionSet.ID, of exerciseID: SessionExercise.ID) {
         guard let e = exercises.firstIndex(where: { $0.id == exerciseID }),
               let s = exercises[e].sets.firstIndex(where: { $0.id == setID }) else { return }
         exercises[e].sets[s].done.toggle()
-        if exercises[e].sets[s].done {
-            startRest(Self.restSeconds)
+        // checking a set off starts its rest
+        let set = exercises[e].sets[s]
+        if set.done && set.rest > 0 {
+            startRest(TimeInterval(set.rest))
         }
     }
 

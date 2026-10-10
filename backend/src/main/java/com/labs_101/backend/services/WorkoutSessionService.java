@@ -79,7 +79,7 @@ public class WorkoutSessionService {
                     .map((item) -> new WorkoutSession.Entry(item.getExercise().getId(), item.getExercise().getName(),
                             item instanceof StrengthItem strength
                                     ? strength.getSettings().sets().stream()
-                                            .map((set) -> new WorkoutSession.Set(set.reps(), set.weightKg(), set.rpe(), false))
+                                            .map((set) -> new WorkoutSession.Set(set.reps(), set.weightKg(), set.rpe(), false, set.restSeconds()))
                                             .toList()
                                     : List.of()))
                     .toList()));
