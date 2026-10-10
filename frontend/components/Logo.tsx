@@ -20,7 +20,7 @@ export function Logo({ className }: { className?: string }) {
         <LogoMark />
         <span className="text-lg font-bold italic tracking-tight" aria-label="Labs-101">
             Labs-1
-            <span aria-hidden="true" className="mx-px inline-block size-[0.5em] -skew-x-12 rounded-full border-[0.14em] border-[#0A84FF] align-baseline" />
+            <span aria-hidden="true" className="ml-[0.1em] -mr-[0.2em] inline-block size-[0.5em] -skew-x-12 rounded-full border-[0.14em] border-[#0A84FF] align-baseline" />
             1
         </span>
     </span>
