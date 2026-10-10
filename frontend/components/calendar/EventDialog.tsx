@@ -13,7 +13,7 @@ import { DialogClose, DialogTitle } from "../ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 import { CalendarEvent } from "@/utils/types/calendarTypes";
 import { Workout } from "@/utils/types/types";
-import { authClient } from "@/lib/auth-client";
+import { useUser } from "@/components/user-provider";
 import { InviteField } from "./InviteField";
 import { Group } from "./Group";
 
@@ -28,7 +28,7 @@ export function EventDialog({ calendarEvent, closeDialog, startDate }: { calenda
 
 
     const [event, setEvent] = useState<CalendarEvent>(calendarEvent || { id: "", title: "", startDate: startDate || new Date(), endDate, workoutId: null, creatorId: "", invitees: [] });
-    const { data: session } = authClient.useSession()
+    const user = useUser()
     // controlled, the workout fills an empty title and the date pickers keep the times
     const [title, setTitle] = useState(event.title)
     const [startTime, setStartTime] = useState(toTimeInputValue(event.startDate).slice(0, 5))
@@ -146,7 +146,7 @@ export function EventDialog({ calendarEvent, closeDialog, startDate }: { calenda
                 <InviteField
                     invitees={event.invitees}
                     setInvitees={(invitees) => setEvent((prev) => ({ ...prev, invitees }))}
-                    excludeIds={[event.creatorId || session?.user.id || ""]}
+                    excludeIds={[event.creatorId || user?.id || ""]}
                 />
             </Section>
 

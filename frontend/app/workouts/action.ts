@@ -1,23 +1,13 @@
 'use server'
 
-import { auth } from "@/lib/auth"
 import { BACKEND_URL } from "@/utils/constants"
 import { backendFetch } from "@/utils/backend"
 import { SessionExercise, Workout, WorkoutExercise, WorkoutSession } from "@/utils/types/types"
 import { revalidatePath } from "next/cache"
-import { headers } from "next/headers"
 
 const JSON_HEADERS = { 'Content-Type': 'application/json' }
 
-async function userId() {
-    const session = await auth.api.getSession({
-        headers: await headers()
-    })
-    if (!session) throw new Error("User is currently not in a session")
-    return session.user.id
-}
-
-const sessionsUrl = async (path = "") => `${BACKEND_URL}/users/${await userId()}/workout-sessions${path}`
+const sessionsUrl = async (path = "") => `${BACKEND_URL}/users/me/workout-sessions${path}`
 
 // MARK: templates
 
