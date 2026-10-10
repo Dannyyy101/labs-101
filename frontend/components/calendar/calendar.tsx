@@ -176,12 +176,12 @@ const TimeSlot = ({ hour, events, columnDate }: { hour: number, events: Calendar
 }
 const Event = ({ event }: { event: CalendarEvent }) => {
     const [open, setOpen] = useState<boolean>(false)
-    const timeDif = (event.endDate.getHours() - event.startDate.getHours())
-    const hourDistance = event.startDate.getMinutes()
-    const minutesDistance = event.startDate.getMinutes() + event.endDate.getMinutes()
+    // duration in minutes, from the timestamps so the start minutes are taken off and not added
+    const durationMinutes = (event.endDate.getTime() - event.startDate.getTime()) / 60000
+    const startMinutes = event.startDate.getMinutes()
 
     return <Dialog open={open} onOpenChange={setOpen}>
-        <DialogTrigger style={{ height: `${87 * timeDif + minutesDistance * 87 / 60}px`, top: `${hourDistance * 87 / 60}px` }}
+        <DialogTrigger style={{ height: `${durationMinutes * 87 / 60}px`, top: `${startMinutes * 87 / 60}px` }}
             className={`absolute w-full z-50 text-sm`}>
             <div className='w-full h-full bg-blue-300 rounded p-2'>
                 <h3 className='text-white '>{event.title}</h3>
