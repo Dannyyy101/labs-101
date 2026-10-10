@@ -31,7 +31,7 @@ export default function MealView({ props }: { props: MealProps }) {
         props.selectedFoodStore.setShowSearch(true)
     }
 
-    return <section className="rounded-3xl bg-card shadow-sm flex flex-col">
+    return <section className="min-w-0 rounded-3xl bg-card shadow-sm flex flex-col">
         <header className="flex items-center gap-x-2 mx-6 py-4 border-b">
             <span className={`size-2.5 rounded-full ${meal.dot}`} />
             <h3 className="text-lg font-semibold">{meal.label}</h3>

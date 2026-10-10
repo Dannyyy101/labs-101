@@ -30,9 +30,9 @@ export function FoodSearch({ initialQuery }: { initialQuery: string }) {
                 onChange={(e) => setValue(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && submit(value)}
                 onBlur={() => submit(value)}
-                className={`${isPending ? "opacity-70" : ""} max-w-96`}
+                className={`${isPending ? "opacity-70" : ""} flex-1 sm:max-w-96`}
             />
-            <Button onClick={() => setShowCreateFood(EMPTY_FOOD)}>Add food</Button>
+            <Button className="shrink-0" onClick={() => setShowCreateFood(EMPTY_FOOD)}>Add food</Button>
             <EditFood food={showCreateFood} close={() => setShowCreateFood(undefined)} />
         </div>
     )
