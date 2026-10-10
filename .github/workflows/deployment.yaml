@@ -28,5 +28,6 @@ jobs:
                   AUTH_CLIENT_SECRET: ${{ secrets.AUTH_CLIENT_SECRET }}
                   AUTH_SECRET: ${{ secrets.AUTH_SECRET }}
                   AUTH_AUDIENCE: ${{ secrets.AUTH_AUDIENCE }}
+                  ZITADEL_ORG_ID: ${{ secrets.ZITADEL_ORG_ID }}
 
               run: docker compose up -d --build

@@ -64,6 +64,7 @@ Die `.env` im Repo-Root wird von Docker Compose und der VS-Code-Launch-Config de
 | `ZITADEL_ADMIN_USERNAME` / `ZITADEL_ADMIN_PASSWORD` | Zitadel | Erster Admin, nur beim allerersten Start verwendet |
 | `AUTH_ISSUER` | Backend, Frontend | Öffentliche URL von Zitadel, muss dem `iss` der Tokens entsprechen |
 | `AUTH_AUDIENCE` | Backend | Optional: Projekt-ID in Zitadel, Tokens anderer Projekte werden dann abgelehnt |
+| `ZITADEL_ORG_ID` | Backend, Frontend | ID der Organisation der Nutzer in Zitadel, daraus entstehen die URLs der Profilbilder. Leer: keine Bilder, nur Anfangsbuchstaben |
 | `APP_URL` | Frontend | Öffentliche URL des Frontends, Zitadel leitet nach `${APP_URL}/auth/callback` zurück |
 | `AUTH_CLIENT_ID` / `AUTH_CLIENT_SECRET` | Frontend | Web-App in Zitadel |
 | `AUTH_SECRET` | Frontend | Mindestens 32 zufällige Zeichen, verschlüsselt das Session-Cookie |
@@ -189,7 +190,10 @@ Einmalige Einrichtung in der Zitadel-Console (`/ui/console`, Login mit `ZITADEL_
 3. **Native App** im Projekt: Typ *Native*, Authentifizierung *PKCE*, Redirect-URI `labs101://auth/callback`. Client-ID → `AUTH_CLIENT_ID` in `ios/Config/Secrets.xcconfig`.
 4. Bei **beiden Apps** unter *Token Settings* den **Auth Token Type auf JWT** stellen und *Refresh Token* erlauben. Das Backend prüft die Tokens nur über die Schlüssel von Zitadel und kann mit undurchsichtigen Tokens nichts anfangen.
 5. **Google** (#82): unter *Settings → Identity Providers* Google mit Client-ID/Secret aus der Google Cloud Console anlegen (Redirect-URI zeigt Zitadel an) und in den *Login Settings* aktivieren.
-6. **Registrierung abschalten** (*Login Settings → Register allowed* aus) und Nutzer selbst anlegen bzw. einladen. Das ersetzt die frühere Allowlist `ALLOWED_EMAIL_ADDRESSES`. Für Google-Logins *Account creation* beim Identity Provider aus und *Account linking* per E-Mail an lassen.
+6. **Profilbilder:** die ID der Organisation, in der die Nutzer liegen (Console → *Organization*, steht beim Namen), als `ZITADEL_ORG_ID` für Backend und Frontend eintragen.
+7. **Registrierung abschalten** (*Login Settings → Register allowed* aus) und Nutzer selbst anlegen bzw. einladen. Das ersetzt die frühere Allowlist `ALLOWED_EMAIL_ADDRESSES`. Für Google-Logins *Account creation* beim Identity Provider aus und *Account linking* per E-Mail an lassen.
+
+**Profile** (Name, E-Mail, Profilbild) pflegt jeder Nutzer selbst in Zitadel unter `/ui/console/users/me`, Web und iOS verlinken dorthin. Das Backend speichert keine Kopie davon. Profilbilder haben wie bei GitHub eine feste URL pro Nutzer, `${AUTH_ISSUER}/assets/v1/${ZITADEL_ORG_ID}/users/<user id>/avatar`, ein neues Bild erscheint dort ohne Abgleich. Ohne Bild antwortet Zitadel mit 404, die Apps zeigen dann den Anfangsbuchstaben. Bilder als JPG oder PNG hochladen, HEIC (iPhone-Fotos) zeigen Chrome und Firefox nicht an. Das eigene Profil (`GET /api/users/me`) holt das Backend über den Userinfo-Endpunkt mit dem Token des Nutzers.
 
 Produktion: Der Reverse Proxy leitet `auth.project101.tech` per HTTP/2 (h2c) auf Port `8081` weiter. Zitadel braucht dafür `ZITADEL_TLS_MODE=external`.
 

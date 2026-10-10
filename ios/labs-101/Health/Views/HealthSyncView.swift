@@ -8,6 +8,7 @@ struct HealthSyncView: View {
     @State private var summary: [HealthTypeSummary] = []
     @State private var summaryError: String?
     @State private var confirmResync = false
+    @State private var profile: UserProfile?
 
     private let service = HealthSyncService()
 
@@ -22,11 +23,15 @@ struct HealthSyncView: View {
                 accountSection
             }
             .navigationTitle("Health")
-            .refreshable { await sync() }
+            .refreshable {
+                await sync()
+                await loadProfile()
+            }
             .task {
                 needsAuthorization = await HealthAuthorization.needsRequest()
                 await loadSummary()
             }
+            .task { await loadProfile() }
             .onChange(of: status.isRunning) { _, isRunning in
                 if !isRunning {
                     Task { await loadSummary() }
@@ -137,15 +142,40 @@ struct HealthSyncView: View {
     }
 
     private var accountSection: some View {
-        Section("Konto") {
+        Section {
+            HStack(spacing: 12) {
+                ProfileImage(profile: profile)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(profile?.name ?? " ")
+                        .font(.headline)
+                    Text(profile?.email ?? " ")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                }
+            }
+            if let url = ProfileService.editURL() {
+                Link(destination: url) {
+                    Label("Profil & Profilbild bearbeiten", systemImage: "person.crop.circle")
+                }
+            }
             Button("Abmelden", systemImage: "rectangle.portrait.and.arrow.right", role: .destructive) {
                 Task { await AuthSession.shared.signOut() }
             }
+        } header: {
+            Text("Konto")
+        } footer: {
+            Text("Name und Profilbild werden bei Zitadel geändert. Danach hier zum Aktualisieren nach unten ziehen.")
         }
     }
 
     private func sync() async {
         await HealthSyncEngine.shared.sync()
+    }
+
+    private func loadProfile() async {
+        if let loaded = try? await ProfileService().profile() {
+            profile = loaded
+        }
     }
 
     private func loadSummary() async {

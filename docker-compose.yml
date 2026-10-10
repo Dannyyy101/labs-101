@@ -13,6 +13,8 @@ services:
       # public URL of the frontend, zitadel redirects back to ${APP_URL}/auth/callback
       - APP_URL=${APP_URL:-https://project101.tech}
       - AUTH_ISSUER=${AUTH_ISSUER:-https://auth.project101.tech}
+      # organization of the users in zitadel, for the URLs of the profile pictures
+      - ZITADEL_ORG_ID=${ZITADEL_ORG_ID:-}
       - AUTH_CLIENT_ID=${AUTH_CLIENT_ID}
       - AUTH_CLIENT_SECRET=${AUTH_CLIENT_SECRET}
       # encrypts the session cookie, at least 32 random characters
@@ -38,6 +40,8 @@ services:
       # public URL of zitadel, has to match the iss claim of the tokens
       - AUTH_ISSUER=${AUTH_ISSUER:-https://auth.project101.tech}
       - AUTH_AUDIENCE=${AUTH_AUDIENCE:-}
+      # organization of the users in zitadel, for the URLs of the profile pictures
+      - ZITADEL_ORG_ID=${ZITADEL_ORG_ID:-}
   zitadel:
     container_name: zitadel-labs-101
     image: ghcr.io/zitadel/zitadel:v4.19.4

@@ -9,6 +9,7 @@ import com.labs_101.backend.entities.workout.Workout;
 
 import java.util.Comparator;
 import java.util.LinkedHashSet;
+import java.util.function.Function;
 
 public class CalendarMapper {
     public static CalendarEvent fromCreateCalendarEventDto(CreateCalendarEventDto dto, User creator, Workout workout) {
@@ -16,18 +17,19 @@ public class CalendarMapper {
                 new LinkedHashSet<>());
     }
 
-    public static CalendarEventDto fromCalendarEvent(CalendarEvent event) {
+    /** {@code avatarUrl} gives the profile picture of a user id. */
+    public static CalendarEventDto fromCalendarEvent(CalendarEvent event, Function<String, String> avatarUrl) {
         Workout workout = event.getWorkout();
         return new CalendarEventDto(event.getId(), event.getTitle(), event.getStartDate(), event.getEndDate(),
                 event.getCreator().getId(), workout == null ? null : workout.getId(),
-                workout == null ? null : workout.getName(), fromUser(event.getCreator()),
+                workout == null ? null : workout.getName(), fromUser(event.getCreator(), avatarUrl),
                 // sorted, the stored set has no order
-                event.getInvitees().stream().map(CalendarMapper::fromUser)
+                event.getInvitees().stream().map((user) -> fromUser(user, avatarUrl))
                         .sorted(Comparator.comparing(CalendarUserDto::name, Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER)))
                         .toList());
     }
 
-    public static CalendarUserDto fromUser(User user) {
-        return new CalendarUserDto(user.getId(), user.getName(), user.getImage());
+    public static CalendarUserDto fromUser(User user, Function<String, String> avatarUrl) {
+        return new CalendarUserDto(user.getId(), user.getName(), avatarUrl.apply(user.getId()));
     }
 }

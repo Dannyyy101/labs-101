@@ -15,6 +15,7 @@ import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
 import org.springframework.boot.jdbc.test.autoconfigure.AutoConfigureTestDatabase;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.TestPropertySource;
 
 import com.labs_101.backend.dtos.calendar.CalendarEventDto;
 import com.labs_101.backend.dtos.calendar.CalendarUserDto;
@@ -23,6 +24,7 @@ import com.labs_101.backend.dtos.calendar.UpdateCalendarEventDto;
 import com.labs_101.backend.entities.User;
 import com.labs_101.backend.exception.NotFoundException;
 import com.labs_101.backend.repositories.UserRepository;
+import com.labs_101.backend.security.ZitadelClient;
 import com.labs_101.backend.services.CalendarService;
 import com.labs_101.backend.services.NotificationService;
 import com.labs_101.backend.services.UserService;
@@ -30,7 +32,8 @@ import com.labs_101.backend.services.UserService;
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @ContextConfiguration(classes = { EmbeddedPostgresConfiguration.class })
-@Import({ CalendarService.class, NotificationService.class, UserService.class })
+@Import({ CalendarService.class, NotificationService.class, UserService.class, ZitadelClient.class })
+@TestPropertySource(properties = { "auth.issuer=https://auth.example.com", "auth.organization-id=org-1" })
 public class CalendarInviteTest {
 
     private static final Instant START = Instant.parse("2026-10-12T17:00:00Z");
@@ -60,9 +63,10 @@ public class CalendarInviteTest {
     void testInviteesSeeTheEventAndGetNotified() {
         CalendarEventDto event = create(List.of(anna.getId()));
 
-        assertEquals(List.of(new CalendarUserDto(anna.getId(), "Anna Schmidt", "https://example.com/anna.png")),
+        // the pictures come from zitadel, not from the stored image
+        assertEquals(List.of(new CalendarUserDto(anna.getId(), "Anna Schmidt", avatar(anna))),
                 event.getInvitees());
-        assertEquals("https://example.com/daniel.png", event.getCreator().image());
+        assertEquals(avatar(creator), event.getCreator().image());
         assertEquals(List.of(event.getId()), eventIds(anna));
         assertEquals(List.of(event.getId()), eventIds(creator));
         assertEquals(List.of(), eventIds(ben));
@@ -130,6 +134,10 @@ public class CalendarInviteTest {
     private List<Long> eventIds(User user) {
         return calendarService.getAllCalendarEvents(user.getId(), START.minusSeconds(3600), END.plusSeconds(3600))
                 .stream().map(CalendarEventDto::getId).toList();
+    }
+
+    private static String avatar(User user) {
+        return "https://auth.example.com/assets/v1/org-1/users/" + user.getId() + "/avatar";
     }
 
     private User user(String name, String image) {

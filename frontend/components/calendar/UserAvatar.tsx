@@ -1,4 +1,4 @@
-import Image from "next/image"
+import { AvatarImage } from "@/components/AvatarImage"
 import { cn } from "@/lib/utils"
 import { CalendarUser } from "@/utils/types/calendarTypes"
 
@@ -6,10 +6,7 @@ import { CalendarUser } from "@/utils/types/calendarTypes"
 export function UserAvatar({ user, className }: { user: CalendarUser, className?: string }) {
     const initial = user.name?.trim().charAt(0).toUpperCase() || "?"
     return <span title={user.name ?? undefined} className={cn("flex size-6 shrink-0 items-center justify-center overflow-hidden rounded-full bg-muted-foreground/70 text-[10px] font-semibold text-white ring-2 ring-background", className)}>
-        {user.image
-            // unoptimized: pictures can come from any host, not only the ones in next.config
-            ? <Image className="size-full object-cover" src={user.image} alt={user.name ?? ""} width={32} height={32} unoptimized />
-            : initial}
+        <AvatarImage src={user.image} alt={user.name ?? ""} size={32} className="size-full object-cover" fallback={initial} />
     </span>
 }
 

@@ -21,6 +21,7 @@ import com.labs_101.backend.entities.NotificationType;
 import com.labs_101.backend.entities.User;
 import com.labs_101.backend.entities.workout.Workout;
 import com.labs_101.backend.exception.NotFoundException;
+import com.labs_101.backend.security.ZitadelClient;
 
 @Service
 public class CalendarService {
@@ -33,9 +34,11 @@ public class CalendarService {
     private final CalendarRepository calendarRepository;
     private final UserRepository userRepository;
     private final NotificationService notificationService;
+    private final ZitadelClient zitadelClient;
 
     CalendarService(CalendarRepository calendarRepository, WorkoutRepository workoutRepository,
-            UserRepository userRepository, NotificationService notificationService) {
+            UserRepository userRepository, NotificationService notificationService, ZitadelClient zitadelClient) {
+        this.zitadelClient = zitadelClient;
         this.calendarRepository = calendarRepository;
         this.workoutRepository = workoutRepository;
         this.userRepository = userRepository;
@@ -50,7 +53,7 @@ public class CalendarService {
         event.setInvitees(findInvitees(eventDto.getInviteeIds(), creator));
         CalendarEvent saved = calendarRepository.save(event);
         notifyInvitees(saved, saved.getInvitees());
-        return CalendarMapper.fromCalendarEvent(saved);
+        return toDtos(List.of(saved)).getFirst();
     }
 
     /** All events without a user, otherwise the ones the user created or was invited to. */
@@ -65,7 +68,7 @@ public class CalendarService {
         } else {
             events = calendarRepository.findByStartDateLessThanEqualAndEndDateGreaterThanEqual(endDate, startDate);
         }
-        return events.stream().map(CalendarMapper::fromCalendarEvent).toList();
+        return toDtos(events);
     }
 
     public void deleteCalendarEvent(Long id) {
@@ -103,7 +106,11 @@ public class CalendarService {
         // only the newly invited, the others already know about the event
         notifyInvitees(updatedCalendarEvent, added);
 
-        return CalendarMapper.fromCalendarEvent(updatedCalendarEvent);
+        return toDtos(List.of(updatedCalendarEvent)).getFirst();
+    }
+
+    private List<CalendarEventDto> toDtos(List<CalendarEvent> events) {
+        return events.stream().map((event) -> CalendarMapper.fromCalendarEvent(event, zitadelClient::avatarUrl)).toList();
     }
 
     private Workout findWorkout(Long workoutId) {

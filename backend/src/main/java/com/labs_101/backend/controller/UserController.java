@@ -5,6 +5,8 @@ import java.util.List;
 
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -20,6 +22,7 @@ import com.labs_101.backend.dtos.food.FoodUserDto;
 import com.labs_101.backend.dtos.food.FoodWithLastEntryAndPortionsDto;
 import com.labs_101.backend.dtos.food.TrackedFoodDto;
 import com.labs_101.backend.dtos.calendar.CalendarUserDto;
+import com.labs_101.backend.dtos.user.UserProfileDto;
 import com.labs_101.backend.services.FoodService;
 import com.labs_101.backend.services.UserService;
 import com.labs_101.backend.security.CurrentUser;
@@ -40,6 +43,12 @@ public class UserController {
     @GetMapping("")
     public List<CalendarUserDto> searchUsers(@RequestParam String query) {
         return userService.search(query);
+    }
+
+    /** Name, email and profile picture, live from Zitadel where they are changed. */
+    @GetMapping("/me")
+    public UserProfileDto getProfile(@CurrentUser String userId, @AuthenticationPrincipal Jwt token) {
+        return userService.getProfile(userId, token != null ? token.getTokenValue() : null);
     }
 
     @GetMapping("/me/tracked-foods")
