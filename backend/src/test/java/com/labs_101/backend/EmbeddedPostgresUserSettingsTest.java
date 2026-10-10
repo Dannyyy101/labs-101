@@ -64,7 +64,7 @@ public class EmbeddedPostgresUserSettingsTest {
         userSettingsRepository.save(new UserSettings(userRepository.getReferenceById("deleted-user"), 2500));
         flushAndClear();
 
-        // users are deleted by better-auth, not by the backend
+        // users are deleted in the database directly, the backend never deletes them
         jdbcTemplate.update("DELETE FROM \"user\" WHERE id = ?", "deleted-user");
 
         assertFalse(userSettingsRepository.existsById("deleted-user"));

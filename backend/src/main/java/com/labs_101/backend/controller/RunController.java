@@ -14,10 +14,11 @@ import org.springframework.web.bind.annotation.RestController;
 import com.labs_101.backend.dtos.run.RunDetailDto;
 import com.labs_101.backend.dtos.run.RunSummaryDto;
 import com.labs_101.backend.services.RunService;
+import com.labs_101.backend.security.CurrentUser;
 
 /** Running workouts out of the synced Apple Health data, see {@link HealthController}. */
 @RestController()
-@RequestMapping("/api/users/{userId}/runs")
+@RequestMapping("/api/users/me/runs")
 public class RunController {
 
     private final RunService runService;
@@ -28,7 +29,7 @@ public class RunController {
 
     /** Runs overlapping the range, newest first. */
     @GetMapping
-    public List<RunSummaryDto> getRuns(@PathVariable String userId,
+    public List<RunSummaryDto> getRuns(@CurrentUser String userId,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Instant from,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Instant to) {
         return runService.getRuns(userId, from, to);
@@ -36,7 +37,7 @@ public class RunController {
 
     /** The run with its resampled track, splits and heart rate. */
     @GetMapping("/{id}")
-    public RunDetailDto getRun(@PathVariable String userId, @PathVariable UUID id) {
+    public RunDetailDto getRun(@CurrentUser String userId, @PathVariable UUID id) {
         return runService.getRun(userId, id);
     }
 }

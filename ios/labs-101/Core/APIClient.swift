@@ -11,24 +11,22 @@ nonisolated enum APIError: LocalizedError {
         case .invalidResponse:
             String(localized: "Ungültige Antwort vom Server")
         case .unauthorized:
-            String(localized: "Der API-Key wurde vom Server abgelehnt")
+            String(localized: "Die Anmeldung ist abgelaufen, bitte melde dich neu an")
         case .server(let status, let message):
             message ?? String(localized: "Serverfehler (\(status))")
         }
     }
 }
 
-/// Thin JSON client for the backend, every request carries the API key.
+/// Thin JSON client for the backend, every request carries the access token of the signed in user.
 nonisolated struct APIClient: Sendable {
-    static let apiKeyHeader = "X-API-Key"
-
     private let baseURL: URL
-    private let apiKey: String
+    private let auth: AuthSession
     private let session: URLSession
 
-    init(config: AppConfig, session: URLSession = .shared) {
+    init(config: AppConfig, auth: AuthSession = .shared, session: URLSession = .shared) {
         self.baseURL = config.apiBaseURL
-        self.apiKey = config.apiKey
+        self.auth = auth
         self.session = session
     }
 
@@ -54,6 +52,15 @@ nonisolated struct APIClient: Sendable {
     }
 
     private func perform(_ method: String, _ path: String, query: [URLQueryItem] = [], body: Data? = nil) async throws -> Data {
+        do {
+            return try await perform(method, path, query: query, body: body, token: auth.accessToken())
+        } catch APIError.unauthorized {
+            // the token may have been revoked before it ran out, try once with a fresh one
+            return try await perform(method, path, query: query, body: body, token: auth.accessToken(forceRefresh: true))
+        }
+    }
+
+    private func perform(_ method: String, _ path: String, query: [URLQueryItem], body: Data?, token: String) async throws -> Data {
         var url = baseURL.appending(path: path)
         if !query.isEmpty {
             url.append(queryItems: query)
@@ -61,7 +68,7 @@ nonisolated struct APIClient: Sendable {
 
         var request = URLRequest(url: url)
         request.httpMethod = method
-        request.setValue(apiKey, forHTTPHeaderField: Self.apiKeyHeader)
+        request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
         request.setValue("application/json", forHTTPHeaderField: "Accept")
         if let body {
             request.httpBody = body

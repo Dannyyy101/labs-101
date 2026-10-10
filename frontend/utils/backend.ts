@@ -1,8 +1,8 @@
-import { API_KEY } from "./constants"
+import { getAccessToken } from "@/lib/auth"
 
-// fetch against the backend, every request has to carry the API key
-export function backendFetch(input: string | URL, init?: RequestInit): Promise<Response> {
+// fetch against the backend, every request carries the access token of the signed in user
+export async function backendFetch(input: string | URL, init?: RequestInit): Promise<Response> {
     const headers = new Headers(init?.headers)
-    headers.set("X-API-Key", API_KEY)
+    headers.set("Authorization", `Bearer ${await getAccessToken()}`)
     return fetch(input, { ...init, headers })
 }

@@ -20,11 +20,11 @@ flowchart LR
     end
 
     subgraph Backend["Spring-Backend"]
-        Filter["ApiKeyFilter<br/>X-API-Key"]
-        HC["HealthController<br/>/api/users/{userId}/health"]
+        Filter["SecurityConfig<br/>Bearer-Token (Zitadel)"]
+        HC["HealthController<br/>/api/users/me/health"]
         HS["HealthService"]
         Repo["HealthSampleRepository<br/>(JDBC, Batch-Upsert)"]
-        RC["RunController<br/>/api/users/{userId}/runs"]
+        RC["RunController<br/>/api/users/me/runs"]
         RS["RunService<br/>Auswertung beim Lesen"]
     end
 
@@ -41,7 +41,7 @@ flowchart LR
     Engine <--> State
     Engine --> Encoder
     Encoder -- "Route, EKG-Spannungen" --> HK
-    Engine -- "HTTPS + X-API-Key" --> Filter --> HC --> HS --> Repo
+    Engine -- "HTTPS + Bearer-Token" --> Filter --> HC --> HS --> Repo
     Repo --> Samples
     Repo --> Chars
     HS --> WR
@@ -151,7 +151,7 @@ Bei **EKGs** die Spannungswerte in µV, bei **Audiogrammen** die Messpunkte. Cha
 
 ## Backend
 
-Alle Endpunkte liegen unter `/api/users/{userId}/health` und verlangen den Header `X-API-Key` (`ApiKeyFilter`). App-Seite: `HealthSyncService`, Backend-Seite: `HealthController`.
+Alle Endpunkte liegen unter `/api/users/me/health` und verlangen ein Access-Token von Zitadel im Header `Authorization: Bearer …` (`SecurityConfig`), der Nutzer kommt aus dem Token. App-Seite: `HealthSyncService`, Backend-Seite: `HealthController`.
 
 | Methode | Pfad | Zweck |
 | --- | --- | --- |
@@ -227,7 +227,7 @@ Das Backend kann HealthKit nicht direkt erreichen. Deshalb legt es einen `health
 
 Der Sync speichert nur Rohdaten. Fachliche Auswertungen lesen `health_sample` direkt:
 
-- **Läufe:** `RunRepository` / `RunService` → `GET /api/users/{userId}/runs` → `/runs` im Frontend. Workouts mit `activityType = 37` plus die Herzfrequenz-Samples im Zeitraum des Laufs, ausgewertet bei jeder Anfrage (Distanz, Moving Time, Pace, Splits, Zonen, Bestleistungen). Tests: `RunTest`.
+- **Läufe:** `RunRepository` / `RunService` → `GET /api/users/me/runs` → `/runs` im Frontend. Workouts mit `activityType = 37` plus die Herzfrequenz-Samples im Zeitraum des Laufs, ausgewertet bei jeder Anfrage (Distanz, Moving Time, Pace, Splits, Zonen, Bestleistungen). Tests: `RunTest`.
 - **Sync-Status in der App:** `GET /types`.
 
 Tests für den Sync selbst: `HealthSyncTest`.

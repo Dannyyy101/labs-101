@@ -1,13 +1,13 @@
 import Foundation
 
-/// The health endpoints of the backend, for the configured user.
+/// The health endpoints of the backend, for the signed in user.
 nonisolated struct HealthSyncService: Sendable {
     private let client: APIClient
     private let basePath: String
 
     init(config: AppConfig = .current, session: URLSession = .shared) {
         self.client = APIClient(config: config, session: session)
-        self.basePath = "users/\(config.userID)/health"
+        self.basePath = "users/me/health"
     }
 
     // MARK: Sync

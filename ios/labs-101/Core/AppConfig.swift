@@ -3,30 +3,33 @@ import Foundation
 /// Settings from `Config/Config.xcconfig`, which end up in the Info.plist at build time.
 nonisolated struct AppConfig: Sendable {
     let apiBaseURL: URL
-    let apiKey: String
-    let userID: String
+    /// Zitadel, e.g. https://auth.project101.tech
+    let authIssuer: URL?
+    /// Client id of the native app in Zitadel
+    let authClientID: String
 
     static let current = AppConfig(bundle: .main)
 
-    init(apiBaseURL: URL, apiKey: String, userID: String) {
+    init(apiBaseURL: URL, authIssuer: URL?, authClientID: String) {
         self.apiBaseURL = apiBaseURL
-        self.apiKey = apiKey
-        self.userID = userID
+        self.authIssuer = authIssuer
+        self.authClientID = authClientID
     }
 
     init(bundle: Bundle) {
         func value(_ key: String) -> String {
             (bundle.object(forInfoDictionaryKey: key) as? String)?.trimmingCharacters(in: .whitespaces) ?? ""
         }
+        let issuer = value("AuthIssuer")
         self.init(
             apiBaseURL: URL(string: value("APIBaseURL")) ?? URL(string: "http://localhost:8080/api")!,
-            apiKey: value("APIKey"),
-            userID: value("UserID")
+            authIssuer: issuer.isEmpty ? nil : URL(string: issuer),
+            authClientID: value("AuthClientID")
         )
     }
 
-    /// The backend rejects every request without API key, and tracked food needs a user.
+    /// Without issuer and client id nobody can sign in.
     var isComplete: Bool {
-        !apiKey.isEmpty && !userID.isEmpty
+        authIssuer != nil && !authClientID.isEmpty
     }
 }

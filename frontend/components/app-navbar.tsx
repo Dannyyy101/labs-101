@@ -12,7 +12,8 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { NotificationBell } from "@/components/notifications/NotificationBell"
-import { authClient } from "@/lib/auth-client"
+import { useUser } from "@/components/user-provider"
+import { signOut } from "@/app/sign-in/action"
 import { addDays, formatShortDay, today } from "@/app/foods/track/format"
 import { ChevronLeft, ChevronRight, LogOut, Settings } from "lucide-react"
 import { useTheme } from "next-themes"
@@ -93,29 +94,24 @@ function DateNav() {
 }
 
 function UserMenu() {
-    const { data: session } = authClient.useSession()
+    const user = useUser()
     const { theme, setTheme } = useTheme()
     const router = useRouter()
 
-    const signOut = async () => {
-        await authClient.signOut()
-        router.push("/sign-in")
-    }
-
-    const initial = session?.user.name?.trim().charAt(0).toUpperCase() ?? ""
+    const initial = user?.name?.trim().charAt(0).toUpperCase() ?? ""
 
     return <DropdownMenu>
         <DropdownMenuTrigger aria-label="Benutzermenü" className="flex size-10 items-center justify-center overflow-hidden rounded-full bg-muted-foreground/70 font-semibold text-white">
-            {session?.user.image
-                ? <Image className="size-10 object-cover" src={session.user.image} alt="" width={40} height={40} />
+            {user?.image
+                ? <Image className="size-10 object-cover" src={user.image} alt="" width={40} height={40} />
                 : initial}
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="min-w-48">
-            {session && <>
+            {user && <>
                 <DropdownMenuGroup>
                     <DropdownMenuLabel>
-                        <p className="font-medium text-foreground">{session.user.name}</p>
-                        <p className="text-xs font-normal">{session.user.email}</p>
+                        <p className="font-medium text-foreground">{user.name}</p>
+                        <p className="text-xs font-normal">{user.email}</p>
                     </DropdownMenuLabel>
                 </DropdownMenuGroup>
                 <DropdownMenuSeparator />
@@ -128,10 +124,10 @@ function UserMenu() {
                     <DropdownMenuRadioItem value="system">System</DropdownMenuRadioItem>
                 </DropdownMenuRadioGroup>
             </DropdownMenuGroup>
-            {session && <>
+            {user && <>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={() => router.push("/settings")}><Settings />Einstellungen</DropdownMenuItem>
-                <DropdownMenuItem onClick={signOut}><LogOut />Abmelden</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => signOut()}><LogOut />Abmelden</DropdownMenuItem>
             </>}
         </DropdownMenuContent>
     </DropdownMenu>

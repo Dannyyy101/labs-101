@@ -4,24 +4,21 @@ services:
     build:
       context: ./frontend
     networks:
-      - db
       - services
     ports:
       - "3000:3000"
     depends_on:
     - backend
     environment:
-      - BETTER_AUTH_URL=${BETTER_AUTH_URL}
-      - POSTGRES_HOST=${POSTGRES_HOST}
-      - POSTGRES_USERNAME=${POSTGRES_USERNAME}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-      - BETTER_AUTH_SECRET=${BETTER_AUTH_SECRET}
-      - ALLOWED_EMAIL_ADDRESSES=${ALLOWED_EMAIL_ADDRESSES}
-      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
-      - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
-      - BACKEND_URL= http://backend:8080/api
-      - API_KEY=${API_KEY}
-    
+      # public URL of the frontend, zitadel redirects back to ${APP_URL}/auth/callback
+      - APP_URL=${APP_URL:-https://project101.tech}
+      - AUTH_ISSUER=${AUTH_ISSUER:-https://auth.project101.tech}
+      - AUTH_CLIENT_ID=${AUTH_CLIENT_ID}
+      - AUTH_CLIENT_SECRET=${AUTH_CLIENT_SECRET}
+      # encrypts the session cookie, at least 32 random characters
+      - AUTH_SECRET=${AUTH_SECRET}
+      - BACKEND_URL=http://backend:8080/api
+
   backend:
     container_name: spring-boot-labs-101
     build:
@@ -38,7 +35,50 @@ services:
       - SPRING_DATASOURCE_USERNAME=${POSTGRES_USERNAME}
       - SPRING_DATASOURCE_PASSWORD=${POSTGRES_PASSWORD}
       - SPRING_JPA_HIBERNATE_DDL_AUTO=update
-      - API_KEY=${API_KEY}
+      # public URL of zitadel, has to match the iss claim of the tokens
+      - AUTH_ISSUER=${AUTH_ISSUER:-https://auth.project101.tech}
+      - AUTH_AUDIENCE=${AUTH_AUDIENCE:-}
+  zitadel:
+    container_name: zitadel-labs-101
+    image: ghcr.io/zitadel/zitadel:v4.19.4
+    # creates database, user and the first instance on the first start, later starts only run the migrations;
+    # TLS is terminated by the reverse proxy in front of auth.project101.tech
+    command: start-from-init --masterkeyFromEnv --tlsMode ${ZITADEL_TLS_MODE:-external}
+    networks:
+      - db
+      - services
+    ports:
+      - "8081:8080"
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      - ZITADEL_MASTERKEY=${ZITADEL_MASTERKEY}
+      - ZITADEL_EXTERNALDOMAIN=${ZITADEL_EXTERNALDOMAIN:-auth.project101.tech}
+      - ZITADEL_EXTERNALPORT=${ZITADEL_EXTERNALPORT:-443}
+      - ZITADEL_EXTERNALSECURE=${ZITADEL_EXTERNALSECURE:-true}
+      - ZITADEL_DATABASE_POSTGRES_HOST=db
+      - ZITADEL_DATABASE_POSTGRES_PORT=5432
+      - ZITADEL_DATABASE_POSTGRES_DATABASE=zitadel
+      - ZITADEL_DATABASE_POSTGRES_USER_USERNAME=zitadel
+      - ZITADEL_DATABASE_POSTGRES_USER_PASSWORD=${ZITADEL_DB_PASSWORD}
+      - ZITADEL_DATABASE_POSTGRES_USER_SSL_MODE=disable
+      - ZITADEL_DATABASE_POSTGRES_ADMIN_USERNAME=${POSTGRES_USERNAME}
+      - ZITADEL_DATABASE_POSTGRES_ADMIN_PASSWORD=${POSTGRES_PASSWORD}
+      - ZITADEL_DATABASE_POSTGRES_ADMIN_SSL_MODE=disable
+      - ZITADEL_FIRSTINSTANCE_ORG_NAME=labs-101
+      - ZITADEL_FIRSTINSTANCE_ORG_HUMAN_USERNAME=${ZITADEL_ADMIN_USERNAME:-admin}
+      - ZITADEL_FIRSTINSTANCE_ORG_HUMAN_PASSWORD=${ZITADEL_ADMIN_PASSWORD}
+      - ZITADEL_FIRSTINSTANCE_ORG_HUMAN_PASSWORDCHANGEREQUIRED=true
+      # the login built into zitadel, saves the extra container of the new login v2
+      - ZITADEL_DEFAULTINSTANCE_FEATURES_LOGINV2_REQUIRED=false
+    restart: unless-stopped
+    healthcheck:
+      test: [ "CMD", "/app/zitadel", "ready" ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
   db:
     container_name: postgres-labs-101
     image: postgres

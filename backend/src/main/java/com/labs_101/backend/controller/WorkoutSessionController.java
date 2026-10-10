@@ -19,10 +19,11 @@ import com.labs_101.backend.dtos.workout.session.CreateWorkoutSessionDto;
 import com.labs_101.backend.dtos.workout.session.UpdateWorkoutSessionDto;
 import com.labs_101.backend.dtos.workout.session.WorkoutSessionDto;
 import com.labs_101.backend.services.WorkoutSessionService;
+import com.labs_101.backend.security.CurrentUser;
 
 /** Workouts the user did or is doing right now, see {@link WorkoutController} for the templates. */
 @RestController()
-@RequestMapping("/api/users/{userId}/workout-sessions")
+@RequestMapping("/api/users/me/workout-sessions")
 public class WorkoutSessionController {
 
     private final WorkoutSessionService sessionService;
@@ -33,7 +34,7 @@ public class WorkoutSessionController {
 
     /** Finished workouts started in the range, newest first. */
     @GetMapping
-    public List<WorkoutSessionDto> getSessions(@PathVariable String userId,
+    public List<WorkoutSessionDto> getSessions(@CurrentUser String userId,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Instant from,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Instant to) {
         return sessionService.getSessions(userId, from, to);
@@ -41,36 +42,36 @@ public class WorkoutSessionController {
 
     /** The running workout, 204 when there is none. */
     @GetMapping("/active")
-    public ResponseEntity<WorkoutSessionDto> getActive(@PathVariable String userId) {
+    public ResponseEntity<WorkoutSessionDto> getActive(@CurrentUser String userId) {
         return sessionService.getActive(userId)
                 .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.noContent().build());
     }
 
     @GetMapping("/{id}")
-    public WorkoutSessionDto getSession(@PathVariable String userId, @PathVariable Long id) {
+    public WorkoutSessionDto getSession(@CurrentUser String userId, @PathVariable Long id) {
         return sessionService.getSession(userId, id);
     }
 
     @PostMapping
-    public WorkoutSessionDto start(@PathVariable String userId, @RequestBody CreateWorkoutSessionDto request) {
+    public WorkoutSessionDto start(@CurrentUser String userId, @RequestBody CreateWorkoutSessionDto request) {
         return sessionService.start(userId, request);
     }
 
     @PutMapping("/{id}")
-    public WorkoutSessionDto update(@PathVariable String userId, @PathVariable Long id,
+    public WorkoutSessionDto update(@CurrentUser String userId, @PathVariable Long id,
             @RequestBody UpdateWorkoutSessionDto request) {
         return sessionService.update(userId, id, request);
     }
 
     @PostMapping("/{id}/finish")
-    public WorkoutSessionDto finish(@PathVariable String userId, @PathVariable Long id,
+    public WorkoutSessionDto finish(@CurrentUser String userId, @PathVariable Long id,
             @RequestBody(required = false) UpdateWorkoutSessionDto request) {
         return sessionService.finish(userId, id, request);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable String userId, @PathVariable Long id) {
+    public ResponseEntity<Void> delete(@CurrentUser String userId, @PathVariable Long id) {
         sessionService.delete(userId, id);
         return ResponseEntity.noContent().build();
     }

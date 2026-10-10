@@ -1,14 +1,12 @@
 import Foundation
 import SwiftUI
 
-/// The food endpoints of the backend, for the configured user.
+/// The food endpoints of the backend, for the signed in user.
 nonisolated struct FoodService: Sendable {
     private let client: APIClient
-    private let userID: String
 
     init(config: AppConfig = .current, session: URLSession = .shared) {
         self.client = APIClient(config: config, session: session)
-        self.userID = config.userID
     }
 
     // MARK: Tracked food
@@ -17,7 +15,7 @@ nonisolated struct FoodService: Sendable {
     func trackedFood(on day: Date, calendar: Calendar = .current) async throws -> [TrackedFood] {
         let components = calendar.dateComponents([.year, .month, .day], from: day)
         let noonUTC = String(format: "%04d-%02d-%02dT12:00:00Z", components.year ?? 0, components.month ?? 0, components.day ?? 0)
-        return try await client.get("users/\(userID)/tracked-foods", query: [URLQueryItem(name: "date", value: noonUTC)])
+        return try await client.get("users/me/tracked-foods", query: [URLQueryItem(name: "date", value: noonUTC)])
     }
 
     func track(foodID: Int, amount: Double, portionID: Int?, meal: Meal) async throws {
@@ -32,11 +30,11 @@ nonisolated struct FoodService: Sendable {
 
     func update(_ trackedFood: TrackedFood, amount: Double, portionID: Int?, meal: Meal) async throws {
         let body = request(foodID: trackedFood.food.id, amount: amount, portionID: portionID, meal: meal)
-        try await client.send("PUT", "users/\(userID)/tracked-foods/\(trackedFood.id)", body: body)
+        try await client.send("PUT", "users/me/tracked-foods/\(trackedFood.id)", body: body)
     }
 
     func delete(_ trackedFood: TrackedFood) async throws {
-        try await client.send("DELETE", "users/\(userID)/tracked-foods/\(trackedFood.id)")
+        try await client.send("DELETE", "users/me/tracked-foods/\(trackedFood.id)")
     }
 
     // MARK: Foods
@@ -44,14 +42,13 @@ nonisolated struct FoodService: Sendable {
     func search(_ name: String, page: Int = 0) async throws -> Page<FoodSearchResult> {
         try await client.get("foods/search/byNameAndUser", query: [
             URLQueryItem(name: "name", value: name),
-            URLQueryItem(name: "userId", value: userID),
             URLQueryItem(name: "page", value: String(page)),
         ])
     }
 
     /// The food with its portions and the amount the user tracked last time.
     func details(foodID: Int) async throws -> FoodDetails {
-        try await client.get("users/\(userID)/foods/\(foodID)/last")
+        try await client.get("users/me/foods/\(foodID)/last")
     }
 
     /// Looks the barcode up and stores the food, if it isn't known yet.
@@ -80,7 +77,7 @@ nonisolated struct FoodService: Sendable {
     }
 
     private func request(foodID: Int?, amount: Double, portionID: Int?, meal: Meal) -> TrackFoodRequest {
-        TrackFoodRequest(foodId: foodID, userId: userID, amount: amount, meal: meal, portionId: portionID)
+        TrackFoodRequest(foodId: foodID, amount: amount, meal: meal, portionId: portionID)
     }
 }
 

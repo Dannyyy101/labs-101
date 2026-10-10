@@ -1,3 +1,5 @@
+import os
+
 import pandas as pd
 import requests
 
@@ -5,7 +7,8 @@ df = pd.read_excel("../data/BLS_4_0_2025_DE/BLS_4_0_Daten_2025_DE.xlsx")[["BLS C
 
 df.rename(columns={'BLS Code':'blsCode', 'Lebensmittelbezeichnung':'name', 'ENERCC Energie (Kilokalorien) [kcal/100g]': "kcal", "WATER Wasser [g/100g]": "water", "PROT625 Protein (Nx6,25) [g/100g]": "protein", "FAT Fett [g/100g]": "fat", "CHO Kohlenhydrate, verfügbar [g/100g]": "carbohydrates", "FIBT Ballaststoffe, gesamt [g/100g]": "fiber"}, inplace=True)
 
-headers = {'Content-type': 'application/json'}
+# access token of zitadel, see README "API"
+headers = {'Content-type': 'application/json', 'Authorization': f"Bearer {os.environ['ACCESS_TOKEN']}"}
 
 
 for index, row in df.iterrows():

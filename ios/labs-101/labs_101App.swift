@@ -18,7 +18,7 @@ struct labs_101App: App {
             RootView()
         }
         .onChange(of: scenePhase) { _, phase in
-            guard AppConfig.current.isComplete, HealthAuthorization.wasRequested else { return }
+            guard AppConfig.current.isComplete, AuthSession.hasStoredTokens, HealthAuthorization.wasRequested else { return }
             switch phase {
             case .active:
                 Task { await HealthSyncEngine.shared.sync() }

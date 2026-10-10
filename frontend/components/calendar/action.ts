@@ -1,6 +1,5 @@
 'use server'
 
-import { auth } from "@/lib/auth"
 import { mapFromCalendarEventDto } from "@/lib/mapper/calendarMapper"
 import { BACKEND_URL } from "@/utils/constants"
 import { backendFetch } from "@/utils/backend"
@@ -9,7 +8,6 @@ import { Result } from "@/utils/types/types"
 import { Exercise, WorkoutTemplate } from "@/utils/types/workoutTypes"
 import { sortWorkoutTemplates } from "@/utils/workout"
 import { revalidatePath } from "next/cache"
-import { headers } from "next/headers"
 
 export async function getAllWorkoutTemplates(): Promise<Result<Map<string, WorkoutTemplate[]>>> {
     const response = await backendFetch(BACKEND_URL + "/workouts/templates")
@@ -37,13 +35,8 @@ export async function getAllExercises(): Promise<Exercise[]> {
 }
 
 export async function getAllCalendarEvents(dateRange: Date, steps: number): Promise<Result<CalendarEvent[]>> {
-    const session = await auth.api.getSession({
-        headers: await headers()
-    })
-    if (!session) throw new Error("User is currently not in a session")
     const url = new URL(BACKEND_URL + "/calendar")
     // only the user's own events and the ones they were invited to
-    url.searchParams.append("userId", session.user.id)
     url.searchParams.append("startDate", dateRange.toISOString())
     const endDate = new Date(dateRange)
     endDate.setDate(endDate.getDate() + steps)
@@ -87,12 +80,8 @@ export async function searchUsers(query: string): Promise<CalendarUser[]> {
 }
 
 export async function createCalendarEvent(calendarEvent: CalendarEvent): Promise<CalendarEvent> {
-    const session = await auth.api.getSession({
-        headers: await headers()
-    })
-    if (!session) throw new Error("User is currently not in a session")
     const response = await backendFetch(BACKEND_URL + "/calendar", {
-        method: "POST", body: JSON.stringify({ ...toRequestBody(calendarEvent), creatorId: session.user.id }), headers: {
+        method: "POST", body: JSON.stringify(toRequestBody(calendarEvent)), headers: {
             'Content-Type': 'application/json'
         }
     })
