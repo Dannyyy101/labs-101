@@ -43,7 +43,7 @@ export default function TrackFood({ food, day, calorieGoal, settingsError }: { f
 
     return (
         <div className="flex-1 w-full bg-muted/50 px-4 py-6 md:px-8">
-            <div className="grid gap-8 lg:grid-cols-[minmax(0,22rem)_1fr]">
+            <div className="grid grid-cols-1 gap-8 lg:grid-cols-[minmax(0,22rem)_minmax(0,1fr)]">
                 <section>
                     <h1 className="text-4xl font-bold tracking-tight">{formatDayTitle(day)}</h1>
                     <p className="text-muted-foreground mt-1">{formatLongDay(day)}</p>
@@ -67,13 +67,13 @@ export default function TrackFood({ food, day, calorieGoal, settingsError }: { f
                 </section>
 
                 <section>
-                    <div className="flex items-center justify-between lg:mt-8 mb-5">
+                    <div className="flex flex-wrap items-center justify-between gap-3 lg:mt-8 mb-5">
                         <h2 className="text-2xl font-bold tracking-tight">Mahlzeiten</h2>
                         <button onClick={openSearch} className="flex items-center gap-x-2 rounded-full bg-blue-500 hover:bg-blue-600 text-white font-semibold px-5 py-2.5">
                             <Plus className="size-5" />Essen hinzufügen
                         </button>
                     </div>
-                    <div className="grid gap-5 md:grid-cols-2">
+                    <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
                         {MEALS.map((meal) =>
                             <MealView key={meal.type} props={{
                                 meal: meal.type,

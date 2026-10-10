@@ -60,9 +60,9 @@ export default async function Page({
 
 
     return (
-        <div className="px-8">
+        <div className="w-full max-w-5xl mx-auto px-4 py-4 md:px-8">
             <FoodSearch initialQuery={query} />
-            <div className="max-h-[80vh] max-w-[90vw] overflow-auto rounded-md border mt-4">
+            <div className="max-h-[calc(100dvh-17rem)] md:max-h-[calc(100dvh-14rem)] overflow-auto rounded-md border mt-4">
                 <FoodTable foods={data.content} />
             </div>
             <Pagination className="mt-4">

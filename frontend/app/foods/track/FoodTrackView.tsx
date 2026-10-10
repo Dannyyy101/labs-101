@@ -140,7 +140,7 @@ export default function FoodTrackView({ props }: { props: FoodTrackViewProps }) 
         {showPortionForm && <NewPortionForm getFoodId={importFood} kcal={food.kcal ?? 0} onAdded={portionAdded} onCancel={() => setShowPortionForm(false)} />}
 
         <h2 className="text-sm uppercase tracking-wide text-muted-foreground mt-5 mb-2">Menge</h2>
-        <div className="flex items-center gap-x-4">
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
             <div className="flex items-center bg-accent rounded-2xl px-3 py-2 gap-x-3">
                 <button aria-label="Weniger" className="text-blue-500 disabled:opacity-40" disabled={trackFood.amount <= 0} onClick={() => setAmount(trackFood.amount - step)}><Minus className="size-5" /></button>
                 <input
@@ -166,7 +166,7 @@ export default function FoodTrackView({ props }: { props: FoodTrackViewProps }) 
             )}
         </div>
 
-        <div className="flex items-center gap-x-3 border-t pt-4 mt-6">
+        <div className="flex flex-wrap items-center gap-3 border-t pt-4 mt-6">
             <div className="mr-auto">
                 <p className="text-sm text-muted-foreground tabular-nums">{formatNumber(grams)} g</p>
                 <p className="text-xl font-bold tabular-nums">{formatNumber(getNutritionForAmount(withAmount, "kcal"))} kcal</p>
