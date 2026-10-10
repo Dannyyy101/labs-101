@@ -19,7 +19,7 @@ export function DatePicker({ date, setDate, className }: { date: Date, setDate: 
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger
-        className={cn("rounded-md bg-muted px-2.5 py-1 text-[15px] tabular-nums hover:bg-muted/70 data-popup-open:text-[#0a84ff]", className)}
+        className={cn("whitespace-nowrap rounded-md bg-muted px-2.5 py-1 text-[15px] tabular-nums hover:bg-muted/70 data-popup-open:text-[#0a84ff]", className)}
       >
         {format(date, "d. MMM yyyy", { locale: de })}
       </PopoverTrigger>

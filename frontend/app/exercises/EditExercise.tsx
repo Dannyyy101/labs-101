@@ -45,7 +45,7 @@ const EditExercise: React.FC<{ exercise: Exercise, children: React.ReactNode, cl
 
     return <Drawer swipeDirection="right">
         <DrawerTrigger className={className} render={<Button variant="outline" />}>{children}</DrawerTrigger>
-        <DrawerContent className={"min-w-120"}>
+        <DrawerContent className="w-[min(30rem,calc(100vw-1rem))]">
             <DrawerClose render={<Button onClick={() => deleteExercise(exercise.id)} className="absolute top-4 right-4" variant="outline" size="icon" aria-label="Submit">
                 <TrashIcon />
             </Button>}>Submit</DrawerClose>

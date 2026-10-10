@@ -67,9 +67,9 @@ export default function TrackFood({ food, day, calorieGoal, settingsError }: { f
                 </section>
 
                 <section>
-                    <div className="flex items-center justify-between lg:mt-8 mb-5">
+                    <div className="flex flex-wrap items-center justify-between gap-3 lg:mt-8 mb-5">
                         <h2 className="text-2xl font-bold tracking-tight">Mahlzeiten</h2>
-                        <button onClick={openSearch} className="flex items-center gap-x-2 rounded-full bg-blue-500 hover:bg-blue-600 text-white font-semibold px-5 py-2.5">
+                        <button onClick={openSearch} className="flex items-center gap-x-2 whitespace-nowrap rounded-full bg-blue-500 hover:bg-blue-600 text-white font-semibold px-5 py-2.5">
                             <Plus className="size-5" />Essen hinzufügen
                         </button>
                     </div>

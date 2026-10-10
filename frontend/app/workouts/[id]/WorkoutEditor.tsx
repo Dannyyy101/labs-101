@@ -83,7 +83,7 @@ export default function WorkoutEditor({ workout, exercises }: { workout: Workout
         <div className="mx-auto flex max-w-7xl flex-col gap-5">
             <div className="flex flex-wrap items-end gap-4">
                 <div className="min-w-64 flex-1">
-                    <Link href="/workouts" className="flex w-fit items-center text-[15px] text-[#0a84ff]"><ChevronLeft className="size-5" />Training</Link>
+                    <Link href="/workouts" className="flex w-fit items-center py-1 text-[15px] text-[#0a84ff]"><ChevronLeft className="size-5" />Training</Link>
                     <input value={name} onChange={(e) => { setName(e.target.value); setDirty(true) }} placeholder="Name der Vorlage" aria-label="Name"
                         className="mt-1 w-full bg-transparent text-[34px] font-bold leading-tight tracking-tight outline-none placeholder:text-muted-foreground/50" />
                     <p className="text-muted-foreground">{workout ? (dirty ? "Ungespeicherte Änderungen" : "Gespeichert") : "Neue Vorlage"}</p>
@@ -159,7 +159,7 @@ function ExerciseCard({ item, exercise, onChange, onRemove, onMoveUp, onMoveDown
             {item.sets.map((set, i) => <SetRow key={i} index={i} set={set} onChange={(s) => updateSet(i, s)}
                 onRemove={() => onChange({ ...item, sets: item.sets.filter((_, j) => j !== i) })} />)}
         </div>
-        <button onClick={addSet} className="mt-3 flex items-center gap-1 text-sm font-medium text-[#0a84ff]"><Plus className="size-4" />Satz hinzufügen</button>
+        <button onClick={addSet} className="mt-2 flex items-center gap-1 py-1 text-sm font-medium text-[#0a84ff]"><Plus className="size-4" />Satz hinzufügen</button>
     </Card>
 }
 

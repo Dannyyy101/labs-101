@@ -232,7 +232,7 @@ function Templates({ workouts, sessions, exercises, blocked }: { workouts: Worko
             <StartButton workoutId={null} disabled={blocked} className="flex items-center gap-1.5 rounded-full bg-muted px-3.5 py-1.5 text-sm font-semibold">
                 <Play className="size-3.5 fill-current" />Freies Training
             </StartButton>
-            <Link href="/workouts/new" className="flex items-center gap-1 text-sm font-medium text-[#0a84ff]"><Plus className="size-4" />Vorlage erstellen</Link>
+            <Link href="/workouts/new" className="flex items-center gap-1 py-1 text-sm font-medium text-[#0a84ff]"><Plus className="size-4" />Vorlage erstellen</Link>
         </div>
     </div>
 }

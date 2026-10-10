@@ -156,7 +156,8 @@ export function TrendBars({ history, day, value, color, format, max, onSelect }:
             <span className="text-muted-foreground">Ø 14 Tage</span>
             <span className="font-semibold tabular-nums">{average != null ? format(average) : "–"}</span>
         </div>
-        <div className="relative flex h-24 items-end gap-[3px]" onMouseLeave={() => setHover(null)}>
+        {/* one bar per day, too narrow for a full touch target on phones but neighbours only select the next day */}
+        <div data-dense-targets className="relative flex h-24 items-end gap-[3px]" onMouseLeave={() => setHover(null)}>
             {history.map((d, i) => {
                 const v = values[i]
                 const selected = d.date === day

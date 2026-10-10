@@ -225,7 +225,7 @@ const EditFood: React.FC<{
 
     return (
         <Drawer open={isOpen} onOpenChange={(open) => !open && close()} swipeDirection="right">
-            <DrawerContent className="flex h-full min-w-120 flex-col">
+            <DrawerContent className="flex h-full w-[min(30rem,calc(100vw-1rem))] flex-col">
                 <DrawerHeader className="border-b">
                     <DrawerTitle>{isEditing ? "Edit food" : "New food"}</DrawerTitle>
                     <DrawerDescription>

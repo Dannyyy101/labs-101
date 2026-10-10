@@ -46,11 +46,12 @@ export function AppNavbar() {
 
     return (
         <header className="sticky top-0 z-40 border-b bg-background/80 backdrop-blur">
-            {/* equally wide outer columns keep the tabs centered on the page, on small screens they get their own row */}
-            <div className="grid grid-cols-[1fr_auto] items-center gap-x-4 gap-y-2 px-4 py-3 md:grid-cols-[1fr_auto_1fr] md:px-8">
-                <Link href="/" className="justify-self-start text-lg font-semibold tracking-tight">Labs-101</Link>
+            {/* equally wide outer columns keep the tabs centered on the page, below lg the tabs don't fit next to them and get their own row */}
+            <div className="grid grid-cols-[1fr_auto] items-center gap-x-2 gap-y-2 px-4 py-3 sm:gap-x-4 md:px-8 lg:grid-cols-[1fr_auto_1fr]">
+                {/* on phones the day switcher of the track food page needs the room */}
+                <Link href="/" className={`justify-self-start whitespace-nowrap text-lg font-semibold tracking-tight ${activeHref === "/foods/track" ? "max-sm:hidden" : ""}`}>Labs-101</Link>
 
-                <nav className="col-span-2 row-start-2 overflow-x-auto md:col-span-1 md:row-start-auto">
+                <nav className="col-span-2 row-start-2 overflow-x-auto lg:col-span-1 lg:row-start-auto">
                     {/* mx-auto instead of justify-center, so scrolling still reaches the first tab */}
                     <div className="mx-auto flex w-fit rounded-xl bg-muted p-1">
                         {NAV.map((item) => {
@@ -69,7 +70,7 @@ export function AppNavbar() {
                     </div>
                 </nav>
 
-                <div className="flex items-center justify-self-end gap-x-4">
+                <div className="col-start-2 flex items-center justify-self-end gap-x-2 sm:gap-x-4 lg:col-start-3">
                     {activeHref === "/foods/track" && <Suspense><DateNav /></Suspense>}
                     <NotificationBell />
                     <UserMenu />
@@ -86,9 +87,9 @@ function DateNav() {
 
     return <div className="flex items-center gap-x-1">
         <Link href={`/foods/track?date=${addDays(day, -1)}`} aria-label="Vorheriger Tag" className="p-1 text-blue-500"><ChevronLeft className="size-5" /></Link>
-        <span className="w-24 text-center font-medium tabular-nums">{formatShortDay(day)}</span>
+        <span className="w-24 whitespace-nowrap text-center font-medium tabular-nums">{formatShortDay(day)}</span>
         <Link href={`/foods/track?date=${addDays(day, 1)}`} aria-label="Nächster Tag" className="p-1 text-blue-500"><ChevronRight className="size-5" /></Link>
-        {day !== today() && <Link href="/foods/track" className="ml-1 text-sm text-blue-500">Heute</Link>}
+        {day !== today() && <Link href="/foods/track" className="ml-1 py-1 text-sm text-blue-500">Heute</Link>}
     </div>
 }
 

@@ -112,7 +112,7 @@ const FoodSearch: React.FC<{ meal: Meal, selectedFoodStore: SelectedFoodState, c
         <DialogTrigger className={className}>{children}</DialogTrigger>
         <DialogContent className="w-4xl flex flex-col" showCloseButton={false}>
             <DialogHeader className="grid grid-cols-[1fr_auto_1fr] items-center">
-                <button className="text-blue-500 hover:text-blue-600 justify-self-start" onClick={close}>Abbrechen</button>
+                <button className="py-1 text-blue-500 hover:text-blue-600 justify-self-start" onClick={close}>Abbrechen</button>
                 <DialogTitle className="text-center text-lg">Essen hinzufügen</DialogTitle>
             </DialogHeader>
             <section>

@@ -115,7 +115,7 @@ export default function FoodTrackView({ props }: { props: FoodTrackViewProps }) 
 
     return <div className="flex flex-col">
         {creating &&
-            <button onClick={props.back} className="flex items-center gap-x-1 text-blue-500 hover:text-blue-600 self-start">
+            <button onClick={props.back} className="flex items-center gap-x-1 py-1 text-blue-500 hover:text-blue-600 self-start">
                 <ChevronLeft className="size-5" />Alle Lebensmittel
             </button>
         }
@@ -140,9 +140,9 @@ export default function FoodTrackView({ props }: { props: FoodTrackViewProps }) 
         {showPortionForm && <NewPortionForm getFoodId={importFood} kcal={food.kcal ?? 0} onAdded={portionAdded} onCancel={() => setShowPortionForm(false)} />}
 
         <h2 className="text-sm uppercase tracking-wide text-muted-foreground mt-5 mb-2">Menge</h2>
-        <div className="flex items-center gap-x-4">
-            <div className="flex items-center bg-accent rounded-2xl px-3 py-2 gap-x-3">
-                <button aria-label="Weniger" className="text-blue-500 disabled:opacity-40" disabled={trackFood.amount <= 0} onClick={() => setAmount(trackFood.amount - step)}><Minus className="size-5" /></button>
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+            <div className="flex items-center bg-accent rounded-2xl px-2 py-1 gap-x-2">
+                <button aria-label="Weniger" className="grid size-8 place-items-center text-blue-500 disabled:opacity-40" disabled={trackFood.amount <= 0} onClick={() => setAmount(trackFood.amount - step)}><Minus className="size-5" /></button>
                 <input
                     aria-label="Menge"
                     className="w-16 bg-transparent text-right text-2xl font-semibold tabular-nums outline-none"
@@ -152,7 +152,7 @@ export default function FoodTrackView({ props }: { props: FoodTrackViewProps }) 
                     onChange={(e) => setAmount(e.target.value === "" ? 0 : parseFloat(e.target.value))}
                 />
                 <span className="text-xl text-muted-foreground min-w-6">{unit}</span>
-                <button aria-label="Mehr" className="text-blue-500" onClick={() => setAmount(trackFood.amount + step)}><Plus className="size-5" /></button>
+                <button aria-label="Mehr" className="grid size-8 place-items-center text-blue-500" onClick={() => setAmount(trackFood.amount + step)}><Plus className="size-5" /></button>
             </div>
             <span className="text-xl text-muted-foreground tabular-nums">= {formatNumber(grams)} g</span>
         </div>
