@@ -11,7 +11,7 @@ services:
     - backend
     environment:
       # public URL of the frontend, zitadel redirects back to ${APP_URL}/auth/callback
-      - APP_URL=${APP_URL:-https://labs-101.project101.tech}
+      - APP_URL=${APP_URL:-https://project101.tech}
       - AUTH_ISSUER=${AUTH_ISSUER:-https://auth.project101.tech}
       - AUTH_CLIENT_ID=${AUTH_CLIENT_ID}
       - AUTH_CLIENT_SECRET=${AUTH_CLIENT_SECRET}

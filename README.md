@@ -185,7 +185,7 @@ curl -s -u '<client id>:<client secret>' -d 'grant_type=client_credentials&scope
 Einmalige Einrichtung in der Zitadel-Console (`/ui/console`, Login mit `ZITADEL_ADMIN_USERNAME@labs-101.<domain>`, das Passwort muss beim ersten Login geändert werden):
 
 1. **Projekt** `labs-101` anlegen.
-2. **Web-App** im Projekt: Typ *Web*, Authentifizierung *Code* (Client Secret), Redirect-URI `https://labs-101.project101.tech/auth/callback`, Post-Logout-URI `https://labs-101.project101.tech/sign-in` (lokal `http://localhost:3000/…`, dafür *Development Mode* aktivieren). Client-ID und Secret → `AUTH_CLIENT_ID` / `AUTH_CLIENT_SECRET`.
+2. **Web-App** im Projekt: Typ *Web*, Authentifizierung *Code* (Client Secret), Redirect-URI `https://project101.tech/auth/callback`, Post-Logout-URI `https://project101.tech/sign-in` (lokal `http://localhost:3000/…`, dafür *Development Mode* aktivieren). Client-ID und Secret → `AUTH_CLIENT_ID` / `AUTH_CLIENT_SECRET`.
 3. **Native App** im Projekt: Typ *Native*, Authentifizierung *PKCE*, Redirect-URI `labs101://auth/callback`. Client-ID → `AUTH_CLIENT_ID` in `ios/Config/Secrets.xcconfig`.
 4. Bei **beiden Apps** unter *Token Settings* den **Auth Token Type auf JWT** stellen und *Refresh Token* erlauben. Das Backend prüft die Tokens nur über die Schlüssel von Zitadel und kann mit undurchsichtigen Tokens nichts anfangen.
 5. **Google** (#82): unter *Settings → Identity Providers* Google mit Client-ID/Secret aus der Google Cloud Console anlegen (Redirect-URI zeigt Zitadel an) und in den *Login Settings* aktivieren.
