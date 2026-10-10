@@ -4,10 +4,10 @@
 <dict>
 	<key>APIBaseURL</key>
 	<string>$(API_BASE_URL)</string>
-	<key>APIKey</key>
-	<string>$(API_KEY)</string>
-	<key>UserID</key>
-	<string>$(USER_ID)</string>
+	<key>AuthIssuer</key>
+	<string>$(AUTH_ISSUER)</string>
+	<key>AuthClientID</key>
+	<string>$(AUTH_CLIENT_ID)</string>
 	<!-- health sync while the app is closed, see HealthBackgroundSync.swift -->
 	<key>UIBackgroundModes</key>
 	<array>

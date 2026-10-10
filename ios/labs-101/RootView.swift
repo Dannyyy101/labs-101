@@ -1,40 +1,36 @@
 import SwiftUI
 
 struct RootView: View {
+    @State private var auth = AuthState.shared
+
     var body: some View {
-        TabView {
-            Tab("Food", systemImage: "fork.knife") {
-                if AppConfig.current.isComplete {
+        if !AppConfig.current.isComplete {
+            MissingConfigurationView()
+        } else if !auth.isSignedIn {
+            SignInView()
+        } else {
+            TabView {
+                Tab("Food", systemImage: "fork.knife") {
                     FoodTrackerView()
-                } else {
-                    MissingConfigurationView()
                 }
-            }
-            Tab("Training", systemImage: "dumbbell.fill") {
-                if AppConfig.current.isComplete {
+                Tab("Training", systemImage: "dumbbell.fill") {
                     WorkoutsView()
-                } else {
-                    MissingConfigurationView()
                 }
-            }
-            Tab("Health", systemImage: "heart.fill") {
-                if AppConfig.current.isComplete {
+                Tab("Health", systemImage: "heart.fill") {
                     HealthSyncView()
-                } else {
-                    MissingConfigurationView()
                 }
             }
         }
     }
 }
 
-/// Shown until API key and user are set in Config/Secrets.xcconfig.
+/// Shown until issuer and client id are set in Config/Secrets.xcconfig.
 private struct MissingConfigurationView: View {
     var body: some View {
         ContentUnavailableView(
             "Nicht konfiguriert",
             systemImage: "key.slash",
-            description: Text("Trage API_KEY und USER_ID in ios/Config/Secrets.xcconfig ein und baue die App neu.")
+            description: Text("Trage AUTH_ISSUER und AUTH_CLIENT_ID in ios/Config/Secrets.xcconfig ein und baue die App neu.")
         )
     }
 }

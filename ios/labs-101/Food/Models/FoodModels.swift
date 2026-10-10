@@ -125,7 +125,6 @@ nonisolated struct TrackedFood: Codable, Hashable, Identifiable, Sendable {
 /// Body of the track/update endpoints.
 nonisolated struct TrackFoodRequest: Encodable, Sendable {
     var foodId: Int?
-    var userId: String
     var amount: Double
     var meal: Meal
     var portionId: Int?

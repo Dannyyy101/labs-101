@@ -1,18 +1,16 @@
 import Foundation
 import SwiftUI
 
-/// The workout endpoints of the backend, for the configured user.
+/// The workout endpoints of the backend, for the signed in user.
 nonisolated struct WorkoutService: Sendable {
     private let client: APIClient
-    private let userID: String
 
     init(config: AppConfig = .current, session: URLSession = .shared) {
         self.client = APIClient(config: config, session: session)
-        self.userID = config.userID
     }
 
     private var sessionsPath: String {
-        "users/\(userID)/workout-sessions"
+        "users/me/workout-sessions"
     }
 
     // MARK: Templates and exercises
