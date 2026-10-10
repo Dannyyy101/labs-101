@@ -110,7 +110,7 @@ public class EmbeddedPostgresNotificationTest {
         NotificationDto notification = notificationService.create("deleted-user", new CreateNotificationDto("Weg"));
         flushAndClear();
 
-        // users are deleted by better-auth, not by the backend
+        // users are deleted in the database directly, the backend never deletes them
         jdbcTemplate.update("DELETE FROM \"user\" WHERE id = ?", "deleted-user");
 
         assertEquals(false, notificationRepository.existsById(notification.getId()));

@@ -19,14 +19,14 @@ jobs:
 
             - name: Run docker compose
               env:
-                  POSTGRES_HOST: ${{secrets.POSTGRES_HOST}}
                   POSTGRES_USERNAME: ${{ secrets.POSTGRES_USERNAME }}
                   POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
-                  BETTER_AUTH_SECRET: ${{ secrets.BETTER_AUTH_SECRET }}
-                  ALLOWED_EMAIL_ADDRESSES: ${{ secrets.ALLOWED_EMAIL_ADDRESSES }}
-                  GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
-                  GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
-                  BETTER_AUTH_URL: ${{ secrets.BETTER_AUTH_URL }}
-                  API_KEY: ${{ secrets.API_KEY }}
+                  ZITADEL_MASTERKEY: ${{ secrets.ZITADEL_MASTERKEY }}
+                  ZITADEL_DB_PASSWORD: ${{ secrets.ZITADEL_DB_PASSWORD }}
+                  ZITADEL_ADMIN_PASSWORD: ${{ secrets.ZITADEL_ADMIN_PASSWORD }}
+                  AUTH_CLIENT_ID: ${{ secrets.AUTH_CLIENT_ID }}
+                  AUTH_CLIENT_SECRET: ${{ secrets.AUTH_CLIENT_SECRET }}
+                  AUTH_SECRET: ${{ secrets.AUTH_SECRET }}
+                  AUTH_AUDIENCE: ${{ secrets.AUTH_AUDIENCE }}
 
               run: docker compose up -d --build

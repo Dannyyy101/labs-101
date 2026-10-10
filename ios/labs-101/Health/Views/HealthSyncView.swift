@@ -19,6 +19,7 @@ struct HealthSyncView: View {
                 }
                 syncSection
                 storedSection
+                accountSection
             }
             .navigationTitle("Health")
             .refreshable { await sync() }
@@ -131,6 +132,14 @@ struct HealthSyncView: View {
         } footer: {
             if !summary.isEmpty {
                 Text("\(summary.reduce(0) { $0 + $1.count }) Einträge in \(summary.count) Typen")
+            }
+        }
+    }
+
+    private var accountSection: some View {
+        Section("Konto") {
+            Button("Abmelden", systemImage: "rectangle.portrait.and.arrow.right", role: .destructive) {
+                Task { await AuthSession.shared.signOut() }
             }
         }
     }

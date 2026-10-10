@@ -1,24 +1,18 @@
 'use server'
 
-import { auth } from "@/lib/auth"
 import { BACKEND_URL } from "@/utils/constants"
 import { backendFetch } from "@/utils/backend"
 import { ApiError } from "@/utils/types/api"
 import { Result } from "@/utils/types/result"
 import { UserSettings } from "@/utils/types/settings"
 import { revalidatePath } from "next/cache"
-import { headers } from "next/headers"
 
 // settings are optional, so none of these actions throw: a failing backend must not take down
 // the pages using them, they get a Result and decide themselves what to show
 
 async function settingsUrl(): Promise<string> {
-    const session = await auth.api.getSession({
-        headers: await headers()
-    })
-    if (!session) throw new Error("User is currently not in a session")
 
-    return `${BACKEND_URL}/users/${session.user.id}/settings`
+    return `${BACKEND_URL}/users/me/settings`
 }
 
 // the localized message of the backend if there is one

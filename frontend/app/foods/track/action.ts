@@ -1,6 +1,5 @@
 'use server'
 
-import { auth } from "@/lib/auth"
 import { BACKEND_URL } from "@/utils/constants"
 import { backendFetch } from "@/utils/backend"
 import { ApiError } from "@/utils/types/api"
@@ -8,22 +7,14 @@ import { CreateFoodWithAmount, CreateTrackedFood, ExtractedFood, Food, FoodPorti
 import { Page } from "@/utils/types/page"
 import { Result } from "@/utils/types/result"
 import { revalidatePath } from "next/cache"
-import { headers } from "next/headers"
 
 export async function findFoodByNameAndUserId(name: string, filter?: { page?: number }): Promise<Page<SearchFood>> {
     const url = new URL(BACKEND_URL + "/foods/search/byNameAndUser")
 
-    const session = await auth.api.getSession({
-        headers: await headers()
-    })
-    if (!session) throw new Error("User is currently not in a session")
-
     url.searchParams.append("name", name)
-    url.searchParams.append("userId", session.user.id)
     if (filter?.page) {
         url.searchParams.append("page", String(filter.page))
     }
-
 
     const response = await backendFetch(url.toString(), { cache: 'no-store' })
 
@@ -35,13 +26,8 @@ export async function findFoodByNameAndUserId(name: string, filter?: { page?: nu
 }
 
 export async function getTrackedFood(date: Date): Promise<TrackedFood[]> {
-    const session = await auth.api.getSession({
-        headers: await headers()
-    })
 
-    if (!session) throw new Error("User is currently not in a session")
-
-    const url = new URL(`${BACKEND_URL}/users/${session.user.id}/tracked-foods`)
+    const url = new URL(`${BACKEND_URL}/users/me/tracked-foods`)
 
     url.searchParams.append("date", date.toISOString())
 
@@ -55,13 +41,8 @@ export async function getTrackedFood(date: Date): Promise<TrackedFood[]> {
 }
 
 export async function getTrackedFoodByFoodId(foodId: number): Promise<FoodWithLastEntry> {
-    const session = await auth.api.getSession({
-        headers: await headers()
-    })
 
-    if (!session) throw new Error("User is currently not in a session")
-
-    const url = new URL(`${BACKEND_URL}/users/${session.user.id}/foods/${foodId}/last`)
+    const url = new URL(`${BACKEND_URL}/users/me/foods/${foodId}/last`)
 
     const response = await backendFetch(url.toString(), { cache: 'no-store' })
 
@@ -73,13 +54,8 @@ export async function getTrackedFoodByFoodId(foodId: number): Promise<FoodWithLa
 }
 
 export async function getTrackedFoodByTrackedFoodId(trackedFoodId: number): Promise<TrackedFood> {
-    const session = await auth.api.getSession({
-        headers: await headers()
-    })
 
-    if (!session) throw new Error("User is currently not in a session")
-
-    const url = new URL(`${BACKEND_URL}/users/${session.user.id}/tracked-foods/${trackedFoodId}`)
+    const url = new URL(`${BACKEND_URL}/users/me/tracked-foods/${trackedFoodId}`)
 
     const response = await backendFetch(url.toString(), { cache: 'no-store' })
 
@@ -91,16 +67,11 @@ export async function getTrackedFoodByTrackedFoodId(trackedFoodId: number): Prom
 }
 
 export async function updateTrackFood(foodWithAmount: CreateTrackedFood) {
-
-    const session = await auth.api.getSession({
-        headers: await headers()
-    })
-    if (!session) throw new Error("User is currently not in a session")
-    const url = new URL(`${BACKEND_URL}/users/${session.user.id}/tracked-foods/${foodWithAmount.id}`)
+    const url = new URL(`${BACKEND_URL}/users/me/tracked-foods/${foodWithAmount.id}`)
 
     const response = await backendFetch(url.toString(), {
         method: "PUT",
-        body: JSON.stringify({ ...foodWithAmount, userId: session.user.id }), headers: {
+        body: JSON.stringify(foodWithAmount), headers: {
             'Content-Type': 'application/json'
         }
     })
@@ -114,14 +85,10 @@ export async function updateTrackFood(foodWithAmount: CreateTrackedFood) {
 export async function createTrackFood(foodWithAmount: CreateTrackedFood) {
     const url = new URL(`${BACKEND_URL}/foods/${foodWithAmount.foodId}/track`)
 
-    const session = await auth.api.getSession({
-        headers: await headers()
-    })
-    if (!session) throw new Error("User is currently not in a session")
     console.log(url)
     const response = await backendFetch(url.toString(), {
         method: "POST",
-        body: JSON.stringify({ ...foodWithAmount, userId: session.user.id }), headers: {
+        body: JSON.stringify(foodWithAmount), headers: {
             'Content-Type': 'application/json'
         }
     })
@@ -133,11 +100,7 @@ export async function createTrackFood(foodWithAmount: CreateTrackedFood) {
 }
 
 export async function deleteTrackedFood(trackedFoodId: number) {
-    const session = await auth.api.getSession({
-        headers: await headers()
-    })
-    if (!session) throw new Error("User is currently not in a session")
-    const url = new URL(`${BACKEND_URL}/users/${session.user.id}/tracked-foods/${trackedFoodId}`)
+    const url = new URL(`${BACKEND_URL}/users/me/tracked-foods/${trackedFoodId}`)
     const response = await backendFetch(url.toString(), {
         method: "DELETE",
     })
@@ -218,15 +181,10 @@ export async function importOpenFood(openFoodId: number): Promise<FoodWithPortio
 }
 
 export async function trackOpenFood(openFoodId: number, trackedFood: Omit<CreateTrackedFood, "foodId">) {
-    const session = await auth.api.getSession({
-        headers: await headers()
-    })
-    if (!session) throw new Error("User is currently not in a session")
-
     const url = new URL(`${BACKEND_URL}/foods/open-food/${openFoodId}/track`)
     const response = await backendFetch(url.toString(), {
         method: "POST",
-        body: JSON.stringify({ ...trackedFood, userId: session.user.id }), headers: {
+        body: JSON.stringify(trackedFood), headers: {
             'Content-Type': 'application/json'
         }
     })

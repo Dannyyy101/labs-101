@@ -16,6 +16,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import java.lang.reflect.Constructor;
 import java.util.Locale;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -23,6 +24,10 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.support.ResourceBundleMessageSource;
 import org.springframework.http.MediaType;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
+import org.springframework.security.web.method.annotation.AuthenticationPrincipalArgumentResolver;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
@@ -38,7 +43,7 @@ import com.labs_101.backend.services.UserSettingsService;
 public class UserSettingsControllerTest {
 
     private static final String USER_ID = "user-1";
-    private static final String URL = "/api/users/" + USER_ID + "/settings";
+    private static final String URL = "/api/users/me/settings";
 
     @Mock
     private UserSettingsService userSettingsService;
@@ -59,7 +64,17 @@ public class UserSettingsControllerTest {
 
         mockMvc = MockMvcBuilders.standaloneSetup(constructor.newInstance(userSettingsService))
                 .setControllerAdvice(new GlobalExceptionHandler(messageSource))
+                .setCustomArgumentResolvers(new AuthenticationPrincipalArgumentResolver())
                 .build();
+
+        // signed in as USER_ID, like the token check would leave it
+        Jwt token = Jwt.withTokenValue("token").header("alg", "none").subject(USER_ID).build();
+        SecurityContextHolder.getContext().setAuthentication(new JwtAuthenticationToken(token));
+    }
+
+    @AfterEach
+    void tearDown() {
+        SecurityContextHolder.clearContext();
     }
 
     private static boolean hasCalorieGoal(SaveUserSettingsDto dto, Integer calorieGoal) {

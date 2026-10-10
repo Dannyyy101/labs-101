@@ -3,3 +3,6 @@ variables:
   - name: base_url
     value: http://localhost:8080
     description: ""
+  - name: access_token
+    value: ""
+    description: "access token of zitadel, expires after a few hours"

@@ -1,24 +1,18 @@
 'use server'
 
-import { auth } from "@/lib/auth"
 import { BACKEND_URL } from "@/utils/constants"
 import { backendFetch } from "@/utils/backend"
 import { ApiError } from "@/utils/types/api"
 import { AppNotification, CreateNotification } from "@/utils/types/notification"
 import { Result } from "@/utils/types/result"
 import { revalidatePath } from "next/cache"
-import { headers } from "next/headers"
 
 // the bell is part of every page, so none of these actions throw: a failing backend
 // must not take down the navbar, they get a Result and decide themselves what to show
 
 async function notificationsUrl(path = ""): Promise<string> {
-    const session = await auth.api.getSession({
-        headers: await headers()
-    })
-    if (!session) throw new Error("User is currently not in a session")
 
-    return `${BACKEND_URL}/users/${session.user.id}/notifications${path}`
+    return `${BACKEND_URL}/users/me/notifications${path}`
 }
 
 // the localized message of the backend if there is one

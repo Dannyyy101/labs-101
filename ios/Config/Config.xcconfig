@@ -3,7 +3,7 @@
 // "//" starts a comment in xcconfig files, so URLs are written as http:/$()/host
 
 API_BASE_URL = http:/$()/localhost:8080/api
-API_KEY =
-USER_ID =
+AUTH_ISSUER = https:/$()/auth.project101.tech
+AUTH_CLIENT_ID =
 
 #include? "Secrets.xcconfig"

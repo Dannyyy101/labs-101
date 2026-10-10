@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.labs_101.backend.dtos.calendar.CalendarEventDto;
 import com.labs_101.backend.dtos.calendar.CreateCalendarEventDto;
 import com.labs_101.backend.dtos.calendar.UpdateCalendarEventDto;
+import com.labs_101.backend.security.CurrentUser;
 
 @RestController()
 @RequestMapping("/api/calendar")
@@ -30,10 +31,10 @@ public class CalendarController {
     this.calendarService = calendarService;
   }
 
-  /** With {@code userId} only the events the user created or was invited to. */
+  /** The events the signed in user created or was invited to. */
   @GetMapping("")
   public List<CalendarEventDto> getAllCalendarEvents(
-      @RequestParam(required = false) String userId,
+      @CurrentUser String userId,
       @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Instant startDate,
       @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Instant endDate) {
     try {
@@ -44,7 +45,9 @@ public class CalendarController {
   }
 
   @PostMapping("")
-  public ResponseEntity<CalendarEventDto> createCalendarEvent(@RequestBody CreateCalendarEventDto eventDto) {
+  public ResponseEntity<CalendarEventDto> createCalendarEvent(@CurrentUser String userId,
+      @RequestBody CreateCalendarEventDto eventDto) {
+    eventDto.setCreatorId(userId);
     try {
       return ResponseEntity.ok(calendarService.createCalendarEvent(eventDto));
     } catch (Exception e) {

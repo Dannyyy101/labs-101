@@ -5,7 +5,7 @@ info:
 
 http:
   method: GET
-  url: "{{base_url}}/api/users/0Hatub6x8Vxyp3L8YNG5QHG7s579dTai/runs?from=2026-01-01T00:00:00Z&to=2026-10-05T00:00:00Z"
+  url: "{{base_url}}/api/users/me/runs?from=2026-01-01T00:00:00Z&to=2026-10-05T00:00:00Z"
   params:
     - name: from
       value: 2026-01-01T00:00:00Z

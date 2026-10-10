@@ -7,7 +7,6 @@ import java.time.ZoneId;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -15,10 +14,11 @@ import org.springframework.web.server.ResponseStatusException;
 
 import com.labs_101.backend.dtos.overview.HealthOverviewDto;
 import com.labs_101.backend.services.HealthOverviewService;
+import com.labs_101.backend.security.CurrentUser;
 
 /** Sleep, recovery and strain of a day for the home page, see {@link HealthController}. */
 @RestController()
-@RequestMapping("/api/users/{userId}/health/overview")
+@RequestMapping("/api/users/me/health/overview")
 public class HealthOverviewController {
 
     private final HealthOverviewService healthOverviewService;
@@ -29,7 +29,7 @@ public class HealthOverviewController {
 
     /** {@code date} defaults to today, {@code zone} to Europe/Berlin. */
     @GetMapping
-    public HealthOverviewDto getOverview(@PathVariable String userId,
+    public HealthOverviewDto getOverview(@CurrentUser String userId,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
             @RequestParam(required = false) String zone) {
         ZoneId zoneId;

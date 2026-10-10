@@ -3,3 +3,6 @@ variables:
   - name: base_url
     value: https://backend-labs-101.project101.tech
     description: ""
+  - name: access_token
+    value: ""
+    description: "access token of zitadel, expires after a few hours"
