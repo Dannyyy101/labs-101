@@ -12,6 +12,7 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { AvatarImage } from "@/components/AvatarImage"
+import { Logo } from "@/components/Logo"
 import { NotificationBell } from "@/components/notifications/NotificationBell"
 import { useUser } from "@/components/user-provider"
 import { signOut } from "@/app/sign-in/action"
@@ -49,7 +50,7 @@ export function AppNavbar() {
         <header className="sticky top-0 z-40 border-b bg-background/80 backdrop-blur">
             {/* equally wide outer columns keep the tabs centered on the page, on small screens they get their own row */}
             <div className="grid grid-cols-[1fr_auto] items-center gap-x-4 gap-y-2 px-4 py-3 md:grid-cols-[1fr_auto_1fr] md:px-8">
-                <Link href="/" className="justify-self-start text-lg font-semibold tracking-tight">Labs-101</Link>
+                <Link href="/" className="justify-self-start"><Logo /></Link>
 
                 <nav className="col-span-2 row-start-2 overflow-x-auto md:col-span-1 md:row-start-auto">
                     {/* mx-auto instead of justify-center, so scrolling still reaches the first tab */}
