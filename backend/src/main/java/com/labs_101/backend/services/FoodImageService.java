@@ -4,6 +4,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneOffset;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -302,7 +303,8 @@ public class FoodImageService {
 
         if (analysis.getAttempts() < MAX_ATTEMPTS) {
             // e.g. the per minute quota of the free tier, waiting a bit usually helps
-            analysis.setNextAttemptAt(Instant.now().plus(Duration.ofMinutes(analysis.getAttempts())));
+            // postgres keeps microseconds, so the returned value matches the stored one
+            analysis.setNextAttemptAt(Instant.now().plus(Duration.ofMinutes(analysis.getAttempts())).truncatedTo(ChronoUnit.MICROS));
             analysisRepository.save(analysis);
             return analysis.getNextAttemptAt();
         }
