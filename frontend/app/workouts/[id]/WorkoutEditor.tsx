@@ -11,10 +11,11 @@ import { useMemo, useState, useTransition } from "react"
 import { deleteWorkout, saveWorkout, startSession } from "../action"
 import ExercisePicker from "../ExercisePicker"
 import NumberInput from "../NumberInput"
+import RestPicker from "../RestPicker"
 import MuscleMap from "../MuscleMap"
-import { formatVolume, MUSCLES, setsPerMuscle, volume } from "../stats"
+import { DEFAULT_REST, formatVolume, MUSCLES, restOf, setsPerMuscle, volume } from "../stats"
 
-const DEFAULT_SET: ExerciseSet = { order: 0, reps: 10, weightKg: 20, rpe: null }
+const DEFAULT_SET: ExerciseSet = { order: 0, reps: 10, weightKg: 20, rpe: null, restSeconds: DEFAULT_REST }
 
 export default function WorkoutEditor({ workout, exercises }: { workout: Workout | null, exercises: Exercise[] }) {
     const router = useRouter()
@@ -151,10 +152,11 @@ function ExerciseCard({ item, exercise, onChange, onRemove, onMoveUp, onMoveDown
             <IconButton label="Nach unten" onClick={onMoveDown}><ArrowDown /></IconButton>
             <IconButton label="Übung entfernen" onClick={onRemove} className="text-[#ff453a]"><Trash2 /></IconButton>
         </div>
-        <div className="grid grid-cols-[40px_minmax(0,1fr)_minmax(0,1fr)_32px] items-center gap-x-3 gap-y-1.5">
+        <div className="grid grid-cols-[32px_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_32px] items-center gap-x-3 gap-y-1.5">
             <span className="text-xs font-medium text-muted-foreground">Satz</span>
             <span className="text-xs font-medium text-muted-foreground">Wdh</span>
             <span className="text-xs font-medium text-muted-foreground">kg</span>
+            <span className="text-xs font-medium text-muted-foreground">Ruhezeit</span>
             <span />
             {item.sets.map((set, i) => <SetRow key={i} index={i} set={set} onChange={(s) => updateSet(i, s)}
                 onRemove={() => onChange({ ...item, sets: item.sets.filter((_, j) => j !== i) })} />)}
@@ -168,6 +170,7 @@ function SetRow({ index, set, onChange, onRemove }: { index: number, set: Exerci
         <span className="text-center font-semibold tabular-nums text-muted-foreground">{index + 1}</span>
         <NumberInput value={set.reps} onChange={(reps) => onChange({ reps: Math.round(reps) })} label={`Wiederholungen Satz ${index + 1}`} />
         <NumberInput value={set.weightKg} onChange={(weightKg) => onChange({ weightKg })} label={`Gewicht Satz ${index + 1}`} decimal />
+        <RestPicker value={restOf(set)} onChange={(restSeconds) => onChange({ restSeconds })} label={`Ruhezeit nach Satz ${index + 1}`} />
         <IconButton label={`Satz ${index + 1} entfernen`} onClick={onRemove}><X /></IconButton>
     </>
 }

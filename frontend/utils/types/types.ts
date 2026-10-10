@@ -42,6 +42,8 @@ export interface ExerciseSet {
     reps: number
     weightKg: number
     rpe: number | null
+    // the rest after the set, null for the default
+    restSeconds: number | null
 }
 
 // a workout of the user, see WorkoutSessionController in the backend
@@ -68,4 +70,6 @@ export interface SessionSet {
     weightKg: number
     rpe: number | null
     done: boolean
+    // the rest after the set, null for the default
+    restSeconds: number | null
 }

@@ -50,7 +50,7 @@ public class WorkoutMapper {
             case StrengthItem s -> new StrengthItemDto(
                     ExerciseMapper.fromExercise(exercise.getExercise()),
                     s.getSettings().sets().stream()
-                            .map(set -> new SetDto(set.order(), set.reps(), set.weightKg(), set.rpe()))
+                            .map(set -> new SetDto(set.order(), set.reps(), set.weightKg(), set.rpe(), set.restSeconds()))
                             .toList());
             default -> null;
 

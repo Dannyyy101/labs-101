@@ -77,6 +77,7 @@ public class WorkoutSessionTest {
         SessionSetDto set = session.exercises().getFirst().sets().getFirst();
         assertEquals(10, set.reps());
         assertEquals(60, set.weightKg());
+        assertEquals(List.of(90, 180), session.exercises().getFirst().sets().stream().map(SessionSetDto::restSeconds).toList());
         assertTrue(session.exercises().stream().flatMap((e) -> e.sets().stream()).noneMatch(SessionSetDto::done));
         assertEquals(session.id(), sessionService.getActive(userId).orElseThrow().id());
     }
@@ -95,10 +96,10 @@ public class WorkoutSessionTest {
 
         List<SessionExerciseDto> exercises = List.of(
                 new SessionExerciseDto(squat.getId(), squat.getName(), List.of(
-                        new SessionSetDto(5, 100, 8, true),
-                        new SessionSetDto(5, 100, null, false))),
+                        new SessionSetDto(5, 100, 8, true, 180),
+                        new SessionSetDto(5, 100, null, false, null))),
                 new SessionExerciseDto(bench.getId(), bench.getName(), List.of(
-                        new SessionSetDto(8, 70, null, false))));
+                        new SessionSetDto(8, 70, null, false, null))));
         sessionService.update(userId, session.id(), new UpdateWorkoutSessionDto(null, exercises));
         assertEquals(2, sessionService.getSession(userId, session.id()).exercises().size());
 
@@ -106,7 +107,7 @@ public class WorkoutSessionTest {
 
         assertNotNull(finished.endedAt());
         assertEquals(1, finished.exercises().size());
-        assertEquals(List.of(new SessionSetDto(5, 100, 8, true)), finished.exercises().getFirst().sets());
+        assertEquals(List.of(new SessionSetDto(5, 100, 8, true, 180)), finished.exercises().getFirst().sets());
         assertTrue(sessionService.getActive(userId).isEmpty());
         // a save arriving after finishing must not bring back the dropped sets
         assertThrows(BadRequestException.class,
@@ -133,7 +134,7 @@ public class WorkoutSessionTest {
     void testUpdateAndDeleteWorkout() {
         WorkoutDto workout = workout("Push", bench);
         WorkoutDto updated = workoutService.update(workout.getId(), new CreateWorkoutDto("Push B", null, List.of(
-                new StrengthItemDto(squat, List.of(new SetDto(0, 5, 120, null))),
+                new StrengthItemDto(squat, List.of(new SetDto(0, 5, 120, null, null))),
                 new StrengthItemDto(bench, List.of()))));
 
         assertEquals("Push B", updated.getName());
@@ -157,7 +158,7 @@ public class WorkoutSessionTest {
     private WorkoutDto workout(String name, ExerciseDto... exercises) {
         return workoutService.create(new CreateWorkoutDto(name, null, List.of(exercises).stream()
                 .map((e) -> (com.labs_101.backend.dtos.workout.ExerciseItem) new StrengthItemDto(e, List.of(
-                        new SetDto(0, 10, 60, null), new SetDto(1, 10, 60, null))))
+                        new SetDto(0, 10, 60, null, 90), new SetDto(1, 10, 60, null, 180))))
                 .toList()));
     }
 }

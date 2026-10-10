@@ -85,16 +85,24 @@ nonisolated struct SessionSet: Codable, Hashable, Identifiable, Sendable {
     var weightKg: Double
     var rpe: Int?
     var done: Bool
+    /// the rest after the set, nil for the default
+    var restSeconds: Int?
 
     enum CodingKeys: String, CodingKey {
-        case reps, weightKg, rpe, done
+        case reps, weightKg, rpe, done, restSeconds
     }
 
-    init(reps: Int, weightKg: Double, rpe: Int? = nil, done: Bool = false) {
+    init(reps: Int, weightKg: Double, rpe: Int? = nil, done: Bool = false, restSeconds: Int? = WorkoutStats.defaultRest) {
         self.reps = reps
         self.weightKg = weightKg
         self.rpe = rpe
         self.done = done
+        self.restSeconds = restSeconds
+    }
+
+    var rest: Int {
+        get { restSeconds ?? WorkoutStats.defaultRest }
+        set { restSeconds = newValue }
     }
 
     /// "10 × 60 kg", "12 Wdh" without weight

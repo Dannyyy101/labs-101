@@ -66,7 +66,10 @@ public class WorkoutSession {
     public record Entry(Long exerciseId, String name, List<Set> sets) {
     }
 
-    /** {@code done} is checked off during the workout, only done sets count. */
-    public record Set(int reps, double weightKg, Integer rpe, boolean done) {
+    /**
+     * {@code done} is checked off during the workout, only done sets count.
+     * {@code restSeconds} is the rest after the set, null for the default.
+     */
+    public record Set(int reps, double weightKg, Integer rpe, boolean done, Integer restSeconds) {
     }
 }

@@ -128,7 +128,7 @@ public class WorkoutService {
                     exercise,
                     new StrengthItem.Settings(
                             s.sets().stream()
-                                    .map(d -> new StrengthItem.Set(d.order(), d.reps(), d.weightKg(), d.rpe()))
+                                    .map(d -> new StrengthItem.Set(d.order(), d.reps(), d.weightKg(), d.rpe(), d.restSeconds()))
                                     .toList()));
         };
     }

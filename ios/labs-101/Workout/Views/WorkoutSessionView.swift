@@ -215,6 +215,14 @@ private struct SetRow: View {
     let onToggle: () -> Void
 
     var body: some View {
+        VStack(spacing: 6) {
+            setLine
+            restPicker
+        }
+        .listRowBackground(set.done ? Color.green.opacity(0.12) : nil)
+    }
+
+    private var setLine: some View {
         HStack(spacing: 10) {
             Text("\(number)")
                 .font(.headline)
@@ -252,7 +260,30 @@ private struct SetRow: View {
             .buttonStyle(.plain)
             .sensoryFeedback(.impact, trigger: set.done)
         }
-        .listRowBackground(set.done ? Color.green.opacity(0.12) : nil)
+    }
+
+    /// the rest after the set, shown between the sets
+    private var restPicker: some View {
+        let options = WorkoutStats.restOptions.contains(set.rest) ? WorkoutStats.restOptions : (WorkoutStats.restOptions + [set.rest]).sorted()
+        return Menu {
+            Picker("Ruhezeit nach dem Satz", selection: $set.rest) {
+                ForEach(options, id: \.self) { seconds in
+                    Text(WorkoutStats.formattedRest(seconds)).tag(seconds)
+                }
+            }
+            .pickerStyle(.inline)
+        } label: {
+            HStack(spacing: 8) {
+                Capsule().fill(.quaternary).frame(height: 1)
+                Label(WorkoutStats.formattedRest(set.rest), systemImage: "timer")
+                    .font(.caption.weight(.semibold))
+                    .monospacedDigit()
+                    .foregroundStyle(set.rest > 0 ? .orange : .secondary)
+                Capsule().fill(.quaternary).frame(height: 1)
+            }
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel("Ruhezeit nach Satz \(number): \(WorkoutStats.formattedRest(set.rest))")
     }
 
     /// the weight field uses the id of the set, the reps field a derived one
