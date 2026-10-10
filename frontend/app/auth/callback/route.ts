@@ -23,7 +23,7 @@ export async function GET(request: NextRequest) {
         })
 
         const response = NextResponse.redirect(`${APP_URL}${login.returnTo}`)
-        response.cookies.set(SESSION_COOKIE, await encryptSession(sessionFromTokens(tokens)), sessionCookieOptions())
+        response.cookies.set(SESSION_COOKIE, await encryptSession(await sessionFromTokens(tokens)), sessionCookieOptions())
         response.cookies.delete(LOGIN_COOKIE)
         return response
     } catch (e) {

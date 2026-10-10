@@ -11,13 +11,13 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { AvatarImage } from "@/components/AvatarImage"
 import { NotificationBell } from "@/components/notifications/NotificationBell"
 import { useUser } from "@/components/user-provider"
 import { signOut } from "@/app/sign-in/action"
 import { addDays, formatShortDay, today } from "@/app/foods/track/format"
-import { ChevronLeft, ChevronRight, LogOut, Settings } from "lucide-react"
+import { ChevronLeft, ChevronRight, LogOut, Settings, UserPen } from "lucide-react"
 import { useTheme } from "next-themes"
-import Image from "next/image"
 import Link from "next/link"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { Suspense } from "react"
@@ -102,9 +102,7 @@ function UserMenu() {
 
     return <DropdownMenu>
         <DropdownMenuTrigger aria-label="Benutzermenü" className="flex size-10 items-center justify-center overflow-hidden rounded-full bg-muted-foreground/70 font-semibold text-white">
-            {user?.image
-                ? <Image className="size-10 object-cover" src={user.image} alt="" width={40} height={40} />
-                : initial}
+            <AvatarImage src={user?.image ?? null} alt="" size={40} className="size-10 object-cover" fallback={initial} />
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="min-w-48">
             {user && <>
@@ -126,6 +124,7 @@ function UserMenu() {
             </DropdownMenuGroup>
             {user && <>
                 <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => window.open("/auth/profile", "_blank")}><UserPen />Profil & Profilbild</DropdownMenuItem>
                 <DropdownMenuItem onClick={() => router.push("/settings")}><Settings />Einstellungen</DropdownMenuItem>
                 <DropdownMenuItem onClick={() => signOut()}><LogOut />Abmelden</DropdownMenuItem>
             </>}

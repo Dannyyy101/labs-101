@@ -35,6 +35,17 @@ const ISSUER = process.env.AUTH_ISSUER ?? "http://localhost:8081"
 const CLIENT_ID = process.env.AUTH_CLIENT_ID ?? ""
 const CLIENT_SECRET = process.env.AUTH_CLIENT_SECRET ?? ""
 // public URL of the frontend, behind the reverse proxy request.url only knows the container
+const ORG_ID = process.env.ZITADEL_ORG_ID ?? ""
+
+/**
+ * Zitadel serves the profile picture of a user at a fixed URL (like GitHub avatars), a new picture shows up there
+ * without any sync. Users without one get a 404, the avatar shows the initial then.
+ */
+export const avatarUrl = (userId: string) =>
+    ORG_ID ? `${ISSUER.replace(/\/$/, "")}/assets/v1/${ORG_ID}/users/${userId}/avatar` : null
+
+// own profile in the zitadel console, name and picture are changed there
+export const PROFILE_URL = `${ISSUER.replace(/\/$/, "")}/ui/console/users/me`
 export const APP_URL = (process.env.APP_URL ?? "http://localhost:3000").replace(/\/$/, "")
 export const CALLBACK_URL = `${APP_URL}/auth/callback`
 
@@ -101,15 +112,21 @@ export const decryptLoginState = (value: string | undefined) => decrypt<LoginSta
 
 export const needsRefresh = (session: Session) => session.expiresAt - REFRESH_MARGIN_SECONDS <= Date.now() / 1000
 
-/** Session of the tokens Zitadel just issued, the user comes from the id token. */
-export function sessionFromTokens(tokens: oidc.TokenEndpointResponse & oidc.TokenEndpointResponseHelpers, previous?: Session): Session {
+/**
+ * Session of the tokens Zitadel just issued. Name and email come from the userinfo endpoint, the id token only
+ * carries them when "User Info inside ID Token" is enabled in Zitadel. The picture isn't stored, see getUser.
+ */
+export async function sessionFromTokens(tokens: oidc.TokenEndpointResponse & oidc.TokenEndpointResponseHelpers, previous?: Session): Promise<Session> {
     const claims = tokens.claims()
-    const user: User = claims
+    const subject = claims?.sub ?? previous?.user.id
+    const info = subject ? await userInfo(tokens.access_token, subject) : null
+    const merged = { ...claims, ...info }
+    const user: User = merged.sub
         ? {
-            id: claims.sub,
-            name: String(claims.name ?? claims.preferred_username ?? claims.email ?? ""),
-            email: String(claims.email ?? ""),
-            image: typeof claims.picture === "string" ? claims.picture : null,
+            id: merged.sub,
+            name: String(merged.name ?? merged.preferred_username ?? merged.email ?? ""),
+            email: String(merged.email ?? ""),
+            image: null,
         }
         : previous!.user
     return {
@@ -122,12 +139,22 @@ export function sessionFromTokens(tokens: oidc.TokenEndpointResponse & oidc.Toke
     }
 }
 
+// a failing userinfo request must not break the login, the id token is used then
+async function userInfo(accessToken: string, subject: string): Promise<oidc.UserInfoResponse | null> {
+    try {
+        return await oidc.fetchUserInfo(await oidcConfiguration(), accessToken, subject)
+    } catch (e) {
+        console.error("Loading the userinfo failed", e)
+        return null
+    }
+}
+
 /** New tokens for an expiring session, null if the refresh token isn't valid anymore. */
 export async function refreshSession(session: Session): Promise<Session | null> {
     if (!session.refreshToken) return null
     try {
         const tokens = await oidc.refreshTokenGrant(await oidcConfiguration(), session.refreshToken)
-        return sessionFromTokens(tokens, session)
+        return await sessionFromTokens(tokens, session)
     } catch (e) {
         console.error("Refreshing the session failed", e)
         return null
@@ -159,8 +186,10 @@ export async function getSession(): Promise<Session | null> {
     return decryptSession((await cookies()).get(SESSION_COOKIE)?.value)
 }
 
+/** The picture is added here, so sessions from before a config change get the right URL too. */
 export async function getUser(): Promise<User | null> {
-    return (await getSession())?.user ?? null
+    const user = (await getSession())?.user
+    return user ? { ...user, image: avatarUrl(user.id) } : null
 }
 
 /** The access token for the backend, throws without a session. */
