@@ -22,6 +22,7 @@ const FoodSearch: React.FC<{ meal: Meal, selectedFoodStore: SelectedFoodState, c
     const [open, setOpen] = useState<boolean>(false)
     const [showBarcodeScanner, setShowBarcodeScanner] = useState<boolean>(false)
     const [page, setPage] = useState(0)
+    const [searching, setSearching] = useState(false)
 
     // like on iOS: debounce typing and drop answers of outdated queries,
     // otherwise a slow answer for a shorter query overwrites the current one
@@ -37,8 +38,10 @@ const FoodSearch: React.FC<{ meal: Meal, selectedFoodStore: SelectedFoodState, c
         if (query === "") {
             setFood([])
             setHasMore(false)
+            setSearching(false)
             return
         }
+        setSearching(true)
         searchTimeout.current = setTimeout(async () => {
             try {
                 const result = await findFoodByNameAndUserId(query)
@@ -48,6 +51,8 @@ const FoodSearch: React.FC<{ meal: Meal, selectedFoodStore: SelectedFoodState, c
                 setHasMore(!result.last)
             } catch {
                 if (id === searchId.current) setError("Suche fehlgeschlagen")
+            } finally {
+                if (id === searchId.current) setSearching(false)
             }
         }, 250)
     }
@@ -139,6 +144,7 @@ const FoodSearch: React.FC<{ meal: Meal, selectedFoodStore: SelectedFoodState, c
                             <InputGroupAddon>
                                 <Search />
                             </InputGroupAddon>
+                            {searching && <InputGroupAddon align="inline-end"><Spinner className="size-4" /></InputGroupAddon>}
                             <button className="mr-2" onClick={toggleBarcodeScanner}><Barcode /></button>
                         </InputGroup>
                         {error && (

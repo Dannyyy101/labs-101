@@ -48,4 +48,15 @@ public class NotFoundException extends BaseException {
         return new NotFoundException("error.run.notFound", id);
     }
 
+    public static NotFoundException user(String id) {
+        return new NotFoundException("error.user.notFound", id);
+    }
+
+    public static NotFoundException userSettings(String userId) {
+        return new NotFoundException("error.userSettings.notFound", userId);
+    }
+
+    public static NotFoundException notification(Long id) {
+        return new NotFoundException("error.notification.notFound", id);
+    }
 }

@@ -12,7 +12,9 @@ http:
       {
         "title": "1234",
         "startDate": "2026-08-26T10:15:30Z",
-        "endDate": "2026-08-26T12:15:30Z"
+        "endDate": "2026-08-26T12:15:30Z",
+        "workoutId": 1,
+        "inviteeIds": []
       }
   auth: inherit
 

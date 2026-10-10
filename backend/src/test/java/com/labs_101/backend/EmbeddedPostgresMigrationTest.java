@@ -35,6 +35,11 @@ public class EmbeddedPostgresMigrationTest {
     }
 
     @Test
+    void testJitIsDisabled() {
+        assertEquals("off", jdbc.queryForObject("SHOW jit", String.class));
+    }
+
+    @Test
     void testOpenFoodSearchUsesIndex() {
         jdbc.execute("SET enable_seqscan = off");
         String plan = String.join("\n", jdbc.queryForList(

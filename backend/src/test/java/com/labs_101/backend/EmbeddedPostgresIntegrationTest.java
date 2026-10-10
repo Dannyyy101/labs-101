@@ -10,8 +10,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
 import org.springframework.boot.jdbc.test.autoconfigure.AutoConfigureTestDatabase;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.test.context.ContextConfiguration;
 
 import com.labs_101.backend.entities.User;
@@ -41,7 +41,7 @@ public class EmbeddedPostgresIntegrationTest {
     void testSearchByNameWithEqualName() {
         foodRepository.save(new Food("Birne"));
         foodRepository.save(new Food("Apfel"));
-        Page<SearchFoodProjection> foods = foodRepository.search(Pageable.ofSize(5), "apfel", null);
+        Slice<SearchFoodProjection> foods = foodRepository.search(Pageable.ofSize(5), "apfel", null);
         assertEquals(foods.stream().toList().size(), 1);
         assertEquals("Apfel", foods.getContent().getFirst().getName());
     }
@@ -50,9 +50,19 @@ public class EmbeddedPostgresIntegrationTest {
     void testSearchByNameWithLikeName() {
         foodRepository.save(new Food("Birne"));
         foodRepository.save(new Food("Apfel"));
-        Page<SearchFoodProjection> foods = foodRepository.search(Pageable.ofSize(5), "pfe", null);
+        Slice<SearchFoodProjection> foods = foodRepository.search(Pageable.ofSize(5), "pfe", null);
         assertEquals(foods.stream().toList().size(), 1);
         assertEquals("Apfel", foods.getContent().getFirst().getName());
+    }
+
+    @Test
+    void testSearchTreatsWildcardsAsText() {
+        foodRepository.save(new Food("Birne"));
+        foodRepository.save(new Food("Quark 40% Fett"));
+        Slice<SearchFoodProjection> foods = foodRepository.search(Pageable.ofSize(5), "0%", null);
+        assertEquals(1, foods.getContent().size());
+        assertEquals("Quark 40% Fett", foods.getContent().getFirst().getName());
+        assertTrue(foodRepository.search(Pageable.ofSize(5), "_", null).getContent().isEmpty());
     }
 
     @Test
@@ -65,7 +75,7 @@ public class EmbeddedPostgresIntegrationTest {
         User user = userRepository.save(new User("1"));
         foodUserRepository.save(new TrackedFood(null, user, aubergine, 1.0, null, null, null, null));
 
-        Page<SearchFoodProjection> foods = foodRepository.search(Pageable.ofSize(5), "a", user.getId());
+        Slice<SearchFoodProjection> foods = foodRepository.search(Pageable.ofSize(5), "a", user.getId());
         assertEquals(foods.stream().toList().size(), 3);
         assertEquals("Aubergine", foods.getContent().getFirst().getName());
     }
@@ -117,15 +127,18 @@ public class EmbeddedPostgresIntegrationTest {
         openFoodRepository.save(new OpenFood(null, "4", "Skyr Vanille", 82.0, null, null, null, null, null, null,
                 null, null));
 
-        Page<SearchFoodProjection> skyr = foodRepository.search(Pageable.ofSize(5), "skyr", null);
-        assertEquals(2, skyr.getTotalElements());
+        Slice<SearchFoodProjection> skyr = foodRepository.search(Pageable.ofSize(5), "skyr", null);
         assertEquals(2, skyr.getContent().size());
+        assertFalse(skyr.hasNext());
         assertEquals(own.getId(), skyr.getContent().get(0).getId());
         assertFalse(skyr.getContent().get(0).getOpenFood());
         assertEquals("Skyr Vanille", skyr.getContent().get(1).getName());
 
-        // the count of a partial page comes from the count query
-        assertEquals(2, foodRepository.search(Pageable.ofSize(1), "skyr", null).getTotalElements());
+        Slice<SearchFoodProjection> first = foodRepository.search(Pageable.ofSize(1), "skyr", null);
+        assertTrue(first.hasNext());
+        Slice<SearchFoodProjection> second = foodRepository.search(first.nextPageable(), "skyr", null);
+        assertEquals("Skyr Vanille", second.getContent().getFirst().getName());
+        assertFalse(second.hasNext());
     }
 
     @Test

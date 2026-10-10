@@ -12,9 +12,18 @@ public interface FoodMatchProjection {
     String HEAD = "trim(regexp_replace(regexp_replace(lower(name), '\\([^)]*\\)', ' ', 'g'), ',.*$', ''))";
 
     /**
+     * The trigram part of {@link #SCORE}, whole word matches count most. Much
+     * cheaper than the score, so it is used to pick the candidates the score is
+     * computed for.
+     */
+    String SIMILARITY = "( 0.5 * strict_word_similarity(:query, lower(name))"
+            + " + 0.3 * similarity(lower(name), :query)"
+            + " + 0.2 * word_similarity(:query, lower(name)) )";
+
+    /**
      * Ranks how well {@code name} matches {@code :query} (lowercase).
      * <ul>
-     * <li>trigram similarity, whole word matches count most</li>
+     * <li>{@link #SIMILARITY}</li>
      * <li>bonus if the head equals the query, also when it is written apart
      * ("Hafer Flocken" for "haferflocken")</li>
      * <li>bonus if the head starts with the query ("Banane roh" for "banane",
@@ -25,9 +34,7 @@ public interface FoodMatchProjection {
      * dishes</li>
      * </ul>
      */
-    String SCORE = "( 0.5 * strict_word_similarity(:query, lower(name))"
-            + " + 0.3 * similarity(lower(name), :query)"
-            + " + 0.2 * word_similarity(:query, lower(name))"
+    String SCORE = "( " + SIMILARITY
             + " + CASE"
             + "     WHEN replace(" + HEAD + ", ' ', '') = :query THEN 0.5"
             + "     WHEN split_part(" + HEAD + ", ' ', 1) = :query"
