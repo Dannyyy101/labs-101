@@ -13,6 +13,9 @@ import ScannerPanel from "@/components/ScannerPanel";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { SelectedFoodAction, SelectedFoodState } from "@/lib/zustand/selectedFood";
 import { MEALS } from "./MealView";
+import PhotoFoodInput from "./PhotoFoodInput";
+
+const MODE_LABELS = { TEXT: "Per Text", PHOTO: "Per Foto", SEARCH: "Suchen" } as const
 
 const FoodSearch: React.FC<{ meal: Meal, selectedFoodStore: SelectedFoodState, children?: ReactNode, className?: string }> = ({ meal, selectedFoodStore, children, className }) => {
 
@@ -96,7 +99,7 @@ const FoodSearch: React.FC<{ meal: Meal, selectedFoodStore: SelectedFoodState, c
         setShowBarcodeScanner((prev) => !prev)
         setError(null)
     }
-    const [showDialog, setShowDialog] = useState<"SEARCH" | "TEXT">("SEARCH")
+    const [showDialog, setShowDialog] = useState<"SEARCH" | "TEXT" | "PHOTO">("SEARCH")
 
     const close = () => {
         selectedFoodStore.unselect()
@@ -117,10 +120,10 @@ const FoodSearch: React.FC<{ meal: Meal, selectedFoodStore: SelectedFoodState, c
             </DialogHeader>
             <section>
                 <div className="flex gap-x-2">
-                    {(["TEXT", "SEARCH"] as const).map((mode) =>
+                    {(["TEXT", "PHOTO", "SEARCH"] as const).map((mode) =>
                         <button key={mode} onClick={() => { setShowDialog(mode); selectedFoodStore.setFoodId(null) }}
                             className={`rounded-full px-4 py-1.5 font-medium ${showDialog === mode ? "bg-foreground text-background" : "bg-accent"}`}>
-                            {mode === "TEXT" ? "Per Text" : "Suchen"}
+                            {MODE_LABELS[mode]}
                         </button>
                     )}
                 </div>
@@ -183,6 +186,8 @@ const FoodSearch: React.FC<{ meal: Meal, selectedFoodStore: SelectedFoodState, c
                             </InfiniteScroll>
                         }
                     </>
+                    : showDialog === "PHOTO" ?
+                    <PhotoFoodInput meal={selectedFoodStore.meal ?? meal} />
                     :
                     <TextFoodInput
                         meal={selectedFoodStore.meal ?? meal}

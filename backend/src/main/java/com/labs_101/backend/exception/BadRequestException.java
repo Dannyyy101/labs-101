@@ -34,4 +34,32 @@ public class BadRequestException extends BaseException {
     public static BadRequestException notificationLink(String link) {
         return new BadRequestException("error.notification.link", link);
     }
+
+    public static BadRequestException meal(String meal) {
+        return new BadRequestException("error.meal.invalid", meal);
+    }
+
+    public static BadRequestException foodImageDisabled() {
+        return new BadRequestException("error.foodImage.disabled");
+    }
+
+    public static BadRequestException foodImageType(String contentType) {
+        return new BadRequestException("error.foodImage.type", contentType);
+    }
+
+    public static BadRequestException foodImageSize(long maxMegabytes) {
+        return new BadRequestException("error.foodImage.size", maxMegabytes);
+    }
+
+    public static BadRequestException foodImageDescription(int maxLength) {
+        return new BadRequestException("error.foodImage.description", maxLength);
+    }
+
+    public static BadRequestException foodImageNotReady(Long id) {
+        return new BadRequestException("error.foodImage.notReady", id);
+    }
+
+    public static BadRequestException foodImageItem() {
+        return new BadRequestException("error.foodImage.item");
+    }
 }

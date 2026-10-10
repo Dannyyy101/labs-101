@@ -59,4 +59,8 @@ public class NotFoundException extends BaseException {
     public static NotFoundException notification(Long id) {
         return new NotFoundException("error.notification.notFound", id);
     }
+
+    public static NotFoundException foodImage(Long id) {
+        return new NotFoundException("error.foodImage.notFound", id);
+    }
 }

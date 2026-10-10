@@ -197,7 +197,8 @@ public class FoodService {
                 dto.portionId()));
     }
 
-    private Food importOpenFood(OpenFood openFood) {
+    // also used by FoodImageService when accepting a photo
+    Food importOpenFood(OpenFood openFood) {
         if (openFood.getBarCode() != null) {
             Optional<Food> imported = foodRepository.findByBarCode(openFood.getBarCode());
             if (imported.isPresent())
