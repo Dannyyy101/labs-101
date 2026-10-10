@@ -9,7 +9,13 @@ struct SignInView: View {
 
     var body: some View {
         ContentUnavailableView {
-            Label("labs-101", systemImage: "person.crop.circle")
+            Label {
+                Text("labs-101")
+            } icon: {
+                Image("Logo")
+                    .resizable()
+                    .frame(width: 72, height: 72)
+            }
         } description: {
             Text("Melde dich an, um Essen, Trainings und Health-Daten zu synchronisieren.")
             if let error {

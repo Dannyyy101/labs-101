@@ -1,3 +1,4 @@
+import { Logo } from "@/components/Logo"
 import { buttonVariants } from "@/components/ui/button"
 import {
     Card,
@@ -19,6 +20,7 @@ export default async function SignIn({ searchParams }: PageProps<"/sign-in">) {
     return (
         <Card className="w-full max-w-md absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
             <CardHeader>
+                <Logo className="mb-2" />
                 <CardTitle>Anmelden</CardTitle>
                 <CardDescription>
                     Mit E-Mail und Passwort, Passkey oder Google bei labs-101
