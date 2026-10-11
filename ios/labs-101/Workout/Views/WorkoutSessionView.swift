@@ -18,7 +18,8 @@ struct WorkoutSessionView: View {
     init(session: WorkoutSession, exercises: [Exercise], history: [WorkoutSession], service: WorkoutService) {
         self.exercises = exercises
         self.history = history
-        _model = State(initialValue: WorkoutSessionModel(session: session, service: service))
+        // the same model the Apple Watch changes
+        _model = State(initialValue: WatchBridge.shared.model(for: session, service: service))
     }
 
     var body: some View {
@@ -42,6 +43,23 @@ struct WorkoutSessionView: View {
                 Section {
                     Button("Übung hinzufügen", systemImage: "plus") { showPicker = true }
                     Button("Training verwerfen", role: .destructive) { confirmDiscard = true }
+                }
+
+                // at the end of the list, so it isn't carried along while scrolling
+                Section {
+                    Button {
+                        focusedField = nil
+                        showFinish = true
+                    } label: {
+                        Text("Training beenden")
+                            .font(.headline)
+                            .frame(maxWidth: .infinity)
+                    }
+                    .buttonStyle(.borderedProminent)
+                    .tint(.green)
+                    .controlSize(.large)
+                    .listRowInsets(EdgeInsets())
+                    .listRowBackground(Color.clear)
                 }
             }
             .listSectionSpacing(.compact)
@@ -70,6 +88,10 @@ struct WorkoutSessionView: View {
             .onChange(of: scenePhase) { _, phase in
                 if phase != .active { model.saveNow() }
             }
+            // finished or discarded on the watch
+            .onChange(of: model.isClosed) { _, closed in
+                if closed { dismiss() }
+            }
         }
     }
 
@@ -81,8 +103,13 @@ struct WorkoutSessionView: View {
                 dismiss()
             }
         }
-        ToolbarItem(placement: .status) {
-            SaveStatus(state: model.saveState) { Task { await model.save() } }
+        // only a failed save is worth a hint, the rest happens quietly
+        if model.saveState == .failed {
+            ToolbarItem(placement: .status) {
+                Button("Nicht gespeichert – erneut versuchen") { Task { await model.save() } }
+                    .font(.caption)
+                    .tint(.red)
+            }
         }
         ToolbarItemGroup(placement: .keyboard) {
             Spacer()
@@ -95,24 +122,16 @@ struct WorkoutSessionView: View {
             if let rest = model.rest {
                 RestBar(rest: rest, onAdjust: model.adjustRest, onEnd: model.endRest)
             }
-            HStack {
-                VStack(alignment: .leading) {
-                    Text(model.session.startedAt, style: .timer)
-                        .font(.title2.bold())
-                        .monospacedDigit()
-                    Text("\(model.doneSets.count) / \(model.allSets.count) Sätze")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                }
+            HStack(alignment: .firstTextBaseline) {
+                Text(model.session.startedAt, style: .timer)
+                    .font(.title2.bold())
+                    .monospacedDigit()
                 Spacer()
-                Button("Beenden") {
-                    focusedField = nil
-                    showFinish = true
-                }
-                .buttonStyle(.glassProminent)
-                .tint(.green)
-                .controlSize(.large)
+                Text("\(model.doneSets.count) / \(model.allSets.count) Sätze")
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
             }
+            .padding(.horizontal, 4)
         }
         .padding(12)
         .glassEffect(in: .rect(cornerRadius: 24))
@@ -244,9 +263,8 @@ private struct SetRow: View {
             .buttonStyle(.plain)
             .disabled(previous == nil)
 
-            field(value: $set.weightKg, unit: "kg", keyboard: .decimalPad, focus: set.id)
-            field(value: Binding { Double(set.reps) } set: { set.reps = max(0, Int($0.rounded())) },
-                  unit: "Wdh", keyboard: .numberPad, focus: repsFocus)
+            weightField
+            RepsField(reps: $set.reps) { focusedField.wrappedValue = nil }
 
             Button(set.done ? "Satz \(number) nicht erledigt" : "Satz \(number) erledigt", systemImage: "checkmark") {
                 focusedField.wrappedValue = nil
@@ -286,28 +304,64 @@ private struct SetRow: View {
         .accessibilityLabel("Ruhezeit nach Satz \(number): \(WorkoutStats.formattedRest(set.rest))")
     }
 
-    /// the weight field uses the id of the set, the reps field a derived one
-    private var repsFocus: UUID {
-        var bytes = set.id.uuid
-        bytes.15 ^= 0xFF
-        return UUID(uuid: bytes)
-    }
-
-    private func field(value: Binding<Double>, unit: LocalizedStringKey, keyboard: UIKeyboardType, focus: UUID) -> some View {
+    private var weightField: some View {
         HStack(spacing: 3) {
-            TextField(unit, value: value, format: .number.precision(.fractionLength(0...2)))
-                .keyboardType(keyboard)
+            TextField("kg", value: $set.weightKg, format: .number.precision(.fractionLength(0...2)))
+                .keyboardType(.decimalPad)
                 .multilineTextAlignment(.trailing)
-                .focused(focusedField, equals: focus)
+                .focused(focusedField, equals: set.id)
                 .monospacedDigit()
-            Text(unit)
+            Text("kg")
                 .font(.caption)
                 .foregroundStyle(.secondary)
         }
-        .padding(.horizontal, 8)
-        .padding(.vertical, 6)
-        .frame(width: 84)
-        .background(Color(.tertiarySystemFill), in: .rect(cornerRadius: 8))
+        .setField()
+    }
+}
+
+/// The reps are picked from a wheel, typing them into a tiny field was fiddly.
+private struct RepsField: View {
+    @Binding var reps: Int
+    let onOpen: () -> Void
+
+    @State private var isPicking = false
+
+    var body: some View {
+        Button {
+            onOpen()
+            isPicking = true
+        } label: {
+            HStack(spacing: 3) {
+                Text("\(reps)")
+                    .monospacedDigit()
+                    .frame(maxWidth: .infinity, alignment: .trailing)
+                Text("Wdh")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+            .setField()
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel("Wiederholungen: \(reps)")
+        .popover(isPresented: $isPicking) {
+            Picker("Wiederholungen", selection: $reps) {
+                ForEach(0...max(50, reps), id: \.self) { value in
+                    Text("\(value)").tag(value)
+                }
+            }
+            .pickerStyle(.wheel)
+            .frame(width: 140, height: 200)
+            .presentationCompactAdaptation(.popover)
+        }
+    }
+}
+
+private extension View {
+    func setField() -> some View {
+        padding(.horizontal, 8)
+            .padding(.vertical, 6)
+            .frame(width: 84)
+            .background(Color(.tertiarySystemFill), in: .rect(cornerRadius: 8))
     }
 }
 
@@ -352,24 +406,6 @@ private struct RestBar: View {
                 }
             }
             .clipShape(.rect(cornerRadius: 14))
-        }
-    }
-}
-
-private struct SaveStatus: View {
-    let state: WorkoutSessionModel.SaveState
-    let onRetry: () -> Void
-
-    var body: some View {
-        switch state {
-        case .saved:
-            Text("Gespeichert").foregroundStyle(.secondary).font(.caption)
-        case .pending, .saving:
-            Text("Speichert…").foregroundStyle(.secondary).font(.caption)
-        case .failed:
-            Button("Nicht gespeichert – erneut versuchen", action: onRetry)
-                .font(.caption)
-                .tint(.red)
         }
     }
 }

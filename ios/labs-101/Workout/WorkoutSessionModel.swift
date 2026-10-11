@@ -8,7 +8,7 @@ final class WorkoutSessionModel {
         case saved, pending, saving, failed
     }
 
-    struct Rest {
+    struct Rest: Codable {
         let until: Date
         let total: TimeInterval
     }
@@ -23,9 +23,17 @@ final class WorkoutSessionModel {
         didSet { scheduleSave() }
     }
     private(set) var saveState = SaveState.saved
-    private(set) var rest: Rest?
+    /// stored per workout, so it survives closing the workout or the app
+    private(set) var rest: Rest? {
+        didSet { storeRest() }
+    }
     /// counts up when a rest is over, for the haptic feedback
     private(set) var restsFinished = 0
+    /// set once the workout was finished or discarded, also when that happened on the watch
+    private(set) var isClosed = false
+
+    /// called after every change, the watch bridge mirrors the workout with it
+    @ObservationIgnored var onChange: (() -> Void)?
 
     @ObservationIgnored private let service: WorkoutService
     @ObservationIgnored private var saveTask: Task<Void, Never>?
@@ -36,6 +44,7 @@ final class WorkoutSessionModel {
         self.service = service
         self.name = session.name
         self.exercises = session.exercises
+        restoreRest()
     }
 
     var allSets: [SessionSet] {
@@ -78,16 +87,50 @@ final class WorkoutSessionModel {
 
     func startRest(_ seconds: TimeInterval) {
         rest = Rest(until: .now.addingTimeInterval(seconds), total: seconds)
+        onChange?()
+        watchRest()
+    }
+
+    private func watchRest() {
+        guard let until = rest?.until else { return }
         restTask?.cancel()
         restTask = Task { [weak self] in
-            try? await Task.sleep(for: .seconds(seconds))
-            guard !Task.isCancelled, let self else { return }
-            restsFinished += 1
+            let left = until.timeIntervalSinceNow
+            if left > 0 {
+                try? await Task.sleep(for: .seconds(left))
+                guard !Task.isCancelled, let self else { return }
+                restsFinished += 1
+            }
             // the hint disappears a few seconds after the rest is over
-            try? await Task.sleep(for: .seconds(5))
-            guard !Task.isCancelled else { return }
+            try? await Task.sleep(for: .seconds(max(0, 5 + min(0, left))))
+            guard !Task.isCancelled, let self else { return }
             rest = nil
+            onChange?()
         }
+    }
+
+    private var restKey: String {
+        "workout-rest-\(session.id)"
+    }
+
+    private func storeRest() {
+        if let rest, let data = try? JSONEncoder().encode(rest) {
+            UserDefaults.standard.set(data, forKey: restKey)
+        } else {
+            UserDefaults.standard.removeObject(forKey: restKey)
+        }
+    }
+
+    /// a rest that is long over isn't worth showing anymore
+    private func restoreRest() {
+        guard let data = UserDefaults.standard.data(forKey: restKey),
+              let stored = try? JSONDecoder().decode(Rest.self, from: data),
+              stored.until.timeIntervalSinceNow > -5 else {
+            UserDefaults.standard.removeObject(forKey: restKey)
+            return
+        }
+        rest = stored
+        watchRest()
     }
 
     func adjustRest(by seconds: TimeInterval) {
@@ -95,16 +138,19 @@ final class WorkoutSessionModel {
         let left = max(0, rest.until.timeIntervalSinceNow + seconds)
         startRest(left)
         self.rest = Rest(until: .now.addingTimeInterval(left), total: max(15, rest.total + seconds))
+        onChange?()
     }
 
     func endRest() {
         restTask?.cancel()
         rest = nil
+        onChange?()
     }
 
     // MARK: Saving
 
     private func scheduleSave() {
+        onChange?()
         saveState = .pending
         saveTask?.cancel()
         saveTask = Task { [weak self] in
@@ -137,16 +183,27 @@ final class WorkoutSessionModel {
         Task { await save() }
     }
 
+    /// Saves a pending change and waits for it, e.g. while the app only runs in the background for the watch.
+    func flush() async {
+        guard saveState == .pending else { return }
+        saveTask?.cancel()
+        await save()
+    }
+
     func finish() async throws {
         // the finish request carries the latest state, a save racing it would be rejected anyway
         saveTask?.cancel()
         try await service.finish(session.id, name: name, exercises: exercises)
-        restTask?.cancel()
+        endRest()
+        isClosed = true
+        onChange?()
     }
 
     func discard() async throws {
         saveTask?.cancel()
         try await service.delete(session.id)
-        restTask?.cancel()
+        endRest()
+        isClosed = true
+        onChange?()
     }
 }

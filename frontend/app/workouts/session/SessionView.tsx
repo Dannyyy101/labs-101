@@ -8,11 +8,12 @@ import { Exercise } from "@/utils/types/workoutTypes"
 import { Check, ChevronLeft, Plus, Trash2, X } from "lucide-react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { useCallback, useEffect, useMemo, useRef, useState, useTransition } from "react"
+import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore, useTransition } from "react"
 import { formatDuration } from "../../runs/format"
 import { deleteSession, finishSession, updateSession } from "../action"
 import ExercisePicker from "../ExercisePicker"
 import NumberInput from "../NumberInput"
+import RepsPicker from "../RepsPicker"
 import RestPicker from "../RestPicker"
 import MuscleMap from "../MuscleMap"
 import { COLORS, DEFAULT_REST, formatSet, formatVolume, formatWeight, lastSets, MUSCLES, restOf, sessionDuration, setsPerMuscle, volume } from "../stats"
@@ -27,7 +28,7 @@ export default function SessionView({ session, exercises, history }: { session: 
     const now = useNow()
     const [name, setName] = useState(session.name)
     const [items, setItems] = useState<SessionExercise[]>(session.exercises)
-    const [rest, setRest] = useState<{ until: number, total: number } | null>(null)
+    const [rest, setRest] = useStoredRest(session.id)
     const [finishing, setFinishing] = useState(false)
 
     const exerciseById = useMemo(() => new Map(exercises.map((e) => [e.id, e])), [exercises])
@@ -64,7 +65,7 @@ export default function SessionView({ session, exercises, history }: { session: 
                             <span className="relative inline-flex size-2.5 rounded-full bg-[#30d158]" />
                         </span>
                         Läuft seit {new Date(session.startedAt).toLocaleTimeString("de-DE", { hour: "2-digit", minute: "2-digit" })} Uhr
-                        <span className="text-sm">· <SaveStatus state={saveState} onRetry={retry} /></span>
+                        {saveState === "error" && <span className="text-sm">· <button onClick={retry} className="font-medium text-[#ff453a]">Nicht gespeichert – erneut versuchen</button></span>}
                     </p>
                 </div>
             </div>
@@ -86,6 +87,7 @@ export default function SessionView({ session, exercises, history }: { session: 
                         className="flex items-center justify-center gap-2 rounded-[18px] border-2 border-dashed p-5 font-semibold text-[#0a84ff] hover:bg-card">
                         <Plus className="size-5" />Übung hinzufügen
                     </ExercisePicker>
+                    <button onClick={() => setFinishing(true)} className="rounded-full bg-[#30d158] px-5 py-3 font-semibold text-white">Training beenden</button>
                     <DiscardButton session={session} />
                 </div>
 
@@ -110,7 +112,7 @@ export default function SessionView({ session, exercises, history }: { session: 
         </div>
 
         <BottomBar elapsed={sessionDuration(session, now)} now={now} rest={rest} setRest={setRest}
-            progress={`${done.length} / ${sets.length} Sätze`} onFinish={() => setFinishing(true)} />
+            progress={`${done.length} / ${sets.length} Sätze`} />
 
         <FinishDialog open={finishing} onOpenChange={setFinishing} session={session} name={name} items={items}
             elapsed={sessionDuration(session, now)} beforeFinish={cancel}
@@ -170,12 +172,45 @@ function useAutosave(id: number, name: string, items: SessionExercise[]) {
     return { state, retry: save, cancel }
 }
 
-function SaveStatus({ state, onRetry }: { state: SaveState, onRetry: () => void }) {
-    switch (state) {
-        case "saved": return <span>Gespeichert</span>
-        case "pending":
-        case "saving": return <span>Speichert…</span>
-        case "error": return <button onClick={onRetry} className="font-medium text-[#ff453a]">Nicht gespeichert – erneut versuchen</button>
+type Rest = { until: number, total: number }
+
+/** The running rest, kept in the browser so it survives leaving and reopening the workout. */
+function useStoredRest(id: number) {
+    const key = `workout-rest-${id}`
+    const subscribe = useCallback((onChange: () => void) => {
+        window.addEventListener(REST_EVENT, onChange)
+        window.addEventListener("storage", onChange)
+        return () => {
+            window.removeEventListener(REST_EVENT, onChange)
+            window.removeEventListener("storage", onChange)
+        }
+    }, [])
+    const stored = useSyncExternalStore(subscribe, () => readStorage(key), () => null)
+    const rest = useMemo(() => stored ? JSON.parse(stored) as Rest : null, [stored])
+
+    const update = useCallback((next: Rest | null) => {
+        try {
+            if (next) localStorage.setItem(key, JSON.stringify(next))
+            else localStorage.removeItem(key)
+        } catch { }
+        window.dispatchEvent(new Event(REST_EVENT))
+    }, [key])
+    return [rest, update] as const
+}
+
+const REST_EVENT = "workout-rest"
+
+function readStorage(key: string) {
+    try {
+        const stored = localStorage.getItem(key)
+        // a rest that is long over isn't worth showing anymore
+        if (stored && (JSON.parse(stored) as Rest).until < Date.now() - 5000) {
+            localStorage.removeItem(key)
+            return null
+        }
+        return stored
+    } catch {
+        return null
     }
 }
 
@@ -227,7 +262,7 @@ function ExerciseLog({ item, exercise, previous, onChange, onToggle, onRemove }:
                     </button>
                     <NumberInput value={set.weightKg} onChange={(weightKg) => updateSet(i, { weightKg })} label={`Gewicht Satz ${i + 1}`} decimal
                         className={cn(set.done && "bg-[#30d158]/12")} />
-                    <NumberInput value={set.reps} onChange={(reps) => updateSet(i, { reps: Math.round(reps) })} label={`Wiederholungen Satz ${i + 1}`}
+                    <RepsPicker value={set.reps} onChange={(reps) => updateSet(i, { reps })} label={`Wiederholungen Satz ${i + 1}`}
                         className={cn(set.done && "bg-[#30d158]/12")} />
                     <RestPicker value={restOf(set)} onChange={(restSeconds) => updateSet(i, { restSeconds })} label={`Ruhezeit nach Satz ${i + 1}`}
                         className={cn(set.done && "bg-[#30d158]/12")} />
@@ -252,9 +287,8 @@ function ExerciseLog({ item, exercise, previous, onChange, onToggle, onRemove }:
 
 // MARK: bottom bar
 
-function BottomBar({ elapsed, now, rest, setRest, progress, onFinish }: {
-    elapsed: number, now: number, rest: { until: number, total: number } | null,
-    setRest: (rest: { until: number, total: number } | null) => void, progress: string, onFinish: () => void
+function BottomBar({ elapsed, now, rest, setRest, progress }: {
+    elapsed: number, now: number, rest: Rest | null, setRest: (rest: Rest | null) => void, progress: string
 }) {
     const left = rest ? Math.ceil((rest.until - now) / 1000) : 0
     const over = rest != null && left <= 0
@@ -289,7 +323,6 @@ function BottomBar({ elapsed, now, rest, setRest, progress, onFinish }: {
                     <div className="text-2xl font-bold leading-tight tabular-nums">{formatDuration(elapsed)}</div>
                     <div className="text-xs text-muted-foreground">{progress}</div>
                 </div>
-                <button onClick={onFinish} className="rounded-full bg-[#30d158] px-5 py-2.5 font-semibold text-white">Beenden</button>
             </div>
         </div>
     </div>

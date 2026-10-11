@@ -6,10 +6,40 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		A7E100000000000000000009 /* labs-101-watch.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = A7E100000000000000000001 /* labs-101-watch.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		A7E10000000000000000000B /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 65DC12CF3038BBD0009BECA7 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = A7E100000000000000000008;
+			remoteInfo = "labs-101-watch";
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		A7E10000000000000000000A /* Embed Watch Content */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "$(CONTENTS_FOLDER_PATH)/Watch";
+			dstSubfolderSpec = 16;
+			files = (
+				A7E100000000000000000009 /* labs-101-watch.app in Embed Watch Content */,
+			);
+			name = "Embed Watch Content";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
 		65DC12D73038BBD0009BECA7 /* labs-101.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "labs-101.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		65DC12F13038BBD2009BECA7 /* Config.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Config.xcconfig; sourceTree = "<group>"; };
 		65DC12F23038BBD2009BECA7 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		A7E100000000000000000002 /* Watch-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "Watch-Info.plist"; sourceTree = "<group>"; };
+		A7E100000000000000000001 /* labs-101-watch.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "labs-101-watch.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -18,10 +48,27 @@
 			path = "labs-101";
 			sourceTree = "<group>";
 		};
+		A7E100000000000000000003 /* labs-101-watch */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = "labs-101-watch";
+			sourceTree = "<group>";
+		};
+		A7E100000000000000000004 /* Shared */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = Shared;
+			sourceTree = "<group>";
+		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
 		65DC12D43038BBD0009BECA7 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A7E100000000000000000006 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -35,6 +82,8 @@
 			isa = PBXGroup;
 			children = (
 				65DC12D93038BBD0009BECA7 /* labs-101 */,
+				A7E100000000000000000003 /* labs-101-watch */,
+				A7E100000000000000000004 /* Shared */,
 				65DC12F03038BBD2009BECA7 /* Config */,
 				65DC12D83038BBD0009BECA7 /* Products */,
 			);
@@ -44,6 +93,7 @@
 			isa = PBXGroup;
 			children = (
 				65DC12D73038BBD0009BECA7 /* labs-101.app */,
+				A7E100000000000000000001 /* labs-101-watch.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -53,6 +103,7 @@
 			children = (
 				65DC12F13038BBD2009BECA7 /* Config.xcconfig */,
 				65DC12F23038BBD2009BECA7 /* Info.plist */,
+				A7E100000000000000000002 /* Watch-Info.plist */,
 			);
 			path = Config;
 			sourceTree = "<group>";
@@ -67,19 +118,45 @@
 				65DC12D33038BBD0009BECA7 /* Sources */,
 				65DC12D43038BBD0009BECA7 /* Frameworks */,
 				65DC12D53038BBD0009BECA7 /* Resources */,
+				A7E10000000000000000000A /* Embed Watch Content */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				A7E10000000000000000000C /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				65DC12D93038BBD0009BECA7 /* labs-101 */,
+				A7E100000000000000000004 /* Shared */,
 			);
 			name = "labs-101";
 			packageProductDependencies = (
 			);
 			productName = "labs-101";
 			productReference = 65DC12D73038BBD0009BECA7 /* labs-101.app */;
+			productType = "com.apple.product-type.application";
+		};
+		A7E100000000000000000008 /* labs-101-watch */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A7E10000000000000000000F /* Build configuration list for PBXNativeTarget "labs-101-watch" */;
+			buildPhases = (
+				A7E100000000000000000005 /* Sources */,
+				A7E100000000000000000006 /* Frameworks */,
+				A7E100000000000000000007 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				A7E100000000000000000003 /* labs-101-watch */,
+				A7E100000000000000000004 /* Shared */,
+			);
+			name = "labs-101-watch";
+			packageProductDependencies = (
+			);
+			productName = "labs-101-watch";
+			productReference = A7E100000000000000000001 /* labs-101-watch.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -94,6 +171,9 @@
 				TargetAttributes = {
 					65DC12D63038BBD0009BECA7 = {
 						CreatedOnToolsVersion = 26.6;
+					};
+					A7E100000000000000000008 = {
+						CreatedOnToolsVersion = 27.0;
 					};
 				};
 			};
@@ -112,12 +192,20 @@
 			projectRoot = "";
 			targets = (
 				65DC12D63038BBD0009BECA7 /* labs-101 */,
+				A7E100000000000000000008 /* labs-101-watch */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
 		65DC12D53038BBD0009BECA7 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A7E100000000000000000007 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -134,7 +222,22 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		A7E100000000000000000005 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		A7E10000000000000000000C /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = A7E100000000000000000008 /* labs-101-watch */;
+			targetProxy = A7E10000000000000000000B /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		65DC12E03038BBD1009BECA7 /* Debug */ = {
@@ -338,6 +441,82 @@
 			};
 			name = Release;
 		};
+		A7E10000000000000000000D /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = "labs-101-watch/labs-101-watch.entitlements";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 7X5U7U9DN3;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "Config/Watch-Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "labs-101";
+				INFOPLIST_KEY_NSHealthShareUsageDescription = "Die App zeigt deinen Puls und deine aktiven Kalorien während des Trainings an";
+				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "Die App speichert deine Trainings als Krafttraining in Health";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = "labs-101.labs-101";
+				INFOPLIST_KEY_WKRunsIndependentlyOfCompanionApp = NO;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "labs-101.labs-101.watchkitapp";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				WATCHOS_DEPLOYMENT_TARGET = 26.0;
+			};
+			name = Debug;
+		};
+		A7E10000000000000000000E /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = "labs-101-watch/labs-101-watch.entitlements";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 7X5U7U9DN3;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "Config/Watch-Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "labs-101";
+				INFOPLIST_KEY_NSHealthShareUsageDescription = "Die App zeigt deinen Puls und deine aktiven Kalorien während des Trainings an";
+				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "Die App speichert deine Trainings als Krafttraining in Health";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = "labs-101.labs-101";
+				INFOPLIST_KEY_WKRunsIndependentlyOfCompanionApp = NO;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "labs-101.labs-101.watchkitapp";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				WATCHOS_DEPLOYMENT_TARGET = 26.0;
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -355,6 +534,15 @@
 			buildConfigurations = (
 				65DC12E33038BBD1009BECA7 /* Debug */,
 				65DC12E43038BBD1009BECA7 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		A7E10000000000000000000F /* Build configuration list for PBXNativeTarget "labs-101-watch" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A7E10000000000000000000D /* Debug */,
+				A7E10000000000000000000E /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

@@ -33,6 +33,8 @@ struct labs_101App: App {
 
 final class AppDelegate: NSObject, UIApplicationDelegate {
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil) -> Bool {
+        // early, the watch can launch the app in the background with a message
+        WatchBridge.shared.activate()
         // also when HealthKit launches the app in the background for new samples
         if AppConfig.current.isComplete {
             HealthBackgroundSync.registerAtLaunch()

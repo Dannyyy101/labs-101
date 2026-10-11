@@ -11,8 +11,8 @@ struct WorkoutsView: View {
         NavigationStack {
             content
                 .navigationTitle("Training")
-                .refreshable { await model.load(using: workoutService) }
-                .task { await model.load(using: workoutService) }
+                .refreshable { await load() }
+                .task { await load() }
                 .navigationDestination(for: WorkoutSession.self) { session in
                     WorkoutSessionDetailView(session: session) {
                         Task { await model.delete(session, using: workoutService) }
@@ -25,6 +25,7 @@ struct WorkoutsView: View {
                 .alert("Fehler", isPresented: $model.actionError.isPresent) {} message: {
                     Text(model.actionError ?? "")
                 }
+                .onChange(of: WatchBridge.shared.workoutsEnded) { reload() }
         }
     }
 
@@ -94,11 +95,20 @@ struct WorkoutsView: View {
         Task {
             defer { startingTemplate = nil }
             openSession = await model.start(templateID: templateID, using: workoutService)
+            if openSession != nil {
+                WatchBridge.shared.startWatchApp()
+            }
         }
     }
 
     private func reload() {
-        Task { await model.load(using: workoutService) }
+        Task { await load() }
+    }
+
+    private func load() async {
+        await model.load(using: workoutService)
+        // for exercises added on the watch and its "last time" hints
+        WatchBridge.shared.use(exercises: model.exercises, history: model.history)
     }
 }
 
