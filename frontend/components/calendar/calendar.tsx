@@ -4,7 +4,7 @@ import {
     DialogContent, DialogTrigger
 } from "@/components/ui/dialog";
 import { useEventStore } from '@/lib/zustand/eventStore';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import { EventDialog } from './EventDialog';
 import { CalendarEvent } from '@/utils/types/calendarTypes';
@@ -23,7 +23,7 @@ export interface Training {
 }
 
 /** Höhe einer Stunde in px; kleiner = weiter rausgezoomt. */
-const HOUR_HEIGHT = 48
+const HOUR_HEIGHT = 60
 
 /** Setzt die Uhrzeit auf 00:00:00.000 und gibt ein neues Date zurück. */
 const startOfDay = (date: Date) => {
@@ -106,6 +106,23 @@ export default function Calendar() {
         fetch()
     }, [dateRange, STEPS, isSizeKnown, version])
 
+    // the hours fill the window down to its bottom edge, the header above grows with the all-day events
+    const headerRef = useRef<HTMLDivElement>(null)
+    const hoursRef = useRef<HTMLDivElement>(null)
+    const [hoursHeight, setHoursHeight] = useState<number>()
+
+    useEffect(() => {
+        const update = () => {
+            if (!hoursRef.current) return
+            const top = hoursRef.current.getBoundingClientRect().top + window.scrollY
+            setHoursHeight(Math.max(window.innerHeight - top - 16, 6 * HOUR_HEIGHT))
+        }
+        // also called once right away when it starts observing
+        const observer = new ResizeObserver(update)
+        if (headerRef.current) observer.observe(headerRef.current)
+        return () => observer.disconnect()
+    }, [size.height, size.width])
+
     const WEEKDAYS = ['So.', 'Mo.', 'Di.', 'Mi.', 'Do.', 'Fr.', 'Sa.']
 
     const pad = (value: number) => value.toString().padStart(2, '0')
@@ -121,7 +138,7 @@ export default function Calendar() {
                 <Button variant="secondary" onClick={() => setDateRange((prev) => increaseDateByDays(prev, STEPS))}><ChevronRight /></Button>
             </div>
 
-            <div className="mt-10 grid min-h-10" style={{ gridTemplateColumns: `60px repeat(${STEPS}, minmax(0, 1fr))` }}>
+            <div ref={headerRef} className="mt-10 grid min-h-10" style={{ gridTemplateColumns: `60px repeat(${STEPS}, minmax(0, 1fr))` }}>
                 <div></div>
                 {Array(STEPS).fill(0).map((_, index) => (
                     <div key={index} className="sticky top-0 z-10 flex min-w-0 flex-col items-center justify-center gap-1 pb-1">
@@ -130,7 +147,7 @@ export default function Calendar() {
                     </div>
                 ))}
             </div>
-            <div className="grid overflow-y-auto max-h-150" style={{ gridTemplateColumns: `60px repeat(${STEPS}, minmax(0, 1fr))` }}>
+            <div ref={hoursRef} className="grid overflow-y-auto" style={{ height: hoursHeight ?? 600, gridTemplateColumns: `60px repeat(${STEPS}, minmax(0, 1fr))` }}>
                 <Time />
 
                 {Array.from(Array(STEPS).keys()).map((index) => {
