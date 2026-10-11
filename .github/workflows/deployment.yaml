@@ -29,5 +29,6 @@ jobs:
                   AUTH_SECRET: ${{ secrets.AUTH_SECRET }}
                   AUTH_AUDIENCE: ${{ secrets.AUTH_AUDIENCE }}
                   ZITADEL_ORG_ID: ${{ secrets.ZITADEL_ORG_ID }}
+                  CALENDAR_ENCRYPTION_KEY: ${{ secrets.CALENDAR_ENCRYPTION_KEY }}
 
               run: docker compose up -d --build
