@@ -1,9 +1,9 @@
 'use server'
 
-import { mapFromCalendarEventDto } from "@/lib/mapper/calendarMapper"
+import { mapFromCalendarEventDto, mapFromExternalCalendarEventDto } from "@/lib/mapper/calendarMapper"
 import { BACKEND_URL } from "@/utils/constants"
 import { backendFetch } from "@/utils/backend"
-import { CalendarEvent, CalendarEventDto, CalendarUser } from "@/utils/types/calendarTypes"
+import { CalendarEvent, CalendarEventDto, CalendarUser, ExternalCalendarEventDto } from "@/utils/types/calendarTypes"
 import { Result } from "@/utils/types/types"
 import { Exercise, WorkoutTemplate } from "@/utils/types/workoutTypes"
 import { sortWorkoutTemplates } from "@/utils/workout"
@@ -56,11 +56,33 @@ export async function getAllCalendarEvents(dateRange: Date, steps: number): Prom
     return { value: null, error: new Error("Error fetching calendar events") }
 }
 
+/** The events of the user's Apple calendars, empty when there are none or they can't be loaded. */
+export async function getExternalCalendarEvents(dateRange: Date, steps: number): Promise<CalendarEvent[]> {
+    const url = new URL(BACKEND_URL + "/calendar/external/events")
+    url.searchParams.append("startDate", dateRange.toISOString())
+    const endDate = new Date(dateRange)
+    endDate.setDate(endDate.getDate() + steps)
+    url.searchParams.append("endDate", endDate.toISOString())
+
+    try {
+        const response = await backendFetch(url.toString(), { cache: "no-store" })
+        if (response.ok) {
+            return (await response.json() as ExternalCalendarEventDto[]).map(mapFromExternalCalendarEventDto)
+        }
+        console.error(`Error fetching external calendar events: ${response.status}`)
+    } catch (e) {
+        console.error("Error fetching external calendar events", e)
+    }
+    // the own events are still shown
+    return []
+}
+
 /** The ids of the invitees instead of the people, the backend only needs those. */
 const toRequestBody = (calendarEvent: CalendarEvent) => ({
     ...calendarEvent,
     startDate: calendarEvent.startDate.toISOString(),
     endDate: calendarEvent.endDate.toISOString(),
+    recurrenceEnd: calendarEvent.recurrenceEnd?.toISOString() ?? null,
     invitees: undefined,
     inviteeIds: calendarEvent.invitees.map((user) => user.id),
 })
@@ -94,9 +116,10 @@ export async function createCalendarEvent(calendarEvent: CalendarEvent): Promise
 
     throw new Error("Error creating calendar events")
 }
-export async function updateCalendarEvent(calendarEvent: CalendarEvent): Promise<Result<void>> {
+/** {@link occurrenceStartDate} is the start of the edited occurrence of a repeating event, the whole series is moved like it. */
+export async function updateCalendarEvent(calendarEvent: CalendarEvent, occurrenceStartDate?: Date): Promise<Result<void>> {
     const response = await backendFetch(BACKEND_URL + "/calendar/" + calendarEvent.id, {
-        method: "PUT", body: JSON.stringify(toRequestBody(calendarEvent)), headers: {
+        method: "PUT", body: JSON.stringify({ ...toRequestBody(calendarEvent), occurrenceStartDate: occurrenceStartDate?.toISOString() }), headers: {
             'Content-Type': 'application/json'
         }
     })

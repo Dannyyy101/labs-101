@@ -112,6 +112,12 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-data-rest</artifactId>
 		</dependency>
+		<!-- reads the iCalendar feeds of shared Apple calendars, with their repetitions and time zones -->
+		<dependency>
+			<groupId>net.sf.biweekly</groupId>
+			<artifactId>biweekly</artifactId>
+			<version>0.6.8</version>
+		</dependency>
 	</dependencies>
 
 	<build>

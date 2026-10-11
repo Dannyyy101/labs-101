@@ -63,4 +63,12 @@ public class NotFoundException extends BaseException {
     public static NotFoundException foodImage(Long id) {
         return new NotFoundException("error.foodImage.notFound", id);
     }
+
+    public static NotFoundException externalCalendar(Long id) {
+        return new NotFoundException("error.externalCalendar.notFound", id);
+    }
+
+    public static NotFoundException appleAccount(Long id) {
+        return new NotFoundException("error.appleAccount.notFound", id);
+    }
 }

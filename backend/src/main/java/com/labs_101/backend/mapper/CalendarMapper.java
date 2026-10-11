@@ -7,6 +7,7 @@ import com.labs_101.backend.entities.CalendarEvent;
 import com.labs_101.backend.entities.User;
 import com.labs_101.backend.entities.workout.Workout;
 
+import java.time.Instant;
 import java.util.Comparator;
 import java.util.LinkedHashSet;
 import java.util.function.Function;
@@ -14,19 +15,26 @@ import java.util.function.Function;
 public class CalendarMapper {
     public static CalendarEvent fromCreateCalendarEventDto(CreateCalendarEventDto dto, User creator, Workout workout) {
         return new CalendarEvent(null, dto.getTitle(), dto.getStartDate(), dto.getEndDate(), creator, workout,
-                new LinkedHashSet<>());
+                new LinkedHashSet<>(), dto.getRecurrence(), dto.getRecurrenceEnd());
     }
 
     /** {@code avatarUrl} gives the profile picture of a user id. */
     public static CalendarEventDto fromCalendarEvent(CalendarEvent event, Function<String, String> avatarUrl) {
+        return fromCalendarEvent(event, event.getStartDate(), event.getEndDate(), avatarUrl);
+    }
+
+    /** One occurrence of the event, a repeating event has the same id at every occurrence. */
+    public static CalendarEventDto fromCalendarEvent(CalendarEvent event, Instant startDate, Instant endDate,
+            Function<String, String> avatarUrl) {
         Workout workout = event.getWorkout();
-        return new CalendarEventDto(event.getId(), event.getTitle(), event.getStartDate(), event.getEndDate(),
+        return new CalendarEventDto(event.getId(), event.getTitle(), startDate, endDate,
                 event.getCreator().getId(), workout == null ? null : workout.getId(),
                 workout == null ? null : workout.getName(), fromUser(event.getCreator(), avatarUrl),
                 // sorted, the stored set has no order
                 event.getInvitees().stream().map((user) -> fromUser(user, avatarUrl))
                         .sorted(Comparator.comparing(CalendarUserDto::name, Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER)))
-                        .toList());
+                        .toList(),
+                event.getRecurrence(), event.getRecurrenceEnd());
     }
 
     public static CalendarUserDto fromUser(User user, Function<String, String> avatarUrl) {

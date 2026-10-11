@@ -8,9 +8,9 @@ import { useEffect, useState } from 'react';
 
 import { EventDialog } from './EventDialog';
 import { CalendarEvent } from '@/utils/types/calendarTypes';
-import { getAllCalendarEvents } from './action';
+import { getAllCalendarEvents, getExternalCalendarEvents } from './action';
 import { Button } from "../ui/button";
-import { ChevronRight, ChevronLeft, Dumbbell } from "lucide-react";
+import { ChevronRight, ChevronLeft, Dumbbell, Repeat } from "lucide-react";
 import { startAtTime } from "@/utils/date";
 import { AvatarStack } from "./UserAvatar";
 
@@ -21,6 +21,9 @@ export interface Training {
     description: string
     duration: number
 }
+
+/** Höhe einer Stunde in px; kleiner = weiter rausgezoomt. */
+const HOUR_HEIGHT = 48
 
 /** Setzt die Uhrzeit auf 00:00:00.000 und gibt ein neues Date zurück. */
 const startOfDay = (date: Date) => {
@@ -89,16 +92,19 @@ export default function Calendar() {
     }
 
     const setEvents = useEventStore((state) => state.setEvents)
+    const version = useEventStore((state) => state.version)
 
     useEffect(() => {
         if (!isSizeKnown) return
 
         const fetch = async () => {
-            setEvents((await getAllCalendarEvents(dateRange, STEPS)).value || [])
+            // the Apple calendars are slower, they are loaded from Apple when they weren't for a while
+            const [own, external] = await Promise.all([getAllCalendarEvents(dateRange, STEPS), getExternalCalendarEvents(dateRange, STEPS)])
+            setEvents([...(own.value || []), ...external])
         }
 
         fetch()
-    }, [dateRange, STEPS, isSizeKnown])
+    }, [dateRange, STEPS, isSizeKnown, version])
 
     const WEEKDAYS = ['So.', 'Mo.', 'Di.', 'Mi.', 'Do.', 'Fr.', 'Sa.']
 
@@ -115,11 +121,12 @@ export default function Calendar() {
                 <Button variant="secondary" onClick={() => setDateRange((prev) => increaseDateByDays(prev, STEPS))}><ChevronRight /></Button>
             </div>
 
-            <div className="mt-10 grid h-10" style={{ gridTemplateColumns: `60px repeat(${STEPS}, minmax(0, 1fr))` }}>
+            <div className="mt-10 grid min-h-10" style={{ gridTemplateColumns: `60px repeat(${STEPS}, minmax(0, 1fr))` }}>
                 <div></div>
                 {Array(STEPS).fill(0).map((_, index) => (
-                    <div key={index} className="sticky top-0 z-10 flex items-center justify-center">
-                        <p className="text-center whitespace-nowrap truncate">{formatColumnDate(increaseDateByDays(dateRange, index))}</p>
+                    <div key={index} className="sticky top-0 z-10 flex min-w-0 flex-col items-center justify-center gap-1 pb-1">
+                        <p className="h-10 content-center text-center whitespace-nowrap truncate">{formatColumnDate(increaseDateByDays(dateRange, index))}</p>
+                        <AllDayEvents columnDate={increaseDateByDays(dateRange, index)} />
                     </div>
                 ))}
             </div>
@@ -135,13 +142,24 @@ export default function Calendar() {
     );
 }
 const Time = () => {
-    return <div className="grid" style={{ gridTemplateRows: "repeat(24, 1fr)" }}>{Array(24).fill(0).map((_, index) => <p key={index}>{startAtTime(index, 6).toString().padStart(2, "0")}:00</p>)}</div>
+    return <div className="grid" style={{ gridTemplateRows: "repeat(24, 1fr)" }}>{Array(24).fill(0).map((_, index) => <p key={index} className="text-xs text-muted-foreground">{startAtTime(index, 6).toString().padStart(2, "0")}:00</p>)}</div>
+}
+
+/** All-day events of Apple calendars above the hours, on every day they last. */
+const AllDayEvents = ({ columnDate }: { columnDate: Date }) => {
+    const events = useEventStore((state) => state.events)
+    const dayEnd = new Date(columnDate)
+    dayEnd.setDate(dayEnd.getDate() + 1)
+
+    return events.filter((e) => e.allDay && e.startDate < dayEnd && e.endDate > columnDate).map((e) =>
+        <p key={e.id} title={`${e.title} · ${e.external?.calendarName ?? ""}`}
+            className="w-full truncate rounded bg-muted px-2 py-0.5 text-xs text-muted-foreground">{e.title || "Ohne Titel"}</p>)
 }
 
 const Day = ({ columnDate }: { columnDate: Date }) => {
     const events = useEventStore((state) => state.events)
 
-    const filteredEvents = events.filter((e) =>
+    const filteredEvents = events.filter((e) => !e.allDay &&
         e.startDate.getDate() === columnDate.getDate() &&
         e.startDate.getMonth() === columnDate.getMonth() &&
         e.startDate.getFullYear() === columnDate.getFullYear()
@@ -159,9 +177,9 @@ const TimeSlot = ({ hour, events, columnDate }: { hour: number, events: Calendar
     const startDate = new Date(columnDate.getTime())
     startDate.setHours(hour, 0, 0, 0)
 
-    return <div className="w-full relative block bg-card text-sm text-card-foreground border hover:cursor-default">
+    return <div style={{ height: `${HOUR_HEIGHT}px` }} className="w-full relative block bg-card text-sm text-card-foreground border hover:cursor-default">
         <Dialog open={open} onOpenChange={setOpen}>
-            <DialogTrigger className="w-full h-20">
+            <DialogTrigger className="block w-full h-full">
             </DialogTrigger>
             <DialogContent showCloseButton={false} className="gap-0 overflow-hidden bg-muted p-0 sm:max-w-md">
                 <EventDialog calendarEvent={null} closeDialog={() => setOpen(false)} startDate={startDate} />
@@ -169,7 +187,8 @@ const TimeSlot = ({ hour, events, columnDate }: { hour: number, events: Calendar
         </Dialog>
         <div>
             {events.filter((e) => e.startDate.getHours() >= hour && e.startDate.getHours() < hour + 1).map((item) =>
-                <Event event={item} key={item.id} />
+                // a repeating event has the same id at every occurrence
+                <Event event={item} key={`${item.id}-${item.startDate.getTime()}`} />
             )}
         </div>
     </div>
@@ -180,12 +199,23 @@ const Event = ({ event }: { event: CalendarEvent }) => {
     const durationMinutes = (event.endDate.getTime() - event.startDate.getTime()) / 60000
     const startMinutes = event.startDate.getMinutes()
 
+    if (event.external) {
+        // read only, it's changed in Apple Calendar; clicks go through to the time slot below
+        return <div style={{ height: `${Math.max(durationMinutes, 15) * HOUR_HEIGHT / 60}px`, top: `${startMinutes * HOUR_HEIGHT / 60}px` }}
+            className="pointer-events-none absolute w-full z-40 text-xs leading-tight">
+            <div className='w-full h-full overflow-hidden rounded border-l-4 border-muted-foreground/40 bg-muted px-2 py-1 text-muted-foreground'>
+                <h3 className='truncate'>{event.title || "Ohne Titel"}</h3>
+                <p className='truncate text-[10px]'>{formatTime(event.startDate)} - {formatTime(event.endDate)} · {event.external.calendarName}</p>
+            </div>
+        </div>
+    }
+
     return <Dialog open={open} onOpenChange={setOpen}>
-        <DialogTrigger style={{ height: `${durationMinutes * 87 / 60}px`, top: `${startMinutes * 87 / 60}px` }}
-            className={`absolute w-full z-50 text-sm`}>
-            <div className='w-full h-full bg-blue-300 rounded p-2'>
-                <h3 className='text-white '>{event.title}</h3>
-                <p className='text-white text-xs'>{event.startDate.getHours().toString().padStart(2, "0")}
+        <DialogTrigger style={{ height: `${durationMinutes * HOUR_HEIGHT / 60}px`, top: `${startMinutes * HOUR_HEIGHT / 60}px` }}
+            className={`absolute w-full z-50 text-xs leading-tight text-left`}>
+            <div className='w-full h-full overflow-hidden bg-blue-300 rounded px-2 py-1'>
+                <h3 className='flex items-center gap-1 truncate text-white'>{event.title}{event.recurrence && <Repeat className="size-3 shrink-0" aria-label="Wiederholt sich" />}</h3>
+                <p className='text-white text-[10px]'>{event.startDate.getHours().toString().padStart(2, "0")}
                     :
                     {event.startDate.getMinutes().toString().padStart(2, "0")}
                     -
@@ -193,7 +223,7 @@ const Event = ({ event }: { event: CalendarEvent }) => {
                     :
                     {event.endDate.getMinutes().toString().padStart(2, "0")}
                 </p>
-                {event.workoutName && <p className='flex items-center gap-1 text-white text-xs truncate'><Dumbbell className="size-3 shrink-0" />{event.workoutName}</p>}
+                {event.workoutName && <p className='flex items-center gap-1 text-white text-[10px] truncate'><Dumbbell className="size-3 shrink-0" />{event.workoutName}</p>}
                 {/* everyone taking part, the creator first */}
                 {event.invitees.length > 0 && <AvatarStack className="mt-1" users={[...(event.creator ? [event.creator] : []), ...event.invitees]} />}
             </div>
@@ -206,3 +236,4 @@ const Event = ({ event }: { event: CalendarEvent }) => {
 
 
 }
+const formatTime = (date: Date) => `${date.getHours().toString().padStart(2, "0")}:${date.getMinutes().toString().padStart(2, "0")}`

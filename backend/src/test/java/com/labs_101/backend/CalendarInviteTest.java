@@ -88,7 +88,7 @@ public class CalendarInviteTest {
         CalendarEventDto event = create(List.of(anna.getId()));
 
         CalendarEventDto updated = calendarService.updateCalendarEvent(
-                new UpdateCalendarEventDto(event.getId(), null, null, null, null, List.of(anna.getId(), ben.getId())));
+                new UpdateCalendarEventDto(event.getId(), null, null, null, null, List.of(anna.getId(), ben.getId()), null, null, null));
 
         assertEquals(List.of(anna.getId(), ben.getId()), updated.getInvitees().stream().map(CalendarUserDto::id).toList());
         assertEquals(1, notificationService.countUnread(anna.getId()));
@@ -100,7 +100,7 @@ public class CalendarInviteTest {
         CalendarEventDto event = create(List.of(anna.getId()));
 
         CalendarEventDto updated = calendarService.updateCalendarEvent(
-                new UpdateCalendarEventDto(event.getId(), "Beine", null, null, null, null));
+                new UpdateCalendarEventDto(event.getId(), "Beine", null, null, null, null, null, null, null));
 
         assertEquals(1, updated.getInvitees().size());
     }
@@ -109,7 +109,7 @@ public class CalendarInviteTest {
     void testRemovedInviteeNoLongerSeesTheEvent() {
         CalendarEventDto event = create(List.of(anna.getId()));
 
-        calendarService.updateCalendarEvent(new UpdateCalendarEventDto(event.getId(), null, null, null, null, List.of()));
+        calendarService.updateCalendarEvent(new UpdateCalendarEventDto(event.getId(), null, null, null, null, List.of(), null, null, null));
 
         assertEquals(List.of(), eventIds(anna));
     }
@@ -128,7 +128,7 @@ public class CalendarInviteTest {
 
     private CalendarEventDto create(List<String> inviteeIds) {
         return calendarService.createCalendarEvent(
-                new CreateCalendarEventDto("Push", START, END, creator.getId(), null, inviteeIds));
+                new CreateCalendarEventDto("Push", START, END, creator.getId(), null, inviteeIds, null, null));
     }
 
     private List<Long> eventIds(User user) {

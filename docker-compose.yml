@@ -46,6 +46,8 @@ services:
       - GEMINI_API_KEY=${GEMINI_API_KEY:-}
       - GEMINI_MODEL=${GEMINI_MODEL:-gemini-3.8-flash,gemini-3.6-flash,gemini-3.5-flash-lite}
       - FOOD_IMAGE_DAILY_LIMIT=${FOOD_IMAGE_DAILY_LIMIT:-5}
+      # encrypts the app-specific passwords of connected Apple accounts: openssl rand -base64 32
+      - CALENDAR_ENCRYPTION_KEY=${CALENDAR_ENCRYPTION_KEY:-}
   zitadel:
     container_name: zitadel-labs-101
     image: ghcr.io/zitadel/zitadel:v4.19.4

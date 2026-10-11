@@ -62,4 +62,24 @@ public class BadRequestException extends BaseException {
     public static BadRequestException foodImageItem() {
         return new BadRequestException("error.foodImage.item");
     }
+
+    public static BadRequestException externalCalendarUrl() {
+        return new BadRequestException("error.externalCalendar.url");
+    }
+
+    public static BadRequestException externalCalendarUnreadable() {
+        return new BadRequestException("error.externalCalendar.unreadable");
+    }
+
+    public static BadRequestException appleAccountCredentials() {
+        return new BadRequestException("error.appleAccount.credentials");
+    }
+
+    public static BadRequestException appleAccountDisabled() {
+        return new BadRequestException("error.appleAccount.disabled");
+    }
+
+    public static BadRequestException appleAccountUnreachable() {
+        return new BadRequestException("error.appleAccount.unreachable");
+    }
 }

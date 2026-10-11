@@ -5,7 +5,13 @@ import com.labs_101.backend.repositories.CalendarRepository;
 import com.labs_101.backend.repositories.UserRepository;
 import com.labs_101.backend.repositories.WorkoutRepository;
 
+import java.time.Duration;
 import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -18,6 +24,7 @@ import com.labs_101.backend.dtos.calendar.CreateCalendarEventDto;
 import com.labs_101.backend.dtos.calendar.UpdateCalendarEventDto;
 import com.labs_101.backend.entities.CalendarEvent;
 import com.labs_101.backend.entities.NotificationType;
+import com.labs_101.backend.entities.Recurrence;
 import com.labs_101.backend.entities.User;
 import com.labs_101.backend.entities.workout.Workout;
 import com.labs_101.backend.exception.NotFoundException;
@@ -29,6 +36,10 @@ public class CalendarService {
     // an open window, Instant.MIN/MAX don't fit in a postgres timestamp
     private static final Instant EARLIEST = Instant.parse("0001-01-01T00:00:00Z");
     private static final Instant LATEST = Instant.parse("9999-12-31T23:59:59Z");
+    // repeating events keep their local time across daylight saving time, the users are in germany
+    private static final ZoneId ZONE = ZoneId.of("Europe/Berlin");
+    // a daily event in a window of several years, more than any calendar view shows
+    private static final int MAX_OCCURRENCES = 1000;
 
     private final WorkoutRepository workoutRepository;
     private final CalendarRepository calendarRepository;
@@ -56,7 +67,10 @@ public class CalendarService {
         return toDtos(List.of(saved)).getFirst();
     }
 
-    /** All events without a user, otherwise the ones the user created or was invited to. */
+    /**
+     * All events without a user, otherwise the ones the user created or was invited to. With both dates a
+     * repeating event is listed once per occurrence in the window, without them only its first occurrence.
+     */
     @Transactional(readOnly = true)
     public List<CalendarEventDto> getAllCalendarEvents(String userId, Instant startDate, Instant endDate) {
         List<CalendarEvent> events;
@@ -66,9 +80,53 @@ public class CalendarService {
         } else if (startDate == null && endDate == null) {
             events = calendarRepository.findAll();
         } else {
-            events = calendarRepository.findByStartDateLessThanEqualAndEndDateGreaterThanEqual(endDate, startDate);
+            events = calendarRepository.findInWindow(startDate == null ? EARLIEST : startDate,
+                    endDate == null ? LATEST : endDate);
         }
-        return toDtos(events);
+        if (startDate == null || endDate == null) {
+            return toDtos(events);
+        }
+        return events.stream().flatMap((event) -> occurrences(event, startDate, endDate).stream())
+                .sorted(Comparator.comparing(CalendarEventDto::getStartDate)).toList();
+    }
+
+    /** The occurrences of the event that overlap the window, a single event has at most one. */
+    private List<CalendarEventDto> occurrences(CalendarEvent event, Instant windowStart, Instant windowEnd) {
+        Duration duration = Duration.between(event.getStartDate(), event.getEndDate());
+        List<CalendarEventDto> occurrences = new ArrayList<>();
+        if (event.getRecurrence() == null) {
+            if (!event.getStartDate().isAfter(windowEnd) && !event.getEndDate().isBefore(windowStart)) {
+                occurrences.add(toDto(event, event.getStartDate(), event.getEndDate()));
+            }
+            return occurrences;
+        }
+
+        ChronoUnit unit = unit(event.getRecurrence());
+        ZonedDateTime first = event.getStartDate().atZone(ZONE);
+        // skip the occurrences that end before the window, one less as the units don't have the same length
+        long n = Math.max(0, unit.between(first, windowStart.minus(duration).atZone(ZONE)) - 1);
+        for (int count = 0; count < MAX_OCCURRENCES; n++) {
+            // always from the first, a monthly event on the 31st is on the 30th in april but on the 31st in may again
+            Instant start = first.plus(n, unit).toInstant();
+            if (start.isAfter(windowEnd)
+                    || (event.getRecurrenceEnd() != null && start.isAfter(event.getRecurrenceEnd()))) {
+                break;
+            }
+            Instant end = start.plus(duration);
+            if (!end.isBefore(windowStart)) {
+                occurrences.add(toDto(event, start, end));
+                count++;
+            }
+        }
+        return occurrences;
+    }
+
+    private static ChronoUnit unit(Recurrence recurrence) {
+        return switch (recurrence) {
+            case DAILY -> ChronoUnit.DAYS;
+            case WEEKLY -> ChronoUnit.WEEKS;
+            case MONTHLY -> ChronoUnit.MONTHS;
+        };
     }
 
     public void deleteCalendarEvent(Long id) {
@@ -83,13 +141,18 @@ public class CalendarService {
             event.setTitle(eventDto.getTitle());
         }
 
-        if (eventDto.getStartDate() != null) {
-            event.setStartDate(eventDto.getStartDate());
+        Instant startDate = eventDto.getStartDate() == null ? event.getStartDate() : eventDto.getStartDate();
+        Instant endDate = eventDto.getEndDate() == null ? event.getEndDate() : eventDto.getEndDate();
+        if (eventDto.getOccurrenceStartDate() != null && event.getRecurrence() != null) {
+            // the dates are the edited occurrence's, the series is moved by as much as it was
+            Duration duration = Duration.between(startDate, endDate);
+            startDate = event.getStartDate().plus(Duration.between(eventDto.getOccurrenceStartDate(), startDate));
+            endDate = startDate.plus(duration);
         }
-
-        if (eventDto.getEndDate() != null) {
-            event.setEndDate(eventDto.getEndDate());
-        }
+        event.setStartDate(startDate);
+        event.setEndDate(endDate);
+        event.setRecurrence(eventDto.getRecurrence());
+        event.setRecurrenceEnd(eventDto.getRecurrenceEnd());
 
         event.setWorkout(findWorkout(eventDto.getWorkoutId()));
 
@@ -111,6 +174,10 @@ public class CalendarService {
 
     private List<CalendarEventDto> toDtos(List<CalendarEvent> events) {
         return events.stream().map((event) -> CalendarMapper.fromCalendarEvent(event, zitadelClient::avatarUrl)).toList();
+    }
+
+    private CalendarEventDto toDto(CalendarEvent event, Instant startDate, Instant endDate) {
+        return CalendarMapper.fromCalendarEvent(event, startDate, endDate, zitadelClient::avatarUrl);
     }
 
     private Workout findWorkout(Long workoutId) {

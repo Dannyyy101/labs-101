@@ -10,6 +10,8 @@ import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Table;
@@ -44,4 +46,9 @@ public class CalendarEvent {
     @ManyToMany
     @JoinTable(name = "calendar_event_invitee", joinColumns = @JoinColumn(name = "event_id"), inverseJoinColumns = @JoinColumn(name = "user_id"))
     private Set<User> invitees = new LinkedHashSet<>();
+    /** Null for a single event, otherwise the start and end dates are the first occurrence. */
+    @Enumerated(EnumType.STRING)
+    private Recurrence recurrence;
+    /** No occurrence starts after this, null repeats forever. */
+    private Instant recurrenceEnd;
 }

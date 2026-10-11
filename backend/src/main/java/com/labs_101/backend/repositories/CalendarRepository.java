@@ -10,15 +10,24 @@ import org.springframework.data.repository.query.Param;
 import com.labs_101.backend.entities.CalendarEvent;
 
 public interface CalendarRepository extends JpaRepository<CalendarEvent, Long> {
-    List<CalendarEvent> findByStartDateLessThanEqualAndEndDateGreaterThanEqual(Instant windowEnd, Instant windowStart);
+    /** Events that overlap the window, repeating ones that started before it and may still occur in it too. */
+    @Query("""
+            select e from CalendarEvent e
+            where e.startDate <= :windowEnd
+            and (e.endDate >= :windowStart
+                or (e.recurrence is not null and (e.recurrenceEnd is null or e.recurrenceEnd >= :windowStart)))
+            """)
+    List<CalendarEvent> findInWindow(@Param("windowStart") Instant windowStart, @Param("windowEnd") Instant windowEnd);
 
     List<CalendarEvent> findByWorkout_Id(Long workoutId);
 
-    /** Events the user created or was invited to that overlap the window. */
+    /** Like {@link #findInWindow}, only the events the user created or was invited to. */
     @Query("""
             select distinct e from CalendarEvent e left join e.invitees i
             where (e.creator.id = :userId or i.id = :userId)
-            and e.startDate <= :windowEnd and e.endDate >= :windowStart
+            and e.startDate <= :windowEnd
+            and (e.endDate >= :windowStart
+                or (e.recurrence is not null and (e.recurrenceEnd is null or e.recurrenceEnd >= :windowStart)))
             """)
     List<CalendarEvent> findForUser(@Param("userId") String userId, @Param("windowStart") Instant windowStart,
             @Param("windowEnd") Instant windowEnd);

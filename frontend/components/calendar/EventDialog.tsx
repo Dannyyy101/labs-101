@@ -4,14 +4,14 @@ import { DatePicker } from "./datePicker";
 import { useEffect, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Dumbbell, Play } from "lucide-react";
+import { Dumbbell, Play, Repeat } from "lucide-react";
 import { useEventStore } from "@/lib/zustand/eventStore";
 import { createCalendarEvent, deleteCalendarEvent, updateCalendarEvent } from "./action";
 import { getAllWorkouts, startSession } from "@/app/workouts/action";
 import { Spinner } from "../ui/spinner";
 import { DialogClose, DialogTitle } from "../ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
-import { CalendarEvent } from "@/utils/types/calendarTypes";
+import { CalendarEvent, Recurrence } from "@/utils/types/calendarTypes";
 import { Workout } from "@/utils/types/types";
 import { useUser } from "@/components/user-provider";
 import { InviteField } from "./InviteField";
@@ -20,14 +20,31 @@ import { Group } from "./Group";
 /** The time inputs only show hours and minutes, the date needs the seconds too. */
 const withSeconds = (time: string) => time.length === 5 ? `${time}:00` : time
 
+const RECURRENCES: { label: string, value: Recurrence | null }[] = [
+    { label: "Nie", value: null },
+    { label: "Täglich", value: "DAILY" },
+    { label: "Wöchentlich", value: "WEEKLY" },
+    { label: "Monatlich", value: "MONTHLY" },
+]
+
+/** The last occurrence may start on this day, so the end is the end of the day. */
+const endOfDay = (date: Date) => {
+    const end = new Date(date)
+    end.setHours(23, 59, 59, 0)
+    return end
+}
+
 export function EventDialog({ calendarEvent, closeDialog, startDate }: { calendarEvent: CalendarEvent | null, closeDialog: () => void, startDate: Date | null }) {
     const setEvents = useEventStore((state) => state.setEvents)
+    const reload = useEventStore((state) => state.reload)
     const events = useEventStore((state) => state.events)
     const endDate = new Date(startDate || new Date())
     endDate.setHours(endDate.getHours() + 1)
 
 
-    const [event, setEvent] = useState<CalendarEvent>(calendarEvent || { id: "", title: "", startDate: startDate || new Date(), endDate, workoutId: null, creatorId: "", invitees: [] });
+    const [event, setEvent] = useState<CalendarEvent>(calendarEvent || { id: "", title: "", startDate: startDate || new Date(), endDate, workoutId: null, creatorId: "", invitees: [], recurrence: null, recurrenceEnd: null });
+    // the dates of a repeating event are the clicked occurrence's, the backend moves the series by as much as it was moved
+    const [occurrenceStart] = useState(() => calendarEvent ? new Date(calendarEvent.startDate) : undefined)
     const user = useUser()
     // controlled, the workout fills an empty title and the date pickers keep the times
     const [title, setTitle] = useState(event.title)
@@ -60,18 +77,20 @@ export function EventDialog({ calendarEvent, closeDialog, startDate }: { calenda
         const saved = { ...event, title: title || event.workoutName || "" }
 
         if (!saved.id) {
-            // the created event has its id and the creator's picture
-            setEvents([...events, await createCalendarEvent(saved)])
-
+            await createCalendarEvent(saved)
         } else {
-            await updateCalendarEvent(saved)
-            setEvents([...events.filter((e) => e.id !== saved.id), saved])
+            await updateCalendarEvent(saved, occurrenceStart)
         }
+        // the occurrences of a repeating event, the creator's picture and the id come from the backend
+        reload()
         closeDialog();
     })
 
     const deleteEvent = () => {
-        if (!event.id || !confirm(`Ereignis „${event.title || "Ohne Titel"}“ löschen?`)) return
+        const question = calendarEvent?.recurrence
+            ? `Ereignis „${event.title || "Ohne Titel"}“ mit allen Wiederholungen löschen?`
+            : `Ereignis „${event.title || "Ohne Titel"}“ löschen?`
+        if (!event.id || !confirm(question)) return
         run(async () => {
             await deleteCalendarEvent(event.id)
             setEvents([...events.filter((e) => e.id !== event.id)])
@@ -107,6 +126,33 @@ export function EventDialog({ calendarEvent, closeDialog, startDate }: { calenda
                     <DatePicker date={event.endDate} setDate={(date) => setEvent((prev) => ({ ...prev, endDate: date }))} />
                     <TimeInput value={endTime} onChange={setEndTime} label="Uhrzeit Ende" />
                 </Row>
+            </Group>
+
+            <Group>
+                <Row label="Wiederholen" icon={<Repeat className="size-4" />}>
+                    <Select
+                        items={RECURRENCES}
+                        value={event.recurrence}
+                        onValueChange={(value) => setEvent((prev) => ({ ...prev, recurrence: value as Recurrence | null }))}
+                    >
+                        <SelectTrigger className="h-auto bg-transparent px-0 py-0 text-[15px] text-muted-foreground hover:text-foreground">
+                            <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent align="end">
+                            {RECURRENCES.map((r) => <SelectItem key={r.label} value={r.value}>{r.label}</SelectItem>)}
+                        </SelectContent>
+                    </Select>
+                </Row>
+                {event.recurrence && <Row label="Endet">
+                    {event.recurrenceEnd
+                        ? <>
+                            <DatePicker date={event.recurrenceEnd} setDate={(date) => setEvent((prev) => ({ ...prev, recurrenceEnd: endOfDay(date) }))} />
+                            <button type="button" onClick={() => setEvent((prev) => ({ ...prev, recurrenceEnd: null }))}
+                                className="text-[15px] text-[#0a84ff]">Nie</button>
+                        </>
+                        : <button type="button" onClick={() => setEvent((prev) => ({ ...prev, recurrenceEnd: endOfDay(prev.startDate) }))}
+                            className="text-[15px] text-muted-foreground hover:text-foreground">Nie</button>}
+                </Row>}
             </Group>
 
             <Section title="Training">

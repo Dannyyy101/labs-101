@@ -10,6 +10,9 @@ struct RootView: View {
             SignInView()
         } else {
             TabView {
+                Tab("Übersicht", systemImage: "chart.bar.fill") {
+                    HealthOverviewView()
+                }
                 Tab("Food", systemImage: "fork.knife") {
                     FoodTrackerView()
                 }
