@@ -198,6 +198,7 @@ const Event = ({ event }: { event: CalendarEvent }) => {
     // duration in minutes, from the timestamps so the start minutes are taken off and not added
     const durationMinutes = (event.endDate.getTime() - event.startDate.getTime()) / 60000
     const startMinutes = event.startDate.getMinutes()
+    const compact = durationMinutes < 45
 
     if (event.external) {
         // read only, it's changed in Apple Calendar; clicks go through to the time slot below
@@ -213,19 +214,18 @@ const Event = ({ event }: { event: CalendarEvent }) => {
     return <Dialog open={open} onOpenChange={setOpen}>
         <DialogTrigger style={{ height: `${durationMinutes * HOUR_HEIGHT / 60}px`, top: `${startMinutes * HOUR_HEIGHT / 60}px` }}
             className={`absolute w-full z-50 text-xs leading-tight text-left`}>
-            <div className='w-full h-full overflow-hidden bg-blue-300 rounded px-2 py-1'>
-                <h3 className='flex items-center gap-1 truncate text-white'>{event.title}{event.recurrence && <Repeat className="size-3 shrink-0" aria-label="Wiederholt sich" />}</h3>
-                <p className='text-white text-[10px]'>{event.startDate.getHours().toString().padStart(2, "0")}
-                    :
-                    {event.startDate.getMinutes().toString().padStart(2, "0")}
-                    -
-                    {event.endDate.getHours().toString().padStart(2, "0")}
-                    :
-                    {event.endDate.getMinutes().toString().padStart(2, "0")}
-                </p>
-                {event.workoutName && <p className='flex items-center gap-1 text-white text-[10px] truncate'><Dumbbell className="size-3 shrink-0" />{event.workoutName}</p>}
-                {/* everyone taking part, the creator first */}
-                {event.invitees.length > 0 && <AvatarStack className="mt-1" users={[...(event.creator ? [event.creator] : []), ...event.invitees]} />}
+            <div className='w-full h-full overflow-hidden bg-blue-300 rounded px-2 py-1 text-white'>
+                <div className='flex items-center gap-1'>
+                    <h3 className='truncate'>{event.title}</h3>
+                    {event.recurrence && <Repeat className="size-3 shrink-0" aria-label="Wiederholt sich" />}
+                    {/* short events have no room for a second line */}
+                    {compact && <span className='shrink-0 text-[10px]'>{formatTime(event.startDate)}</span>}
+                    {/* everyone taking part, the creator first; in the title row so they aren't cut off */}
+                    {event.invitees.length > 0 && <AvatarStack className="ml-auto shrink-0 -space-x-1" avatarClassName="size-4 text-[8px] ring-1"
+                        users={[...(event.creator ? [event.creator] : []), ...event.invitees]} />}
+                </div>
+                {!compact && <p className='text-[10px]'>{formatTime(event.startDate)} - {formatTime(event.endDate)}</p>}
+                {!compact && event.workoutName && <p className='flex items-center gap-1 text-[10px] truncate'><Dumbbell className="size-3 shrink-0" />{event.workoutName}</p>}
             </div>
         </DialogTrigger>
         <DialogContent showCloseButton={false} className="gap-0 overflow-hidden bg-muted p-0 sm:max-w-md">

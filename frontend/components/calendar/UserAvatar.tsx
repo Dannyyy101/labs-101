@@ -11,11 +11,11 @@ export function UserAvatar({ user, className }: { user: CalendarUser, className?
 }
 
 /** Overlapping pictures, the rest as "+n". */
-export function AvatarStack({ users, max = 3, className }: { users: CalendarUser[], max?: number, className?: string }) {
+export function AvatarStack({ users, max = 3, className, avatarClassName }: { users: CalendarUser[], max?: number, className?: string, avatarClassName?: string }) {
     const shown = users.slice(0, max)
     const rest = users.length - shown.length
     return <div className={cn("flex -space-x-1.5", className)}>
-        {shown.map((user) => <UserAvatar key={user.id} user={user} className="size-5" />)}
-        {rest > 0 && <span className="flex size-5 items-center justify-center rounded-full bg-muted text-[10px] font-semibold text-foreground ring-2 ring-background">+{rest}</span>}
+        {shown.map((user) => <UserAvatar key={user.id} user={user} className={cn("size-5", avatarClassName)} />)}
+        {rest > 0 && <span className={cn("flex size-5 items-center justify-center rounded-full bg-muted text-[10px] font-semibold text-foreground ring-2 ring-background", avatarClassName)}>+{rest}</span>}
     </div>
 }
