@@ -72,6 +72,13 @@ public class RunService {
                 .toList();
     }
 
+    /** Every run of the user, oldest first. Without heart rate zones, they are the expensive part. */
+    public List<RunSummaryDto> getAllRuns(String userId) {
+        return runRepository.findRuns(userId, null, null, LIST_ROUTE_POINTS).reversed().stream()
+                .map(row -> summary(row, Track.of(row), null))
+                .toList();
+    }
+
     public RunDetailDto getRun(String userId, UUID id) {
         RunRow row = runRepository.findRun(userId, id, Integer.MAX_VALUE).stream().findFirst()
                 .orElseThrow(() -> NotFoundException.run(id));

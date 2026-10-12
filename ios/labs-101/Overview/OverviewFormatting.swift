@@ -42,6 +42,11 @@ enum OverviewStatus {
         return score >= 67 ? .recoveryHigh : score >= 34 ? .recoveryMid : .recoveryLow
     }
 
+    static func recoveryGradient(_ score: Int?) -> [Color] {
+        let color = recoveryColor(score)
+        return [color.mix(with: .green, by: 0.25).mix(with: .black, by: 0.1), color, color.mix(with: .yellow, by: 0.4)]
+    }
+
     static func recovery(_ score: Int?) -> String {
         guard let score else { return String(localized: "Noch zu wenige Nächte zum Vergleichen") }
         if score >= 67 { return String(localized: "Bereit für hohe Belastung") }

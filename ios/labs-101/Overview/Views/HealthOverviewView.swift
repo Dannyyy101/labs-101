@@ -89,25 +89,18 @@ private struct OverviewList: View {
             }
 
             Section {
-                ScoreRow(title: "Erholung", score: recovery.score, unit: "%",
-                         color: OverviewStatus.recoveryColor(recovery.score),
-                         status: OverviewStatus.recovery(recovery.score),
-                         facts: [
-                            ("HRV", recovery.hrv.map { "\(Int($0.rounded())) ms" } ?? "–"),
-                            ("Ruhepuls", recovery.restingHeartRate.map { "\(Int($0.rounded())) bpm" } ?? "–"),
-                         ])
-                ScoreRow(title: "Belastung", score: strain.score, unit: "%", color: .strain,
-                         status: OverviewStatus.strain(strain.score),
-                         facts: [
-                            ("Ziel", target.map { "\($0.lowerBound)–\($0.upperBound) %" } ?? "–"),
-                            ("Aktiv", "\(activity.activeEnergy.roundedFormatted) kcal"),
-                         ])
-                ScoreRow(title: "Schlaf", score: overview.sleep?.score, color: .sleep,
-                         status: OverviewStatus.sleep(overview.sleep),
-                         facts: [
-                            ("Dauer", overview.sleep?.asleep.sleepDuration ?? "–"),
-                            ("Bedarf", overview.sleep.map { min($0.asleep / $0.need, 9.99).percentFormatted() } ?? "–"),
-                         ])
+                HStack(spacing: 0) {
+                    ScoreColumn(title: "Belastung", score: strain.score,
+                                colors: [Color(red: 1, green: 0.85, blue: 0.45), .strain, Color(red: 0.95, green: 0.4, blue: 0.15)],
+                                target: target)
+                    Divider()
+                    ScoreColumn(title: "Erholung", score: recovery.score,
+                                colors: OverviewStatus.recoveryGradient(recovery.score))
+                    Divider()
+                    ScoreColumn(title: "Schlaf", score: overview.sleep?.score,
+                                colors: [.sleep, Color(red: 0.62, green: 0.68, blue: 0.97)])
+                }
+                .padding(.vertical, 8)
             }
 
             Section {
@@ -231,58 +224,32 @@ private struct SectionHeader: View {
     }
 }
 
-private struct ScoreRow: View {
+private struct ScoreColumn: View {
     let title: LocalizedStringKey
     let score: Int?
-    var unit: String?
-    let color: Color
-    let status: String
-    let facts: [(LocalizedStringKey, String)]
+    let colors: [Color]
+    var target: ClosedRange<Int>?
 
     var body: some View {
-        HStack(spacing: 16) {
-            ScoreRing(value: score, color: color) {
-                HStack(alignment: .firstTextBaseline, spacing: 0) {
+        VStack(spacing: 8) {
+            ScoreRing(value: score, colors: colors, target: target, size: 80, lineWidth: 10) {
+                HStack(alignment: .firstTextBaseline, spacing: 1) {
                     Text(score.map(String.init) ?? "–")
-                        .font(.title2.bold())
-                    if score != nil, let unit {
-                        Text(unit)
-                            .font(.caption.weight(.semibold))
-                            .foregroundStyle(.secondary)
+                        .font(.title2.weight(.semibold))
+                    if score != nil {
+                        Text("%")
+                            .font(.subheadline.weight(.medium))
                     }
                 }
                 .monospacedDigit()
+                .minimumScaleFactor(0.7)
+                .lineLimit(1)
             }
-
-            VStack(alignment: .leading, spacing: 4) {
-                HStack(spacing: 6) {
-                    Circle().fill(color).frame(width: 8, height: 8)
-                    Text(title)
-                }
-                .font(.subheadline.weight(.medium))
+            Text(title)
+                .font(.headline.weight(.medium))
                 .foregroundStyle(.secondary)
-
-                Text(status)
-                    .font(.headline)
-                    .fixedSize(horizontal: false, vertical: true)
-
-                HStack(spacing: 20) {
-                    ForEach(facts.indices, id: \.self) { index in
-                        VStack(alignment: .leading, spacing: 0) {
-                            Text(facts[index].0)
-                                .foregroundStyle(.secondary)
-                            Text(facts[index].1)
-                                .fontWeight(.semibold)
-                                .monospacedDigit()
-                        }
-                    }
-                }
-                .font(.subheadline)
-                .padding(.top, 2)
-            }
-            .frame(maxWidth: .infinity, alignment: .leading)
         }
-        .padding(.vertical, 6)
+        .frame(maxWidth: .infinity)
         .accessibilityElement(children: .combine)
     }
 }

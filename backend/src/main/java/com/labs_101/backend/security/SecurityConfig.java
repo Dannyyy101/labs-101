@@ -14,6 +14,8 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import com.labs_101.backend.repositories.LoginDayRepository;
+
 /**
  * Every request needs an access token of Zitadel in the
  * {@code Authorization: Bearer} header, the backend only checks it against the
@@ -23,7 +25,8 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 public class SecurityConfig {
 
     @Bean
-    SecurityFilterChain securityFilterChain(HttpSecurity http, UserProvisioning userProvisioning) throws Exception {
+    SecurityFilterChain securityFilterChain(HttpSecurity http, UserProvisioning userProvisioning,
+            LoginDayRepository loginDays) throws Exception {
         http
                 .csrf(csrf -> csrf.disable())
                 .cors(Customizer.withDefaults())
@@ -33,7 +36,7 @@ public class SecurityConfig {
                         .anyRequest().authenticated())
                 .oauth2ResourceServer(server -> server.jwt(Customizer.withDefaults()))
                 // after the token is checked, so the user exists before any controller needs it
-                .addFilterAfter(new UserProvisioningFilter(userProvisioning), BearerTokenAuthenticationFilter.class);
+                .addFilterAfter(new UserProvisioningFilter(userProvisioning, loginDays), BearerTokenAuthenticationFilter.class);
         return http.build();
     }
 

@@ -4,9 +4,12 @@ import SwiftUI
 /// A score as a ring that fills up to 100.
 struct ScoreRing<Label: View>: View {
     let value: Int?
-    let color: Color
-    var size: CGFloat = 84
-    var lineWidth: CGFloat = 9
+    /// the arc runs from the first to the last color
+    let colors: [Color]
+    /// a hatched range on the track, e.g. the strain target
+    var target: ClosedRange<Int>?
+    var size: CGFloat = 96
+    var lineWidth: CGFloat = 11
     @ViewBuilder let label: Label
 
     private var progress: Double {
@@ -16,16 +19,44 @@ struct ScoreRing<Label: View>: View {
 
     var body: some View {
         ZStack {
+            // raised disc behind the ring
             Circle()
-                .stroke(color.opacity(0.16), lineWidth: lineWidth)
+                .fill(.background)
+                .shadow(color: .black.opacity(0.08), radius: 8, y: 3)
+                .padding(-lineWidth * 0.9)
+
             Circle()
-                .trim(from: 0, to: progress)
-                .stroke(color, style: StrokeStyle(lineWidth: lineWidth, lineCap: .round))
-                .rotationEffect(.degrees(-90))
-                .animation(.smooth, value: progress)
+                .stroke(Color.primary.opacity(0.06), lineWidth: lineWidth)
+
+            if let target {
+                Circle()
+                    .trim(from: Double(target.lowerBound) / 100, to: Double(target.upperBound) / 100)
+                    .stroke(colors.first ?? .gray, style: StrokeStyle(lineWidth: lineWidth, dash: [1.5, 2.5]))
+                    .opacity(0.6)
+                    .rotationEffect(.degrees(-90))
+            }
+
+            if value != nil {
+                Circle()
+                    .trim(from: 0, to: progress)
+                    .stroke(
+                        AngularGradient(colors: colors, center: .center, startAngle: .zero, endAngle: .degrees(360 * progress)),
+                        style: StrokeStyle(lineWidth: lineWidth, lineCap: .round)
+                    )
+                    .rotationEffect(.degrees(-90))
+                    .animation(.smooth, value: progress)
+
+                // the gradient wraps around at the start, so its round cap gets its own dot
+                Circle()
+                    .fill(colors.first ?? .gray)
+                    .frame(width: lineWidth, height: lineWidth)
+                    .offset(y: -size / 2)
+            }
+
             label
         }
         .frame(width: size, height: size)
+        .padding(lineWidth * 0.9)
     }
 }
 

@@ -9,7 +9,12 @@ export async function proxy(request: NextRequest) {
     let session = await decryptSession(request.cookies.get(SESSION_COOKIE)?.value)
 
     if (session && needsRefresh(session)) {
-        session = await refreshSession(session)
+        try {
+            session = await refreshSession(session)
+        } catch {
+            // zitadel not reachable, keep the session and try again with the next request
+            return NextResponse.next()
+        }
         if (session) {
             const value = await encryptSession(session)
             // the new cookie for this request, the page renders after the proxy

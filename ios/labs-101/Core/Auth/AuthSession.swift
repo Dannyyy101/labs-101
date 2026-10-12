@@ -1,11 +1,14 @@
 import CryptoKit
 import Foundation
+import UIKit
 
 nonisolated enum AuthError: LocalizedError {
     case notConfigured
     case notSignedIn
     case invalidCallback
     case server(String)
+    /// The code or refresh token is not valid (anymore), only then the user has to sign in again.
+    case rejected(String)
 
     var errorDescription: String? {
         switch self {
@@ -15,7 +18,7 @@ nonisolated enum AuthError: LocalizedError {
             String(localized: "Du bist nicht angemeldet")
         case .invalidCallback:
             String(localized: "Die Anmeldung wurde abgebrochen")
-        case .server(let message):
+        case .server(let message), .rejected(let message):
             message
         }
     }
@@ -131,7 +134,11 @@ actor AuthSession {
         }
 
         let task = Task {
-            try await requestTokens(["grant_type": "refresh_token", "refresh_token": refreshToken], previous: current)
+            // zitadel rotates the refresh token, if the app was suspended before the answer arrived,
+            // only the new refresh token would be valid and the user signed out
+            let backgroundTask = await UIApplication.shared.beginBackgroundTask(withName: "token-refresh")
+            defer { Task { @MainActor in UIApplication.shared.endBackgroundTask(backgroundTask) } }
+            return try await requestTokens(["grant_type": "refresh_token", "refresh_token": refreshToken], previous: current)
         }
         refreshTask = task
         defer { refreshTask = nil }
@@ -140,10 +147,11 @@ actor AuthSession {
             let refreshed = try await task.value
             store(refreshed)
             return refreshed
-        } catch AuthError.server(let message) {
-            // the refresh token expired or was revoked, the user has to sign in again
+        } catch AuthError.rejected {
+            // the refresh token expired or was revoked, the user has to sign in again.
+            // Any other error (offline, zitadel down) keeps the tokens for the next try
             store(nil)
-            throw AuthError.server(message)
+            throw AuthError.notSignedIn
         }
     }
 
@@ -200,6 +208,9 @@ actor AuthSession {
         let (data, response) = try await session.data(for: request)
         guard let http = response as? HTTPURLResponse, (200..<300).contains(http.statusCode) else {
             let error = try? JSONDecoder().decode(ErrorResponse.self, from: data)
+            if error?.error == "invalid_grant" {
+                throw AuthError.rejected(error?.error_description ?? String(localized: "Die Anmeldung ist abgelaufen, bitte melde dich neu an"))
+            }
             throw AuthError.server(error?.error_description ?? error?.error ?? String(localized: "Anmeldung fehlgeschlagen"))
         }
 

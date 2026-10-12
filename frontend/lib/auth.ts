@@ -54,7 +54,9 @@ const SCOPE = "openid profile email offline_access"
 
 // refresh a minute early, so the token doesn't run out between the check and the backend request
 const REFRESH_MARGIN_SECONDS = 60
-const SESSION_MAX_AGE_SECONDS = 60 * 60 * 24 * 30
+// zitadel decides how long a sign in lasts (lifetime of the refresh token), the cookie must not run out before.
+// Browsers cap cookies at 400 days.
+const SESSION_MAX_AGE_SECONDS = 60 * 60 * 24 * 400
 
 let configuration: Promise<oidc.Configuration> | null = null
 
@@ -149,15 +151,45 @@ async function userInfo(accessToken: string, subject: string): Promise<oidc.User
     }
 }
 
-/** New tokens for an expiring session, null if the refresh token isn't valid anymore. */
-export async function refreshSession(session: Session): Promise<Session | null> {
-    if (!session.refreshToken) return null
+// zitadel rotates the refresh token on every use, so the page, its prefetches and server actions that arrive with
+// the same old cookie must share one refresh, a second one with the old token would be rejected and sign the user out.
+// The result is kept a while, for requests the browser sent before it got the new cookie.
+const REFRESH_REUSE_MS = 2 * 60 * 1000
+const refreshes = new Map<string, Promise<Session | null>>()
+
+/**
+ * New tokens for an expiring session, null if the refresh token isn't valid anymore.
+ * Throws if zitadel couldn't be asked, the session is still fine then.
+ */
+export function refreshSession(session: Session): Promise<Session | null> {
+    const refreshToken = session.refreshToken
+    if (!refreshToken) return Promise.resolve(null)
+
+    let refresh = refreshes.get(refreshToken)
+    if (!refresh) {
+        refresh = requestRefresh(session, refreshToken)
+        refreshes.set(refreshToken, refresh)
+        // a failed attempt may be tried again right away, a successful one is only needed for the stragglers
+        refresh.then(
+            () => setTimeout(() => refreshes.delete(refreshToken), REFRESH_REUSE_MS),
+            () => refreshes.delete(refreshToken),
+        )
+    }
+    return refresh
+}
+
+async function requestRefresh(session: Session, refreshToken: string): Promise<Session | null> {
     try {
-        const tokens = await oidc.refreshTokenGrant(await oidcConfiguration(), session.refreshToken)
+        const tokens = await oidc.refreshTokenGrant(await oidcConfiguration(), refreshToken)
         return await sessionFromTokens(tokens, session)
     } catch (e) {
+        // only an invalid_grant means the refresh token expired or was revoked
+        if (e instanceof oidc.ResponseBodyError && e.error === "invalid_grant") {
+            console.warn("Refresh token was rejected, signing out", e.error_description)
+            return null
+        }
         console.error("Refreshing the session failed", e)
-        return null
+        throw e
     }
 }
 
