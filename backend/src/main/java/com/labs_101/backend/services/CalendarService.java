@@ -9,11 +9,13 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 
 import org.springframework.stereotype.Service;
@@ -38,6 +40,8 @@ public class CalendarService {
     private static final Instant LATEST = Instant.parse("9999-12-31T23:59:59Z");
     // repeating events keep their local time across daylight saving time, the users are in germany
     private static final ZoneId ZONE = ZoneId.of("Europe/Berlin");
+    /** "Mo., 13.10. um 18:30" in the invite, it is also shown as a push on the phone */
+    private static final DateTimeFormatter INVITE_DATE = DateTimeFormatter.ofPattern("EE, dd.MM. 'um' HH:mm", Locale.GERMAN);
     // a daily event in a window of several years, more than any calendar view shows
     private static final int MAX_OCCURRENCES = 1000;
 
@@ -208,9 +212,10 @@ public class CalendarService {
     private void notifyInvitees(CalendarEvent event, Set<User> invitees) {
         String creatorName = event.getCreator().getName() == null ? "Jemand" : event.getCreator().getName();
         String title = event.getTitle() == null || event.getTitle().isBlank() ? "einem Termin" : "„" + event.getTitle() + "“";
+        String when = event.getStartDate() == null ? "" : " am " + INVITE_DATE.format(event.getStartDate().atZone(ZONE));
         for (User invitee : invitees) {
             notificationService.notify(invitee.getId(), NotificationType.INFO, "Neue Einladung",
-                    creatorName + " hat dich zu " + title + " eingeladen.", "/planner");
+                    creatorName + " hat dich zu " + title + when + " eingeladen.", "/planner");
         }
     }
 }

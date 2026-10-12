@@ -43,6 +43,7 @@ final class FoodDayModel {
             guard requestedDay == day else { return }
             self.entries = entries
             loadError = nil
+            updateEveningReminder()
         } catch is CancellationError {
             // a newer load replaced this one
         } catch {
@@ -57,10 +58,18 @@ final class FoodDayModel {
         entries.removeAll { $0.id == entry.id }
         do {
             try await service.delete(entry)
+            updateEveningReminder()
         } catch {
             entries = previous
             actionError = error.localizedDescription
         }
+    }
+
+    /// the reminder at 20:00 shows the numbers of the last change
+    private func updateEveningReminder() {
+        guard isToday else { return }
+        let (entries, goals, calendar) = (entries, goals, calendar)
+        Task { await AppNotifications.updateEveningReminder(entries: entries, goals: goals, calendar: calendar) }
     }
 
     // MARK: Totals

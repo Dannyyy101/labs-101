@@ -9,6 +9,11 @@ struct HealthSyncView: View {
     @State private var summaryError: String?
     @State private var confirmResync = false
     @State private var profile: UserProfile?
+    @AppStorage(AppNotifications.sleepKey) private var notifySleep = true
+    @AppStorage(AppNotifications.workoutKey) private var notifyWorkout = true
+    @AppStorage(AppNotifications.caloriesKey) private var notifyCalories = true
+    @AppStorage(AppNotifications.inboxKey) private var notifyInbox = true
+    @State private var testLog: [String] = []
 
     private let service = HealthSyncService()
 
@@ -19,6 +24,7 @@ struct HealthSyncView: View {
                     authorizationSection
                 }
                 syncSection
+                notificationSection
                 storedSection
                 accountSection
             }
@@ -108,6 +114,30 @@ struct HealthSyncView: View {
             Button("Alles neu synchronisieren", systemImage: "arrow.counterclockwise", role: .destructive) {
                 confirmResync = true
             }
+        }
+    }
+
+    private var notificationSection: some View {
+        Section {
+            Toggle("Schlaf am Morgen", systemImage: "bed.double.fill", isOn: $notifySleep)
+            Toggle("Nach dem Training", systemImage: "figure.run", isOn: $notifyWorkout)
+            Toggle("Offene Kalorien um \(AppNotifications.eveningHour) Uhr", systemImage: "fork.knife", isOn: $notifyCalories)
+                .onChange(of: notifyCalories) { _, isOn in
+                    if !isOn { AppNotifications.cancelEveningReminder() }
+                }
+            Toggle("Benachrichtigungen aus dem Web", systemImage: "bell.fill", isOn: $notifyInbox)
+            #if DEBUG
+            Button("Test-Benachrichtigungen senden", systemImage: "paperplane") {
+                Task { testLog = await AppNotifications.sendTestNotifications() }
+            }
+            ForEach(testLog, id: \.self) { line in
+                Text(line).font(.caption).foregroundStyle(.secondary)
+            }
+            #endif
+        } header: {
+            Text("Benachrichtigungen")
+        } footer: {
+            Text("Werden nach dem Health-Sync geprüft, auch im Hintergrund. Am Abend nur, wenn noch mindestens \(AppNotifications.openKcalThreshold.roundedFormatted) kcal offen sind.")
         }
     }
 

@@ -105,6 +105,10 @@ actor HealthSyncEngine {
         }
         Self.logger.info("Health sync finished: \(report.uploaded) uploaded, \(report.deleted) deleted, \(report.written) written, stopped early: \(report.stoppedEarly), error: \(report.error ?? "-")")
         await HealthSyncStatus.shared.finished(report)
+        if report.error == nil && !Task.isCancelled {
+            // sleep, workouts and open calories, the sync also runs in the background
+            await AppNotifications.afterSync()
+        }
         return report
     }
 

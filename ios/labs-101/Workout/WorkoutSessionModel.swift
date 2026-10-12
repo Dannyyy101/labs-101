@@ -194,6 +194,8 @@ final class WorkoutSessionModel {
         // the finish request carries the latest state, a save racing it would be rejected anyway
         saveTask?.cancel()
         try await service.finish(session.id, name: name, exercises: exercises)
+        let (session, name, exercises, service) = (session, name, exercises, service)
+        Task { await AppNotifications.workoutFinished(session, name: name, exercises: exercises, service: service) }
         endRest()
         isClosed = true
         onChange?()

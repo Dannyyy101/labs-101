@@ -31,6 +31,7 @@ flowchart LR
 - **Apple-Health-Sync** – die iOS-App spiegelt HealthKit-Samples ins Backend; das Backend kann umgekehrt Schreibaufträge hinterlegen. Details: [`documents/health-sync.md`](documents/health-sync.md).
 - **Health-Übersicht & Planer** – Startseite mit Kennzahlen, Kalender für geplante Einheiten.
 - **Einstellungen** – nutzerbezogene Settings.
+- **Benachrichtigungen (iOS)** – lokal, nach jedem Health-Sync geprüft: morgens die Schlafauswertung, nach dem Training die Statistiken, um 20 Uhr ein Hinweis, wenn noch ≥ 500 kcal offen sind, außerdem die ungelesenen Benachrichtigungen des Backends (Glocke im Web). Abschaltbar im Health-Tab, im Debug-Build gibt es dort einen Test-Button.
 
 ## Schnellstart mit Docker
 

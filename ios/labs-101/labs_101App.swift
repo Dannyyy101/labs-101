@@ -7,6 +7,7 @@
 
 import SwiftUI
 import UIKit
+import UserNotifications
 
 @main
 struct labs_101App: App {
@@ -31,8 +32,9 @@ struct labs_101App: App {
     }
 }
 
-final class AppDelegate: NSObject, UIApplicationDelegate {
+final class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDelegate {
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil) -> Bool {
+        UNUserNotificationCenter.current().delegate = self
         // early, the watch can launch the app in the background with a message
         WatchBridge.shared.activate()
         // also when HealthKit launches the app in the background for new samples
@@ -40,5 +42,14 @@ final class AppDelegate: NSObject, UIApplicationDelegate {
             HealthBackgroundSync.registerAtLaunch()
         }
         return true
+    }
+
+    /// e.g. the workout summary while the app is open
+    func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification) async -> UNNotificationPresentationOptions {
+        [.banner, .list, .sound]
+    }
+
+    func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse) async {
+        await AppNotifications.opened(identifier: response.notification.request.identifier)
     }
 }

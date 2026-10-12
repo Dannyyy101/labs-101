@@ -23,6 +23,7 @@ struct RootView: View {
                     HealthSyncView()
                 }
             }
+            .task { await AppNotifications.requestAuthorization() }
         }
     }
 }
