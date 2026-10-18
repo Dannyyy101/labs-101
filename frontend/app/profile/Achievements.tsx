@@ -69,7 +69,7 @@ export function ProgressBar({ ratio, color, className }: { ratio: number, color:
  * missing is what keeps people going (goal gradient), the full list alone
  * doesn't show it.
  */
-export function NextUp({ achievements, calorieGoal }: { achievements: AchievementView[], calorieGoal: number | null }) {
+export function NextUp({ achievements, calorieGoal, own = true }: { achievements: AchievementView[], calorieGoal: number | null, own?: boolean }) {
     const next = achievements
         .filter((a) => !a.achievedAt && a.ratio > 0)
         .sort((a, b) => b.ratio - a.ratio)
@@ -80,7 +80,7 @@ export function NextUp({ achievements, calorieGoal }: { achievements: Achievemen
     return <Card className="p-6">
         <div className="mb-4 flex items-baseline gap-2">
             <h2 className="text-xl font-bold tracking-tight">Fast geschafft</h2>
-            <span className="text-sm text-muted-foreground">Deine nächsten Ziele</span>
+            <span className="text-sm text-muted-foreground">{own ? "Deine nächsten Ziele" : "Die nächsten Ziele"}</span>
         </div>
         <div className="grid gap-3 sm:grid-cols-3">
             {next.map((a) => {
@@ -98,7 +98,8 @@ export function NextUp({ achievements, calorieGoal }: { achievements: Achievemen
                 </div>
             })}
         </div>
-        {calorieGoal == null && <p className="mt-3 text-sm text-muted-foreground">
+        {/* only the user can set their own goal, not on the profile of a friend */}
+        {own && calorieGoal == null && <p className="mt-3 text-sm text-muted-foreground">
             Für „Punktlandung“ fehlt noch ein Kalorienziel – <Link href="/settings" className="text-blue-500 hover:underline">in den Einstellungen festlegen</Link>.
         </p>}
     </Card>

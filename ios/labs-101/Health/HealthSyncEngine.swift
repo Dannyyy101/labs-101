@@ -14,6 +14,8 @@ nonisolated struct HealthSyncReport: Sendable {
     var stoppedEarly = false
     /// another run was in progress, this call only asked it to run again
     var joined = false
+    /// the device was locked, HealthKit can't be read until it is unlocked
+    var locked = false
     var error: String?
 }
 
@@ -42,6 +44,16 @@ actor HealthSyncEngine {
     private var rerunRequested = false
     /// of the running sync, nil = no time limit
     private var deadline: Date?
+    /// synced before all others by the next run, e.g. the types HealthKit just woke the app for
+    private var prioritized: [HKSampleType] = []
+
+    /// Synced first when nothing else is prioritized: what the notifications and the overview need
+    /// most. Sleep is a category type and would otherwise come after 100+ quantity types, a
+    /// background run often doesn't get that far.
+    nonisolated static let importantTypes: [HKSampleType] = [
+        HKCategoryType(.sleepAnalysis),
+        .workoutType(),
+    ]
 
     init(store: HKHealthStore = HealthStore.shared, service: HealthSyncService = HealthSyncService()) {
         self.store = store
@@ -53,8 +65,10 @@ actor HealthSyncEngine {
     ///
     /// - Parameter deadline: background callers only have some seconds, the run
     ///   stops between two batches once it passed.
+    /// - Parameter first: synced before all other types, e.g. the ones with new samples.
     @discardableResult
-    func sync(deadline: Date? = nil) async -> HealthSyncReport {
+    func sync(deadline: Date? = nil, first: [HKSampleType] = []) async -> HealthSyncReport {
+        prioritized += first
         if let running {
             rerunRequested = true
             // e.g. the app was opened during a background sync, which may now take as long as it needs
@@ -118,7 +132,7 @@ actor HealthSyncEngine {
             report.written += try await HealthWriter(store: store, service: service).writePending()
             try await syncCharacteristics()
 
-            for type in HealthTypeCatalog.syncedTypes {
+            for type in nextOrder() {
                 guard !shouldStop() else {
                     report.stoppedEarly = true
                     return
@@ -127,6 +141,7 @@ actor HealthSyncEngine {
                     try await sync(type, report: &report)
                 } catch let error as HKError where error.code == .errorDatabaseInaccessible {
                     // the device is locked, HealthKit data is encrypted until it is unlocked
+                    report.locked = true
                     throw error
                 } catch let error as HKError {
                     // e.g. a type the user was never asked for, the other types can still be synced
@@ -134,6 +149,9 @@ actor HealthSyncEngine {
                 }
             }
         } catch {
+            if (error as? HKError)?.code == .errorDatabaseInaccessible {
+                report.locked = true
+            }
             if Task.isCancelled {
                 report.stoppedEarly = true
             } else {
@@ -232,6 +250,17 @@ actor HealthSyncEngine {
         guard data != state.lastCharacteristics else { return }
         try await service.saveCharacteristics(characteristics)
         state.lastCharacteristics = data
+    }
+
+    /// The prioritized types, then the important ones, then all others; each once.
+    private func nextOrder() -> [HKSampleType] {
+        let first = prioritized
+        prioritized = []
+        var seen = Set<String>()
+        return (first + Self.importantTypes + HealthTypeCatalog.syncedTypes).filter {
+            // only synced types, correlations e.g. are delivered as their own type but synced via their parts
+            HealthTypeCatalog.syncedIdentifiers.contains($0.identifier) && seen.insert($0.identifier).inserted
+        }
     }
 
     private func shouldStop() -> Bool {

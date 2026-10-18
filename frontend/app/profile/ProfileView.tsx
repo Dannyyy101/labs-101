@@ -29,7 +29,7 @@ export default function ProfileView({ profile, header }: { profile: Profile, hea
             </div>
             <div className="flex min-w-0 flex-col gap-5">
                 <ActivityHeatmap days={profile.days} today={profile.today} />
-                <NextUp achievements={achievements} calorieGoal={profile.calorieGoal} />
+                <NextUp achievements={achievements} calorieGoal={profile.calorieGoal} own={!header} />
                 <AchievementList achievements={achievements} today={profile.today} />
             </div>
         </div>

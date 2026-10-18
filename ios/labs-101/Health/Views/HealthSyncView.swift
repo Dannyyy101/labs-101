@@ -106,6 +106,12 @@ struct HealthSyncView: View {
                 }
             }
 
+            NavigationLink {
+                HealthSyncLogView()
+            } label: {
+                Label("Hintergrund-Syncs", systemImage: "moon.zzz")
+            }
+
             Button("Jetzt synchronisieren", systemImage: "arrow.triangle.2.circlepath") {
                 Task { await sync() }
             }

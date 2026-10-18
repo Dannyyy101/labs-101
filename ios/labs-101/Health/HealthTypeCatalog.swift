@@ -29,6 +29,7 @@ nonisolated enum HealthTypeCatalog {
 
     /// Synced with anchored queries, workouts first because they are the most interesting ones.
     static let syncedTypes: [HKSampleType] = otherSampleTypes + quantityTypes + categoryTypes + correlationTypes
+    static let syncedIdentifiers: Set<String> = Set(syncedTypes.map(\.identifier))
 
     static let characteristicTypes: [HKCharacteristicType] = [
         .init(.dateOfBirth), .init(.biologicalSex), .init(.bloodType),
