@@ -33,12 +33,15 @@ public class UserProfileController {
     /** {@code zone} defaults to Europe/Berlin, the zone the login days are counted in. */
     @GetMapping
     public ProfileDto getProfile(@CurrentUser String userId, @RequestParam(required = false) String zone) {
-        ZoneId zoneId;
+        ZoneId zoneId = zone(zone);
+        return profileService.getProfile(userId, LocalDate.now(zoneId), zoneId);
+    }
+
+    static ZoneId zone(String zone) {
         try {
-            zoneId = zone != null ? ZoneId.of(zone) : LoginDayRepository.ZONE;
+            return zone != null ? ZoneId.of(zone) : LoginDayRepository.ZONE;
         } catch (DateTimeException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "unknown time zone " + zone);
         }
-        return profileService.getProfile(userId, LocalDate.now(zoneId), zoneId);
     }
 }

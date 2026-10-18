@@ -9,13 +9,12 @@ import com.labs_101.backend.entities.workout.Workout;
 
 import java.time.Instant;
 import java.util.Comparator;
-import java.util.LinkedHashSet;
 import java.util.function.Function;
 
 public class CalendarMapper {
     public static CalendarEvent fromCreateCalendarEventDto(CreateCalendarEventDto dto, User creator, Workout workout) {
-        return new CalendarEvent(null, dto.getTitle(), dto.getStartDate(), dto.getEndDate(), creator, workout,
-                new LinkedHashSet<>(), dto.getRecurrence(), dto.getRecurrenceEnd());
+        return new CalendarEvent(dto.getTitle(), dto.getStartDate(), dto.getEndDate(), creator, workout,
+                dto.getRecurrence(), dto.getRecurrenceEnd());
     }
 
     /** {@code avatarUrl} gives the profile picture of a user id. */

@@ -8,7 +8,6 @@ import com.labs_101.backend.repositories.OpenFoodRepository;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneOffset;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -249,8 +248,7 @@ public class FoodService {
 
         for (UpdateFoodPortionDto p : incoming) {
             if (p.id() == null) {
-                FoodPortion newPortion = new FoodPortion(null, food, new ArrayList<>(), p.label(), p.grams(),
-                        p.isDefault());
+                FoodPortion newPortion = new FoodPortion(food, p.label(), p.grams(), p.isDefault());
                 food.addPortion(newPortion);
             } else {
                 FoodPortion old = existing.get(p.id());

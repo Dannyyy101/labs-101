@@ -82,4 +82,20 @@ public class BadRequestException extends BaseException {
     public static BadRequestException appleAccountUnreachable() {
         return new BadRequestException("error.appleAccount.unreachable");
     }
+
+    public static BadRequestException friendRequestSelf() {
+        return new BadRequestException("error.friendRequest.self");
+    }
+
+    public static BadRequestException friendRequestExists() {
+        return new BadRequestException("error.friendRequest.exists");
+    }
+
+    public static BadRequestException friendNotTraining() {
+        return new BadRequestException("error.cheer.notTraining");
+    }
+
+    public static BadRequestException cheerSent() {
+        return new BadRequestException("error.cheer.sent");
+    }
 }

@@ -8,7 +8,7 @@ import { addDays } from "@/app/foods/track/format"
 import { de } from "@/app/runs/format"
 import { ActivityDay, Profile, Streak } from "@/utils/types/profile"
 import { CircleCheck, Dumbbell, Flame, Footprints, Route, Utensils } from "lucide-react"
-import { useMemo } from "react"
+import { ReactNode, useMemo } from "react"
 import { ActivityHeatmap } from "./ActivityHeatmap"
 import { AchievementList, NextUp, ProgressBar, useAchievements } from "./Achievements"
 
@@ -16,13 +16,14 @@ const STREAK_GOALS = [3, 7, 14, 30, 50, 100, 200, 365]
 const STREAK_COLOR = "#ff9f0a"
 const WEEKDAY_LETTERS = ["S", "M", "D", "M", "D", "F", "S"]
 
-export default function ProfileView({ profile }: { profile: Profile }) {
+/** The own profile, or a friend's with `header` in place of the own name and picture. */
+export default function ProfileView({ profile, header }: { profile: Profile, header?: ReactNode }) {
     const achievements = useAchievements(profile.achievements)
 
     return <div className="flex-1 w-full bg-muted/50 px-3.5 py-5 md:px-6 md:py-7">
         <div className="mx-auto grid max-w-7xl grid-cols-1 gap-5 lg:grid-cols-[340px_minmax(0,1fr)]">
             <div className="flex flex-col gap-5">
-                <Header memberSince={profile.memberSince} />
+                {header ?? <Header memberSince={profile.memberSince} />}
                 <StreakCard streak={profile.streak} days={profile.days} today={profile.today} />
                 <YearStats days={profile.days} today={profile.today} />
             </div>

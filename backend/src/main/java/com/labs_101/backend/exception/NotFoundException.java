@@ -71,4 +71,12 @@ public class NotFoundException extends BaseException {
     public static NotFoundException appleAccount(Long id) {
         return new NotFoundException("error.appleAccount.notFound", id);
     }
+
+    public static NotFoundException friend(String id) {
+        return new NotFoundException("error.friend.notFound", id);
+    }
+
+    public static NotFoundException friendRequest(Long id) {
+        return new NotFoundException("error.friendRequest.notFound", id);
+    }
 }

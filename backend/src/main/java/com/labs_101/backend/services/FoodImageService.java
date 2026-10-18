@@ -336,7 +336,7 @@ public class FoodImageService {
         if (existing.isPresent())
             return existing.get();
 
-        food.addPortion(new FoodPortion(null, null, new ArrayList<>(), unit, gramsPerUnit, false));
+        food.addPortion(new FoodPortion(null, unit, gramsPerUnit, false));
         // the portion needs its id before a tracked food can reference it
         Food saved = foodRepository.saveAndFlush(food);
         return saved.getPortions().stream()

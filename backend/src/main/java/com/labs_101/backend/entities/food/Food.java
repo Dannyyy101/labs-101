@@ -14,13 +14,11 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @NoArgsConstructor
-@AllArgsConstructor
 @Getter
 @Setter
 @Entity
@@ -58,6 +56,21 @@ public class Food {
 
     public Food(String name) {
         this.name = name;
+    }
+
+    // no @AllArgsConstructor: it would assign portions, which already has an initializer
+    /** Nutrients per 100 g. */
+    public Food(String blsCode, String name, Double kcal, Double water, Double protein, Double fat,
+            Double carbohydrates, Double fiber, String barCode) {
+        this.blsCode = blsCode;
+        this.name = name;
+        this.kcal = kcal;
+        this.water = water;
+        this.protein = protein;
+        this.fat = fat;
+        this.carbohydrates = carbohydrates;
+        this.fiber = fiber;
+        this.barCode = barCode;
     }
 
     public void addPortion(FoodPortion portion) {

@@ -65,6 +65,18 @@ public class SecurityTest {
                 .andExpect(status().isOk());
     }
 
+    // Spring Data REST would list the rows of everyone, e.g. all notifications
+    @Test
+    void testRepositoriesAreNotExposed() throws Exception {
+        String id = "security-test-" + System.nanoTime();
+        for (String path : new String[] { "/api/notifications", "/api/workoutSessions", "/api/friendships",
+                "/api/users/search/search" }) {
+            mockMvc.perform(get(path).with(jwt().jwt(token -> token.subject(id))))
+                    .andExpect(status().isNotFound());
+        }
+        userRepository.deleteById(id);
+    }
+
     @Test
     void testCreatesUserOfTokenOnFirstRequest() throws Exception {
         String id = "security-test-" + System.nanoTime();

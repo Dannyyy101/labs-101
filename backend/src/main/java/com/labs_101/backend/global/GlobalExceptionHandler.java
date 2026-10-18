@@ -5,7 +5,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.server.ResponseStatusException;
 
 import com.labs_101.backend.exception.BadRequestException;
 import com.labs_101.backend.exception.ErrorResponse;
@@ -98,8 +97,8 @@ public class GlobalExceptionHandler {
 
     /**
      * Handles any generic exception by returning the exception message.
-     * If the exception is an instance of ResponseStatusException, the status code
-     * from the exception is used.
+     * If the exception carries a status (a ResponseStatusException or e.g. the
+     * NoResourceFoundException of an unknown path), that status is used.
      * Otherwise, an INTERNAL_SERVER_ERROR status is returned.
      *
      * @param ex the exception to be handled.
@@ -111,7 +110,8 @@ public class GlobalExceptionHandler {
         Map<String, String> response = new HashMap<>();
         response.put("message", ex.getMessage());
 
-        if (ex instanceof ResponseStatusException e) {
+        // ResponseStatusException and the errors of Spring itself (unknown path, wrong method, …) know their status
+        if (ex instanceof org.springframework.web.ErrorResponse e) {
             return new ResponseEntity<>(response, e.getStatusCode());
         } else {
             return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);

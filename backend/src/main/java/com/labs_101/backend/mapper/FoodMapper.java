@@ -1,6 +1,5 @@
 package com.labs_101.backend.mapper;
 
-import java.util.ArrayList;
 
 import org.springframework.stereotype.Service;
 
@@ -26,8 +25,8 @@ import com.labs_101.backend.repositories.SearchFoodProjection;
 @Service
 public class FoodMapper {
     public Food mapFromCreateFoodDtoToEntity(CreateFoodDto dto) {
-        return new Food(null, dto.blsCode(), dto.name(), dto.kcal(), dto.water(), dto.protein(), dto.fat(),
-                dto.carbohydrates(), dto.fiber(), "", null, null, null, null);
+        return new Food(dto.blsCode(), dto.name(), dto.kcal(), dto.water(), dto.protein(), dto.fat(),
+                dto.carbohydrates(), dto.fiber(), "");
     }
 
     public FoodDto mapFromEntityToFoodDto(Food entity) {
@@ -85,14 +84,12 @@ public class FoodMapper {
     }
 
     public static Food mapFromOpenFoodToFood(OpenFood openFood) {
-        return new Food(null, null, openFood.getName(), openFood.getKcal(), openFood.getWater(), openFood.getProtein(),
-                openFood.getFat(), openFood.getCarbohydrates(), openFood.getFiber(), openFood.getBarCode(), null, null,
-                new ArrayList<>(),
-                new ArrayList<>());
+        return new Food(null, openFood.getName(), openFood.getKcal(), openFood.getWater(), openFood.getProtein(),
+                openFood.getFat(), openFood.getCarbohydrates(), openFood.getFiber(), openFood.getBarCode());
     }
 
     public FoodPortion mapFromCreateFoodPortionDtoToFoodPortion(CreateFoodPortionDto dto) {
-        return new FoodPortion(null, null, new ArrayList<>(), dto.label(), dto.grams(), dto.isDefault());
+        return new FoodPortion(null, dto.label(), dto.grams(), dto.isDefault());
     }
 
     public FoodWithLastEntryAndPortionsDto mapFromFoodAndTrackedFoodToFoodWithLastEntryDto(Food food,

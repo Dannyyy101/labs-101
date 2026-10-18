@@ -17,7 +17,7 @@ import { NotificationBell } from "@/components/notifications/NotificationBell"
 import { useUser } from "@/components/user-provider"
 import { signOut } from "@/app/sign-in/action"
 import { addDays, formatShortDay, today } from "@/app/foods/track/format"
-import { ChevronLeft, ChevronRight, LogOut, Settings, Trophy, UserPen } from "lucide-react"
+import { ChevronLeft, ChevronRight, LogOut, Settings, Trophy, UserPen, Users } from "lucide-react"
 import { useTheme } from "next-themes"
 import Link from "next/link"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
@@ -126,6 +126,7 @@ function UserMenu() {
             {user && <>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={() => router.push("/profile")}><Trophy />Profil & Achievements</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => router.push("/friends")}><Users />Freunde</DropdownMenuItem>
                 <DropdownMenuItem onClick={() => window.open("/auth/profile", "_blank")}><UserPen />Konto & Profilbild</DropdownMenuItem>
                 <DropdownMenuItem onClick={() => router.push("/settings")}><Settings />Einstellungen</DropdownMenuItem>
                 <DropdownMenuItem onClick={() => signOut()}><LogOut />Abmelden</DropdownMenuItem>

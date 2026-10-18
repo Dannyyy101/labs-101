@@ -9,14 +9,12 @@ import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Getter
 @Setter
-@AllArgsConstructor
 @NoArgsConstructor
 @Table(name = "food_portion")
 @Entity
@@ -37,5 +35,14 @@ public class FoodPortion {
 
     public FoodPortion(Long id) {
         this.id = id;
+    }
+
+    // no @AllArgsConstructor: it would assign isDefault, which already has an initializer
+    /** {@code food} may be null when it is set by {@link Food#addPortion} afterwards. */
+    public FoodPortion(Food food, String label, Double grams, Boolean isDefault) {
+        this.food = food;
+        this.label = label;
+        this.grams = grams;
+        this.isDefault = isDefault;
     }
 }

@@ -1,6 +1,7 @@
 package com.labs_101.backend.repositories;
 
 import java.time.Instant;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -13,6 +14,10 @@ public interface WorkoutSessionRepository extends JpaRepository<WorkoutSession, 
     Optional<WorkoutSession> findByIdAndUser_Id(Long id, String userId);
 
     Optional<WorkoutSession> findFirstByUser_IdAndEndedAtIsNullOrderByStartedAtDesc(String userId);
+
+    /** Running sessions of the users started after {@code after}, newest first. */
+    List<WorkoutSession> findByUser_IdInAndEndedAtIsNullAndStartedAtAfterOrderByStartedAtDesc(
+            Collection<String> userIds, Instant after);
 
     /** Finished sessions started in the range, newest first. */
     List<WorkoutSession> findByUser_IdAndEndedAtIsNotNullAndStartedAtBetweenOrderByStartedAtDesc(String userId,

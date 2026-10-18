@@ -30,6 +30,7 @@ flowchart LR
 - **Läufe** – Auswertung der aus Apple Health synchronisierten Läufe inkl. GPS-Route auf der Karte.
 - **Apple-Health-Sync** – die iOS-App spiegelt HealthKit-Samples ins Backend; das Backend kann umgekehrt Schreibaufträge hinterlegen. Details: [`documents/health-sync.md`](documents/health-sync.md).
 - **Health-Übersicht & Planer** – Startseite mit Kennzahlen, Kalender für geplante Einheiten.
+- **Freunde** – Freundschaftsanfragen per Name/E-Mail senden und annehmen, Profil (Streak, Heatmap, Achievements) von Freunden ansehen, sehen wer gerade trainiert und einmal pro Training anfeuern (der Freund bekommt eine Benachrichtigung).
 - **Einstellungen** – nutzerbezogene Settings.
 - **Benachrichtigungen (iOS)** – lokal, nach jedem Health-Sync geprüft: morgens die Schlafauswertung, nach dem Training die Statistiken, um 20 Uhr ein Hinweis, wenn noch ≥ 500 kcal offen sind, außerdem die ungelesenen Benachrichtigungen des Backends (Glocke im Web). Abschaltbar im Health-Tab, im Debug-Build gibt es dort einen Test-Button.
 

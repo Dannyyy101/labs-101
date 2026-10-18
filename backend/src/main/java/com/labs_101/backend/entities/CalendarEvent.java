@@ -17,14 +17,12 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Table;
 import com.labs_101.backend.entities.workout.Workout;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Getter
 @Setter
-@AllArgsConstructor
 @NoArgsConstructor
 @Entity
 @Table(name = "calendar_event")
@@ -51,4 +49,17 @@ public class CalendarEvent {
     private Recurrence recurrence;
     /** No occurrence starts after this, null repeats forever. */
     private Instant recurrenceEnd;
+
+    // no @AllArgsConstructor: it would assign invitees, which already has an initializer
+    /** A new event without invitees, they are added afterwards. */
+    public CalendarEvent(String title, Instant startDate, Instant endDate, User creator, Workout workout,
+            Recurrence recurrence, Instant recurrenceEnd) {
+        this.title = title;
+        this.startDate = startDate;
+        this.endDate = endDate;
+        this.creator = creator;
+        this.workout = workout;
+        this.recurrence = recurrence;
+        this.recurrenceEnd = recurrenceEnd;
+    }
 }
