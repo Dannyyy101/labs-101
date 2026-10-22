@@ -5,6 +5,7 @@ import com.labs_101.backend.mapper.ExerciseMapper;
 import com.labs_101.backend.mapper.WorkoutMapper;
 import com.labs_101.backend.repositories.CalendarRepository;
 import com.labs_101.backend.repositories.ExerciseRepository;
+import com.labs_101.backend.repositories.UserRepository;
 import com.labs_101.backend.repositories.WorkoutRepository;
 import com.labs_101.backend.repositories.WorkoutSessionRepository;
 
@@ -27,6 +28,7 @@ import com.labs_101.backend.dtos.workout.ExerciseItem;
 import com.labs_101.backend.dtos.workout.StrengthItemDto;
 import com.labs_101.backend.dtos.workout.WorkoutDto;
 import com.labs_101.backend.entities.workout.workoutExercises.StrengthItem;
+import com.labs_101.backend.exception.ForbiddenException;
 import com.labs_101.backend.exception.NotFoundException;
 import com.labs_101.backend.entities.BodyPart;
 import com.labs_101.backend.entities.Exercise;
@@ -39,14 +41,16 @@ public class WorkoutService {
     private final ExerciseRepository exerciseRepository;
     private final WorkoutSessionRepository sessionRepository;
     private final CalendarRepository calendarRepository;
+    private final UserRepository userRepository;
 
     WorkoutService(ExerciseRepository exerciseRepository,
             WorkoutRepository workoutRepository, WorkoutSessionRepository sessionRepository,
-            CalendarRepository calendarRepository) {
+            CalendarRepository calendarRepository, UserRepository userRepository) {
         this.exerciseRepository = exerciseRepository;
         this.workoutRepository = workoutRepository;
         this.sessionRepository = sessionRepository;
         this.calendarRepository = calendarRepository;
+        this.userRepository = userRepository;
     }
 
     @Transactional
@@ -74,27 +78,28 @@ public class WorkoutService {
     }
 
     @Transactional
-    public WorkoutDto create(CreateWorkoutDto request) {
+    public WorkoutDto create(String userId, CreateWorkoutDto request) {
         Workout workout = new Workout();
         workout.setDuration(0.0);
+        workout.setOwner(userRepository.getReferenceById(userId));
         apply(workout, request);
-        return WorkoutMapper.fromWorkoutToWorkoutDto(workoutRepository.save(workout));
+        return WorkoutMapper.fromWorkoutToWorkoutDto(workoutRepository.save(workout), userId);
     }
 
     /** Replaces name and exercises, sessions started from the workout keep their copy. */
     @Transactional
-    public WorkoutDto update(Long id, CreateWorkoutDto request) {
-        Workout workout = workoutRepository.findById(id).orElseThrow(() -> NotFoundException.workout(id));
+    public WorkoutDto update(String userId, Long id, CreateWorkoutDto request) {
+        Workout workout = findEditable(userId, id);
         workout.getExercises().clear();
         // removes the old rows before the new ones are inserted
         workoutRepository.flush();
         apply(workout, request);
-        return WorkoutMapper.fromWorkoutToWorkoutDto(workoutRepository.save(workout));
+        return WorkoutMapper.fromWorkoutToWorkoutDto(workoutRepository.save(workout), userId);
     }
 
     @Transactional
-    public void delete(Long id) {
-        Workout workout = workoutRepository.findById(id).orElseThrow(() -> NotFoundException.workout(id));
+    public void delete(String userId, Long id) {
+        Workout workout = findEditable(userId, id);
         // the history stays, only the link to the template is removed
         sessionRepository.findByWorkout_Id(id).forEach((session) -> session.setWorkout(null));
         // planned events stay in the calendar without a workout
@@ -103,14 +108,22 @@ public class WorkoutService {
     }
 
     @Transactional
-    public List<WorkoutDto> getAll() {
-        return workoutRepository.findAll().stream().map(WorkoutMapper::fromWorkoutToWorkoutDto).toList();
+    public List<WorkoutDto> getAll(String userId) {
+        return workoutRepository.findAll().stream().map((workout) -> WorkoutMapper.fromWorkoutToWorkoutDto(workout, userId)).toList();
     }
 
     @Transactional
-    public WorkoutDto getById(Long id) {
+    public WorkoutDto getById(String userId, Long id) {
         Workout workout = workoutRepository.findById(id).orElseThrow(() -> NotFoundException.workout(id));
-        return WorkoutMapper.fromWorkoutToWorkoutDto(workout);
+        return WorkoutMapper.fromWorkoutToWorkoutDto(workout, userId);
+    }
+
+    private Workout findEditable(String userId, Long id) {
+        Workout workout = workoutRepository.findById(id).orElseThrow(() -> NotFoundException.workout(id));
+        if (!workout.isEditableBy(userId)) {
+            throw ForbiddenException.workout(id);
+        }
+        return workout;
     }
 
     private void apply(Workout workout, CreateWorkoutDto request) {

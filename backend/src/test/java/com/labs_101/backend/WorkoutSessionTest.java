@@ -1,6 +1,7 @@
 package com.labs_101.backend;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -32,6 +33,7 @@ import com.labs_101.backend.dtos.workout.session.WorkoutSessionDto;
 import com.labs_101.backend.entities.Exercise;
 import com.labs_101.backend.entities.User;
 import com.labs_101.backend.exception.BadRequestException;
+import com.labs_101.backend.exception.ForbiddenException;
 import com.labs_101.backend.exception.NotFoundException;
 import com.labs_101.backend.repositories.ExerciseRepository;
 import com.labs_101.backend.repositories.UserRepository;
@@ -133,7 +135,7 @@ public class WorkoutSessionTest {
     @Test
     void testUpdateAndDeleteWorkout() {
         WorkoutDto workout = workout("Push", bench);
-        WorkoutDto updated = workoutService.update(workout.getId(), new CreateWorkoutDto("Push B", null, List.of(
+        WorkoutDto updated = workoutService.update(userId, workout.getId(), new CreateWorkoutDto("Push B", null, List.of(
                 new StrengthItemDto(squat, List.of(new SetDto(0, 5, 120, null, null))),
                 new StrengthItemDto(bench, List.of()))));
 
@@ -143,11 +145,27 @@ public class WorkoutSessionTest {
 
         WorkoutSessionDto session = sessionService.start(userId, new CreateWorkoutSessionDto(workout.getId(), null));
         sessionService.finish(userId, session.id(), null);
-        workoutService.delete(workout.getId());
+        workoutService.delete(userId, workout.getId());
 
         // the history stays, without the template
-        assertThrows(NotFoundException.class, () -> workoutService.getById(workout.getId()));
+        assertThrows(NotFoundException.class, () -> workoutService.getById(userId, workout.getId()));
         assertNull(sessionService.getSession(userId, session.id()).workoutId());
+    }
+
+    @Test
+    void testOnlyTheCreatorCanChangeWorkout() {
+        WorkoutDto workout = workout("Push", bench);
+        String other = userRepository.saveAndFlush(new User(UUID.randomUUID().toString())).getId();
+
+        assertTrue(workout.isEditable());
+        assertFalse(workoutService.getById(other, workout.getId()).isEditable());
+        assertThrows(ForbiddenException.class, () -> workoutService.update(other, workout.getId(),
+                new CreateWorkoutDto("Pull", null, List.of())));
+        assertThrows(ForbiddenException.class, () -> workoutService.delete(other, workout.getId()));
+
+        // everyone can still train with it
+        assertEquals(workout.getId(), sessionService.start(other, new CreateWorkoutSessionDto(workout.getId(), null)).workoutId());
+        assertEquals("Push", workoutService.getById(userId, workout.getId()).getName());
     }
 
     private ExerciseDto exercise(String name) {
@@ -156,7 +174,7 @@ public class WorkoutSessionTest {
     }
 
     private WorkoutDto workout(String name, ExerciseDto... exercises) {
-        return workoutService.create(new CreateWorkoutDto(name, null, List.of(exercises).stream()
+        return workoutService.create(userId, new CreateWorkoutDto(name, null, List.of(exercises).stream()
                 .map((e) -> (com.labs_101.backend.dtos.workout.ExerciseItem) new StrengthItemDto(e, List.of(
                         new SetDto(0, 10, 60, null, 90), new SetDto(1, 10, 60, null, 180))))
                 .toList()));

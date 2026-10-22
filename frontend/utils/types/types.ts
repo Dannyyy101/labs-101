@@ -23,6 +23,10 @@ export interface Workout {
     id: number
     name: string
     workoutExercises: WorkoutExercise[]
+    // name of the creator, null if unknown
+    ownerName: string | null
+    // only the creator can change or delete the template
+    editable: boolean
 }
 
 export type WorkoutExercise = StrengthExercise

@@ -4,7 +4,7 @@ import { Card, CardHead, Delta, KpiGrid, Note, Period, PERIODS, periodRange, isI
 import { cn } from "@/lib/utils"
 import { Workout, WorkoutSession } from "@/utils/types/types"
 import { Exercise } from "@/utils/types/workoutTypes"
-import { ChevronRight, Dumbbell, Pencil, Play, Plus, Trash2, Trophy } from "lucide-react"
+import { ChevronRight, Dumbbell, Eye, Pencil, Play, Plus, Trash2, Trophy } from "lucide-react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useMemo, useState, useTransition } from "react"
@@ -49,7 +49,7 @@ export default function WorkoutDashboard({ workouts, sessions, active, exercises
     if (!workouts.length && !sessions.length && !active) {
         return <div className="flex-1 w-full bg-muted/50 px-4 py-6 md:px-8">
             <div className="mx-auto max-w-7xl">
-                <h1 className="text-4xl font-bold tracking-tight">Training</h1>
+                <h1 className="text-[34px] font-bold tracking-tight">Training</h1>
                 <div className="mt-6 flex flex-col items-center rounded-[18px] bg-card p-10 text-center shadow-sm">
                     <div className="grid size-12 place-items-center rounded-[14px] text-white" style={{ background: COLORS.count }}><Dumbbell /></div>
                     <p className="mt-4 text-lg font-semibold">Noch keine Trainings</p>
@@ -64,9 +64,9 @@ export default function WorkoutDashboard({ workouts, sessions, active, exercises
     }
 
     return <div className="flex-1 w-full bg-muted/50 px-3.5 py-5 md:px-6 md:py-7">
-        <div className="mx-auto flex max-w-7xl flex-col gap-5">
-            <div className="flex flex-wrap items-end gap-4">
-                <div className="min-w-56 flex-1">
+        <div className="mx-auto flex max-w-7xl flex-col gap-4 md:gap-5">
+            <div className="flex flex-wrap items-end gap-x-4 gap-y-3">
+                <div className="min-w-48 flex-1">
                     <h1 className="text-[34px] font-bold leading-tight tracking-tight">Training</h1>
                     <p className="whitespace-nowrap text-muted-foreground">
                         {period === "year"
@@ -82,28 +82,28 @@ export default function WorkoutDashboard({ workouts, sessions, active, exercises
             <Kpis sessions={sessions} inPeriod={inPeriod} period={period} current={current} />
 
             <div className="grid grid-cols-1 gap-4 lg:grid-cols-12">
-                <Card className="lg:col-span-8">
+                <Card className="p-4 md:p-5 lg:col-span-8">
                     <CardHead title="Vorlagen" right={<Link href="/workouts/new" className="font-medium text-[#0a84ff]">+ Neue Vorlage</Link>} />
                     <Templates workouts={workouts} sessions={sessions} exercises={exerciseById} blocked={!!active} />
                 </Card>
 
-                <Card className="lg:col-span-4">
+                <Card className="p-4 md:p-5 lg:col-span-4">
                     <CardHead title="Muskeln" right="Sätze im Zeitraum" />
                     <MuscleMap muscles={muscles} />
                 </Card>
 
-                <Card className="lg:col-span-8">
+                <Card className="p-4 md:p-5 lg:col-span-8">
                     <CardHead title="Volumen" right={period === "year" ? "Tonnen pro Woche" : "Tonnen pro Tag"} />
                     <VolumeChart sessions={inPeriod} period={period} from={current[0]} to={current[1]} onSelect={select} />
                 </Card>
 
-                <Card className="lg:col-span-4">
+                <Card className="p-4 md:p-5 lg:col-span-4">
                     <CardHead title="Bestleistungen" right={`${new Date().getFullYear()}`} />
                     <Records sessions={sessions} onSelect={select} />
                 </Card>
 
-                <Card className="lg:col-span-12">
-                    <CardHead title="Trainings" right={`${inPeriod.length} im Zeitraum`} />
+                <Card className="p-3 md:p-5 lg:col-span-12">
+                    <CardHead title="Trainings" className="px-1 md:px-0" right={`${inPeriod.length} im Zeitraum`} />
                     <div className="flex flex-col">
                         {inPeriod.slice(0, shown).map((session) =>
                             <SessionRow key={session.id} session={session} expanded={session.id === expanded}
@@ -196,21 +196,24 @@ function Kpis({ sessions, inPeriod, period, current }: { sessions: WorkoutSessio
 // MARK: cards
 
 function Templates({ workouts, sessions, exercises, blocked }: { workouts: Workout[], sessions: WorkoutSession[], exercises: Map<number, Exercise>, blocked: boolean }) {
-    return <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
+    // a row to swipe through on phones, a grid from sm on
+    return <div className="-mx-4 flex snap-x snap-mandatory scroll-px-4 gap-3 overflow-x-auto px-4 pb-1 [scrollbar-width:none] sm:mx-0 sm:grid sm:grid-cols-2 sm:overflow-visible sm:px-0 sm:pb-0 xl:grid-cols-3">
         {workouts.map((workout) => {
             const sets = workout.workoutExercises.reduce((sum, e) => sum + e.sets.length, 0)
             const last = sessions.find((s) => s.workoutId === workout.id)
             const muscles = setsPerMuscle(workout.workoutExercises.map((e) => ({ exerciseId: e.exercise.id, sets: e.sets.length })), exercises)
-            return <div key={workout.id} className="flex flex-col rounded-[14px] bg-muted/60 p-4">
+            return <div key={workout.id} className="flex w-[82%] flex-none snap-start flex-col rounded-[14px] bg-muted/60 p-4 sm:w-auto">
                 <div className="flex items-start gap-2">
                     <div className="min-w-0 flex-1">
                         <div className="truncate text-[17px] font-semibold">{workout.name}</div>
-                        <div className="text-sm text-muted-foreground">
+                        <div className="truncate text-sm text-muted-foreground">
                             {workout.workoutExercises.length} {workout.workoutExercises.length === 1 ? "Übung" : "Übungen"} · {sets} {sets === 1 ? "Satz" : "Sätze"}
+                            {!workout.editable && workout.ownerName && ` · von ${workout.ownerName}`}
                         </div>
                     </div>
-                    <Link href={`/workouts/${workout.id}`} aria-label={`${workout.name} bearbeiten`} className="grid size-8 flex-none place-items-center rounded-full text-muted-foreground hover:bg-background">
-                        <Pencil className="size-4" />
+                    <Link href={`/workouts/${workout.id}`} aria-label={`${workout.name} ${workout.editable ? "bearbeiten" : "ansehen"}`}
+                        className="-mr-1 grid size-9 flex-none place-items-center rounded-full text-muted-foreground hover:bg-background">
+                        {workout.editable ? <Pencil className="size-4" /> : <Eye className="size-4" />}
                     </Link>
                 </div>
                 <div className="mt-2 line-clamp-2 min-h-10 text-sm">
@@ -222,17 +225,17 @@ function Templates({ workouts, sessions, exercises, blocked }: { workouts: Worko
                 <div className="mt-auto flex items-center gap-2 pt-3">
                     <span className="min-w-0 flex-1 truncate text-xs text-muted-foreground">{last ? `Zuletzt ${formatDate(new Date(last.startedAt))}` : "Noch nie trainiert"}</span>
                     <StartButton workoutId={workout.id} disabled={blocked}
-                        className="flex items-center gap-1.5 rounded-full bg-[#30d158] px-3.5 py-1.5 text-sm font-semibold text-white">
+                        className="flex items-center gap-1.5 rounded-full bg-[#30d158] px-4 py-2 text-sm font-semibold text-white">
                         <Play className="size-3.5 fill-current" />Starten
                     </StartButton>
                 </div>
             </div>
         })}
-        <div className="flex min-h-40 flex-col items-center justify-center gap-2 rounded-[14px] border-2 border-dashed p-4 text-center">
-            <StartButton workoutId={null} disabled={blocked} className="flex items-center gap-1.5 rounded-full bg-muted px-3.5 py-1.5 text-sm font-semibold">
+        <div className="flex min-h-40 w-[82%] flex-none snap-start flex-col items-center justify-center gap-3 rounded-[14px] border-2 border-dashed p-4 text-center sm:w-auto">
+            <StartButton workoutId={null} disabled={blocked} className="flex items-center gap-1.5 rounded-full bg-muted px-4 py-2 text-sm font-semibold">
                 <Play className="size-3.5 fill-current" />Freies Training
             </StartButton>
-            <Link href="/workouts/new" className="flex items-center gap-1 text-sm font-medium text-[#0a84ff]"><Plus className="size-4" />Vorlage erstellen</Link>
+            <Link href="/workouts/new" className="flex items-center gap-1 py-1 text-sm font-medium text-[#0a84ff]"><Plus className="size-4" />Vorlage erstellen</Link>
         </div>
     </div>
 }
@@ -289,7 +292,7 @@ function SessionRow({ session, expanded, onClick }: { session: WorkoutSession, e
 
     return <div id={`session-${session.id}`} className={cn("rounded-xl", expanded && "bg-[#0a84ff]/8")}>
         <button onClick={onClick} className={cn(
-            "grid w-full grid-cols-[40px_minmax(0,1fr)_auto] items-center gap-4 rounded-xl px-3 py-2.5 text-left md:grid-cols-[40px_minmax(0,1.4fr)_repeat(4,minmax(0,1fr))_16px]",
+            "grid w-full grid-cols-[40px_minmax(0,1fr)_auto] items-center gap-3 rounded-xl px-2 py-2.5 text-left md:gap-4 md:px-3 md:grid-cols-[40px_minmax(0,1.4fr)_repeat(4,minmax(0,1fr))_16px]",
             !expanded && "hover:bg-muted")}>
             <div className="grid size-10 place-items-center rounded-[10px] text-white" style={{ background: expanded ? "#0a84ff" : COLORS.count }}>
                 <Dumbbell className="size-5" />
@@ -304,7 +307,7 @@ function SessionRow({ session, expanded, onClick }: { session: WorkoutSession, e
             <Cell value={vol} label={volUnit} hide />
             <ChevronRight className={cn("hidden size-3.5 text-muted-foreground/50 transition-transform md:block", expanded && "rotate-90")} strokeWidth={2.6} />
         </button>
-        {expanded && <div className="px-3 pb-3 md:pl-[72px]">
+        {expanded && <div className="px-2 pb-3 md:px-3 md:pl-[72px]">
             <div className="flex flex-col divide-y rounded-xl bg-card">
                 {session.exercises.map((exercise, i) => <div key={i} className="flex flex-col gap-1.5 px-3 py-2.5 md:flex-row md:items-center md:gap-4">
                     <div className="font-semibold md:w-56 md:flex-none">{exercise.name}</div>

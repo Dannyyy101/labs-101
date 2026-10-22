@@ -13,7 +13,7 @@ import ExercisePicker from "../ExercisePicker"
 import NumberInput from "../NumberInput"
 import RestPicker from "../RestPicker"
 import MuscleMap from "../MuscleMap"
-import { DEFAULT_REST, formatVolume, MUSCLES, restOf, setsPerMuscle, volume } from "../stats"
+import { DEFAULT_REST, formatRest, formatVolume, formatWeight, MUSCLES, restOf, setsPerMuscle, volume } from "../stats"
 
 const DEFAULT_SET: ExerciseSet = { order: 0, reps: 10, weightKg: 20, rpe: null, restSeconds: DEFAULT_REST }
 
@@ -24,6 +24,8 @@ export default function WorkoutEditor({ workout, exercises }: { workout: Workout
     const [dirty, setDirty] = useState(false)
     const [error, setError] = useState<string | null>(null)
     const [pending, startPending] = useTransition()
+    // templates of others can be looked at and trained, only their creator can change them
+    const readOnly = !!workout && !workout.editable
 
     const exerciseById = useMemo(() => new Map(exercises.map((e) => [e.id, e])), [exercises])
     const muscles = useMemo(() => setsPerMuscle(items.map((e) => ({ exerciseId: e.exercise.id, sets: e.sets.length })), exerciseById), [items, exerciseById])
@@ -68,7 +70,7 @@ export default function WorkoutEditor({ workout, exercises }: { workout: Workout
         else router.refresh()
     })
     const onStart = () => run(async () => {
-        const saved = dirty || !workout ? await save() : workout
+        const saved = !readOnly && (dirty || !workout) ? await save() : workout!
         await startSession(saved.id)
         router.push("/workouts/session")
     })
@@ -80,42 +82,51 @@ export default function WorkoutEditor({ workout, exercises }: { workout: Workout
         })
     }
 
-    return <div className="flex-1 w-full bg-muted/50 px-3.5 py-5 md:px-6 md:py-7">
-        <div className="mx-auto flex max-w-7xl flex-col gap-5">
+    const actions = <>
+        {workout && !readOnly && <button onClick={onDelete} disabled={pending} className="rounded-full px-3.5 py-2 text-sm font-semibold text-[#ff453a] hover:bg-[#ff453a]/10 disabled:opacity-50">Löschen</button>}
+        {!readOnly && <button onClick={onSave} disabled={pending || (!!workout && !dirty)} className="flex-1 rounded-full bg-background px-4 py-2.5 text-sm font-semibold shadow-[0_1px_3px_rgba(0,0,0,.12)] disabled:opacity-50 md:flex-none md:py-2">
+            {pending ? "Speichert…" : "Speichern"}
+        </button>}
+        <button onClick={onStart} disabled={pending || !items.length} className="flex flex-1 items-center justify-center gap-1.5 rounded-full bg-[#30d158] px-4 py-2.5 text-sm font-semibold text-white disabled:opacity-50 md:flex-none md:py-2">
+            <Play className="size-3.5 fill-current" />Training starten
+        </button>
+    </>
+
+    return <div className="flex-1 w-full bg-muted/50 px-3.5 pt-5 pb-28 md:px-6 md:py-7">
+        <div className="mx-auto flex max-w-7xl flex-col gap-4 md:gap-5">
             <div className="flex flex-wrap items-end gap-4">
-                <div className="min-w-64 flex-1">
+                <div className="min-w-0 flex-1">
                     <Link href="/workouts" className="flex w-fit items-center text-[15px] text-[#0a84ff]"><ChevronLeft className="size-5" />Training</Link>
-                    <input value={name} onChange={(e) => { setName(e.target.value); setDirty(true) }} placeholder="Name der Vorlage" aria-label="Name"
-                        className="mt-1 w-full bg-transparent text-[34px] font-bold leading-tight tracking-tight outline-none placeholder:text-muted-foreground/50" />
-                    <p className="text-muted-foreground">{workout ? (dirty ? "Ungespeicherte Änderungen" : "Gespeichert") : "Neue Vorlage"}</p>
+                    {readOnly
+                        ? <h1 className="mt-1 truncate text-[28px] font-bold leading-tight tracking-tight md:text-[34px]">{name}</h1>
+                        : <input value={name} onChange={(e) => { setName(e.target.value); setDirty(true) }} placeholder="Name der Vorlage" aria-label="Name"
+                            className="mt-1 w-full bg-transparent text-[28px] font-bold leading-tight tracking-tight outline-none placeholder:text-muted-foreground/50 md:text-[34px]" />}
+                    <p className="text-muted-foreground">
+                        {readOnly
+                            ? `Vorlage von ${workout.ownerName ?? "jemand anderem"} · nur ansehen`
+                            : workout ? (dirty ? "Ungespeicherte Änderungen" : "Gespeichert") : "Neue Vorlage"}
+                    </p>
                 </div>
-                <div className="flex flex-wrap items-center gap-2">
-                    {workout && <button onClick={onDelete} disabled={pending} className="rounded-full px-3.5 py-2 text-sm font-semibold text-[#ff453a] hover:bg-[#ff453a]/10 disabled:opacity-50">Löschen</button>}
-                    <button onClick={onSave} disabled={pending || (!!workout && !dirty)} className="rounded-full bg-background px-4 py-2 text-sm font-semibold shadow-[0_1px_3px_rgba(0,0,0,.12)] disabled:opacity-50">
-                        {pending ? "Speichert…" : "Speichern"}
-                    </button>
-                    <button onClick={onStart} disabled={pending || !items.length} className="flex items-center gap-1.5 rounded-full bg-[#30d158] px-4 py-2 text-sm font-semibold text-white disabled:opacity-50">
-                        <Play className="size-3.5 fill-current" />Training starten
-                    </button>
-                </div>
+                <div className="hidden flex-wrap items-center gap-2 md:flex">{actions}</div>
             </div>
             {error && <p className="rounded-xl bg-[#ff453a]/10 px-4 py-2 text-sm font-medium text-[#ff453a]">{error}</p>}
 
             <div className="grid grid-cols-1 gap-4 lg:grid-cols-12">
-                <div className="flex flex-col gap-4 lg:col-span-8">
-                    {items.map((item, index) => <ExerciseCard key={index} item={item} exercise={exerciseById.get(item.exercise.id)}
+                <div className="flex flex-col gap-3 md:gap-4 lg:col-span-8">
+                    {items.map((item, index) => <ExerciseCard key={index} item={item} exercise={exerciseById.get(item.exercise.id)} readOnly={readOnly}
                         onChange={(next) => update(index, next)}
                         onRemove={() => change(items.filter((_, i) => i !== index))}
                         onMoveUp={index > 0 ? () => move(index, -1) : undefined}
                         onMoveDown={index < items.length - 1 ? () => move(index, 1) : undefined} />)}
-                    <ExercisePicker exercises={exercises} onPick={add}
+                    {!readOnly && <ExercisePicker exercises={exercises} onPick={add}
                         className="flex items-center justify-center gap-2 rounded-[18px] border-2 border-dashed p-5 font-semibold text-[#0a84ff] hover:bg-card">
                         <Plus className="size-5" />Übung hinzufügen
-                    </ExercisePicker>
+                    </ExercisePicker>}
+                    {readOnly && !items.length && <p className="py-6 text-center text-muted-foreground">Keine Übungen</p>}
                 </div>
 
                 <div className="flex flex-col gap-4 lg:col-span-4">
-                    <Card>
+                    <Card className="p-4 md:p-5">
                         <CardHead title="Übersicht" />
                         <dl className="grid grid-cols-3 gap-3">
                             <Stat label="Übungen" value={`${items.length}`} />
@@ -123,18 +134,25 @@ export default function WorkoutEditor({ workout, exercises }: { workout: Workout
                             <Stat label="Volumen" value={vol} unit={volUnit} />
                         </dl>
                     </Card>
-                    <Card>
+                    <Card className="p-4 md:p-5">
                         <CardHead title="Muskeln" right="Sätze pro Muskel" />
                         <MuscleMap muscles={muscles} />
                     </Card>
                 </div>
             </div>
         </div>
+
+        {/* on phones the actions stay reachable at the bottom */}
+        <div className="fixed inset-x-0 bottom-0 z-30 px-3 pb-[max(12px,env(safe-area-inset-bottom))] md:hidden">
+            <div className="mx-auto flex max-w-3xl items-center gap-2 rounded-[22px] bg-background/85 p-2 shadow-[0_8px_32px_rgba(0,0,0,.18)] ring-1 ring-foreground/5 backdrop-blur-xl">
+                {actions}
+            </div>
+        </div>
     </div>
 }
 
-function ExerciseCard({ item, exercise, onChange, onRemove, onMoveUp, onMoveDown }: {
-    item: WorkoutExercise, exercise?: Exercise, onChange: (item: WorkoutExercise) => void,
+function ExerciseCard({ item, exercise, readOnly, onChange, onRemove, onMoveUp, onMoveDown }: {
+    item: WorkoutExercise, exercise?: Exercise, readOnly: boolean, onChange: (item: WorkoutExercise) => void,
     onRemove: () => void, onMoveUp?: () => void, onMoveDown?: () => void
 }) {
     const muscles = [...new Set((exercise ?? item.exercise).bodyParts.map((p) => p.slug).filter(Boolean))]
@@ -142,36 +160,52 @@ function ExerciseCard({ item, exercise, onChange, onRemove, onMoveUp, onMoveDown
         onChange({ ...item, sets: item.sets.map((s, i) => i === index ? { ...s, ...set } : s) })
     const addSet = () => onChange({ ...item, sets: [...item.sets, { ...(item.sets[item.sets.length - 1] ?? DEFAULT_SET) }] })
 
-    return <Card>
-        <div className="mb-3 flex items-start gap-2">
+    return <Card className="p-4 md:p-5">
+        <div className="mb-3 flex items-start gap-1 md:gap-2">
             <div className="min-w-0 flex-1">
                 <h2 className="truncate text-[17px] font-semibold">{item.exercise.name}</h2>
                 <p className="truncate text-sm text-muted-foreground">{muscles.map((m) => MUSCLES[m!] ?? m).join(", ") || item.exercise.description}</p>
             </div>
-            <IconButton label="Nach oben" onClick={onMoveUp}><ArrowUp /></IconButton>
-            <IconButton label="Nach unten" onClick={onMoveDown}><ArrowDown /></IconButton>
-            <IconButton label="Übung entfernen" onClick={onRemove} className="text-[#ff453a]"><Trash2 /></IconButton>
+            {!readOnly && <>
+                <IconButton label="Nach oben" onClick={onMoveUp}><ArrowUp /></IconButton>
+                <IconButton label="Nach unten" onClick={onMoveDown}><ArrowDown /></IconButton>
+                <IconButton label="Übung entfernen" onClick={onRemove} className="text-[#ff453a]"><Trash2 /></IconButton>
+            </>}
         </div>
-        <div className="grid grid-cols-[32px_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_32px] items-center gap-x-3 gap-y-1.5">
+        <div className={cn("grid items-center gap-x-2 gap-y-1.5 md:gap-x-3",
+            readOnly
+                ? "grid-cols-[24px_repeat(3,minmax(0,1fr))] md:grid-cols-[32px_repeat(3,minmax(0,1fr))]"
+                : "grid-cols-[20px_repeat(3,minmax(0,1fr))_28px] md:grid-cols-[32px_repeat(3,minmax(0,1fr))_32px]")}>
             <span className="text-xs font-medium text-muted-foreground">Satz</span>
             <span className="text-xs font-medium text-muted-foreground">Wdh</span>
             <span className="text-xs font-medium text-muted-foreground">kg</span>
-            <span className="text-xs font-medium text-muted-foreground">Ruhezeit</span>
-            <span />
-            {item.sets.map((set, i) => <SetRow key={i} index={i} set={set} onChange={(s) => updateSet(i, s)}
-                onRemove={() => onChange({ ...item, sets: item.sets.filter((_, j) => j !== i) })} />)}
+            <span className="text-xs font-medium text-muted-foreground">Pause</span>
+            {!readOnly && <span />}
+            {item.sets.map((set, i) => readOnly
+                ? <ReadOnlySetRow key={i} index={i} set={set} />
+                : <SetRow key={i} index={i} set={set} onChange={(s) => updateSet(i, s)}
+                    onRemove={() => onChange({ ...item, sets: item.sets.filter((_, j) => j !== i) })} />)}
         </div>
-        <button onClick={addSet} className="mt-3 flex items-center gap-1 text-sm font-medium text-[#0a84ff]"><Plus className="size-4" />Satz hinzufügen</button>
+        {!readOnly && <button onClick={addSet} className="mt-3 flex items-center gap-1 py-1 text-sm font-medium text-[#0a84ff]"><Plus className="size-4" />Satz hinzufügen</button>}
     </Card>
 }
 
 function SetRow({ index, set, onChange, onRemove }: { index: number, set: ExerciseSet, onChange: (set: Partial<ExerciseSet>) => void, onRemove: () => void }) {
     return <>
         <span className="text-center font-semibold tabular-nums text-muted-foreground">{index + 1}</span>
-        <NumberInput value={set.reps} onChange={(reps) => onChange({ reps: Math.round(reps) })} label={`Wiederholungen Satz ${index + 1}`} />
-        <NumberInput value={set.weightKg} onChange={(weightKg) => onChange({ weightKg })} label={`Gewicht Satz ${index + 1}`} decimal />
-        <RestPicker value={restOf(set)} onChange={(restSeconds) => onChange({ restSeconds })} label={`Ruhezeit nach Satz ${index + 1}`} />
-        <IconButton label={`Satz ${index + 1} entfernen`} onClick={onRemove}><X /></IconButton>
+        <NumberInput value={set.reps} onChange={(reps) => onChange({ reps: Math.round(reps) })} label={`Wiederholungen Satz ${index + 1}`} className="h-10 md:h-9" />
+        <NumberInput value={set.weightKg} onChange={(weightKg) => onChange({ weightKg })} label={`Gewicht Satz ${index + 1}`} decimal className="h-10 md:h-9" />
+        <RestPicker value={restOf(set)} onChange={(restSeconds) => onChange({ restSeconds })} label={`Ruhezeit nach Satz ${index + 1}`} className="h-10 md:h-9" />
+        <IconButton label={`Satz ${index + 1} entfernen`} onClick={onRemove} className="size-7 md:size-8"><X /></IconButton>
+    </>
+}
+
+function ReadOnlySetRow({ index, set }: { index: number, set: ExerciseSet }) {
+    return <>
+        <span className="text-center font-semibold tabular-nums text-muted-foreground">{index + 1}</span>
+        <span className="rounded-[10px] bg-muted/60 px-3 py-2 text-[15px] font-semibold tabular-nums">{set.reps}</span>
+        <span className="rounded-[10px] bg-muted/60 px-3 py-2 text-[15px] font-semibold tabular-nums">{formatWeight(set.weightKg)}</span>
+        <span className="rounded-[10px] bg-muted/60 px-3 py-2 text-[15px] font-semibold tabular-nums">{formatRest(restOf(set))}</span>
     </>
 }
 

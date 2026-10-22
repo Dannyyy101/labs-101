@@ -4,6 +4,7 @@ import com.labs_101.backend.dtos.exercises.CreateExerciseDto;
 import com.labs_101.backend.dtos.exercises.ExerciseDto;
 import com.labs_101.backend.dtos.workout.CreateWorkoutDto;
 import com.labs_101.backend.dtos.workout.WorkoutDto;
+import com.labs_101.backend.security.CurrentUser;
 import com.labs_101.backend.services.WorkoutService;
 
 import java.util.List;
@@ -29,29 +30,31 @@ public class WorkoutController {
     }
 
     @PostMapping("")
-    public WorkoutDto createWorkout(@RequestBody CreateWorkoutDto workoutDto) {
-        return workoutService.create(workoutDto);
+    public WorkoutDto createWorkout(@CurrentUser String userId, @RequestBody CreateWorkoutDto workoutDto) {
+        return workoutService.create(userId, workoutDto);
     }
 
     @GetMapping("{id}")
-    public WorkoutDto getWorkoutById(@PathVariable Long id) {
-        return workoutService.getById(id);
+    public WorkoutDto getWorkoutById(@CurrentUser String userId, @PathVariable Long id) {
+        return workoutService.getById(userId, id);
     }
 
+    /** Only the creator of the template can change it. */
     @PutMapping("{id}")
-    public WorkoutDto updateWorkout(@PathVariable Long id, @RequestBody CreateWorkoutDto workoutDto) {
-        return workoutService.update(id, workoutDto);
+    public WorkoutDto updateWorkout(@CurrentUser String userId, @PathVariable Long id, @RequestBody CreateWorkoutDto workoutDto) {
+        return workoutService.update(userId, id, workoutDto);
     }
 
+    /** Only the creator of the template can delete it. */
     @DeleteMapping("{id}")
-    public ResponseEntity<Void> deleteWorkout(@PathVariable Long id) {
-        workoutService.delete(id);
+    public ResponseEntity<Void> deleteWorkout(@CurrentUser String userId, @PathVariable Long id) {
+        workoutService.delete(userId, id);
         return ResponseEntity.noContent().build();
     }
 
     @GetMapping("")
-    public List<WorkoutDto> getAllWorkouts() {
-        return workoutService.getAll();
+    public List<WorkoutDto> getAllWorkouts(@CurrentUser String userId) {
+        return workoutService.getAll(userId);
     }
 
     @PostMapping("/exercises")

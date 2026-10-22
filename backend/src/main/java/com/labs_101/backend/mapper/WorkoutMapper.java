@@ -38,11 +38,13 @@ public class WorkoutMapper {
         return new WorkoutHeaderDto(workout.getId(), workout.getName());
     }
 
-    public static WorkoutDto fromWorkoutToWorkoutDto(Workout workout) {
+    /** The template as the user sees it, `editable` if they may change it. */
+    public static WorkoutDto fromWorkoutToWorkoutDto(Workout workout, String userId) {
         List<ExerciseItem> items = workout.getExercises().stream()
                 .map((exercise) -> fromWorkoutExerciseToExerciseItem(exercise)).toList();
 
-        return new WorkoutDto(workout.getId(), workout.getName(), items);
+        return new WorkoutDto(workout.getId(), workout.getName(), items,
+                workout.getOwner() != null ? workout.getOwner().getName() : null, workout.isEditableBy(userId));
     }
 
     private static ExerciseItem fromWorkoutExerciseToExerciseItem(WorkoutExercise<?> exercise) {

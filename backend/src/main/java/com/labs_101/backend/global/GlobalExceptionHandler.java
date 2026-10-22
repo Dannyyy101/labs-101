@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 
 import com.labs_101.backend.exception.BadRequestException;
 import com.labs_101.backend.exception.ErrorResponse;
+import com.labs_101.backend.exception.ForbiddenException;
 import com.labs_101.backend.exception.NotFoundException;
 import com.labs_101.backend.exception.TooManyRequestsException;
 
@@ -76,6 +77,23 @@ public class GlobalExceptionHandler {
                 msg,
                 request.getRequestURI());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
+    }
+
+    /**
+     * Handles ForbiddenException (the user may see but not change something) by
+     * returning a localized message with a FORBIDDEN status.
+     */
+    @ExceptionHandler(ForbiddenException.class)
+    public ResponseEntity<ErrorResponse> handleForbidden(ForbiddenException ex, Locale locale,
+            HttpServletRequest request) {
+        String msg = messageSource.getMessage(ex.getCode(), ex.getArgs(), ex.getCode(), locale);
+        ErrorResponse body = new ErrorResponse(
+                Instant.now(),
+                HttpStatus.FORBIDDEN.value(),
+                HttpStatus.FORBIDDEN.getReasonPhrase(),
+                msg,
+                request.getRequestURI());
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(body);
     }
 
     /**
