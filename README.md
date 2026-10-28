@@ -32,6 +32,7 @@ flowchart LR
 - **Health-Übersicht & Planer** – Startseite mit Kennzahlen, Kalender für geplante Einheiten.
 - **Freunde** – Freundschaftsanfragen per Name/E-Mail senden und annehmen, Profil (Streak, Heatmap, Achievements) von Freunden ansehen, sehen wer gerade trainiert und einmal pro Training anfeuern (der Freund bekommt eine Benachrichtigung).
 - **Einstellungen** – nutzerbezogene Settings.
+- **Claude (MCP)** – das Backend ist ein MCP-Server, Claude meldet sich über Zitadel an und kann Trainings, Läufe, Health-Daten, Ernährung und Kalender lesen und auswerten, siehe [Claude verbinden](#claude-verbinden-mcp).
 - **Benachrichtigungen (iOS)** – lokal, nach jedem Health-Sync geprüft: morgens die Schlafauswertung, nach dem Training die Statistiken, um 20 Uhr ein Hinweis, wenn noch ≥ 500 kcal offen sind, außerdem die ungelesenen Benachrichtigungen des Backends (Glocke im Web). Abschaltbar im Health-Tab, im Debug-Build gibt es dort einen Test-Button.
 
 ## Schnellstart mit Docker
@@ -70,6 +71,7 @@ Die `.env` im Repo-Root wird von Docker Compose und der VS-Code-Launch-Config de
 | `APP_URL` | Frontend | Öffentliche URL des Frontends, Zitadel leitet nach `${APP_URL}/auth/callback` zurück |
 | `AUTH_CLIENT_ID` / `AUTH_CLIENT_SECRET` | Frontend | Web-App in Zitadel |
 | `AUTH_SECRET` | Frontend | Mindestens 32 zufällige Zeichen, verschlüsselt das Session-Cookie |
+| `MCP_RESOURCE_URL` | Backend | Öffentliche URL des MCP-Servers, genau die Adresse, die in Claude eingetragen wird. Produktion: `https://backend-labs-101.project101.tech/api/mcp` |
 
 ## Lokale Entwicklung
 
@@ -182,6 +184,30 @@ Eine fertige Request-Sammlung für [Bruno](https://www.usebruno.com/) liegt in [
 curl -s -u '<client id>:<client secret>' -d 'grant_type=client_credentials&scope=openid' \
   https://auth.project101.tech/oauth/v2/token | jq -r .access_token
 ```
+
+## Claude verbinden (MCP)
+
+Das Backend ist unter `/api/mcp` ein [MCP-Server](https://modelcontextprotocol.io) (Streamable HTTP), Code in [`backend/…/mcp`](backend/src/main/java/com/labs_101/backend/mcp). Claude meldet sich wie die Apps über Zitadel an, jeder sieht nur seine eigenen Daten. Alle Tools lesen nur:
+
+| Tool | Inhalt |
+| --- | --- |
+| `get_profile` | Streak, Aktivitätstage, Achievements, Kalorienziel |
+| `get_daily_health_overview` | Schlaf, Erholung, Belastung, Aktivität, Vitalwerte eines Tages |
+| `list_health_data_types` / `get_health_samples` | Synchronisierte Apple-Health-Typen und ihre Rohdaten |
+| `list_workouts` / `list_workout_templates` | Abgeschlossene Trainings mit Sätzen und Notizen, Trainingspläne |
+| `list_runs` / `get_run` | Läufe mit Splits, Puls und Route |
+| `get_nutrition` | Getrackte Mahlzeiten pro Tag (max. 31 Tage) |
+| `list_calendar_events` | Geplante Termine |
+
+Ohne Token antwortet `/api/mcp` mit `401` und `WWW-Authenticate: Bearer resource_metadata="…"`, unter `/.well-known/oauth-protected-resource/api/mcp` steht, dass Zitadel die Tokens ausstellt (RFC 9728). Claude-Anfragen zählen nicht als Login für den Streak.
+
+Einrichtung:
+
+1. In Zitadel im Projekt `labs-101` eine **Web-App** `Claude` anlegen: Authentifizierung *Code* (Client Secret), Redirect-URI `https://claude.ai/api/mcp/auth_callback`. Unter *Token Settings* **Auth Token Type JWT** und *Refresh Token* aktivieren.
+2. In Claude unter *Einstellungen → Connectors → Benutzerdefinierten Connector hinzufügen* die URL `https://backend-labs-101.project101.tech/api/mcp` eintragen (muss genau `MCP_RESOURCE_URL` entsprechen) und unter *Erweiterte Einstellungen* Client-ID und Client-Secret der App aus Schritt 1.
+3. *Verbinden* – es öffnet sich der Login von Zitadel, danach kann Claude z. B. „Wie hat sich mein Bankdrücken in den letzten 3 Monaten entwickelt?“ beantworten.
+
+Zitadel hat keine Dynamic Client Registration, deshalb die eigene App mit Client-ID und Secret. Für Claude Code bräuchte die App zusätzlich die Loopback-Redirects `http://localhost/callback` und `http://127.0.0.1/callback` mit beliebigem Port.
 
 ## Authentifizierung (Zitadel)
 
