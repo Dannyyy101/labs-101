@@ -51,7 +51,7 @@ struct FoodTrackerView: View {
         } else {
             List {
                 Section {
-                    DaySummaryView(consumed: { model.total($0) }, goals: model.goals)
+                    DaySummaryView(consumed: { model.total($0) }, goals: model.goals, burnedKcal: model.burnedKcal)
                 }
 
                 ForEach(Meal.allCases) { meal in

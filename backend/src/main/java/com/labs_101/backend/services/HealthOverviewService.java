@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 
 import com.labs_101.backend.dtos.overview.ActivityDto;
 import com.labs_101.backend.dtos.overview.DayScoreDto;
+import com.labs_101.backend.dtos.overview.EnergyDto;
 import com.labs_101.backend.dtos.overview.HealthOverviewDto;
 import com.labs_101.backend.dtos.overview.OverviewWorkoutDto;
 import com.labs_101.backend.dtos.overview.RecoveryDto;
@@ -168,6 +169,14 @@ public class HealthOverviewService {
                 repository.workouts(userId, dayStart, to).stream().map(HealthOverviewService::workout).toList(),
                 vitals(userId, to),
                 history);
+    }
+
+    /** Active energy of a day, counted like the activity of the overview. */
+    public EnergyDto getEnergy(String userId, LocalDate date, ZoneId zone) {
+        Map<String, Double> day = repository.dailySums(userId, List.of(ACTIVE_ENERGY), zone,
+                date.atStartOfDay(zone).toInstant(), date.plusDays(1).atStartOfDay(zone).toInstant())
+                .getOrDefault(date, Map.of());
+        return new EnergyDto(date, day.getOrDefault(ACTIVE_ENERGY, 0.0));
     }
 
     // MARK: sleep

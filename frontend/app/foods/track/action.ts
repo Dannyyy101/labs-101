@@ -40,6 +40,19 @@ export async function getTrackedFood(date: Date): Promise<TrackedFood[]> {
     throw new Error("Error fetching tracked foods")
 }
 
+// kcal burned by activity on the day (from Apple Health), 0 without health data
+export async function getBurnedCalories(day: string): Promise<number> {
+    const url = new URL(`${BACKEND_URL}/users/me/health/overview/energy`)
+    url.searchParams.append("date", day)
+
+    const response = await backendFetch(url.toString(), { cache: 'no-store' }).catch(() => null)
+
+    if (response?.ok) {
+        return (await response.json() as { activeEnergy: number }).activeEnergy
+    }
+    return 0
+}
+
 export async function getTrackedFoodByFoodId(foodId: number): Promise<FoodWithLastEntry> {
 
     const url = new URL(`${BACKEND_URL}/users/me/foods/${foodId}/last`)
