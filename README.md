@@ -71,7 +71,7 @@ Die `.env` im Repo-Root wird von Docker Compose und der VS-Code-Launch-Config de
 | `APP_URL` | Frontend | Öffentliche URL des Frontends, Zitadel leitet nach `${APP_URL}/auth/callback` zurück |
 | `AUTH_CLIENT_ID` / `AUTH_CLIENT_SECRET` | Frontend | Web-App in Zitadel |
 | `AUTH_SECRET` | Frontend | Mindestens 32 zufällige Zeichen, verschlüsselt das Session-Cookie |
-| `MCP_RESOURCE_URL` | Backend | Öffentliche URL des MCP-Servers, genau die Adresse, die in Claude eingetragen wird. Produktion: `https://backend-labs-101.project101.tech/api/mcp` |
+| `MCP_RESOURCE_URL` | Backend | Öffentliche URL des MCP-Servers, genau die Adresse, die in Claude eingetragen wird. Produktion: `https://api.project101.tech/api/mcp` |
 
 ## Lokale Entwicklung
 
@@ -204,7 +204,7 @@ Ohne Token antwortet `/api/mcp` mit `401` und `WWW-Authenticate: Bearer resource
 Einrichtung:
 
 1. In Zitadel im Projekt `labs-101` eine **Web-App** `Claude` anlegen: Authentifizierung *Code* (Client Secret), Redirect-URI `https://claude.ai/api/mcp/auth_callback`. Unter *Token Settings* **Auth Token Type JWT** und *Refresh Token* aktivieren.
-2. In Claude unter *Einstellungen → Connectors → Benutzerdefinierten Connector hinzufügen* die URL `https://backend-labs-101.project101.tech/api/mcp` eintragen (muss genau `MCP_RESOURCE_URL` entsprechen) und unter *Erweiterte Einstellungen* Client-ID und Client-Secret der App aus Schritt 1.
+2. In Claude unter *Einstellungen → Connectors → Benutzerdefinierten Connector hinzufügen* die URL `https://api.project101.tech/api/mcp` eintragen (muss genau `MCP_RESOURCE_URL` entsprechen) und unter *Erweiterte Einstellungen* Client-ID und Client-Secret der App aus Schritt 1.
 3. *Verbinden* – es öffnet sich der Login von Zitadel, danach kann Claude z. B. „Wie hat sich mein Bankdrücken in den letzten 3 Monaten entwickelt?“ beantworten.
 
 Zitadel hat keine Dynamic Client Registration, deshalb die eigene App mit Client-ID und Secret. Für Claude Code bräuchte die App zusätzlich die Loopback-Redirects `http://localhost/callback` und `http://127.0.0.1/callback` mit beliebigem Port.
