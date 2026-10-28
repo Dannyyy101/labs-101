@@ -66,6 +66,8 @@ export interface SessionExercise {
     exerciseId: number | null
     // kept so the history still reads right after the exercise is renamed or deleted
     name: string
+    // a short note of the user, e.g. the seat height, null when there is none
+    note: string | null
     sets: SessionSet[]
 }
 

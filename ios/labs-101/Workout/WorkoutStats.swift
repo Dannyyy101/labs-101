@@ -31,6 +31,17 @@ nonisolated enum WorkoutStats {
         }
         return nil
     }
+
+    /// The note of the last workout with the exercise, nil when it had none, so a removed note doesn't come back.
+    static func lastNote(of exerciseId: Int?, in sessions: [WorkoutSession]) -> String? {
+        guard let exerciseId else { return nil }
+        for session in sessions {
+            if let found = session.exercises.first(where: { $0.exerciseId == exerciseId && $0.sets.contains(where: \.done) }) {
+                return found.note
+            }
+        }
+        return nil
+    }
 }
 
 extension TimeInterval {

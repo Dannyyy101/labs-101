@@ -57,13 +57,14 @@ final class WorkoutSessionModel {
 
     // MARK: Editing
 
-    /// Starts with the sets of last time, or three empty ones.
+    /// Starts with the sets and the note of last time, or three empty sets.
     func add(_ exercise: Exercise, history: [WorkoutSession]) {
         let last = WorkoutStats.lastSets(of: exercise.id, in: history) ?? []
         let sets = last.isEmpty
             ? Array(repeating: SessionSet(reps: 10, weightKg: 0), count: 3)
             : last.map { SessionSet(reps: $0.reps, weightKg: $0.weightKg, restSeconds: $0.rest) }
-        exercises.append(SessionExercise(exerciseId: exercise.id, name: exercise.name, sets: sets))
+        exercises.append(SessionExercise(exerciseId: exercise.id, name: exercise.name,
+                                         note: WorkoutStats.lastNote(of: exercise.id, in: history), sets: sets))
     }
 
     func addSet(to exerciseID: SessionExercise.ID) {

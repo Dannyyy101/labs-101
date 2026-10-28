@@ -247,6 +247,10 @@ struct WorkoutSessionDetailView: View {
             }
             ForEach(session.exercises) { exercise in
                 Section(exercise.name) {
+                    if let note = exercise.note {
+                        Label(note, systemImage: "note.text")
+                            .foregroundStyle(.secondary)
+                    }
                     ForEach(Array(exercise.sets.filter(\.done).enumerated()), id: \.offset) { index, set in
                         LabeledContent("Satz \(index + 1)", value: set.formatted)
                             .monospacedDigit()

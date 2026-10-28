@@ -6,6 +6,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.web.filter.OncePerRequestFilter;
 
+import com.labs_101.backend.mcp.McpController;
 import com.labs_101.backend.repositories.LoginDayRepository;
 
 import jakarta.servlet.FilterChain;
@@ -23,6 +24,8 @@ class UserProvisioningFilter extends OncePerRequestFilter {
 
     // the iOS app syncs Apple Health in the background, that's no visit of the user
     private static final String HEALTH_SYNC = "/api/users/me/health/";
+    // neither is Claude reading the data through the MCP server
+    private static final String MCP = McpController.PATH;
 
     private final UserProvisioning userProvisioning;
     private final LoginDayRepository loginDays;
@@ -37,7 +40,8 @@ class UserProvisioningFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
         if (SecurityContextHolder.getContext().getAuthentication() instanceof JwtAuthenticationToken token) {
             userProvisioning.ensureUser(token.getToken());
-            if (token.getToken().getSubject() != null && !request.getRequestURI().startsWith(HEALTH_SYNC))
+            if (token.getToken().getSubject() != null && !request.getRequestURI().startsWith(HEALTH_SYNC)
+                    && !request.getRequestURI().startsWith(MCP))
                 loginDays.markToday(token.getToken().getSubject());
         }
 

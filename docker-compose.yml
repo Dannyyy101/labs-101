@@ -48,6 +48,8 @@ services:
       - FOOD_IMAGE_DAILY_LIMIT=${FOOD_IMAGE_DAILY_LIMIT:-5}
       # encrypts the app-specific passwords of connected Apple accounts: openssl rand -base64 32
       - CALENDAR_ENCRYPTION_KEY=${CALENDAR_ENCRYPTION_KEY:-}
+      # public URL of the MCP server for Claude, has to be the address Claude connects to
+      - MCP_RESOURCE_URL=${MCP_RESOURCE_URL:-https://backend-labs-101.project101.tech/api/mcp}
   zitadel:
     container_name: zitadel-labs-101
     image: ghcr.io/zitadel/zitadel:v4.19.4

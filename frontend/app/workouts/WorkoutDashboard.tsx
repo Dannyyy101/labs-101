@@ -310,7 +310,10 @@ function SessionRow({ session, expanded, onClick }: { session: WorkoutSession, e
         {expanded && <div className="px-2 pb-3 md:px-3 md:pl-[72px]">
             <div className="flex flex-col divide-y rounded-xl bg-card">
                 {session.exercises.map((exercise, i) => <div key={i} className="flex flex-col gap-1.5 px-3 py-2.5 md:flex-row md:items-center md:gap-4">
-                    <div className="font-semibold md:w-56 md:flex-none">{exercise.name}</div>
+                    <div className="md:w-56 md:flex-none">
+                        <div className="font-semibold">{exercise.name}</div>
+                        {exercise.note && <div className="text-sm text-muted-foreground">{exercise.note}</div>}
+                    </div>
                     <div className="flex flex-wrap gap-1.5">
                         {exercise.sets.filter((s) => s.done).map((set, j) =>
                             <span key={j} className="rounded-lg bg-muted px-2 py-0.5 text-sm tabular-nums">{formatSet(set)}</span>)}
