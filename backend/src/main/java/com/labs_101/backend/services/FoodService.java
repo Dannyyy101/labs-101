@@ -208,6 +208,31 @@ public class FoodService {
         return food;
     }
 
+    /**
+     * Tracks a food, or an open food that gets copied into our foods first, used
+     * by the MCP server. {@code at} moves the entry to another time, null keeps
+     * the time of tracking.
+     */
+    @Transactional
+    public TrackedFoodDto trackFoodAt(CreateFoodUserDto dto, Long openFoodId, Instant at) {
+        TrackedFoodDto tracked = openFoodId != null ? trackOpenFood(openFoodId, dto) : trackFood(dto);
+        if (at == null) {
+            return tracked;
+        }
+        trackedFoodRepository.moveTo(tracked.id(), at);
+        return foodMapper.mapFromTrackedFood(trackedFoodRepository.findById(tracked.id())
+                .orElseThrow(() -> NotFoundException.trackedFood(tracked.id())));
+    }
+
+    /** Only an entry of the user, the entries of others count as not found. */
+    @Transactional
+    public void deleteTrackedFoodOfUser(String userId, Long trackedFoodId) {
+        TrackedFood entity = trackedFoodRepository.findById(trackedFoodId)
+                .filter((food) -> food.getUser() != null && userId.equals(food.getUser().getId()))
+                .orElseThrow(() -> NotFoundException.trackedFood(trackedFoodId));
+        trackedFoodRepository.delete(entity);
+    }
+
     public void deleteTrackedFoodById(String userId, Long trackedFoodId) {
         trackedFoodRepository.deleteById(trackedFoodId);
     }

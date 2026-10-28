@@ -42,8 +42,9 @@ public class McpController {
     private static final Logger log = LoggerFactory.getLogger(McpController.class);
     private static final String INSTRUCTIONS = """
             Data of the user's labs-101 account: strength workouts, runs, Apple Health data, nutrition and the \
-            calendar. All tools only read. Dates are days (YYYY-MM-DD) in Europe/Berlin, weights are in kg, \
-            distances in meters, times in seconds and energy in kcal.""";
+            calendar. The tools only read, except track_food and delete_tracked_food, which change the nutrition \
+            log: search the food with search_foods first. Dates are days (YYYY-MM-DD) in Europe/Berlin, weights \
+            are in kg, distances in meters, times in seconds and energy in kcal.""";
 
     private final McpTools tools;
     private final JsonMapper json;
