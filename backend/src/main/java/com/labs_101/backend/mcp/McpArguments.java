@@ -42,6 +42,37 @@ final class McpArguments {
         return value;
     }
 
+    /** A positive number, null when not set. */
+    Double number(String name) {
+        JsonNode value = node == null ? null : node.get(name);
+        if (value == null || value.isNull()) {
+            return null;
+        }
+        if (!value.isNumber() || !(value.asDouble() > 0)) {
+            throw new IllegalArgumentException(name + " has to be a number above 0");
+        }
+        return value.asDouble();
+    }
+
+    /** An id, given as number or string, null when not set. */
+    Long id(String name) {
+        JsonNode value = node == null ? null : node.get(name);
+        if (value == null || value.isNull()) {
+            return null;
+        }
+        if (value.isIntegralNumber() && value.canConvertToLong()) {
+            return value.asLong();
+        }
+        try {
+            if (value.isString()) {
+                return Long.parseLong(value.asString().strip());
+            }
+        } catch (NumberFormatException e) {
+            // reported below
+        }
+        throw new IllegalArgumentException(name + " has to be an id");
+    }
+
     LocalDate date(String name, LocalDate fallback) {
         String value = string(name);
         if (value == null) {

@@ -5,12 +5,28 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * A tool Claude can call through the MCP server, it only reads the data of the
+ * A tool Claude can call through the MCP server, always on the data of the
  * signed in user.
  *
  * @param inputSchema JSON schema of the arguments
+ * @param annotations hints for Claude, e.g. whether the tool changes anything
  */
-record McpTool(String name, String title, String description, Map<String, Object> inputSchema, Handler handler) {
+record McpTool(String name, String title, String description, Map<String, Object> inputSchema,
+        Map<String, Object> annotations, Handler handler) {
+
+    /** A tool that only reads. */
+    static McpTool read(String name, String title, String description, Map<String, Object> inputSchema,
+            Handler handler) {
+        return new McpTool(name, title, description, inputSchema,
+                Map.of("readOnlyHint", true, "openWorldHint", false), handler);
+    }
+
+    /** A tool that changes data, {@code destructive} when it removes something. */
+    static McpTool write(String name, String title, String description, Map<String, Object> inputSchema,
+            boolean destructive, Handler handler) {
+        return new McpTool(name, title, description, inputSchema, Map.of("readOnlyHint", false,
+                "destructiveHint", destructive, "idempotentHint", false, "openWorldHint", false), handler);
+    }
 
     @FunctionalInterface
     interface Handler {
@@ -25,7 +41,7 @@ record McpTool(String name, String title, String description, Map<String, Object
         tool.put("title", title);
         tool.put("description", description);
         tool.put("inputSchema", inputSchema);
-        tool.put("annotations", Map.of("readOnlyHint", true, "openWorldHint", false));
+        tool.put("annotations", annotations);
         return tool;
     }
 
@@ -49,6 +65,18 @@ record McpTool(String name, String title, String description, Map<String, Object
 
     static Map<String, Object> date(String description) {
         return Map.of("type", "string", "format", "date", "description", description);
+    }
+
+    static Map<String, Object> id(String description) {
+        return Map.of("type", "integer", "minimum", 1, "description", description);
+    }
+
+    static Map<String, Object> number(String description) {
+        return Map.of("type", "number", "exclusiveMinimum", 0, "description", description);
+    }
+
+    static Map<String, Object> enumeration(String description, String... values) {
+        return Map.of("type", "string", "enum", List.of(values), "description", description);
     }
 
     static Map<String, Object> integer(String description, int minimum, int maximum) {

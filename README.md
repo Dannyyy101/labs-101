@@ -32,7 +32,7 @@ flowchart LR
 - **Health-Übersicht & Planer** – Startseite mit Kennzahlen, Kalender für geplante Einheiten.
 - **Freunde** – Freundschaftsanfragen per Name/E-Mail senden und annehmen, Profil (Streak, Heatmap, Achievements) von Freunden ansehen, sehen wer gerade trainiert und einmal pro Training anfeuern (der Freund bekommt eine Benachrichtigung).
 - **Einstellungen** – nutzerbezogene Settings.
-- **Claude (MCP)** – das Backend ist ein MCP-Server, Claude meldet sich über Zitadel an und kann Trainings, Läufe, Health-Daten, Ernährung und Kalender lesen und auswerten, siehe [Claude verbinden](#claude-verbinden-mcp).
+- **Claude (MCP)** – das Backend ist ein MCP-Server, Claude meldet sich über Zitadel an, kann Trainings, Läufe, Health-Daten, Ernährung und Kalender auswerten und Mahlzeiten tracken, siehe [Claude verbinden](#claude-verbinden-mcp).
 - **Benachrichtigungen (iOS)** – lokal, nach jedem Health-Sync geprüft: morgens die Schlafauswertung, nach dem Training die Statistiken, um 20 Uhr ein Hinweis, wenn noch ≥ 500 kcal offen sind, außerdem die ungelesenen Benachrichtigungen des Backends (Glocke im Web). Abschaltbar im Health-Tab, im Debug-Build gibt es dort einen Test-Button.
 
 ## Schnellstart mit Docker
@@ -187,7 +187,7 @@ curl -s -u '<client id>:<client secret>' -d 'grant_type=client_credentials&scope
 
 ## Claude verbinden (MCP)
 
-Das Backend ist unter `/api/mcp` ein [MCP-Server](https://modelcontextprotocol.io) (Streamable HTTP), Code in [`backend/…/mcp`](backend/src/main/java/com/labs_101/backend/mcp). Claude meldet sich wie die Apps über Zitadel an, jeder sieht nur seine eigenen Daten. Alle Tools lesen nur:
+Das Backend ist unter `/api/mcp` ein [MCP-Server](https://modelcontextprotocol.io) (Streamable HTTP), Code in [`backend/…/mcp`](backend/src/main/java/com/labs_101/backend/mcp). Claude meldet sich wie die Apps über Zitadel an, jeder sieht nur seine eigenen Daten. Bis auf das Tracken von Essen lesen alle Tools nur:
 
 | Tool | Inhalt |
 | --- | --- |
@@ -197,6 +197,9 @@ Das Backend ist unter `/api/mcp` ein [MCP-Server](https://modelcontextprotocol.i
 | `list_workouts` / `list_workout_templates` | Abgeschlossene Trainings mit Sätzen und Notizen, Trainingspläne |
 | `list_runs` / `get_run` | Läufe mit Splits, Puls und Route |
 | `get_nutrition` | Getrackte Mahlzeiten pro Tag (max. 31 Tage) |
+| `search_foods` | Lebensmittel suchen, mit Nährwerten pro 100 g, Portionen und zuletzt getrackter Menge |
+| `track_food` | **schreibt:** Lebensmittel in Gramm oder Portionen für eine Mahlzeit tracken, auch für einen vergangenen Tag |
+| `delete_tracked_food` | **schreibt:** einen eigenen getrackten Eintrag löschen |
 | `list_calendar_events` | Geplante Termine |
 
 Ohne Token antwortet `/api/mcp` mit `401` und `WWW-Authenticate: Bearer resource_metadata="…"`, unter `/.well-known/oauth-protected-resource/api/mcp` steht, dass Zitadel die Tokens ausstellt (RFC 9728). Claude-Anfragen zählen nicht als Login für den Streak.

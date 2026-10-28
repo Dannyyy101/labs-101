@@ -2,6 +2,7 @@ package com.labs_101.backend;
 
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.hasItem;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -10,21 +11,30 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.time.LocalDate;
+import java.time.ZoneId;
+
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.web.context.WebApplicationContext;
 
+import com.labs_101.backend.dtos.food.CreateFoodDto;
+import com.labs_101.backend.dtos.food.CreateFoodPortionDto;
+import com.labs_101.backend.dtos.food.FoodDto;
 import com.labs_101.backend.repositories.LoginDayRepository;
+import com.labs_101.backend.services.FoodService;
 import com.labs_101.backend.repositories.UserRepository;
 
 @SpringBootTest(properties = "mcp.resource-url=https://backend.example.com/api/mcp")
@@ -36,6 +46,12 @@ public class McpTest {
     private UserRepository userRepository;
     @Autowired
     private LoginDayRepository loginDays;
+    @Autowired
+    private FoodService foodService;
+    @Autowired
+    private JdbcTemplate jdbc;
+    @Autowired
+    private TransactionTemplate transactions;
     // the real one would load the keys from zitadel
     @MockitoBean
     private JwtDecoder jwtDecoder;
@@ -53,6 +69,7 @@ public class McpTest {
 
     @AfterEach
     void tearDown() {
+        jdbc.update("DELETE FROM food_user WHERE user_id = ?", userId);
         userRepository.deleteById(userId);
     }
 
@@ -122,6 +139,68 @@ public class McpTest {
 
         call(request(6, "tools/call", "{\"name\": \"delete_everything\"}"))
                 .andExpect(jsonPath("$.error.code").value(-32602));
+    }
+
+    @Test
+    void testTracksFood() throws Exception {
+        // unique, so the search finds this one first
+        String name = "Mcptesthaferflocken" + System.nanoTime();
+        FoodDto oats = foodService.create(new CreateFoodDto(null, name, 370.0, 10.0, 13.0, 7.0, 59.0, 10.0));
+        // outside of a request there is no open session for the lazy portions
+        transactions.executeWithoutResult((status) ->
+                foodService.createFoodPortion(oats.id(), new CreateFoodPortionDto("Schüssel", 50.0, true)));
+
+        call(request(1, "tools/list", "{}"))
+                .andExpect(jsonPath("$.result.tools[?(@.name == 'track_food')].annotations.readOnlyHint").value(false))
+                .andExpect(jsonPath("$.result.tools[?(@.name == 'delete_tracked_food')].annotations.destructiveHint").value(true));
+
+        String found = call(request(2, "tools/call", "{\"name\": \"search_foods\", \"arguments\": {\"query\": \"" + name + "\"}}"))
+                .andExpect(jsonPath("$.result.isError").value(false))
+                .andReturn().getResponse().getContentAsString();
+        assertTrue(found.contains("\\\"foodId\\\":" + oats.id()), found);
+        assertTrue(found.contains("Schüssel"), found);
+        String portionId = found.replaceAll("(?s).*\\\\\"portionId\\\\\":(\\d+).*", "$1");
+
+        // 2 bowls of 50 g = 100 g = 370 kcal
+        call(request(3, "tools/call", "{\"name\": \"track_food\", \"arguments\": {\"foodId\": " + oats.id()
+                + ", \"portionId\": " + portionId + ", \"portions\": 2, \"meal\": \"BREAKFAST\"}}"))
+                .andExpect(jsonPath("$.result.isError").value(false))
+                .andExpect(jsonPath("$.result.content[0].text").value(containsString("\"kcal\":370")));
+
+        LocalDate yesterday = LocalDate.now(ZoneId.of("Europe/Berlin")).minusDays(1);
+        String tracked = call(request(4, "tools/call", "{\"name\": \"track_food\", \"arguments\": {\"foodId\": " + oats.id()
+                + ", \"grams\": 30, \"meal\": \"snack\", \"date\": \"" + yesterday + "\"}}"))
+                .andExpect(jsonPath("$.result.isError").value(false))
+                .andExpect(jsonPath("$.result.content[0].text").value(containsString("\"date\":\"" + yesterday + "\"")))
+                .andReturn().getResponse().getContentAsString();
+        String trackedId = tracked.replaceAll("(?s).*\\\\\"trackedFoodId\\\\\":(\\d+).*", "$1");
+
+        // yesterday's entry is on yesterday, today's on today
+        call(request(5, "tools/call", "{\"name\": \"get_nutrition\", \"arguments\": {\"from\": \"" + yesterday + "\"}}"))
+                .andExpect(jsonPath("$.result.content[0].text").value(containsString("\"id\":" + trackedId)));
+        assertEquals(1, foodService.getTrackedFoodForUser(userId, yesterday.atTime(12, 0).atZone(ZoneId.of("Europe/Berlin")).toInstant()).size());
+
+        // mistakes are reported, nothing is tracked
+        call(request(6, "tools/call", "{\"name\": \"track_food\", \"arguments\": {\"foodId\": " + oats.id() + ", \"meal\": \"LUNCH\"}}"))
+                .andExpect(jsonPath("$.result.isError").value(true));
+        call(request(7, "tools/call", "{\"name\": \"track_food\", \"arguments\": {\"foodId\": " + oats.id()
+                + ", \"portionId\": 999999999, \"meal\": \"LUNCH\"}}"))
+                .andExpect(jsonPath("$.result.isError").value(true));
+        call(request(8, "tools/call", "{\"name\": \"track_food\", \"arguments\": {\"foodId\": " + oats.id()
+                + ", \"grams\": 10, \"meal\": \"BRUNCH\"}}"))
+                .andExpect(jsonPath("$.result.isError").value(true));
+
+        // someone else can't remove the entry
+        String other = userId;
+        userId = "mcp-test-other-" + System.nanoTime();
+        call(request(9, "tools/call", "{\"name\": \"delete_tracked_food\", \"arguments\": {\"trackedFoodId\": " + trackedId + "}}"))
+                .andExpect(jsonPath("$.result.isError").value(true));
+        userRepository.deleteById(userId);
+        userId = other;
+
+        call(request(10, "tools/call", "{\"name\": \"delete_tracked_food\", \"arguments\": {\"trackedFoodId\": " + trackedId + "}}"))
+                .andExpect(jsonPath("$.result.isError").value(false));
+        assertEquals(0, foodService.getTrackedFoodForUser(userId, yesterday.atTime(12, 0).atZone(ZoneId.of("Europe/Berlin")).toInstant()).size());
     }
 
     // Claude reading the data isn't a visit of the user
