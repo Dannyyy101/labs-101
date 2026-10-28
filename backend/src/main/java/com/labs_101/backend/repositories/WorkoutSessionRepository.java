@@ -23,5 +23,8 @@ public interface WorkoutSessionRepository extends JpaRepository<WorkoutSession, 
     List<WorkoutSession> findByUser_IdAndEndedAtIsNotNullAndStartedAtBetweenOrderByStartedAtDesc(String userId,
             Instant from, Instant to);
 
+    /** The last finished sessions, newest first, for the notes of last time. */
+    List<WorkoutSession> findTop50ByUser_IdAndEndedAtIsNotNullOrderByStartedAtDesc(String userId);
+
     List<WorkoutSession> findByWorkout_Id(Long workoutId);
 }

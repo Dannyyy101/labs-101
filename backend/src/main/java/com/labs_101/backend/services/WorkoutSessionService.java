@@ -1,7 +1,11 @@
 package com.labs_101.backend.services;
 
 import java.time.Instant;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.Optional;
 
 import org.springframework.stereotype.Service;
@@ -58,7 +62,7 @@ public class WorkoutSessionService {
         return WorkoutSessionMapper.toDto(find(userId, id));
     }
 
-    /** Starts a workout with the sets of the template, none of them done yet. */
+    /** Starts a workout with the sets of the template, none of them done yet, and the notes of last time. */
     @Transactional
     public WorkoutSessionDto start(String userId, CreateWorkoutSessionDto request) {
         sessionRepository.findFirstByUser_IdAndEndedAtIsNullOrderByStartedAtDesc(userId).ifPresent((active) -> {
@@ -75,8 +79,10 @@ public class WorkoutSessionService {
                     .orElseThrow(() -> NotFoundException.workout(request.workoutId()));
             session.setWorkout(workout);
             session.setName(workout.getName());
+            Map<Long, String> notes = lastNotes(userId);
             session.setLog(new WorkoutSession.Log(workout.getExercises().stream()
                     .map((item) -> new WorkoutSession.Entry(item.getExercise().getId(), item.getExercise().getName(),
+                            notes.get(item.getExercise().getId()),
                             item instanceof StrengthItem strength
                                     ? strength.getSettings().sets().stream()
                                             .map((set) -> new WorkoutSession.Set(set.reps(), set.weightKg(), set.rpe(), false, set.restSeconds()))
@@ -110,7 +116,7 @@ public class WorkoutSessionService {
             apply(session, request);
         }
         session.setLog(new WorkoutSession.Log(session.getLog().exercises().stream()
-                .map((entry) -> new WorkoutSession.Entry(entry.exerciseId(), entry.name(),
+                .map((entry) -> new WorkoutSession.Entry(entry.exerciseId(), entry.name(), entry.note(),
                         entry.sets().stream().filter(WorkoutSession.Set::done).toList()))
                 .filter((entry) -> !entry.sets().isEmpty())
                 .toList()));
@@ -123,6 +129,23 @@ public class WorkoutSessionService {
     @Transactional
     public void delete(String userId, Long id) {
         sessionRepository.delete(find(userId, id));
+    }
+
+    /**
+     * The note of the last finished session with the exercise, per exercise. An exercise whose note
+     * was removed last time has none, so a removed note doesn't come back.
+     */
+    private Map<Long, String> lastNotes(String userId) {
+        Map<Long, String> notes = new HashMap<>();
+        Set<Long> seen = new HashSet<>();
+        for (WorkoutSession previous : sessionRepository.findTop50ByUser_IdAndEndedAtIsNotNullOrderByStartedAtDesc(userId)) {
+            for (WorkoutSession.Entry entry : previous.getLog().exercises()) {
+                if (entry.exerciseId() != null && seen.add(entry.exerciseId()) && entry.note() != null) {
+                    notes.put(entry.exerciseId(), entry.note());
+                }
+            }
+        }
+        return notes;
     }
 
     private WorkoutSession find(String userId, Long id) {

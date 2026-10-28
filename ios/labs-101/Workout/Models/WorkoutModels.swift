@@ -65,15 +65,18 @@ nonisolated struct SessionExercise: Codable, Hashable, Identifiable, Sendable {
     let exerciseId: Int?
     /// kept so the history still reads right after the exercise is renamed or deleted
     let name: String
+    /// a short note of the user, e.g. the seat height, nil when there is none
+    var note: String?
     var sets: [SessionSet]
 
     enum CodingKeys: String, CodingKey {
-        case exerciseId, name, sets
+        case exerciseId, name, note, sets
     }
 
-    init(exerciseId: Int?, name: String, sets: [SessionSet]) {
+    init(exerciseId: Int?, name: String, note: String? = nil, sets: [SessionSet]) {
         self.exerciseId = exerciseId
         self.name = name
+        self.note = note
         self.sets = sets
     }
 }

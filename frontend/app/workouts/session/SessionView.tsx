@@ -5,7 +5,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { cn } from "@/lib/utils"
 import { SessionExercise, SessionSet, WorkoutSession } from "@/utils/types/types"
 import { Exercise } from "@/utils/types/workoutTypes"
-import { Check, ChevronLeft, Plus, Trash2, X } from "lucide-react"
+import { Check, ChevronLeft, Plus, StickyNote, Trash2, X } from "lucide-react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore, useTransition } from "react"
@@ -16,7 +16,7 @@ import NumberInput from "../NumberInput"
 import RepsPicker from "../RepsPicker"
 import RestPicker from "../RestPicker"
 import MuscleMap from "../MuscleMap"
-import { COLORS, DEFAULT_REST, formatSet, formatVolume, formatWeight, lastSets, MUSCLES, restOf, sessionDuration, setsPerMuscle, volume } from "../stats"
+import { COLORS, DEFAULT_REST, formatSet, formatVolume, formatWeight, lastNote, lastSets, MUSCLES, restOf, sessionDuration, setsPerMuscle, volume } from "../stats"
 import { useNow } from "../useNow"
 
 const SAVE_DELAY = 700
@@ -44,7 +44,7 @@ export default function SessionView({ session, exercises, history }: { session: 
         const last = lastSets(history, exercise.id)
         const fresh: SessionSet = { reps: 10, weightKg: 0, rpe: null, done: false, restSeconds: DEFAULT_REST }
         const template = last?.length ? last : [fresh, fresh, fresh]
-        return [...prev, { exerciseId: exercise.id, name: exercise.name, sets: template.map((s) => ({ ...s, done: false })) }]
+        return [...prev, { exerciseId: exercise.id, name: exercise.name, note: lastNote(history, exercise.id), sets: template.map((s) => ({ ...s, done: false })) }]
     })
     // checking a set off starts its rest
     const toggled = (set: SessionSet) => {
@@ -243,6 +243,7 @@ function ExerciseLog({ item, exercise, previous, onChange, onToggle, onRemove }:
             <button type="button" aria-label="Übung entfernen" title="Übung entfernen" onClick={onRemove}
                 className="grid size-8 flex-none place-items-center rounded-full text-[#ff453a] hover:bg-muted"><Trash2 className="size-4" /></button>
         </div>
+        <NoteField note={item.note} onChange={(note) => onChange({ ...item, note })} />
         <div className="grid grid-cols-[24px_minmax(0,0.9fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,0.9fr)_40px_24px] items-center gap-x-2 gap-y-1.5 md:gap-x-3">
             <span className="text-center text-xs font-medium text-muted-foreground">Satz</span>
             <span className="text-xs font-medium text-muted-foreground">Vorher</span>
@@ -283,6 +284,24 @@ function ExerciseLog({ item, exercise, previous, onChange, onToggle, onRemove }:
         </div>
         <button onClick={addSet} className="mt-3 flex items-center gap-1 text-sm font-medium text-[#0a84ff]"><Plus className="size-4" />Satz hinzufügen</button>
     </Card>
+}
+
+/** A short note for the exercise, it is taken into the next workout with it. */
+function NoteField({ note, onChange }: { note: string | null, onChange: (note: string | null) => void }) {
+    const [open, setOpen] = useState(false)
+    if (note == null && !open) {
+        return <button type="button" onClick={() => setOpen(true)}
+            className="mb-3 flex items-center gap-1 text-sm font-medium text-muted-foreground hover:text-foreground">
+            <StickyNote className="size-4" />Notiz hinzufügen
+        </button>
+    }
+    return <div className="mb-3 flex items-start gap-2 rounded-[12px] bg-[#ffd60a]/15 px-3 py-2">
+        <StickyNote className="mt-0.5 size-4 flex-none text-[#b38f00]" />
+        <textarea value={note ?? ""} autoFocus={note == null} rows={1} maxLength={500} placeholder="z. B. Sitz auf Stufe 4"
+            aria-label="Notiz" onChange={(e) => onChange(e.target.value || null)}
+            onBlur={() => { if (!note?.trim()) { onChange(null); setOpen(false) } }}
+            className="field-sizing-content min-h-5 w-full resize-none bg-transparent text-sm outline-none placeholder:text-muted-foreground" />
+    </div>
 }
 
 // MARK: bottom bar

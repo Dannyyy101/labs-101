@@ -46,6 +46,16 @@ export function lastSets(sessions: WorkoutSession[], exerciseId: number | null):
     return null
 }
 
+/** The note of the last workout with the exercise, null when it had none, so a removed note doesn't come back. */
+export function lastNote(sessions: WorkoutSession[], exerciseId: number | null): string | null {
+    if (exerciseId == null) return null
+    for (const session of sessions) {
+        const found = session.exercises.find((e) => e.exerciseId === exerciseId && e.sets.some((s) => s.done))
+        if (found) return found.note ?? null
+    }
+    return null
+}
+
 export const DEFAULT_REST = 90
 // 0 turns the rest timer off
 export const REST_OPTIONS = [0, 30, 45, 60, 90, 120, 150, 180, 240, 300]

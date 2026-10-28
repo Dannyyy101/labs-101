@@ -180,6 +180,12 @@ private struct ExerciseSection: View {
 
     var body: some View {
         Section {
+            TextField("Notiz", text: note, prompt: Text("Notiz, z. B. Sitz auf Stufe 4"), axis: .vertical)
+                .font(.subheadline)
+                .lineLimit(1...4)
+                .focused(focusedField, equals: item.id)
+                .listRowBackground(item.note == nil ? nil : Color.yellow.opacity(0.15))
+
             ForEach(Array($item.sets.enumerated()), id: \.element.id) { index, $set in
                 SetRow(number: index + 1, set: $set, previous: previous?[safe: index],
                        focusedField: focusedField) { onToggle(set.id) }
@@ -214,6 +220,15 @@ private struct ExerciseSection: View {
                     Button("Entfernen", role: .destructive, action: onRemove)
                 }
             }
+        }
+    }
+
+    /// an empty note is sent as none
+    private var note: Binding<String> {
+        Binding {
+            item.note ?? ""
+        } set: { text in
+            item.note = text.isEmpty ? nil : String(text.prefix(500))
         }
     }
 

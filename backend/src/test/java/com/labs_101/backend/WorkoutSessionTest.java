@@ -9,6 +9,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
@@ -97,10 +98,10 @@ public class WorkoutSessionTest {
         assertTrue(session.exercises().isEmpty());
 
         List<SessionExerciseDto> exercises = List.of(
-                new SessionExerciseDto(squat.getId(), squat.getName(), List.of(
+                new SessionExerciseDto(squat.getId(), squat.getName(), null, List.of(
                         new SessionSetDto(5, 100, 8, true, 180),
                         new SessionSetDto(5, 100, null, false, null))),
-                new SessionExerciseDto(bench.getId(), bench.getName(), List.of(
+                new SessionExerciseDto(bench.getId(), bench.getName(), null, List.of(
                         new SessionSetDto(8, 70, null, false, null))));
         sessionService.update(userId, session.id(), new UpdateWorkoutSessionDto(null, exercises));
         assertEquals(2, sessionService.getSession(userId, session.id()).exercises().size());
@@ -120,6 +121,26 @@ public class WorkoutSessionTest {
 
         // a new one can be started once the last one is finished
         sessionService.start(userId, new CreateWorkoutSessionDto(null, null));
+    }
+
+    @Test
+    void testStartTakesNotesOfLastTime() {
+        WorkoutDto workout = workout("Push", bench, squat);
+        WorkoutSessionDto first = sessionService.start(userId, new CreateWorkoutSessionDto(workout.getId(), null));
+        assertTrue(first.exercises().stream().allMatch((e) -> e.note() == null));
+        sessionService.finish(userId, first.id(), new UpdateWorkoutSessionDto(null, List.of(
+                new SessionExerciseDto(bench.getId(), bench.getName(), "  Sitz auf Stufe 4 ", List.of(new SessionSetDto(8, 70, null, true, null))),
+                new SessionExerciseDto(squat.getId(), squat.getName(), "Knie schmerzt", List.of(new SessionSetDto(5, 100, null, true, null))))));
+
+        WorkoutSessionDto second = sessionService.start(userId, new CreateWorkoutSessionDto(workout.getId(), null));
+        assertEquals(Arrays.asList("Sitz auf Stufe 4", "Knie schmerzt"), second.exercises().stream().map(SessionExerciseDto::note).toList());
+        // a note removed last time doesn't come back
+        sessionService.finish(userId, second.id(), new UpdateWorkoutSessionDto(null, List.of(
+                new SessionExerciseDto(bench.getId(), bench.getName(), "Sitz auf Stufe 4", List.of(new SessionSetDto(8, 70, null, true, null))),
+                new SessionExerciseDto(squat.getId(), squat.getName(), " ", List.of(new SessionSetDto(5, 100, null, true, null))))));
+
+        WorkoutSessionDto third = sessionService.start(userId, new CreateWorkoutSessionDto(workout.getId(), null));
+        assertEquals(Arrays.asList("Sitz auf Stufe 4", null), third.exercises().stream().map(SessionExerciseDto::note).toList());
     }
 
     @Test

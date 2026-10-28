@@ -62,8 +62,11 @@ public class WorkoutSession {
     public record Log(List<Entry> exercises) {
     }
 
-    /** {@code name} is kept so the history still reads right after the exercise is renamed or deleted. */
-    public record Entry(Long exerciseId, String name, List<Set> sets) {
+    /**
+     * {@code name} is kept so the history still reads right after the exercise is renamed or deleted.
+     * {@code note} is a short note of the user, e.g. the seat height, null when there is none.
+     */
+    public record Entry(Long exerciseId, String name, String note, List<Set> sets) {
     }
 
     /**
