@@ -1,5 +1,7 @@
 package com.labs_101.backend.dtos.profile;
 
+import org.jspecify.annotations.Nullable;
+
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.List;
@@ -10,6 +12,6 @@ import java.util.List;
  * @param days        days of the last 53 weeks with any activity, oldest first
  * @param calorieGoal kcal per day from the settings, null without one
  */
-public record ProfileDto(Instant memberSince, LocalDate today, StreakDto streak, List<ActivityDayDto> days,
-        List<AchievementDto> achievements, Integer calorieGoal) {
+public record ProfileDto(@Nullable Instant memberSince, LocalDate today, StreakDto streak, List<ActivityDayDto> days,
+        List<AchievementDto> achievements, @Nullable Integer calorieGoal) {
 }

@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.labs_101.backend.exception.BaseException;
 import com.labs_101.backend.security.CurrentUser;
 
+import io.swagger.v3.oas.annotations.Hidden;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.json.JsonMapper;
 
@@ -31,6 +32,7 @@ import tools.jackson.databind.json.JsonMapper;
  * Claude signs in with Zitadel like the apps, the token comes in the
  * {@code Authorization} header of every request.
  */
+@Hidden
 @RestController
 @RequestMapping(McpController.PATH)
 public class McpController {

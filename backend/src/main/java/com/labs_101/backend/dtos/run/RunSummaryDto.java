@@ -1,5 +1,7 @@
 package com.labs_101.backend.dtos.run;
 
+import org.jspecify.annotations.Nullable;
+
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
@@ -19,14 +21,14 @@ public record RunSummaryDto(
         Instant endDate,
         String timeZone,
         boolean indoor,
-        String sourceName,
+        @Nullable String sourceName,
         double distance,
         double duration,
-        Double elevationGain,
-        Double averageHeartRate,
-        Double maxHeartRate,
-        Double energy,
-        Double cadence,
+        @Nullable Double elevationGain,
+        @Nullable Double averageHeartRate,
+        @Nullable Double maxHeartRate,
+        @Nullable Double energy,
+        @Nullable Double cadence,
         double[] zoneSeconds,
         List<double[]> thumbnail,
         List<BestEffortDto> bestEfforts) {

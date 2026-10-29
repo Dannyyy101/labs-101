@@ -1,5 +1,7 @@
 package com.labs_101.backend.dtos.calendar;
 
+import org.jspecify.annotations.Nullable;
+
 import java.time.Instant;
 import java.util.List;
 
@@ -18,10 +20,10 @@ public class CalendarEventDto {
     private Instant startDate;
     private Instant endDate;
     private String creatorId;
-    private Long workoutId;
-    private String workoutName;
-    private CalendarUserDto creator;
+    private @Nullable Long workoutId;
+    private @Nullable String workoutName;
+    private @Nullable CalendarUserDto creator;
     private List<CalendarUserDto> invitees;
-    private Recurrence recurrence;
-    private Instant recurrenceEnd;
+    private @Nullable Recurrence recurrence;
+    private @Nullable Instant recurrenceEnd;
 }

@@ -1,5 +1,7 @@
 package com.labs_101.backend.dtos.overview;
 
+import org.jspecify.annotations.Nullable;
+
 import java.time.Instant;
 import java.util.List;
 
@@ -22,7 +24,7 @@ public record SleepDto(
         double rem,
         double need,
         int score,
-        Double respiratoryRate,
-        Double oxygenSaturation,
+        @Nullable Double respiratoryRate,
+        @Nullable Double oxygenSaturation,
         List<SleepStageDto> stages) {
 }

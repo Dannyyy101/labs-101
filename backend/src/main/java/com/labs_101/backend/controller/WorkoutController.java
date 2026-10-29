@@ -21,6 +21,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+
 @RestController()
 @RequestMapping("/api/workouts")
 public class WorkoutController {
@@ -48,6 +50,7 @@ public class WorkoutController {
 
     /** Only the creator of the template can delete it. */
     @DeleteMapping("{id}")
+    @ApiResponse(responseCode = "204")
     public ResponseEntity<Void> deleteWorkout(@CurrentUser String userId, @PathVariable Long id) {
         workoutService.delete(userId, id);
         return ResponseEntity.noContent().build();
@@ -61,6 +64,7 @@ public class WorkoutController {
 
     /** Removes a template a friend shared from the own list. */
     @DeleteMapping("{id}/shares/me")
+    @ApiResponse(responseCode = "204")
     public ResponseEntity<Void> leaveWorkout(@CurrentUser String userId, @PathVariable Long id) {
         workoutService.leave(userId, id);
         return ResponseEntity.noContent().build();
@@ -73,6 +77,7 @@ public class WorkoutController {
     }
 
     @PostMapping("/exercises")
+    @ApiResponse(responseCode = "204")
     public ResponseEntity<Void> createExercise(@RequestBody CreateExerciseDto exerciseDto) {
         try {
             workoutService.createExercise(exerciseDto);

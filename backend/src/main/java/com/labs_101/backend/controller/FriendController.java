@@ -20,6 +20,8 @@ import com.labs_101.backend.dtos.friend.SendFriendRequestDto;
 import com.labs_101.backend.security.CurrentUser;
 import com.labs_101.backend.services.FriendService;
 
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+
 @RestController()
 @RequestMapping("/api/users/me/friends")
 public class FriendController {
@@ -37,6 +39,7 @@ public class FriendController {
     }
 
     @PostMapping("/requests")
+    @ApiResponse(responseCode = "204")
     public ResponseEntity<Void> sendRequest(@CurrentUser String userId, @RequestBody SendFriendRequestDto dto) {
         friendService.sendRequest(userId, dto.userId());
         return ResponseEntity.noContent().build();
@@ -44,6 +47,7 @@ public class FriendController {
 
     /** Accepts a request to the user. */
     @PutMapping("/requests/{id}")
+    @ApiResponse(responseCode = "204")
     public ResponseEntity<Void> acceptRequest(@CurrentUser String userId, @PathVariable Long id) {
         friendService.acceptRequest(userId, id);
         return ResponseEntity.noContent().build();
@@ -51,12 +55,14 @@ public class FriendController {
 
     /** Declines a request to the user or takes back one of the user. */
     @DeleteMapping("/requests/{id}")
+    @ApiResponse(responseCode = "204")
     public ResponseEntity<Void> deleteRequest(@CurrentUser String userId, @PathVariable Long id) {
         friendService.deleteRequest(userId, id);
         return ResponseEntity.noContent().build();
     }
 
     @DeleteMapping("/{friendId}")
+    @ApiResponse(responseCode = "204")
     public ResponseEntity<Void> removeFriend(@CurrentUser String userId, @PathVariable String friendId) {
         friendService.removeFriend(userId, friendId);
         return ResponseEntity.noContent().build();
@@ -72,6 +78,7 @@ public class FriendController {
 
     /** Cheers on the running workout of a friend, once per workout. */
     @PostMapping("/{friendId}/cheers")
+    @ApiResponse(responseCode = "204")
     public ResponseEntity<Void> cheer(@CurrentUser String userId, @PathVariable String friendId) {
         friendService.cheer(userId, friendId);
         return ResponseEntity.noContent().build();

@@ -1,5 +1,7 @@
 package com.labs_101.backend.dtos.notification;
 
+import org.jspecify.annotations.Nullable;
+
 import com.labs_101.backend.entities.NotificationType;
 
 import lombok.AllArgsConstructor;
@@ -13,11 +15,11 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 public class CreateNotificationDto {
-    private NotificationType type;
+    private @Nullable NotificationType type;
     private String title;
-    private String message;
-    private String link;
-    private String linkLabel;
+    private @Nullable String message;
+    private @Nullable String link;
+    private @Nullable String linkLabel;
 
     public CreateNotificationDto(String title) {
         this.title = title;

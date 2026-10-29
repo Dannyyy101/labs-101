@@ -1,5 +1,7 @@
 package com.labs_101.backend.dtos.health;
 
+import org.jspecify.annotations.Nullable;
+
 import java.time.Instant;
 import java.util.UUID;
 
@@ -16,9 +18,9 @@ public record HealthSampleDto(
         String type,
         Instant startDate,
         Instant endDate,
-        Double value,
-        String unit,
-        String sourceName,
-        String sourceBundleId,
-        JsonNode payload) {
+        @Nullable Double value,
+        @Nullable String unit,
+        @Nullable String sourceName,
+        @Nullable String sourceBundleId,
+        @Nullable JsonNode payload) {
 }

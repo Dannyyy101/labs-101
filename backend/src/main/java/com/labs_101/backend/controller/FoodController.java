@@ -23,6 +23,7 @@ import java.util.List;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Slice;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -30,6 +31,8 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 
 @RestController()
 @RequestMapping("/api/foods")
@@ -43,6 +46,7 @@ public class FoodController {
     }
 
     @PostMapping("")
+    @ApiResponse(responseCode = "204")
     public ResponseEntity<Void> create(@RequestBody CreateFoodDto dto) {
         foodService.create(dto);
 
@@ -50,6 +54,7 @@ public class FoodController {
     }
 
     @PostMapping("/open-food")
+    @ApiResponse(responseCode = "204")
     public ResponseEntity<Void> createOpenFood(@RequestBody CreateOpenFoodDto dto) {
         foodService.createOpenFood(dto);
 
@@ -57,6 +62,7 @@ public class FoodController {
     }
 
     @PostMapping("{id}/portions")
+    @ApiResponse(responseCode = "204")
     public ResponseEntity<Void> addFoodPortions(@PathVariable Long id, @RequestBody CreateFoodPortionDto dto) {
         foodService.createFoodPortion(id, dto);
 
@@ -79,6 +85,7 @@ public class FoodController {
     }
 
     @PostMapping("/open-food/{openFoodId}/track")
+    @ApiResponse(responseCode = "204")
     public ResponseEntity<Void> trackOpenFood(@PathVariable Long openFoodId, @CurrentUser String userId,
             @RequestBody CreateFoodUserDto dto) {
         foodService.trackOpenFood(openFoodId,
@@ -90,7 +97,7 @@ public class FoodController {
     @GetMapping("")
     public Page<FoodDto> getAll(
             @RequestParam(required = false) String query,
-            Pageable pageable) {
+            @ParameterObject Pageable pageable) {
         return foodService.getAll(query, pageable);
     }
 
@@ -105,11 +112,12 @@ public class FoodController {
     }
 
     @GetMapping("/search/byNameAndUser")
-    public Slice<SearchFoodResponseDto> search(Pageable p, @RequestParam String name, @CurrentUser String userId) {
+    public Slice<SearchFoodResponseDto> search(@ParameterObject Pageable p, @RequestParam String name, @CurrentUser String userId) {
         return foodService.searchByNameAndUserId(p, name, userId);
     }
 
     @PostMapping("{id}/track")
+    @ApiResponse(responseCode = "204")
     public ResponseEntity<Void> trackFoodForUser(@PathVariable Long id, @CurrentUser String userId,
             @RequestBody CreateFoodUserDto dto) {
         if (!id.equals(dto.foodId()))

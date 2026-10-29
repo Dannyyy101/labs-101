@@ -1,5 +1,7 @@
 package com.labs_101.backend.dtos.overview;
 
+import org.jspecify.annotations.Nullable;
+
 import java.time.Instant;
 import java.util.UUID;
 
@@ -10,7 +12,7 @@ public record OverviewWorkoutDto(
         Instant startDate,
         Instant endDate,
         double duration,
-        Double energy,
-        Double distance,
-        Double averageHeartRate) {
+        @Nullable Double energy,
+        @Nullable Double distance,
+        @Nullable Double averageHeartRate) {
 }

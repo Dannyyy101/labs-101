@@ -1,5 +1,7 @@
 package com.labs_101.backend.dtos.profile;
 
+import org.jspecify.annotations.Nullable;
+
 import java.time.LocalDate;
 
 /**
@@ -10,5 +12,5 @@ import java.time.LocalDate;
  * @param progress   null while there is nothing to compare yet (e.g. no 5 km run)
  * @param achievedAt local day the target was first reached, null while it is open
  */
-public record AchievementDto(String id, Double progress, double target, LocalDate achievedAt) {
+public record AchievementDto(String id, @Nullable Double progress, double target, @Nullable LocalDate achievedAt) {
 }

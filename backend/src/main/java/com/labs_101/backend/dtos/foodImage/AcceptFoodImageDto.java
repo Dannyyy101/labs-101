@@ -1,5 +1,7 @@
 package com.labs_101.backend.dtos.foodImage;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.List;
 
 /**
@@ -9,6 +11,6 @@ import java.util.List;
 public record AcceptFoodImageDto(String meal, List<Item> items) {
 
     /** {@code foodId} or {@code openFoodId} is required */
-    public record Item(Long foodId, Long openFoodId, Double amount, String unit, Double gramsPerUnit) {
+    public record Item(@Nullable Long foodId, @Nullable Long openFoodId, Double amount, @Nullable String unit, @Nullable Double gramsPerUnit) {
     }
 }

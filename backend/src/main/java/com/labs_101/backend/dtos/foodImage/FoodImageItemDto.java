@@ -1,5 +1,7 @@
 package com.labs_101.backend.dtos.foodImage;
 
+import org.jspecify.annotations.Nullable;
+
 import com.labs_101.backend.dtos.food.FoodWithPortionsDto;
 
 /**
@@ -9,6 +11,6 @@ import com.labs_101.backend.dtos.food.FoodWithPortionsDto;
  * @param food       best match, null if there is none
  * @param openFoodId set if the match only exists in the open food database
  */
-public record FoodImageItemDto(String query, Double amount, String unit, Double gramsPerUnit,
-        FoodWithPortionsDto food, Long openFoodId) {
+public record FoodImageItemDto(String query, Double amount, @Nullable String unit, @Nullable Double gramsPerUnit,
+        @Nullable FoodWithPortionsDto food, @Nullable Long openFoodId) {
 }

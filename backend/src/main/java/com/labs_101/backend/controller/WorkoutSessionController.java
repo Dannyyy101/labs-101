@@ -21,6 +21,9 @@ import com.labs_101.backend.dtos.workout.session.WorkoutSessionDto;
 import com.labs_101.backend.services.WorkoutSessionService;
 import com.labs_101.backend.security.CurrentUser;
 
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+
 /** Workouts the user did or is doing right now, see {@link WorkoutController} for the templates. */
 @RestController()
 @RequestMapping("/api/users/me/workout-sessions")
@@ -42,6 +45,8 @@ public class WorkoutSessionController {
 
     /** The running workout, 204 when there is none. */
     @GetMapping("/active")
+    @ApiResponse(responseCode = "200")
+    @ApiResponse(responseCode = "204", content = @Content)
     public ResponseEntity<WorkoutSessionDto> getActive(@CurrentUser String userId) {
         return sessionService.getActive(userId)
                 .map(ResponseEntity::ok)
@@ -71,6 +76,7 @@ public class WorkoutSessionController {
     }
 
     @DeleteMapping("/{id}")
+    @ApiResponse(responseCode = "204")
     public ResponseEntity<Void> delete(@CurrentUser String userId, @PathVariable Long id) {
         sessionService.delete(userId, id);
         return ResponseEntity.noContent().build();

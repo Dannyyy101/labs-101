@@ -24,6 +24,10 @@ import com.labs_101.backend.entities.food.FoodImage;
 import com.labs_101.backend.security.CurrentUser;
 import com.labs_101.backend.services.FoodImageService;
 
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+
 /** Photos of meals, analyzed in the background, see {@link FoodImageService}. */
 @RestController()
 @RequestMapping("/api/users/me/food-images")
@@ -42,6 +46,7 @@ public class FoodImageController {
      * what is on the photo.
      */
     @PostMapping(value = "", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @ApiResponse(responseCode = "202")
     public ResponseEntity<FoodImageAnalysisDto> upload(@CurrentUser String userId,
             @RequestPart("image") MultipartFile image, @RequestParam String meal,
             @RequestParam(required = false) String description) {
@@ -67,6 +72,7 @@ public class FoodImageController {
 
     // the photo never changes, so the browser may keep it
     @GetMapping("/{id}/image")
+    @ApiResponse(responseCode = "200", content = @Content(mediaType = "image/*", schema = @Schema(type = "string", format = "binary")))
     public ResponseEntity<byte[]> getImage(@CurrentUser String userId, @PathVariable Long id) {
         FoodImage image = foodImageService.getImage(userId, id);
         return ResponseEntity.ok()

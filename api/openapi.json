@@ -1,0 +1,4769 @@
+{
+  "openapi" : "3.1.0",
+  "info" : {
+    "title" : "labs-101",
+    "version" : "1"
+  },
+  "servers" : [ {
+    "url" : "http://localhost",
+    "description" : "Generated server url"
+  } ],
+  "security" : [ {
+    "zitadel" : [ ]
+  } ],
+  "paths" : {
+    "/api/calendar" : {
+      "get" : {
+        "operationId" : "getAllCalendarEvents",
+        "parameters" : [ {
+          "in" : "query",
+          "name" : "startDate",
+          "required" : false,
+          "schema" : {
+            "type" : "string",
+            "format" : "date-time"
+          }
+        }, {
+          "in" : "query",
+          "name" : "endDate",
+          "required" : false,
+          "schema" : {
+            "type" : "string",
+            "format" : "date-time"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/CalendarEventDto"
+                  }
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "calendar-controller" ]
+      },
+      "post" : {
+        "operationId" : "createCalendarEvent",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/CreateCalendarEventDto"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/CalendarEventDto"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "calendar-controller" ]
+      }
+    },
+    "/api/calendar/external" : {
+      "get" : {
+        "operationId" : "getCalendars",
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/ExternalCalendarDto"
+                  }
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "external-calendar-controller" ]
+      },
+      "post" : {
+        "operationId" : "addCalendar",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/CreateExternalCalendarDto"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "201" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ExternalCalendarDto"
+                }
+              }
+            },
+            "description" : "Created"
+          }
+        },
+        "tags" : [ "external-calendar-controller" ]
+      }
+    },
+    "/api/calendar/external/apple" : {
+      "post" : {
+        "operationId" : "connectAppleAccount",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/ConnectAppleAccountDto"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/ExternalCalendarDto"
+                  }
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "external-calendar-controller" ]
+      }
+    },
+    "/api/calendar/external/apple/{accountId}" : {
+      "delete" : {
+        "operationId" : "disconnectAppleAccount",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "accountId",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "204" : {
+            "description" : "No Content"
+          }
+        },
+        "tags" : [ "external-calendar-controller" ]
+      }
+    },
+    "/api/calendar/external/events" : {
+      "get" : {
+        "operationId" : "getEvents",
+        "parameters" : [ {
+          "in" : "query",
+          "name" : "startDate",
+          "required" : true,
+          "schema" : {
+            "type" : "string",
+            "format" : "date-time"
+          }
+        }, {
+          "in" : "query",
+          "name" : "endDate",
+          "required" : true,
+          "schema" : {
+            "type" : "string",
+            "format" : "date-time"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/ExternalCalendarEventDto"
+                  }
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "external-calendar-controller" ]
+      }
+    },
+    "/api/calendar/external/{id}" : {
+      "delete" : {
+        "operationId" : "deleteCalendar",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "204" : {
+            "description" : "No Content"
+          }
+        },
+        "tags" : [ "external-calendar-controller" ]
+      }
+    },
+    "/api/calendar/{id}" : {
+      "delete" : {
+        "operationId" : "deleteCalendarEvent",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "calendar-controller" ]
+      },
+      "put" : {
+        "operationId" : "updateCalendarEvent",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/UpdateCalendarEventDto"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/CalendarEventDto"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "calendar-controller" ]
+      }
+    },
+    "/api/foods" : {
+      "get" : {
+        "operationId" : "getAll_1",
+        "parameters" : [ {
+          "in" : "query",
+          "name" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "description" : "Zero-based page index (0..N)",
+          "in" : "query",
+          "name" : "page",
+          "required" : false,
+          "schema" : {
+            "type" : "integer",
+            "default" : 0,
+            "minimum" : 0
+          }
+        }, {
+          "description" : "The size of the page to be returned",
+          "in" : "query",
+          "name" : "size",
+          "required" : false,
+          "schema" : {
+            "type" : "integer",
+            "default" : 20,
+            "minimum" : 1
+          }
+        }, {
+          "description" : "Sorting criteria in the format: property,(asc|desc). Default sort order is ascending. Multiple sort criteria are supported.",
+          "in" : "query",
+          "name" : "sort",
+          "required" : false,
+          "schema" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PageFoodDto"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "food-controller" ]
+      },
+      "post" : {
+        "operationId" : "create",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/CreateFoodDto"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "204" : {
+            "description" : "No Content"
+          }
+        },
+        "tags" : [ "food-controller" ]
+      }
+    },
+    "/api/foods/bar-code/{code}" : {
+      "get" : {
+        "operationId" : "getByBarcode",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "code",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/FoodDto"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "food-controller" ]
+      }
+    },
+    "/api/foods/extract" : {
+      "post" : {
+        "operationId" : "extract",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/ExtractFoodRequestDto"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/ExtractedFoodDto"
+                  }
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "food-controller" ]
+      }
+    },
+    "/api/foods/open-food" : {
+      "post" : {
+        "operationId" : "createOpenFood",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/CreateOpenFoodDto"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "204" : {
+            "description" : "No Content"
+          }
+        },
+        "tags" : [ "food-controller" ]
+      }
+    },
+    "/api/foods/open-food/{openFoodId}" : {
+      "get" : {
+        "operationId" : "getOpenFood",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "openFoodId",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/FoodWithPortionsDto"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "food-controller" ]
+      }
+    },
+    "/api/foods/open-food/{openFoodId}/import" : {
+      "post" : {
+        "operationId" : "importOpenFood",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "openFoodId",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/FoodWithPortionsDto"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "food-controller" ]
+      }
+    },
+    "/api/foods/open-food/{openFoodId}/track" : {
+      "post" : {
+        "operationId" : "trackOpenFood",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "openFoodId",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/CreateFoodUserDto"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "204" : {
+            "description" : "No Content"
+          }
+        },
+        "tags" : [ "food-controller" ]
+      }
+    },
+    "/api/foods/search/byNameAndUser" : {
+      "get" : {
+        "operationId" : "search",
+        "parameters" : [ {
+          "description" : "Zero-based page index (0..N)",
+          "in" : "query",
+          "name" : "page",
+          "required" : false,
+          "schema" : {
+            "type" : "integer",
+            "default" : 0,
+            "minimum" : 0
+          }
+        }, {
+          "description" : "The size of the page to be returned",
+          "in" : "query",
+          "name" : "size",
+          "required" : false,
+          "schema" : {
+            "type" : "integer",
+            "default" : 20,
+            "minimum" : 1
+          }
+        }, {
+          "description" : "Sorting criteria in the format: property,(asc|desc). Default sort order is ascending. Multiple sort criteria are supported.",
+          "in" : "query",
+          "name" : "sort",
+          "required" : false,
+          "schema" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          }
+        }, {
+          "in" : "query",
+          "name" : "name",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/SliceSearchFoodResponseDto"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "food-controller" ]
+      }
+    },
+    "/api/foods/{id}" : {
+      "put" : {
+        "operationId" : "updateFood",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/UpdateFoodDto"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/FoodDto"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "food-controller" ]
+      }
+    },
+    "/api/foods/{id}/portions" : {
+      "post" : {
+        "operationId" : "addFoodPortions",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/CreateFoodPortionDto"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "204" : {
+            "description" : "No Content"
+          }
+        },
+        "tags" : [ "food-controller" ]
+      }
+    },
+    "/api/foods/{id}/track" : {
+      "post" : {
+        "operationId" : "trackFoodForUser",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/CreateFoodUserDto"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "204" : {
+            "description" : "No Content"
+          }
+        },
+        "tags" : [ "food-controller" ]
+      }
+    },
+    "/api/users" : {
+      "get" : {
+        "operationId" : "searchUsers",
+        "parameters" : [ {
+          "in" : "query",
+          "name" : "query",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/CalendarUserDto"
+                  }
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "user-controller" ]
+      }
+    },
+    "/api/users/me" : {
+      "get" : {
+        "operationId" : "getProfile",
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/UserProfileDto"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "user-controller" ]
+      }
+    },
+    "/api/users/me/food-images" : {
+      "get" : {
+        "operationId" : "getAll",
+        "parameters" : [ {
+          "in" : "query",
+          "name" : "limit",
+          "required" : false,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int32",
+            "default" : 10
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/FoodImageAnalysisDto"
+                  }
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "food-image-controller" ]
+      },
+      "post" : {
+        "operationId" : "upload",
+        "parameters" : [ {
+          "in" : "query",
+          "name" : "meal",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "in" : "query",
+          "name" : "description",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "multipart/form-data" : {
+              "schema" : {
+                "type" : "object",
+                "properties" : {
+                  "image" : {
+                    "type" : "string",
+                    "format" : "binary"
+                  }
+                },
+                "required" : [ "image" ]
+              }
+            }
+          }
+        },
+        "responses" : {
+          "202" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/FoodImageAnalysisDto"
+                }
+              }
+            },
+            "description" : "Accepted"
+          }
+        },
+        "tags" : [ "food-image-controller" ]
+      }
+    },
+    "/api/users/me/food-images/usage" : {
+      "get" : {
+        "operationId" : "usage",
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/FoodImageUsageDto"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "food-image-controller" ]
+      }
+    },
+    "/api/users/me/food-images/{id}" : {
+      "get" : {
+        "operationId" : "get",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/FoodImageAnalysisDto"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "food-image-controller" ]
+      }
+    },
+    "/api/users/me/food-images/{id}/accept" : {
+      "post" : {
+        "operationId" : "accept",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/AcceptFoodImageDto"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/FoodImageAnalysisDto"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "food-image-controller" ]
+      }
+    },
+    "/api/users/me/food-images/{id}/image" : {
+      "get" : {
+        "operationId" : "getImage",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "image/*" : {
+                "schema" : {
+                  "type" : "string",
+                  "format" : "binary"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "food-image-controller" ]
+      }
+    },
+    "/api/users/me/food-images/{id}/reject" : {
+      "post" : {
+        "operationId" : "reject",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/FoodImageAnalysisDto"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "food-image-controller" ]
+      }
+    },
+    "/api/users/me/foods/{foodId}/last" : {
+      "get" : {
+        "operationId" : "getLastTracked",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "foodId",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/FoodWithLastEntryAndPortionsDto"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "user-controller" ]
+      }
+    },
+    "/api/users/me/friends" : {
+      "get" : {
+        "operationId" : "getFriends",
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/FriendsDto"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "friend-controller" ]
+      }
+    },
+    "/api/users/me/friends/requests" : {
+      "post" : {
+        "operationId" : "sendRequest",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/SendFriendRequestDto"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "204" : {
+            "description" : "No Content"
+          }
+        },
+        "tags" : [ "friend-controller" ]
+      }
+    },
+    "/api/users/me/friends/requests/{id}" : {
+      "delete" : {
+        "operationId" : "deleteRequest",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "204" : {
+            "description" : "No Content"
+          }
+        },
+        "tags" : [ "friend-controller" ]
+      },
+      "put" : {
+        "operationId" : "acceptRequest",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "204" : {
+            "description" : "No Content"
+          }
+        },
+        "tags" : [ "friend-controller" ]
+      }
+    },
+    "/api/users/me/friends/{friendId}" : {
+      "delete" : {
+        "operationId" : "removeFriend",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "friendId",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "204" : {
+            "description" : "No Content"
+          }
+        },
+        "tags" : [ "friend-controller" ]
+      }
+    },
+    "/api/users/me/friends/{friendId}/cheers" : {
+      "post" : {
+        "operationId" : "cheer",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "friendId",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "204" : {
+            "description" : "No Content"
+          }
+        },
+        "tags" : [ "friend-controller" ]
+      }
+    },
+    "/api/users/me/friends/{friendId}/profile" : {
+      "get" : {
+        "operationId" : "getProfile_2",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "friendId",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "in" : "query",
+          "name" : "zone",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/FriendProfileDto"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "friend-controller" ]
+      }
+    },
+    "/api/users/me/health/characteristics" : {
+      "get" : {
+        "operationId" : "getCharacteristics",
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "object"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "health-controller" ]
+      },
+      "put" : {
+        "operationId" : "saveCharacteristics",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "type" : "object"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "204" : {
+            "description" : "No Content"
+          }
+        },
+        "tags" : [ "health-controller" ]
+      }
+    },
+    "/api/users/me/health/overview" : {
+      "get" : {
+        "operationId" : "getOverview",
+        "parameters" : [ {
+          "in" : "query",
+          "name" : "date",
+          "required" : false,
+          "schema" : {
+            "type" : "string",
+            "format" : "date"
+          }
+        }, {
+          "in" : "query",
+          "name" : "zone",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/HealthOverviewDto"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "health-overview-controller" ]
+      }
+    },
+    "/api/users/me/health/overview/energy" : {
+      "get" : {
+        "operationId" : "getEnergy",
+        "parameters" : [ {
+          "in" : "query",
+          "name" : "date",
+          "required" : false,
+          "schema" : {
+            "type" : "string",
+            "format" : "date"
+          }
+        }, {
+          "in" : "query",
+          "name" : "zone",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/EnergyDto"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "health-overview-controller" ]
+      }
+    },
+    "/api/users/me/health/samples" : {
+      "get" : {
+        "operationId" : "getSamples",
+        "parameters" : [ {
+          "in" : "query",
+          "name" : "type",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "in" : "query",
+          "name" : "from",
+          "required" : false,
+          "schema" : {
+            "type" : "string",
+            "format" : "date-time"
+          }
+        }, {
+          "in" : "query",
+          "name" : "to",
+          "required" : false,
+          "schema" : {
+            "type" : "string",
+            "format" : "date-time"
+          }
+        }, {
+          "in" : "query",
+          "name" : "page",
+          "required" : false,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int32",
+            "default" : 0
+          }
+        }, {
+          "in" : "query",
+          "name" : "size",
+          "required" : false,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int32",
+            "default" : 200
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/HealthSampleDto"
+                  }
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "health-controller" ]
+      },
+      "post" : {
+        "operationId" : "uploadSamples",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/UploadHealthSamplesDto"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/HealthSyncResultDto"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "health-controller" ]
+      }
+    },
+    "/api/users/me/health/samples/delete" : {
+      "post" : {
+        "operationId" : "deleteSamples",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/DeleteHealthSamplesDto"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/HealthSyncResultDto"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "health-controller" ]
+      }
+    },
+    "/api/users/me/health/sync/complete" : {
+      "post" : {
+        "operationId" : "completeFullSync",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/CompleteFullSyncDto"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/HealthSyncResultDto"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "health-controller" ]
+      }
+    },
+    "/api/users/me/health/types" : {
+      "get" : {
+        "operationId" : "getSummary",
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/HealthTypeSummaryDto"
+                  }
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "health-controller" ]
+      }
+    },
+    "/api/users/me/health/write-requests" : {
+      "get" : {
+        "operationId" : "getWriteRequests",
+        "parameters" : [ {
+          "in" : "query",
+          "name" : "status",
+          "required" : false,
+          "schema" : {
+            "type" : "string",
+            "default" : "PENDING",
+            "enum" : [ "PENDING", "WRITTEN", "FAILED" ]
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/HealthWriteRequestDto"
+                  }
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "health-controller" ]
+      },
+      "post" : {
+        "operationId" : "createWriteRequest",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/CreateHealthWriteRequestDto"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/HealthWriteRequestDto"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "health-controller" ]
+      }
+    },
+    "/api/users/me/health/write-requests/{id}/ack" : {
+      "post" : {
+        "operationId" : "acknowledgeWriteRequest",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/AckHealthWriteRequestDto"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/HealthWriteRequestDto"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "health-controller" ]
+      }
+    },
+    "/api/users/me/notifications" : {
+      "get" : {
+        "operationId" : "getNotifications",
+        "parameters" : [ {
+          "in" : "query",
+          "name" : "unreadOnly",
+          "required" : false,
+          "schema" : {
+            "type" : "boolean",
+            "default" : false
+          }
+        }, {
+          "in" : "query",
+          "name" : "limit",
+          "required" : false,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int32"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/NotificationDto"
+                  }
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "notification-controller" ]
+      },
+      "post" : {
+        "operationId" : "createNotification",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/CreateNotificationDto"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "201" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/NotificationDto"
+                }
+              }
+            },
+            "description" : "Created"
+          }
+        },
+        "tags" : [ "notification-controller" ]
+      }
+    },
+    "/api/users/me/notifications/read" : {
+      "put" : {
+        "operationId" : "markAllRead",
+        "responses" : {
+          "204" : {
+            "description" : "No Content"
+          }
+        },
+        "tags" : [ "notification-controller" ]
+      }
+    },
+    "/api/users/me/notifications/unread-count" : {
+      "get" : {
+        "operationId" : "getUnreadCount",
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/UnreadCountDto"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "notification-controller" ]
+      }
+    },
+    "/api/users/me/notifications/{id}" : {
+      "delete" : {
+        "operationId" : "deleteNotification",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "204" : {
+            "description" : "No Content"
+          }
+        },
+        "tags" : [ "notification-controller" ]
+      }
+    },
+    "/api/users/me/notifications/{id}/read" : {
+      "delete" : {
+        "operationId" : "markUnread",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/NotificationDto"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "notification-controller" ]
+      },
+      "put" : {
+        "operationId" : "markRead",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/NotificationDto"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "notification-controller" ]
+      }
+    },
+    "/api/users/me/profile" : {
+      "get" : {
+        "operationId" : "getProfile_1",
+        "parameters" : [ {
+          "in" : "query",
+          "name" : "zone",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ProfileDto"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "user-profile-controller" ]
+      }
+    },
+    "/api/users/me/runs" : {
+      "get" : {
+        "operationId" : "getRuns",
+        "parameters" : [ {
+          "in" : "query",
+          "name" : "from",
+          "required" : false,
+          "schema" : {
+            "type" : "string",
+            "format" : "date-time"
+          }
+        }, {
+          "in" : "query",
+          "name" : "to",
+          "required" : false,
+          "schema" : {
+            "type" : "string",
+            "format" : "date-time"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/RunSummaryDto"
+                  }
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "run-controller" ]
+      }
+    },
+    "/api/users/me/runs/{id}" : {
+      "get" : {
+        "operationId" : "getRun",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "string",
+            "format" : "uuid"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/RunDetailDto"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "run-controller" ]
+      }
+    },
+    "/api/users/me/settings" : {
+      "delete" : {
+        "operationId" : "deleteSettings",
+        "responses" : {
+          "204" : {
+            "description" : "No Content"
+          }
+        },
+        "tags" : [ "user-settings-controller" ]
+      },
+      "get" : {
+        "operationId" : "getSettings",
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/UserSettingsDto"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "user-settings-controller" ]
+      },
+      "post" : {
+        "operationId" : "createSettings",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/SaveUserSettingsDto"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "201" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/UserSettingsDto"
+                }
+              }
+            },
+            "description" : "Created"
+          }
+        },
+        "tags" : [ "user-settings-controller" ]
+      },
+      "put" : {
+        "operationId" : "updateSettings",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/SaveUserSettingsDto"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/UserSettingsDto"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "user-settings-controller" ]
+      }
+    },
+    "/api/users/me/tracked-foods" : {
+      "get" : {
+        "operationId" : "getTrackedFoodForUser",
+        "parameters" : [ {
+          "in" : "query",
+          "name" : "date",
+          "required" : false,
+          "schema" : {
+            "type" : "string",
+            "format" : "date-time"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/TrackedFoodDto"
+                  }
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "user-controller" ]
+      }
+    },
+    "/api/users/me/tracked-foods/{trackedFoodId}" : {
+      "delete" : {
+        "operationId" : "deleteTrackedFoodById",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "trackedFoodId",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "user-controller" ]
+      },
+      "get" : {
+        "operationId" : "getTrackedFoodById",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "trackedFoodId",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/TrackedFoodDto"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "user-controller" ]
+      },
+      "put" : {
+        "operationId" : "updateTrackedFoodById",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "trackedFoodId",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/CreateFoodUserDto"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "user-controller" ]
+      }
+    },
+    "/api/users/me/workout-sessions" : {
+      "get" : {
+        "operationId" : "getSessions",
+        "parameters" : [ {
+          "in" : "query",
+          "name" : "from",
+          "required" : false,
+          "schema" : {
+            "type" : "string",
+            "format" : "date-time"
+          }
+        }, {
+          "in" : "query",
+          "name" : "to",
+          "required" : false,
+          "schema" : {
+            "type" : "string",
+            "format" : "date-time"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/WorkoutSessionDto"
+                  }
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "workout-session-controller" ]
+      },
+      "post" : {
+        "operationId" : "start",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/CreateWorkoutSessionDto"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/WorkoutSessionDto"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "workout-session-controller" ]
+      }
+    },
+    "/api/users/me/workout-sessions/active" : {
+      "get" : {
+        "operationId" : "getActive",
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/WorkoutSessionDto"
+                }
+              }
+            },
+            "description" : "OK"
+          },
+          "204" : {
+            "description" : "No Content"
+          }
+        },
+        "tags" : [ "workout-session-controller" ]
+      }
+    },
+    "/api/users/me/workout-sessions/{id}" : {
+      "delete" : {
+        "operationId" : "delete",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "204" : {
+            "description" : "No Content"
+          }
+        },
+        "tags" : [ "workout-session-controller" ]
+      },
+      "get" : {
+        "operationId" : "getSession",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/WorkoutSessionDto"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "workout-session-controller" ]
+      },
+      "put" : {
+        "operationId" : "update",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/UpdateWorkoutSessionDto"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/WorkoutSessionDto"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "workout-session-controller" ]
+      }
+    },
+    "/api/users/me/workout-sessions/{id}/finish" : {
+      "post" : {
+        "operationId" : "finish",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/UpdateWorkoutSessionDto"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/WorkoutSessionDto"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "workout-session-controller" ]
+      }
+    },
+    "/api/workouts" : {
+      "get" : {
+        "operationId" : "getAllWorkouts",
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/WorkoutDto"
+                  }
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "workout-controller" ]
+      },
+      "post" : {
+        "operationId" : "createWorkout",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/CreateWorkoutDto"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/WorkoutDto"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "workout-controller" ]
+      }
+    },
+    "/api/workouts/exercises" : {
+      "get" : {
+        "operationId" : "getAllExercises",
+        "parameters" : [ {
+          "in" : "query",
+          "name" : "name",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "in" : "query",
+          "name" : "type",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/ExerciseDto"
+                  }
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "workout-controller" ]
+      },
+      "post" : {
+        "operationId" : "createExercise",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/CreateExerciseDto"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "204" : {
+            "description" : "No Content"
+          }
+        },
+        "tags" : [ "workout-controller" ]
+      }
+    },
+    "/api/workouts/exercises/{id}" : {
+      "delete" : {
+        "operationId" : "deleteExercise",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "workout-controller" ]
+      },
+      "put" : {
+        "operationId" : "updateExerciseById",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/ExerciseDto"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ExerciseDto"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "workout-controller" ]
+      }
+    },
+    "/api/workouts/{id}" : {
+      "delete" : {
+        "operationId" : "deleteWorkout",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "204" : {
+            "description" : "No Content"
+          }
+        },
+        "tags" : [ "workout-controller" ]
+      },
+      "get" : {
+        "operationId" : "getWorkoutById",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/WorkoutDto"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "workout-controller" ]
+      },
+      "put" : {
+        "operationId" : "updateWorkout",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/CreateWorkoutDto"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/WorkoutDto"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "workout-controller" ]
+      }
+    },
+    "/api/workouts/{id}/shares" : {
+      "put" : {
+        "operationId" : "shareWorkout",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/ShareWorkoutDto"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/WorkoutDto"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "workout-controller" ]
+      }
+    },
+    "/api/workouts/{id}/shares/me" : {
+      "delete" : {
+        "operationId" : "leaveWorkout",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "204" : {
+            "description" : "No Content"
+          }
+        },
+        "tags" : [ "workout-controller" ]
+      }
+    }
+  },
+  "components" : {
+    "schemas" : {
+      "AcceptFoodImageDto" : {
+        "type" : "object",
+        "properties" : {
+          "items" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/Item"
+            }
+          },
+          "meal" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "items", "meal" ]
+      },
+      "AchievementDto" : {
+        "type" : "object",
+        "properties" : {
+          "achievedAt" : {
+            "type" : [ "string", "null" ],
+            "format" : "date"
+          },
+          "id" : {
+            "type" : "string"
+          },
+          "progress" : {
+            "type" : [ "number", "null" ],
+            "format" : "double"
+          },
+          "target" : {
+            "type" : "number",
+            "format" : "double"
+          }
+        },
+        "required" : [ "id", "target" ]
+      },
+      "AckHealthWriteRequestDto" : {
+        "type" : "object",
+        "properties" : {
+          "error" : {
+            "type" : [ "string", "null" ]
+          },
+          "sampleUuid" : {
+            "type" : [ "string", "null" ],
+            "format" : "uuid"
+          }
+        }
+      },
+      "ActivityDayDto" : {
+        "type" : "object",
+        "properties" : {
+          "date" : {
+            "type" : "string",
+            "format" : "date"
+          },
+          "loggedIn" : {
+            "type" : "boolean"
+          },
+          "meals" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "runDistance" : {
+            "type" : "number",
+            "format" : "double"
+          },
+          "runs" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "workoutMinutes" : {
+            "type" : "number",
+            "format" : "double"
+          },
+          "workouts" : {
+            "type" : "integer",
+            "format" : "int32"
+          }
+        },
+        "required" : [ "date", "loggedIn", "meals", "runDistance", "runs", "workoutMinutes", "workouts" ]
+      },
+      "ActivityDto" : {
+        "type" : "object",
+        "properties" : {
+          "activeEnergy" : {
+            "type" : "number",
+            "format" : "double"
+          },
+          "basalEnergy" : {
+            "type" : "number",
+            "format" : "double"
+          },
+          "daylightMinutes" : {
+            "type" : "number",
+            "format" : "double"
+          },
+          "distance" : {
+            "type" : "number",
+            "format" : "double"
+          },
+          "energyConsumed" : {
+            "type" : [ "number", "null" ],
+            "format" : "double"
+          },
+          "exerciseMinutes" : {
+            "type" : "number",
+            "format" : "double"
+          },
+          "flightsClimbed" : {
+            "type" : "number",
+            "format" : "double"
+          },
+          "standHours" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "steps" : {
+            "type" : "number",
+            "format" : "double"
+          }
+        },
+        "required" : [ "activeEnergy", "basalEnergy", "daylightMinutes", "distance", "exerciseMinutes", "flightsClimbed", "standHours", "steps" ]
+      },
+      "BestEffortDto" : {
+        "type" : "object",
+        "properties" : {
+          "distance" : {
+            "type" : "number",
+            "format" : "double"
+          },
+          "name" : {
+            "type" : "string"
+          },
+          "time" : {
+            "type" : "number",
+            "format" : "double"
+          }
+        },
+        "required" : [ "distance", "name", "time" ]
+      },
+      "BodyPartDto" : {
+        "type" : "object",
+        "properties" : {
+          "color" : {
+            "type" : [ "string", "null" ]
+          },
+          "id" : {
+            "type" : [ "integer", "null" ],
+            "format" : "int64"
+          },
+          "intensity" : {
+            "type" : [ "integer", "null" ],
+            "format" : "int64"
+          },
+          "side" : {
+            "type" : [ "string", "null" ]
+          },
+          "slug" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "slug" ]
+      },
+      "CalendarEventDto" : {
+        "type" : "object",
+        "properties" : {
+          "creator" : {
+            "oneOf" : [ {
+              "$ref" : "#/components/schemas/CalendarUserDto"
+            }, {
+              "type" : "null"
+            } ]
+          },
+          "creatorId" : {
+            "type" : "string"
+          },
+          "endDate" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "id" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "invitees" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/CalendarUserDto"
+            }
+          },
+          "recurrence" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "DAILY", "WEEKLY", "MONTHLY" ]
+          },
+          "recurrenceEnd" : {
+            "type" : [ "string", "null" ],
+            "format" : "date-time"
+          },
+          "startDate" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "title" : {
+            "type" : "string"
+          },
+          "workoutId" : {
+            "type" : [ "integer", "null" ],
+            "format" : "int64"
+          },
+          "workoutName" : {
+            "type" : [ "string", "null" ]
+          }
+        },
+        "required" : [ "creatorId", "endDate", "id", "invitees", "startDate", "title" ]
+      },
+      "CalendarUserDto" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "string"
+          },
+          "image" : {
+            "type" : [ "string", "null" ]
+          },
+          "name" : {
+            "type" : [ "string", "null" ]
+          }
+        },
+        "required" : [ "id" ]
+      },
+      "CardioItemDto" : {
+        "allOf" : [ {
+          "$ref" : "#/components/schemas/ExerciseItem"
+        }, {
+          "type" : "object",
+          "properties" : {
+            "exercise" : {
+              "$ref" : "#/components/schemas/ExerciseDto"
+            },
+            "minutes" : {
+              "type" : "integer",
+              "format" : "int32"
+            },
+            "sets" : {
+              "type" : "array",
+              "items" : {
+                "$ref" : "#/components/schemas/SetDto"
+              }
+            }
+          }
+        } ]
+      },
+      "CompleteFullSyncDto" : {
+        "type" : "object",
+        "properties" : {
+          "fullSyncId" : {
+            "type" : "string",
+            "format" : "uuid"
+          },
+          "type" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "fullSyncId", "type" ]
+      },
+      "ConnectAppleAccountDto" : {
+        "type" : "object",
+        "properties" : {
+          "appleId" : {
+            "type" : "string"
+          },
+          "password" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "appleId", "password" ]
+      },
+      "CreateCalendarEventDto" : {
+        "type" : "object",
+        "properties" : {
+          "creatorId" : {
+            "type" : [ "string", "null" ]
+          },
+          "endDate" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "inviteeIds" : {
+            "type" : [ "array", "null" ],
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "recurrence" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "DAILY", "WEEKLY", "MONTHLY" ]
+          },
+          "recurrenceEnd" : {
+            "type" : [ "string", "null" ],
+            "format" : "date-time"
+          },
+          "startDate" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "title" : {
+            "type" : "string"
+          },
+          "workoutId" : {
+            "type" : [ "integer", "null" ],
+            "format" : "int64"
+          }
+        },
+        "required" : [ "endDate", "startDate", "title" ]
+      },
+      "CreateExerciseDto" : {
+        "type" : "object",
+        "properties" : {
+          "bodyParts" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/BodyPartDto"
+            }
+          },
+          "description" : {
+            "type" : [ "string", "null" ]
+          },
+          "name" : {
+            "type" : "string"
+          },
+          "slug" : {
+            "type" : [ "string", "null" ]
+          },
+          "type" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "bodyParts", "name", "type" ]
+      },
+      "CreateExternalCalendarDto" : {
+        "type" : "object",
+        "properties" : {
+          "name" : {
+            "type" : [ "string", "null" ]
+          },
+          "url" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "url" ]
+      },
+      "CreateFoodDto" : {
+        "type" : "object",
+        "properties" : {
+          "blsCode" : {
+            "type" : [ "string", "null" ]
+          },
+          "carbohydrates" : {
+            "type" : [ "number", "null" ],
+            "format" : "double"
+          },
+          "fat" : {
+            "type" : [ "number", "null" ],
+            "format" : "double"
+          },
+          "fiber" : {
+            "type" : [ "number", "null" ],
+            "format" : "double"
+          },
+          "kcal" : {
+            "type" : [ "number", "null" ],
+            "format" : "double"
+          },
+          "name" : {
+            "type" : "string"
+          },
+          "protein" : {
+            "type" : [ "number", "null" ],
+            "format" : "double"
+          },
+          "water" : {
+            "type" : [ "number", "null" ],
+            "format" : "double"
+          }
+        },
+        "required" : [ "name" ]
+      },
+      "CreateFoodPortionDto" : {
+        "type" : "object",
+        "properties" : {
+          "grams" : {
+            "type" : "number",
+            "format" : "double"
+          },
+          "isDefault" : {
+            "type" : "boolean"
+          },
+          "label" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "grams", "isDefault", "label" ]
+      },
+      "CreateFoodUserDto" : {
+        "type" : "object",
+        "properties" : {
+          "amount" : {
+            "type" : "number",
+            "format" : "double"
+          },
+          "foodId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "meal" : {
+            "type" : "string"
+          },
+          "portionId" : {
+            "type" : [ "integer", "null" ],
+            "format" : "int64"
+          },
+          "userId" : {
+            "type" : [ "string", "null" ]
+          }
+        },
+        "required" : [ "amount", "foodId", "meal" ]
+      },
+      "CreateHealthWriteRequestDto" : {
+        "type" : "object",
+        "properties" : {
+          "endDate" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "kind" : {
+            "type" : "string",
+            "enum" : [ "QUANTITY", "CATEGORY", "WORKOUT", "CORRELATION", "ECG", "AUDIOGRAM", "STATE_OF_MIND", "SCORED_ASSESSMENT" ]
+          },
+          "metadata" : {
+            "type" : [ "object", "null" ]
+          },
+          "startDate" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "type" : {
+            "type" : "string"
+          },
+          "unit" : {
+            "type" : [ "string", "null" ]
+          },
+          "value" : {
+            "type" : [ "number", "null" ],
+            "format" : "double"
+          }
+        },
+        "required" : [ "endDate", "kind", "startDate", "type" ]
+      },
+      "CreateNotificationDto" : {
+        "type" : "object",
+        "properties" : {
+          "link" : {
+            "type" : [ "string", "null" ]
+          },
+          "linkLabel" : {
+            "type" : [ "string", "null" ]
+          },
+          "message" : {
+            "type" : [ "string", "null" ]
+          },
+          "title" : {
+            "type" : "string"
+          },
+          "type" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "INFO", "SUCCESS", "WARNING", "ERROR" ]
+          }
+        },
+        "required" : [ "title" ]
+      },
+      "CreateOpenFoodDto" : {
+        "type" : "object",
+        "properties" : {
+          "barCode" : {
+            "type" : [ "string", "null" ]
+          },
+          "carbohydrates" : {
+            "type" : [ "number", "null" ],
+            "format" : "double"
+          },
+          "company" : {
+            "type" : [ "string", "null" ]
+          },
+          "fat" : {
+            "type" : [ "number", "null" ],
+            "format" : "double"
+          },
+          "fiber" : {
+            "type" : [ "number", "null" ],
+            "format" : "double"
+          },
+          "kcal" : {
+            "type" : [ "number", "null" ],
+            "format" : "double"
+          },
+          "name" : {
+            "type" : "string"
+          },
+          "protein" : {
+            "type" : [ "number", "null" ],
+            "format" : "double"
+          },
+          "water" : {
+            "type" : [ "number", "null" ],
+            "format" : "double"
+          }
+        },
+        "required" : [ "name" ]
+      },
+      "CreateWorkoutDto" : {
+        "type" : "object",
+        "properties" : {
+          "exercises" : {
+            "type" : "array",
+            "items" : {
+              "oneOf" : [ {
+                "$ref" : "#/components/schemas/CardioItemDto"
+              }, {
+                "$ref" : "#/components/schemas/StrengthItemDto"
+              } ]
+            }
+          },
+          "name" : {
+            "type" : "string"
+          },
+          "scheduledFor" : {
+            "type" : [ "string", "null" ],
+            "format" : "date-time"
+          }
+        },
+        "required" : [ "exercises", "name" ]
+      },
+      "CreateWorkoutSessionDto" : {
+        "type" : "object",
+        "properties" : {
+          "name" : {
+            "type" : [ "string", "null" ]
+          },
+          "workoutId" : {
+            "type" : [ "integer", "null" ],
+            "format" : "int64"
+          }
+        }
+      },
+      "DayScoreDto" : {
+        "type" : "object",
+        "properties" : {
+          "activeEnergy" : {
+            "type" : "number",
+            "format" : "double"
+          },
+          "date" : {
+            "type" : "string",
+            "format" : "date"
+          },
+          "hrv" : {
+            "type" : [ "number", "null" ],
+            "format" : "double"
+          },
+          "recovery" : {
+            "type" : [ "integer", "null" ],
+            "format" : "int32"
+          },
+          "restingHeartRate" : {
+            "type" : [ "number", "null" ],
+            "format" : "double"
+          },
+          "sleep" : {
+            "type" : [ "number", "null" ],
+            "format" : "double"
+          },
+          "sleepScore" : {
+            "type" : [ "integer", "null" ],
+            "format" : "int32"
+          },
+          "steps" : {
+            "type" : "number",
+            "format" : "double"
+          },
+          "strain" : {
+            "type" : [ "integer", "null" ],
+            "format" : "int32"
+          }
+        },
+        "required" : [ "activeEnergy", "date", "steps" ]
+      },
+      "DeleteHealthSamplesDto" : {
+        "type" : "object",
+        "properties" : {
+          "uuids" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string",
+              "format" : "uuid"
+            }
+          }
+        },
+        "required" : [ "uuids" ]
+      },
+      "EnergyDto" : {
+        "type" : "object",
+        "properties" : {
+          "activeEnergy" : {
+            "type" : "number",
+            "format" : "double"
+          },
+          "date" : {
+            "type" : "string",
+            "format" : "date"
+          }
+        },
+        "required" : [ "activeEnergy", "date" ]
+      },
+      "ExerciseDto" : {
+        "type" : "object",
+        "properties" : {
+          "bodyParts" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/BodyPartDto"
+            }
+          },
+          "description" : {
+            "type" : [ "string", "null" ]
+          },
+          "id" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "name" : {
+            "type" : "string"
+          },
+          "type" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "bodyParts", "id", "name", "type" ]
+      },
+      "ExerciseItem" : {
+        "discriminator" : {
+          "propertyName" : "type"
+        },
+        "properties" : {
+          "type" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "type" ]
+      },
+      "ExternalCalendarDto" : {
+        "type" : "object",
+        "properties" : {
+          "accountId" : {
+            "type" : [ "integer", "null" ],
+            "format" : "int64"
+          },
+          "appleId" : {
+            "type" : [ "string", "null" ]
+          },
+          "error" : {
+            "type" : [ "string", "null" ]
+          },
+          "id" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "name" : {
+            "type" : "string"
+          },
+          "url" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "id", "name", "url" ]
+      },
+      "ExternalCalendarEventDto" : {
+        "type" : "object",
+        "properties" : {
+          "allDay" : {
+            "type" : "boolean"
+          },
+          "calendarId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "calendarName" : {
+            "type" : "string"
+          },
+          "endDate" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "startDate" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "title" : {
+            "type" : [ "string", "null" ]
+          },
+          "uid" : {
+            "type" : [ "string", "null" ]
+          }
+        },
+        "required" : [ "allDay", "calendarId", "calendarName", "endDate", "startDate" ]
+      },
+      "ExtractFoodRequestDto" : {
+        "type" : "object",
+        "properties" : {
+          "text" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "text" ]
+      },
+      "ExtractedFoodDto" : {
+        "type" : "object",
+        "properties" : {
+          "amount" : {
+            "type" : "number",
+            "format" : "double"
+          },
+          "food" : {
+            "oneOf" : [ {
+              "$ref" : "#/components/schemas/FoodWithPortionsDto"
+            }, {
+              "type" : "null"
+            } ]
+          },
+          "openFoodId" : {
+            "type" : [ "integer", "null" ],
+            "format" : "int64"
+          },
+          "query" : {
+            "type" : "string"
+          },
+          "unit" : {
+            "type" : [ "string", "null" ]
+          }
+        },
+        "required" : [ "amount", "query" ]
+      },
+      "FoodDto" : {
+        "type" : "object",
+        "properties" : {
+          "blsCode" : {
+            "type" : [ "string", "null" ]
+          },
+          "carbohydrates" : {
+            "type" : [ "number", "null" ],
+            "format" : "double"
+          },
+          "fat" : {
+            "type" : [ "number", "null" ],
+            "format" : "double"
+          },
+          "fiber" : {
+            "type" : [ "number", "null" ],
+            "format" : "double"
+          },
+          "id" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "kcal" : {
+            "type" : [ "number", "null" ],
+            "format" : "double"
+          },
+          "name" : {
+            "type" : "string"
+          },
+          "protein" : {
+            "type" : [ "number", "null" ],
+            "format" : "double"
+          },
+          "water" : {
+            "type" : [ "number", "null" ],
+            "format" : "double"
+          }
+        },
+        "required" : [ "id", "name" ]
+      },
+      "FoodImageAnalysisDto" : {
+        "type" : "object",
+        "properties" : {
+          "analyzedAt" : {
+            "type" : [ "string", "null" ],
+            "format" : "date-time"
+          },
+          "createdAt" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "description" : {
+            "type" : [ "string", "null" ]
+          },
+          "error" : {
+            "type" : [ "string", "null" ]
+          },
+          "id" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "items" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/FoodImageItemDto"
+            }
+          },
+          "meal" : {
+            "type" : "string",
+            "enum" : [ "BREAKFAST", "LUNCH", "DINNER", "SNACK" ]
+          },
+          "reviewedAt" : {
+            "type" : [ "string", "null" ],
+            "format" : "date-time"
+          },
+          "status" : {
+            "type" : "string",
+            "enum" : [ "PENDING", "READY", "FAILED", "ACCEPTED", "REJECTED" ]
+          }
+        },
+        "required" : [ "createdAt", "id", "items", "meal", "status" ]
+      },
+      "FoodImageItemDto" : {
+        "type" : "object",
+        "properties" : {
+          "amount" : {
+            "type" : "number",
+            "format" : "double"
+          },
+          "food" : {
+            "oneOf" : [ {
+              "$ref" : "#/components/schemas/FoodWithPortionsDto"
+            }, {
+              "type" : "null"
+            } ]
+          },
+          "gramsPerUnit" : {
+            "type" : [ "number", "null" ],
+            "format" : "double"
+          },
+          "openFoodId" : {
+            "type" : [ "integer", "null" ],
+            "format" : "int64"
+          },
+          "query" : {
+            "type" : "string"
+          },
+          "unit" : {
+            "type" : [ "string", "null" ]
+          }
+        },
+        "required" : [ "amount", "query" ]
+      },
+      "FoodImageUsageDto" : {
+        "type" : "object",
+        "properties" : {
+          "limit" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "used" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        },
+        "required" : [ "limit", "used" ]
+      },
+      "FoodPortionDto" : {
+        "type" : "object",
+        "properties" : {
+          "grams" : {
+            "type" : "number",
+            "format" : "double"
+          },
+          "id" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "isDefault" : {
+            "type" : "boolean"
+          },
+          "label" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "grams", "id", "isDefault", "label" ]
+      },
+      "FoodWithLastEntryAndPortionsDto" : {
+        "type" : "object",
+        "properties" : {
+          "blsCode" : {
+            "type" : [ "string", "null" ]
+          },
+          "carbohydrates" : {
+            "type" : [ "number", "null" ],
+            "format" : "double"
+          },
+          "fat" : {
+            "type" : [ "number", "null" ],
+            "format" : "double"
+          },
+          "fiber" : {
+            "type" : [ "number", "null" ],
+            "format" : "double"
+          },
+          "id" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "kcal" : {
+            "type" : [ "number", "null" ],
+            "format" : "double"
+          },
+          "lastEntry" : {
+            "oneOf" : [ {
+              "$ref" : "#/components/schemas/LastEntry"
+            }, {
+              "type" : "null"
+            } ]
+          },
+          "name" : {
+            "type" : "string"
+          },
+          "portions" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/FoodPortionDto"
+            }
+          },
+          "protein" : {
+            "type" : [ "number", "null" ],
+            "format" : "double"
+          },
+          "water" : {
+            "type" : [ "number", "null" ],
+            "format" : "double"
+          }
+        },
+        "required" : [ "id", "name", "portions" ]
+      },
+      "FoodWithPortionsDto" : {
+        "type" : "object",
+        "properties" : {
+          "blsCode" : {
+            "type" : [ "string", "null" ]
+          },
+          "carbohydrates" : {
+            "type" : [ "number", "null" ],
+            "format" : "double"
+          },
+          "fat" : {
+            "type" : [ "number", "null" ],
+            "format" : "double"
+          },
+          "fiber" : {
+            "type" : [ "number", "null" ],
+            "format" : "double"
+          },
+          "id" : {
+            "type" : [ "integer", "null" ],
+            "format" : "int64"
+          },
+          "kcal" : {
+            "type" : [ "number", "null" ],
+            "format" : "double"
+          },
+          "name" : {
+            "type" : "string"
+          },
+          "portions" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/FoodPortionDto"
+            }
+          },
+          "protein" : {
+            "type" : [ "number", "null" ],
+            "format" : "double"
+          },
+          "water" : {
+            "type" : [ "number", "null" ],
+            "format" : "double"
+          }
+        },
+        "required" : [ "name", "portions" ]
+      },
+      "FriendDto" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "string"
+          },
+          "image" : {
+            "type" : [ "string", "null" ]
+          },
+          "name" : {
+            "type" : [ "string", "null" ]
+          },
+          "since" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "training" : {
+            "oneOf" : [ {
+              "$ref" : "#/components/schemas/TrainingDto"
+            }, {
+              "type" : "null"
+            } ]
+          }
+        },
+        "required" : [ "id", "since" ]
+      },
+      "FriendProfileDto" : {
+        "type" : "object",
+        "properties" : {
+          "friend" : {
+            "$ref" : "#/components/schemas/FriendDto"
+          },
+          "profile" : {
+            "$ref" : "#/components/schemas/ProfileDto"
+          }
+        },
+        "required" : [ "friend", "profile" ]
+      },
+      "FriendRequestDto" : {
+        "type" : "object",
+        "properties" : {
+          "createdAt" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "id" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "user" : {
+            "$ref" : "#/components/schemas/CalendarUserDto"
+          }
+        },
+        "required" : [ "createdAt", "id", "user" ]
+      },
+      "FriendsDto" : {
+        "type" : "object",
+        "properties" : {
+          "friends" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/FriendDto"
+            }
+          },
+          "incoming" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/FriendRequestDto"
+            }
+          },
+          "outgoing" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/FriendRequestDto"
+            }
+          }
+        },
+        "required" : [ "friends", "incoming", "outgoing" ]
+      },
+      "HealthOverviewDto" : {
+        "type" : "object",
+        "properties" : {
+          "activity" : {
+            "$ref" : "#/components/schemas/ActivityDto"
+          },
+          "date" : {
+            "type" : "string",
+            "format" : "date"
+          },
+          "heartRate" : {
+            "type" : "array",
+            "items" : {
+              "type" : "array",
+              "items" : {
+                "type" : "number",
+                "format" : "double"
+              }
+            }
+          },
+          "history" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/DayScoreDto"
+            }
+          },
+          "recovery" : {
+            "$ref" : "#/components/schemas/RecoveryDto"
+          },
+          "sleep" : {
+            "oneOf" : [ {
+              "$ref" : "#/components/schemas/SleepDto"
+            }, {
+              "type" : "null"
+            } ]
+          },
+          "strain" : {
+            "$ref" : "#/components/schemas/StrainDto"
+          },
+          "timeZone" : {
+            "type" : "string"
+          },
+          "vitals" : {
+            "$ref" : "#/components/schemas/VitalsDto"
+          },
+          "workouts" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/OverviewWorkoutDto"
+            }
+          }
+        },
+        "required" : [ "activity", "date", "heartRate", "history", "recovery", "strain", "timeZone", "vitals", "workouts" ]
+      },
+      "HealthSampleDto" : {
+        "type" : "object",
+        "properties" : {
+          "endDate" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "kind" : {
+            "type" : "string",
+            "enum" : [ "QUANTITY", "CATEGORY", "WORKOUT", "CORRELATION", "ECG", "AUDIOGRAM", "STATE_OF_MIND", "SCORED_ASSESSMENT" ]
+          },
+          "payload" : {
+            "type" : [ "object", "null" ]
+          },
+          "sourceBundleId" : {
+            "type" : [ "string", "null" ]
+          },
+          "sourceName" : {
+            "type" : [ "string", "null" ]
+          },
+          "startDate" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "type" : {
+            "type" : "string"
+          },
+          "unit" : {
+            "type" : [ "string", "null" ]
+          },
+          "uuid" : {
+            "type" : "string",
+            "format" : "uuid"
+          },
+          "value" : {
+            "type" : [ "number", "null" ],
+            "format" : "double"
+          }
+        },
+        "required" : [ "endDate", "kind", "startDate", "type", "uuid" ]
+      },
+      "HealthSyncResultDto" : {
+        "type" : "object",
+        "properties" : {
+          "count" : {
+            "type" : "integer",
+            "format" : "int32"
+          }
+        },
+        "required" : [ "count" ]
+      },
+      "HealthTypeSummaryDto" : {
+        "type" : "object",
+        "properties" : {
+          "count" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "firstDate" : {
+            "type" : [ "string", "null" ],
+            "format" : "date-time"
+          },
+          "kind" : {
+            "type" : "string",
+            "enum" : [ "QUANTITY", "CATEGORY", "WORKOUT", "CORRELATION", "ECG", "AUDIOGRAM", "STATE_OF_MIND", "SCORED_ASSESSMENT" ]
+          },
+          "lastDate" : {
+            "type" : [ "string", "null" ],
+            "format" : "date-time"
+          },
+          "lastSyncedAt" : {
+            "type" : [ "string", "null" ],
+            "format" : "date-time"
+          },
+          "type" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "count", "kind", "type" ]
+      },
+      "HealthWriteRequestDto" : {
+        "type" : "object",
+        "properties" : {
+          "createdAt" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "endDate" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "error" : {
+            "type" : [ "string", "null" ]
+          },
+          "id" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "kind" : {
+            "type" : "string",
+            "enum" : [ "QUANTITY", "CATEGORY", "WORKOUT", "CORRELATION", "ECG", "AUDIOGRAM", "STATE_OF_MIND", "SCORED_ASSESSMENT" ]
+          },
+          "metadata" : {
+            "type" : [ "object", "null" ]
+          },
+          "sampleUuid" : {
+            "type" : [ "string", "null" ],
+            "format" : "uuid"
+          },
+          "startDate" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "status" : {
+            "type" : "string",
+            "enum" : [ "PENDING", "WRITTEN", "FAILED" ]
+          },
+          "type" : {
+            "type" : "string"
+          },
+          "unit" : {
+            "type" : [ "string", "null" ]
+          },
+          "value" : {
+            "type" : [ "number", "null" ],
+            "format" : "double"
+          }
+        },
+        "required" : [ "createdAt", "endDate", "id", "kind", "startDate", "status", "type" ]
+      },
+      "Item" : {
+        "type" : "object",
+        "properties" : {
+          "amount" : {
+            "type" : "number",
+            "format" : "double"
+          },
+          "foodId" : {
+            "type" : [ "integer", "null" ],
+            "format" : "int64"
+          },
+          "gramsPerUnit" : {
+            "type" : [ "number", "null" ],
+            "format" : "double"
+          },
+          "openFoodId" : {
+            "type" : [ "integer", "null" ],
+            "format" : "int64"
+          },
+          "unit" : {
+            "type" : [ "string", "null" ]
+          }
+        },
+        "required" : [ "amount" ]
+      },
+      "LastEntry" : {
+        "type" : "object",
+        "properties" : {
+          "amount" : {
+            "type" : "number",
+            "format" : "double"
+          }
+        },
+        "required" : [ "amount" ]
+      },
+      "MealDto" : {
+        "type" : "object",
+        "properties" : {
+          "type" : {
+            "type" : "string"
+          },
+          "typeLabel" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "type", "typeLabel" ]
+      },
+      "NotificationDto" : {
+        "type" : "object",
+        "properties" : {
+          "createdAt" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "id" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "link" : {
+            "type" : [ "string", "null" ]
+          },
+          "linkLabel" : {
+            "type" : [ "string", "null" ]
+          },
+          "message" : {
+            "type" : [ "string", "null" ]
+          },
+          "readAt" : {
+            "type" : [ "string", "null" ],
+            "format" : "date-time"
+          },
+          "title" : {
+            "type" : "string"
+          },
+          "type" : {
+            "type" : "string",
+            "enum" : [ "INFO", "SUCCESS", "WARNING", "ERROR" ]
+          }
+        },
+        "required" : [ "createdAt", "id", "title", "type" ]
+      },
+      "OverviewWorkoutDto" : {
+        "type" : "object",
+        "properties" : {
+          "activityType" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "averageHeartRate" : {
+            "type" : [ "number", "null" ],
+            "format" : "double"
+          },
+          "distance" : {
+            "type" : [ "number", "null" ],
+            "format" : "double"
+          },
+          "duration" : {
+            "type" : "number",
+            "format" : "double"
+          },
+          "endDate" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "energy" : {
+            "type" : [ "number", "null" ],
+            "format" : "double"
+          },
+          "id" : {
+            "type" : "string",
+            "format" : "uuid"
+          },
+          "startDate" : {
+            "type" : "string",
+            "format" : "date-time"
+          }
+        },
+        "required" : [ "activityType", "duration", "endDate", "id", "startDate" ]
+      },
+      "PageFoodDto" : {
+        "type" : "object",
+        "properties" : {
+          "content" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/FoodDto"
+            }
+          },
+          "empty" : {
+            "type" : "boolean"
+          },
+          "first" : {
+            "type" : "boolean"
+          },
+          "last" : {
+            "type" : "boolean"
+          },
+          "number" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "numberOfElements" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "pageable" : {
+            "$ref" : "#/components/schemas/PageableObject"
+          },
+          "size" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "sort" : {
+            "$ref" : "#/components/schemas/SortObject"
+          },
+          "totalElements" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "totalPages" : {
+            "type" : "integer",
+            "format" : "int32"
+          }
+        },
+        "required" : [ "content", "empty", "first", "last", "number", "numberOfElements", "pageable", "size", "sort", "totalElements", "totalPages" ]
+      },
+      "PageableObject" : {
+        "type" : "object",
+        "properties" : {
+          "offset" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "pageNumber" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "pageSize" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "paged" : {
+            "type" : "boolean"
+          },
+          "sort" : {
+            "$ref" : "#/components/schemas/SortObject"
+          },
+          "unpaged" : {
+            "type" : "boolean"
+          }
+        },
+        "required" : [ "offset", "pageNumber", "pageSize", "paged", "sort", "unpaged" ]
+      },
+      "ProfileDto" : {
+        "type" : "object",
+        "properties" : {
+          "achievements" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/AchievementDto"
+            }
+          },
+          "calorieGoal" : {
+            "type" : [ "integer", "null" ],
+            "format" : "int32"
+          },
+          "days" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/ActivityDayDto"
+            }
+          },
+          "memberSince" : {
+            "type" : [ "string", "null" ],
+            "format" : "date-time"
+          },
+          "streak" : {
+            "$ref" : "#/components/schemas/StreakDto"
+          },
+          "today" : {
+            "type" : "string",
+            "format" : "date"
+          }
+        },
+        "required" : [ "achievements", "days", "streak", "today" ]
+      },
+      "RecoveryDto" : {
+        "type" : "object",
+        "properties" : {
+          "hrv" : {
+            "type" : [ "number", "null" ],
+            "format" : "double"
+          },
+          "hrvBaseline" : {
+            "type" : [ "number", "null" ],
+            "format" : "double"
+          },
+          "oxygenSaturation" : {
+            "type" : [ "number", "null" ],
+            "format" : "double"
+          },
+          "respiratoryRate" : {
+            "type" : [ "number", "null" ],
+            "format" : "double"
+          },
+          "respiratoryRateBaseline" : {
+            "type" : [ "number", "null" ],
+            "format" : "double"
+          },
+          "restingHeartRate" : {
+            "type" : [ "number", "null" ],
+            "format" : "double"
+          },
+          "restingHeartRateBaseline" : {
+            "type" : [ "number", "null" ],
+            "format" : "double"
+          },
+          "score" : {
+            "type" : [ "integer", "null" ],
+            "format" : "int32"
+          },
+          "wristTemperatureDeviation" : {
+            "type" : [ "number", "null" ],
+            "format" : "double"
+          }
+        }
+      },
+      "RunDetailDto" : {
+        "type" : "object",
+        "properties" : {
+          "points" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/RunPointDto"
+            }
+          },
+          "splits" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/RunSplitDto"
+            }
+          },
+          "summary" : {
+            "$ref" : "#/components/schemas/RunSummaryDto"
+          }
+        },
+        "required" : [ "points", "splits", "summary" ]
+      },
+      "RunPointDto" : {
+        "type" : "object",
+        "properties" : {
+          "distance" : {
+            "type" : "number",
+            "format" : "double"
+          },
+          "elevation" : {
+            "type" : [ "number", "null" ],
+            "format" : "double"
+          },
+          "heartRate" : {
+            "type" : [ "number", "null" ],
+            "format" : "double"
+          },
+          "latitude" : {
+            "type" : "number",
+            "format" : "double"
+          },
+          "longitude" : {
+            "type" : "number",
+            "format" : "double"
+          },
+          "pace" : {
+            "type" : [ "number", "null" ],
+            "format" : "double"
+          },
+          "time" : {
+            "type" : "number",
+            "format" : "double"
+          }
+        },
+        "required" : [ "distance", "latitude", "longitude", "time" ]
+      },
+      "RunSplitDto" : {
+        "type" : "object",
+        "properties" : {
+          "distance" : {
+            "type" : "number",
+            "format" : "double"
+          },
+          "heartRate" : {
+            "type" : [ "number", "null" ],
+            "format" : "double"
+          },
+          "index" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "time" : {
+            "type" : "number",
+            "format" : "double"
+          }
+        },
+        "required" : [ "distance", "index", "time" ]
+      },
+      "RunSummaryDto" : {
+        "type" : "object",
+        "properties" : {
+          "averageHeartRate" : {
+            "type" : [ "number", "null" ],
+            "format" : "double"
+          },
+          "bestEfforts" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/BestEffortDto"
+            }
+          },
+          "cadence" : {
+            "type" : [ "number", "null" ],
+            "format" : "double"
+          },
+          "distance" : {
+            "type" : "number",
+            "format" : "double"
+          },
+          "duration" : {
+            "type" : "number",
+            "format" : "double"
+          },
+          "elevationGain" : {
+            "type" : [ "number", "null" ],
+            "format" : "double"
+          },
+          "endDate" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "energy" : {
+            "type" : [ "number", "null" ],
+            "format" : "double"
+          },
+          "id" : {
+            "type" : "string",
+            "format" : "uuid"
+          },
+          "indoor" : {
+            "type" : "boolean"
+          },
+          "maxHeartRate" : {
+            "type" : [ "number", "null" ],
+            "format" : "double"
+          },
+          "name" : {
+            "type" : "string"
+          },
+          "sourceName" : {
+            "type" : [ "string", "null" ]
+          },
+          "startDate" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "thumbnail" : {
+            "type" : "array",
+            "items" : {
+              "type" : "array",
+              "items" : {
+                "type" : "number",
+                "format" : "double"
+              }
+            }
+          },
+          "timeZone" : {
+            "type" : "string"
+          },
+          "zoneSeconds" : {
+            "type" : "array",
+            "items" : {
+              "type" : "number",
+              "format" : "double"
+            }
+          }
+        },
+        "required" : [ "bestEfforts", "distance", "duration", "endDate", "id", "indoor", "name", "startDate", "thumbnail", "timeZone", "zoneSeconds" ]
+      },
+      "SaveUserSettingsDto" : {
+        "type" : "object",
+        "properties" : {
+          "calorieGoal" : {
+            "type" : [ "integer", "null" ],
+            "format" : "int32"
+          }
+        }
+      },
+      "SearchFoodResponseDto" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : [ "integer", "null" ],
+            "format" : "int64"
+          },
+          "name" : {
+            "type" : "string"
+          },
+          "openFoodId" : {
+            "type" : [ "integer", "null" ],
+            "format" : "int64"
+          }
+        },
+        "required" : [ "name" ]
+      },
+      "SendFriendRequestDto" : {
+        "type" : "object",
+        "properties" : {
+          "userId" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "userId" ]
+      },
+      "SessionCardioDto" : {
+        "type" : "object",
+        "properties" : {
+          "done" : {
+            "type" : "boolean"
+          },
+          "minutes" : {
+            "type" : "integer",
+            "format" : "int32"
+          }
+        },
+        "required" : [ "done", "minutes" ]
+      },
+      "SessionExerciseDto" : {
+        "type" : "object",
+        "properties" : {
+          "cardio" : {
+            "oneOf" : [ {
+              "$ref" : "#/components/schemas/SessionCardioDto"
+            }, {
+              "type" : "null"
+            } ]
+          },
+          "exerciseId" : {
+            "type" : [ "integer", "null" ],
+            "format" : "int64"
+          },
+          "name" : {
+            "type" : "string"
+          },
+          "note" : {
+            "type" : [ "string", "null" ]
+          },
+          "sets" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/SessionSetDto"
+            }
+          }
+        },
+        "required" : [ "name", "sets" ]
+      },
+      "SessionSetDto" : {
+        "type" : "object",
+        "properties" : {
+          "done" : {
+            "type" : "boolean"
+          },
+          "reps" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "restSeconds" : {
+            "type" : [ "integer", "null" ],
+            "format" : "int32"
+          },
+          "rpe" : {
+            "type" : [ "integer", "null" ],
+            "format" : "int32"
+          },
+          "weightKg" : {
+            "type" : "number",
+            "format" : "double"
+          }
+        },
+        "required" : [ "done", "reps", "weightKg" ]
+      },
+      "SetDto" : {
+        "type" : "object",
+        "properties" : {
+          "order" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "reps" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "restSeconds" : {
+            "type" : [ "integer", "null" ],
+            "format" : "int32"
+          },
+          "rpe" : {
+            "type" : [ "integer", "null" ],
+            "format" : "int32"
+          },
+          "weightKg" : {
+            "type" : "number",
+            "format" : "double"
+          }
+        },
+        "required" : [ "order", "reps", "weightKg" ]
+      },
+      "ShareWorkoutDto" : {
+        "type" : "object",
+        "properties" : {
+          "userIds" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          }
+        },
+        "required" : [ "userIds" ]
+      },
+      "SleepDto" : {
+        "type" : "object",
+        "properties" : {
+          "asleep" : {
+            "type" : "number",
+            "format" : "double"
+          },
+          "awake" : {
+            "type" : "number",
+            "format" : "double"
+          },
+          "core" : {
+            "type" : "number",
+            "format" : "double"
+          },
+          "deep" : {
+            "type" : "number",
+            "format" : "double"
+          },
+          "end" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "inBed" : {
+            "type" : "number",
+            "format" : "double"
+          },
+          "need" : {
+            "type" : "number",
+            "format" : "double"
+          },
+          "oxygenSaturation" : {
+            "type" : [ "number", "null" ],
+            "format" : "double"
+          },
+          "rem" : {
+            "type" : "number",
+            "format" : "double"
+          },
+          "respiratoryRate" : {
+            "type" : [ "number", "null" ],
+            "format" : "double"
+          },
+          "score" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "stages" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/SleepStageDto"
+            }
+          },
+          "start" : {
+            "type" : "string",
+            "format" : "date-time"
+          }
+        },
+        "required" : [ "asleep", "awake", "core", "deep", "end", "inBed", "need", "rem", "score", "stages", "start" ]
+      },
+      "SleepStageDto" : {
+        "type" : "object",
+        "properties" : {
+          "end" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "stage" : {
+            "type" : "string"
+          },
+          "start" : {
+            "type" : "string",
+            "format" : "date-time"
+          }
+        },
+        "required" : [ "end", "stage", "start" ]
+      },
+      "SliceSearchFoodResponseDto" : {
+        "type" : "object",
+        "properties" : {
+          "content" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/SearchFoodResponseDto"
+            }
+          },
+          "empty" : {
+            "type" : "boolean"
+          },
+          "first" : {
+            "type" : "boolean"
+          },
+          "last" : {
+            "type" : "boolean"
+          },
+          "number" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "numberOfElements" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "pageable" : {
+            "$ref" : "#/components/schemas/PageableObject"
+          },
+          "size" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "sort" : {
+            "$ref" : "#/components/schemas/SortObject"
+          }
+        },
+        "required" : [ "content", "empty", "first", "last", "number", "numberOfElements", "pageable", "size", "sort" ]
+      },
+      "SortObject" : {
+        "type" : "object",
+        "properties" : {
+          "empty" : {
+            "type" : "boolean"
+          },
+          "sorted" : {
+            "type" : "boolean"
+          },
+          "unsorted" : {
+            "type" : "boolean"
+          }
+        },
+        "required" : [ "empty", "sorted", "unsorted" ]
+      },
+      "StrainDto" : {
+        "type" : "object",
+        "properties" : {
+          "averageHeartRate" : {
+            "type" : [ "number", "null" ],
+            "format" : "double"
+          },
+          "load" : {
+            "type" : "number",
+            "format" : "double"
+          },
+          "maxHeartRate" : {
+            "type" : "number",
+            "format" : "double"
+          },
+          "peakHeartRate" : {
+            "type" : [ "number", "null" ],
+            "format" : "double"
+          },
+          "score" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "zoneSeconds" : {
+            "type" : "array",
+            "items" : {
+              "type" : "number",
+              "format" : "double"
+            }
+          }
+        },
+        "required" : [ "load", "maxHeartRate", "score", "zoneSeconds" ]
+      },
+      "StreakDto" : {
+        "type" : "object",
+        "properties" : {
+          "current" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "record" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "today" : {
+            "type" : "boolean"
+          }
+        },
+        "required" : [ "current", "record", "today" ]
+      },
+      "StrengthItemDto" : {
+        "allOf" : [ {
+          "$ref" : "#/components/schemas/ExerciseItem"
+        }, {
+          "type" : "object",
+          "properties" : {
+            "exercise" : {
+              "$ref" : "#/components/schemas/ExerciseDto"
+            },
+            "sets" : {
+              "type" : "array",
+              "items" : {
+                "$ref" : "#/components/schemas/SetDto"
+              }
+            }
+          }
+        } ]
+      },
+      "TrackedFoodDto" : {
+        "type" : "object",
+        "properties" : {
+          "amount" : {
+            "type" : "number",
+            "format" : "double"
+          },
+          "createDate" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "food" : {
+            "$ref" : "#/components/schemas/FoodDto"
+          },
+          "id" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "meal" : {
+            "$ref" : "#/components/schemas/MealDto"
+          },
+          "portion" : {
+            "oneOf" : [ {
+              "$ref" : "#/components/schemas/FoodPortionDto"
+            }, {
+              "type" : "null"
+            } ]
+          }
+        },
+        "required" : [ "amount", "createDate", "food", "id", "meal" ]
+      },
+      "TrainingDto" : {
+        "type" : "object",
+        "properties" : {
+          "cheered" : {
+            "type" : "boolean"
+          },
+          "name" : {
+            "type" : [ "string", "null" ]
+          },
+          "sessionId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "startedAt" : {
+            "type" : "string",
+            "format" : "date-time"
+          }
+        },
+        "required" : [ "cheered", "sessionId", "startedAt" ]
+      },
+      "UnreadCountDto" : {
+        "type" : "object",
+        "properties" : {
+          "count" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        },
+        "required" : [ "count" ]
+      },
+      "UpdateCalendarEventDto" : {
+        "type" : "object",
+        "properties" : {
+          "endDate" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "id" : {
+            "type" : [ "integer", "null" ],
+            "format" : "int64"
+          },
+          "inviteeIds" : {
+            "type" : [ "array", "null" ],
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "occurrenceStartDate" : {
+            "type" : [ "string", "null" ],
+            "format" : "date-time"
+          },
+          "recurrence" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "DAILY", "WEEKLY", "MONTHLY" ]
+          },
+          "recurrenceEnd" : {
+            "type" : [ "string", "null" ],
+            "format" : "date-time"
+          },
+          "startDate" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "title" : {
+            "type" : "string"
+          },
+          "workoutId" : {
+            "type" : [ "integer", "null" ],
+            "format" : "int64"
+          }
+        },
+        "required" : [ "endDate", "startDate", "title" ]
+      },
+      "UpdateFoodDto" : {
+        "type" : "object",
+        "properties" : {
+          "blsCode" : {
+            "type" : [ "string", "null" ]
+          },
+          "carbohydrates" : {
+            "type" : [ "number", "null" ],
+            "format" : "double"
+          },
+          "fat" : {
+            "type" : [ "number", "null" ],
+            "format" : "double"
+          },
+          "fiber" : {
+            "type" : [ "number", "null" ],
+            "format" : "double"
+          },
+          "id" : {
+            "type" : [ "integer", "null" ],
+            "format" : "int64"
+          },
+          "kcal" : {
+            "type" : [ "number", "null" ],
+            "format" : "double"
+          },
+          "name" : {
+            "type" : "string"
+          },
+          "portions" : {
+            "type" : [ "array", "null" ],
+            "items" : {
+              "$ref" : "#/components/schemas/UpdateFoodPortionDto"
+            }
+          },
+          "protein" : {
+            "type" : [ "number", "null" ],
+            "format" : "double"
+          },
+          "water" : {
+            "type" : [ "number", "null" ],
+            "format" : "double"
+          }
+        },
+        "required" : [ "name" ]
+      },
+      "UpdateFoodPortionDto" : {
+        "type" : "object",
+        "properties" : {
+          "grams" : {
+            "type" : "number",
+            "format" : "double"
+          },
+          "id" : {
+            "type" : [ "integer", "null" ],
+            "format" : "int64"
+          },
+          "isDefault" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "label" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "grams", "label" ]
+      },
+      "UpdateWorkoutSessionDto" : {
+        "type" : "object",
+        "properties" : {
+          "exercises" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/SessionExerciseDto"
+            }
+          },
+          "name" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "exercises", "name" ]
+      },
+      "UploadHealthSamplesDto" : {
+        "type" : "object",
+        "properties" : {
+          "fullSyncId" : {
+            "type" : [ "string", "null" ],
+            "format" : "uuid"
+          },
+          "samples" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/HealthSampleDto"
+            }
+          }
+        },
+        "required" : [ "samples" ]
+      },
+      "UserProfileDto" : {
+        "type" : "object",
+        "properties" : {
+          "email" : {
+            "type" : [ "string", "null" ]
+          },
+          "id" : {
+            "type" : "string"
+          },
+          "image" : {
+            "type" : [ "string", "null" ]
+          },
+          "name" : {
+            "type" : [ "string", "null" ]
+          }
+        },
+        "required" : [ "id" ]
+      },
+      "UserSettingsDto" : {
+        "type" : "object",
+        "properties" : {
+          "calorieGoal" : {
+            "type" : [ "integer", "null" ],
+            "format" : "int32"
+          },
+          "userId" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "userId" ]
+      },
+      "VitalsDto" : {
+        "type" : "object",
+        "properties" : {
+          "bodyMass" : {
+            "type" : [ "number", "null" ],
+            "format" : "double"
+          },
+          "bodyMassChange" : {
+            "type" : [ "number", "null" ],
+            "format" : "double"
+          },
+          "vo2Max" : {
+            "type" : [ "number", "null" ],
+            "format" : "double"
+          }
+        }
+      },
+      "WorkoutDto" : {
+        "type" : "object",
+        "properties" : {
+          "editable" : {
+            "type" : "boolean"
+          },
+          "id" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "name" : {
+            "type" : "string"
+          },
+          "ownerName" : {
+            "type" : [ "string", "null" ]
+          },
+          "sharedWith" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/CalendarUserDto"
+            }
+          },
+          "sharedWithMe" : {
+            "type" : "boolean"
+          },
+          "workoutExercises" : {
+            "type" : "array",
+            "items" : {
+              "oneOf" : [ {
+                "$ref" : "#/components/schemas/CardioItemDto"
+              }, {
+                "$ref" : "#/components/schemas/StrengthItemDto"
+              } ]
+            }
+          }
+        },
+        "required" : [ "editable", "id", "name", "sharedWith", "sharedWithMe", "workoutExercises" ]
+      },
+      "WorkoutSessionDto" : {
+        "type" : "object",
+        "properties" : {
+          "endedAt" : {
+            "type" : [ "string", "null" ],
+            "format" : "date-time"
+          },
+          "exercises" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/SessionExerciseDto"
+            }
+          },
+          "id" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "name" : {
+            "type" : "string"
+          },
+          "startedAt" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "workoutId" : {
+            "type" : [ "integer", "null" ],
+            "format" : "int64"
+          }
+        },
+        "required" : [ "exercises", "id", "name", "startedAt" ]
+      }
+    },
+    "securitySchemes" : {
+      "zitadel" : {
+        "bearerFormat" : "JWT",
+        "scheme" : "bearer",
+        "type" : "http"
+      }
+    }
+  }
+}

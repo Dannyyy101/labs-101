@@ -1,5 +1,7 @@
 package com.labs_101.backend.dtos.exercises;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.ArrayList;
 
 import com.labs_101.backend.dtos.BodyPartDto;
@@ -14,7 +16,7 @@ import lombok.Setter;
 public class ExerciseDto {
     private Long id;
     private String name;
-    private String description;
+    private @Nullable String description;
     private String type;
     private ArrayList<BodyPartDto> bodyParts;
 }

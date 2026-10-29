@@ -29,6 +29,8 @@ import com.labs_101.backend.security.CurrentUser;
 
 import tools.jackson.databind.JsonNode;
 
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+
 @RestController()
 @RequestMapping("/api/users/me/health")
 public class HealthController {
@@ -57,6 +59,7 @@ public class HealthController {
     }
 
     @PutMapping("/characteristics")
+    @ApiResponse(responseCode = "204")
     public ResponseEntity<Void> saveCharacteristics(@CurrentUser String userId, @RequestBody JsonNode payload) {
         healthService.saveCharacteristics(userId, payload);
         return ResponseEntity.noContent().build();
