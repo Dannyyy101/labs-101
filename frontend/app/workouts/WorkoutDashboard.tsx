@@ -2,7 +2,7 @@
 
 import { Card, CardHead, Delta, KpiGrid, Note, Period, PERIODS, periodRange, isInPeriod, Segmented } from "@/components/dashboard"
 import { cn } from "@/lib/utils"
-import { Workout, WorkoutSession } from "@/utils/types/types"
+import { Workout, WorkoutExerciseType, WorkoutSession } from "@/utils/types/types"
 import { Exercise } from "@/utils/types/workoutTypes"
 import { ChevronRight, Dumbbell, Eye, Pencil, Play, Plus, Trash2, Trophy } from "lucide-react"
 import Link from "next/link"
@@ -200,6 +200,7 @@ function Templates({ workouts, sessions, exercises, blocked }: { workouts: Worko
     return <div className="-mx-4 flex snap-x snap-mandatory scroll-px-4 gap-3 overflow-x-auto px-4 pb-1 [scrollbar-width:none] sm:mx-0 sm:grid sm:grid-cols-2 sm:overflow-visible sm:px-0 sm:pb-0 xl:grid-cols-3">
         {workouts.map((workout) => {
             const sets = workout.workoutExercises.reduce((sum, e) => sum + e.sets.length, 0)
+            const cardio = workout.workoutExercises.reduce((sum, e) => sum + (e.type === WorkoutExerciseType.CARDIO_EXERCISE ? e.minutes : 0), 0)
             const last = sessions.find((s) => s.workoutId === workout.id)
             const muscles = setsPerMuscle(workout.workoutExercises.map((e) => ({ exerciseId: e.exercise.id, sets: e.sets.length })), exercises)
             return <div key={workout.id} className="flex w-[82%] flex-none snap-start flex-col rounded-[14px] bg-muted/60 p-4 sm:w-auto">
@@ -208,7 +209,9 @@ function Templates({ workouts, sessions, exercises, blocked }: { workouts: Worko
                         <div className="truncate text-[17px] font-semibold">{workout.name}</div>
                         <div className="truncate text-sm text-muted-foreground">
                             {workout.workoutExercises.length} {workout.workoutExercises.length === 1 ? "Übung" : "Übungen"} · {sets} {sets === 1 ? "Satz" : "Sätze"}
-                            {!workout.editable && workout.ownerName && ` · von ${workout.ownerName}`}
+                            {cardio > 0 && ` · ${cardio} min Cardio`}
+                            {!workout.editable && workout.ownerName && ` · ${workout.sharedWithMe ? "geteilt von" : "von"} ${workout.ownerName}`}
+                            {workout.editable && workout.sharedWith.length > 0 && ` · geteilt mit ${workout.sharedWith.length}`}
                         </div>
                     </div>
                     <Link href={`/workouts/${workout.id}`} aria-label={`${workout.name} ${workout.editable ? "bearbeiten" : "ansehen"}`}
@@ -315,6 +318,7 @@ function SessionRow({ session, expanded, onClick }: { session: WorkoutSession, e
                         {exercise.note && <div className="text-sm text-muted-foreground">{exercise.note}</div>}
                     </div>
                     <div className="flex flex-wrap gap-1.5">
+                        {exercise.cardio && <span className="rounded-lg bg-[#0a84ff]/12 px-2 py-0.5 text-sm tabular-nums">{exercise.cardio.minutes} min</span>}
                         {exercise.sets.filter((s) => s.done).map((set, j) =>
                             <span key={j} className="rounded-lg bg-muted px-2 py-0.5 text-sm tabular-nums">{formatSet(set)}</span>)}
                     </div>

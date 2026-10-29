@@ -56,6 +56,25 @@ export async function saveWorkout(workout: { id: number | null, name: string, wo
     throw new Error("Error saving workout")
 }
 
+/** Shares the template with exactly these friends, only its creator can. */
+export async function shareWorkout(id: number, userIds: string[]): Promise<Workout> {
+    const response = await backendFetch(`${BACKEND_URL}/workouts/${id}/shares`, {
+        method: "PUT", body: JSON.stringify({ userIds }), headers: JSON_HEADERS
+    })
+
+    if (!response.ok) throw new Error(`Error sharing workout ${id}`)
+    revalidatePath("/workouts")
+    return await response.json() as Workout
+}
+
+/** Removes a template a friend shared from the own list. */
+export async function leaveWorkout(id: number): Promise<void> {
+    const response = await backendFetch(`${BACKEND_URL}/workouts/${id}/shares/me`, { method: "DELETE" })
+
+    if (!response.ok) throw new Error(`Error removing shared workout ${id}`)
+    revalidatePath("/workouts")
+}
+
 export async function deleteWorkout(id: number): Promise<void> {
     const response = await backendFetch(`${BACKEND_URL}/workouts/${id}`, { method: "DELETE" })
 

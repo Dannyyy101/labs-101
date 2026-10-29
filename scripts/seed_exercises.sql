@@ -213,6 +213,14 @@ WITH exercises (name, description, type) AS (
     'Running'
 ),
 
+-- Cardio an Geräten, im Training nur mit Minuten
+('Laufband', 'Laufen oder Gehen auf dem Laufband', 'Cardio'),
+    ('Rudergerät', 'Rudern an der Maschine', 'Cardio'),
+    ('Fahrradergometer', 'Radfahren auf dem Ergometer', 'Cardio'),
+    ('Crosstrainer', 'Ganzkörper-Ausdauer am Crosstrainer', 'Cardio'),
+    ('Stepper', 'Treppensteigen an der Maschine', 'Cardio'),
+    ('Seilspringen', 'Springseil, locker oder in Intervallen', 'Cardio'),
+
 -- Schwimmen
 (
     'Kraulschwimmen',

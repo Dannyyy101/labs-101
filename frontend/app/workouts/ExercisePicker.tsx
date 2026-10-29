@@ -7,8 +7,8 @@ import { useMemo, useState } from "react"
 import { MUSCLES } from "./stats"
 
 /** Search through all exercises and pick one, the dialog stays open to add several in a row. */
-export default function ExercisePicker({ exercises, onPick, children, className }: {
-    exercises: Exercise[], onPick: (exercise: Exercise) => void, children: React.ReactNode, className?: string
+export default function ExercisePicker({ exercises, onPick, children, className, title = "Übung hinzufügen" }: {
+    exercises: Exercise[], onPick: (exercise: Exercise) => void, children: React.ReactNode, className?: string, title?: string
 }) {
     const [open, setOpen] = useState(false)
     const [query, setQuery] = useState("")
@@ -32,7 +32,7 @@ export default function ExercisePicker({ exercises, onPick, children, className 
         <Dialog open={open} onOpenChange={changeOpen}>
             <DialogContent className="gap-4 sm:max-w-lg">
                 <DialogHeader>
-                    <DialogTitle>Übung hinzufügen</DialogTitle>
+                    <DialogTitle>{title}</DialogTitle>
                 </DialogHeader>
                 <label className="flex items-center gap-2 rounded-[10px] bg-muted px-3 py-2">
                     <Search className="size-4 text-muted-foreground" />

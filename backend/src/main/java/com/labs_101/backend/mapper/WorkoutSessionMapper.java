@@ -2,6 +2,7 @@ package com.labs_101.backend.mapper;
 
 import java.util.List;
 
+import com.labs_101.backend.dtos.workout.session.SessionCardioDto;
 import com.labs_101.backend.dtos.workout.session.SessionExerciseDto;
 import com.labs_101.backend.dtos.workout.session.SessionSetDto;
 import com.labs_101.backend.dtos.workout.session.WorkoutSessionDto;
@@ -21,17 +22,21 @@ public class WorkoutSessionMapper {
                         .map((entry) -> new SessionExerciseDto(entry.exerciseId(), entry.name(), entry.note(),
                                 entry.sets().stream()
                                         .map((set) -> new SessionSetDto(set.reps(), set.weightKg(), set.rpe(), set.done(), set.restSeconds()))
-                                        .toList()))
+                                        .toList(),
+                                entry.cardio() == null ? null : new SessionCardioDto(entry.cardio().minutes(), entry.cardio().done())))
                         .toList());
     }
 
     public static WorkoutSession.Log toLog(List<SessionExerciseDto> exercises) {
         return new WorkoutSession.Log(exercises.stream()
                 .map((exercise) -> new WorkoutSession.Entry(exercise.exerciseId(), exercise.name(), note(exercise.note()),
-                        exercise.sets() == null ? List.of()
+                        // cardio has no sets
+                        exercise.sets() == null || exercise.cardio() != null ? List.of()
                                 : exercise.sets().stream()
                                         .map((set) -> new WorkoutSession.Set(set.reps(), set.weightKg(), set.rpe(), set.done(), set.restSeconds()))
-                                        .toList()))
+                                        .toList(),
+                        exercise.cardio() == null ? null
+                                : new WorkoutSession.Cardio(Math.max(0, exercise.cardio().minutes()), exercise.cardio().done())))
                 .toList());
     }
 

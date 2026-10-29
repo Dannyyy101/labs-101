@@ -3,6 +3,7 @@ import SwiftUI
 /// Picks an exercise for the running workout, searchable by name and muscle.
 struct ExercisePickerView: View {
     let exercises: [Exercise]
+    var title: LocalizedStringKey = "Übung hinzufügen"
     let onPick: (Exercise) -> Void
 
     @Environment(\.dismiss) private var dismiss
@@ -43,7 +44,7 @@ struct ExercisePickerView: View {
             }
             .searchable(text: $query, placement: .navigationBarDrawer(displayMode: .always), prompt: "Übung suchen…")
             .autocorrectionDisabled()
-            .navigationTitle("Übung hinzufügen")
+            .navigationTitle(title)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {

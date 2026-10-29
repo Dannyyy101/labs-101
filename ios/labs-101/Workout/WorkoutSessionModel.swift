@@ -57,18 +57,26 @@ final class WorkoutSessionModel {
 
     // MARK: Editing
 
-    /// Starts with the sets and the note of last time, or three empty sets.
+    /// Starts with the sets and the note of last time, or three empty sets. Cardio starts with the minutes of last time.
     func add(_ exercise: Exercise, history: [WorkoutSession]) {
+        let note = WorkoutStats.lastNote(of: exercise.id, in: history)
+        if exercise.isCardio {
+            let minutes = WorkoutStats.lastCardioMinutes(of: exercise.id, in: history) ?? WorkoutStats.defaultCardioMinutes
+            exercises.append(SessionExercise(exerciseId: exercise.id, name: exercise.name, note: note, sets: [],
+                                             cardio: SessionCardio(minutes: minutes, done: false)))
+            return
+        }
         let last = WorkoutStats.lastSets(of: exercise.id, in: history) ?? []
+        // every set needs its own id, the same set repeated linked their weight fields and check marks
         let sets = last.isEmpty
-            ? Array(repeating: SessionSet(reps: 10, weightKg: 0), count: 3)
+            ? (0..<3).map { _ in SessionSet(reps: 10, weightKg: 0) }
             : last.map { SessionSet(reps: $0.reps, weightKg: $0.weightKg, restSeconds: $0.rest) }
-        exercises.append(SessionExercise(exerciseId: exercise.id, name: exercise.name,
-                                         note: WorkoutStats.lastNote(of: exercise.id, in: history), sets: sets))
+        exercises.append(SessionExercise(exerciseId: exercise.id, name: exercise.name, note: note, sets: sets))
     }
 
     func addSet(to exerciseID: SessionExercise.ID) {
-        guard let index = exercises.firstIndex(where: { $0.id == exerciseID }) else { return }
+        // cardio has minutes, no sets
+        guard let index = exercises.firstIndex(where: { $0.id == exerciseID }), exercises[index].cardio == nil else { return }
         let last = exercises[index].sets.last
         exercises[index].sets.append(SessionSet(reps: last?.reps ?? 10, weightKg: last?.weightKg ?? 0, restSeconds: last?.rest ?? WorkoutStats.defaultRest))
     }

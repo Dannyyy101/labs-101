@@ -16,7 +16,8 @@ export interface Result<T> {
 export enum WorkoutExerciseType {
     STRENGTH_EXERCISE = "STRENGTH_EXERCISE",
     RUN_EXERCISE = "RUN_EXERCISE",
-    SWIMMING_EXERCISE = "SWIMMING_EXERCISE"
+    SWIMMING_EXERCISE = "SWIMMING_EXERCISE",
+    CARDIO_EXERCISE = "CARDIO_EXERCISE"
 }
 
 export interface Workout {
@@ -27,9 +28,19 @@ export interface Workout {
     ownerName: string | null
     // only the creator can change or delete the template
     editable: boolean
+    // a friend shared the template with the user
+    sharedWithMe: boolean
+    // the friends the template is shared with, only filled for its creator
+    sharedWith: WorkoutUser[]
 }
 
-export type WorkoutExercise = StrengthExercise
+export interface WorkoutUser {
+    id: string
+    name: string | null
+    image: string | null
+}
+
+export type WorkoutExercise = StrengthExercise | CardioExercise
 
 export interface BaseWorkoutExercise {
     type: WorkoutExerciseType
@@ -38,6 +49,14 @@ export interface BaseWorkoutExercise {
 
 export interface StrengthExercise extends BaseWorkoutExercise {
     type: WorkoutExerciseType.STRENGTH_EXERCISE
+    sets: ExerciseSet[]
+}
+
+// cardio like running or rowing, only with its minutes
+export interface CardioExercise extends BaseWorkoutExercise {
+    type: WorkoutExerciseType.CARDIO_EXERCISE
+    minutes: number
+    // always empty, older apps expect sets
     sets: ExerciseSet[]
 }
 
@@ -69,6 +88,14 @@ export interface SessionExercise {
     // a short note of the user, e.g. the seat height, null when there is none
     note: string | null
     sets: SessionSet[]
+    // minutes of cardio like running or rowing, null for a strength exercise with sets
+    cardio: SessionCardio | null
+}
+
+// only done cardio counts, like only done sets
+export interface SessionCardio {
+    minutes: number
+    done: boolean
 }
 
 export interface SessionSet {

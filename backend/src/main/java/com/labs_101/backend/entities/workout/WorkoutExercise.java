@@ -11,6 +11,7 @@ import org.hibernate.type.SqlTypes;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.labs_101.backend.entities.Exercise;
+import com.labs_101.backend.entities.workout.workoutExercises.CardioItem;
 import com.labs_101.backend.entities.workout.workoutExercises.StrengthItem;
 
 import jakarta.persistence.Column;
@@ -76,6 +77,7 @@ public abstract class WorkoutExercise<T extends WorkoutExercise.IExercise> {
     @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
     @JsonSubTypes({
             @JsonSubTypes.Type(value = StrengthItem.Settings.class, name = "STRENGTH"),
+            @JsonSubTypes.Type(value = CardioItem.Settings.class, name = "CARDIO"),
     })
     public interface IExercise {
     }
