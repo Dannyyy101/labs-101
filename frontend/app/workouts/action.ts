@@ -1,82 +1,62 @@
 'use server'
 
-import { BACKEND_URL } from "@/utils/constants"
-import { backendFetch } from "@/utils/backend"
+import { api } from "@/lib/api/client"
 import { SessionExercise, Workout, WorkoutExercise, WorkoutSession } from "@/utils/types/types"
 import { revalidatePath } from "next/cache"
-
-const JSON_HEADERS = { 'Content-Type': 'application/json' }
-
-const sessionsUrl = async (path = "") => `${BACKEND_URL}/users/me/workout-sessions${path}`
 
 // MARK: templates
 
 export async function getAllWorkouts(): Promise<Workout[]> {
-    const url = new URL(BACKEND_URL + "/workouts")
+    const { data } = await api.GET("/api/workouts")
 
-    const response = await backendFetch(url.toString(), { cache: "no-store" })
-
-    if (response.ok) {
-        return await response.json() as Workout[]
-    }
-
-    throw new Error("Error fetching workouts")
+    if (!data) throw new Error("Error fetching workouts")
+    return data
 }
 
 export async function getWorkoutById(id: number): Promise<Workout> {
-    const url = new URL(`${BACKEND_URL}/workouts/${id}`)
+    const { data } = await api.GET("/api/workouts/{id}", { params: { path: { id } } })
 
-    const response = await backendFetch(url.toString(), { cache: "no-store" })
-
-    if (response.ok) {
-        return await response.json() as Workout
-    }
-
-    throw new Error(`Error fetching workout with id ${id}`)
+    if (!data) throw new Error(`Error fetching workout with id ${id}`)
+    return data
 }
 
 /** Creates the workout without an id, otherwise replaces it. */
 export async function saveWorkout(workout: { id: number | null, name: string, workoutExercises: WorkoutExercise[] }): Promise<Workout> {
-    const body = JSON.stringify({
+    const body = {
         name: workout.name,
         exercises: workout.workoutExercises.map((e) => ({
             ...e,
             sets: e.sets.map((set, order) => ({ ...set, order })),
         })),
-    })
-    const response = workout.id == null
-        ? await backendFetch(`${BACKEND_URL}/workouts`, { method: "POST", body, headers: JSON_HEADERS })
-        : await backendFetch(`${BACKEND_URL}/workouts/${workout.id}`, { method: "PUT", body, headers: JSON_HEADERS })
-
-    if (response.ok) {
-        revalidatePath("/workouts")
-        return await response.json() as Workout
     }
+    const { data } = workout.id == null
+        ? await api.POST("/api/workouts", { body })
+        : await api.PUT("/api/workouts/{id}", { params: { path: { id: workout.id } }, body })
 
-    throw new Error("Error saving workout")
+    if (!data) throw new Error("Error saving workout")
+    revalidatePath("/workouts")
+    return data
 }
 
 /** Shares the template with exactly these friends, only its creator can. */
 export async function shareWorkout(id: number, userIds: string[]): Promise<Workout> {
-    const response = await backendFetch(`${BACKEND_URL}/workouts/${id}/shares`, {
-        method: "PUT", body: JSON.stringify({ userIds }), headers: JSON_HEADERS
-    })
+    const { data } = await api.PUT("/api/workouts/{id}/shares", { params: { path: { id } }, body: { userIds } })
 
-    if (!response.ok) throw new Error(`Error sharing workout ${id}`)
+    if (!data) throw new Error(`Error sharing workout ${id}`)
     revalidatePath("/workouts")
-    return await response.json() as Workout
+    return data
 }
 
 /** Removes a template a friend shared from the own list. */
 export async function leaveWorkout(id: number): Promise<void> {
-    const response = await backendFetch(`${BACKEND_URL}/workouts/${id}/shares/me`, { method: "DELETE" })
+    const { response } = await api.DELETE("/api/workouts/{id}/shares/me", { params: { path: { id } } })
 
     if (!response.ok) throw new Error(`Error removing shared workout ${id}`)
     revalidatePath("/workouts")
 }
 
 export async function deleteWorkout(id: number): Promise<void> {
-    const response = await backendFetch(`${BACKEND_URL}/workouts/${id}`, { method: "DELETE" })
+    const { response } = await api.DELETE("/api/workouts/{id}", { params: { path: { id } } })
 
     if (!response.ok) throw new Error(`Error deleting workout ${id}`)
     revalidatePath("/workouts")
@@ -86,35 +66,25 @@ export async function deleteWorkout(id: number): Promise<void> {
 
 /** Finished workouts started in the range, newest first. */
 export async function getSessions(from: Date, to: Date): Promise<WorkoutSession[]> {
-    const url = new URL(await sessionsUrl())
-    url.searchParams.append("from", from.toISOString())
-    url.searchParams.append("to", to.toISOString())
+    const { data } = await api.GET("/api/users/me/workout-sessions", {
+        params: { query: { from: from.toISOString(), to: to.toISOString() } },
+    })
 
-    const response = await backendFetch(url.toString(), { cache: "no-store" })
-
-    if (response.ok) {
-        return await response.json() as WorkoutSession[]
-    }
-
-    throw new Error("Error fetching workout sessions")
+    if (!data) throw new Error("Error fetching workout sessions")
+    return data
 }
 
 export async function getActiveSession(): Promise<WorkoutSession | null> {
-    const response = await backendFetch(await sessionsUrl("/active"), { cache: "no-store" })
+    const { data, response } = await api.GET("/api/users/me/workout-sessions/active")
 
-    if (response.status === 204) return null
-    if (response.ok) {
-        return await response.json() as WorkoutSession
-    }
-
-    throw new Error("Error fetching the active workout session")
+    if (!response.ok) throw new Error("Error fetching the active workout session")
+    // 204 while no workout is running
+    return data ?? null
 }
 
 /** Starts a workout from the template (or an empty one), nothing happens while another one is running. */
 export async function startSession(workoutId: number | null): Promise<void> {
-    const response = await backendFetch(await sessionsUrl(), {
-        method: "POST", body: JSON.stringify({ workoutId }), headers: JSON_HEADERS
-    })
+    const { response } = await api.POST("/api/users/me/workout-sessions", { body: { workoutId } })
 
     // 400: another workout is still running, the caller opens that one instead
     if (!response.ok && response.status !== 400) throw new Error("Error starting the workout")
@@ -122,8 +92,8 @@ export async function startSession(workoutId: number | null): Promise<void> {
 }
 
 export async function updateSession(id: number, name: string, exercises: SessionExercise[]): Promise<void> {
-    const response = await backendFetch(await sessionsUrl(`/${id}`), {
-        method: "PUT", body: JSON.stringify({ name, exercises }), headers: JSON_HEADERS
+    const { response } = await api.PUT("/api/users/me/workout-sessions/{id}", {
+        params: { path: { id } }, body: { name, exercises },
     })
 
     if (!response.ok) throw new Error(`Error saving workout session ${id}`)
@@ -131,8 +101,8 @@ export async function updateSession(id: number, name: string, exercises: Session
 
 /** Saves the last state and ends the workout, sets that weren't checked off are dropped. */
 export async function finishSession(id: number, name: string, exercises: SessionExercise[]): Promise<void> {
-    const response = await backendFetch(await sessionsUrl(`/${id}/finish`), {
-        method: "POST", body: JSON.stringify({ name, exercises }), headers: JSON_HEADERS
+    const { response } = await api.POST("/api/users/me/workout-sessions/{id}/finish", {
+        params: { path: { id } }, body: { name, exercises },
     })
 
     if (!response.ok) throw new Error(`Error finishing workout session ${id}`)
@@ -140,7 +110,7 @@ export async function finishSession(id: number, name: string, exercises: Session
 }
 
 export async function deleteSession(id: number): Promise<void> {
-    const response = await backendFetch(await sessionsUrl(`/${id}`), { method: "DELETE" })
+    const { response } = await api.DELETE("/api/users/me/workout-sessions/{id}", { params: { path: { id } } })
 
     if (!response.ok) throw new Error(`Error deleting workout session ${id}`)
     revalidatePath("/workouts")

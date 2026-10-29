@@ -1,57 +1,39 @@
 'use server'
 
-import { BACKEND_URL } from "@/utils/constants"
-import { backendFetch } from "@/utils/backend"
-import { ApiError } from "@/utils/types/api"
+import { api, toResult } from "@/lib/api/client"
 import { AcceptFoodImage, FoodImageAnalysis, FoodImageUsage } from "@/utils/types/foodImage"
 import { Result } from "@/utils/types/result"
 import { revalidatePath } from "next/cache"
 
-const imagesUrl = (path = "") => `${BACKEND_URL}/users/me/food-images${path}`
-
-// the localized message of the backend if there is one, e.g. for the daily limit
-async function errorMessage(response: Response, fallback: string): Promise<string> {
-    const apiError = await response.json().catch(() => null) as ApiError | null
-    return apiError?.errorMessage || fallback
-}
-
-async function request<T>(path: string, init: RequestInit, failure: string): Promise<Result<T>> {
-    try {
-        const response = await backendFetch(imagesUrl(path), { ...init, cache: 'no-store' })
-        if (response.ok) {
-            return { ok: true, data: await response.json() as T }
-        }
-        console.error(`${failure}: ${response.status}`)
-        return { ok: false, error: await errorMessage(response, failure) }
-    } catch (e) {
-        console.error(failure, e)
-        return { ok: false, error: `${failure}, der Server ist nicht erreichbar` }
-    }
-}
-
 // formData with "image" (the photo), "meal" and optionally "description" (hint for the model)
 export async function uploadFoodImage(formData: FormData): Promise<Result<FoodImageAnalysis>> {
-    return request("", { method: "POST", body: formData }, "Foto konnte nicht hochgeladen werden")
+    const description = formData.get("description")
+    // only the photo is a part, meal and description are parameters
+    const image = new FormData()
+    image.append("image", formData.get("image") as Blob)
+    return toResult(() => api.POST("/api/users/me/food-images", {
+        params: { query: { meal: String(formData.get("meal")), description: description ? String(description) : undefined } },
+        // the type of the spec only knows the file as string, the photo goes as it is
+        body: { image: "" },
+        bodySerializer: () => image,
+    }), "Foto konnte nicht hochgeladen werden")
 }
 
 export async function getFoodImageUsage(): Promise<Result<FoodImageUsage>> {
-    return request("/usage", {}, "Tageslimit konnte nicht geladen werden")
+    return toResult(() => api.GET("/api/users/me/food-images/usage"), "Tageslimit konnte nicht geladen werden")
 }
 
 export async function getFoodImages(limit = 5): Promise<Result<FoodImageAnalysis[]>> {
-    return request(`?limit=${limit}`, {}, "Fotos konnten nicht geladen werden")
+    return toResult(() => api.GET("/api/users/me/food-images", { params: { query: { limit } } }), "Fotos konnten nicht geladen werden")
 }
 
 export async function getFoodImage(id: number): Promise<Result<FoodImageAnalysis>> {
-    return request(`/${id}`, {}, "Foto konnte nicht geladen werden")
+    return toResult(() => api.GET("/api/users/me/food-images/{id}", { params: { path: { id } } }), "Foto konnte nicht geladen werden")
 }
 
 export async function acceptFoodImage(id: number, accept: AcceptFoodImage): Promise<Result<FoodImageAnalysis>> {
-    const result = await request<FoodImageAnalysis>(`/${id}/accept`, {
-        method: "POST",
-        body: JSON.stringify(accept),
-        headers: { 'Content-Type': 'application/json' },
-    }, "Lebensmittel konnten nicht eingetragen werden")
+    const result = await toResult(() => api.POST("/api/users/me/food-images/{id}/accept", { params: { path: { id } }, body: accept }),
+        "Lebensmittel konnten nicht eingetragen werden")
     if (result.ok) {
         revalidatePath("/foods/track")
         revalidatePath(`/foods/images/${id}`)
@@ -60,7 +42,8 @@ export async function acceptFoodImage(id: number, accept: AcceptFoodImage): Prom
 }
 
 export async function rejectFoodImage(id: number): Promise<Result<FoodImageAnalysis>> {
-    const result = await request<FoodImageAnalysis>(`/${id}/reject`, { method: "POST" }, "Foto konnte nicht abgelehnt werden")
+    const result = await toResult(() => api.POST("/api/users/me/food-images/{id}/reject", { params: { path: { id } } }),
+        "Foto konnte nicht abgelehnt werden")
     if (result.ok) revalidatePath(`/foods/images/${id}`)
     return result
 }

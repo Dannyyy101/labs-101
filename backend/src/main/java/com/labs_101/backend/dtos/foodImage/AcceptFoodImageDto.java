@@ -11,6 +11,6 @@ import java.util.List;
 public record AcceptFoodImageDto(String meal, List<Item> items) {
 
     /** {@code foodId} or {@code openFoodId} is required */
-    public record Item(@Nullable Long foodId, @Nullable Long openFoodId, Double amount, @Nullable String unit, @Nullable Double gramsPerUnit) {
+    public record Item(@Nullable Long foodId, @Nullable Long openFoodId, Double amount, String unit, Double gramsPerUnit) {
     }
 }

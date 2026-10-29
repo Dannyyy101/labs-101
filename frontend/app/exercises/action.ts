@@ -1,68 +1,37 @@
 'use server'
 
-import { BACKEND_URL } from "@/utils/constants";
-import { backendFetch } from "@/utils/backend";
-import { CreateExercise, Exercise } from "@/utils/types/workoutTypes";
-import { revalidatePath } from "next/cache";
+import { api } from "@/lib/api/client"
+import { CreateExercise, Exercise } from "@/utils/types/workoutTypes"
+import { revalidatePath } from "next/cache"
 
 export async function getAllExercises(filter?: { type?: string, name?: string }): Promise<Exercise[]> {
-    const url = new URL(BACKEND_URL + "/workouts/exercises")
-    if (filter) {
-        if (filter.name)
-            url.searchParams.append("name", filter.name)
-        if (filter.type)
-            url.searchParams.append("type", filter.type)
-    }
-    const response = await backendFetch(url.toString(), { cache: 'no-store' })
+    const { data } = await api.GET("/api/workouts/exercises", {
+        params: { query: { name: filter?.name || undefined, type: filter?.type || undefined } },
+    })
 
-    if (response.ok) {
-        return await response.json() as Exercise[]
-    }
-
-    throw new Error("Error fetching exercises")
+    if (!data) throw new Error("Error fetching exercises")
+    return data
 }
 
 export async function createExercise(exercise: CreateExercise): Promise<void> {
+    const { response } = await api.POST("/api/workouts/exercises", { body: exercise })
 
-    const response = await backendFetch(BACKEND_URL + "/workouts/exercises", {
-        method: "POST", body: JSON.stringify(exercise), headers: {
-            'Content-Type': 'application/json'
-        }
-    })
-
-    if (response.ok) {
-        revalidatePath("/exercises")
-        return
-    }
-
-    throw new Error("Error creating exercise")
+    if (!response.ok) throw new Error("Error creating exercise")
+    revalidatePath("/exercises")
 }
 
-
 export async function updateExercise(exercise: Exercise): Promise<void> {
-    const response = await backendFetch(BACKEND_URL + "/workouts/exercises/" + exercise.id, {
-        method: "PUT", body: JSON.stringify(exercise), headers: {
-            'Content-Type': 'application/json'
-        }
+    const { response } = await api.PUT("/api/workouts/exercises/{id}", {
+        params: { path: { id: String(exercise.id) } }, body: exercise,
     })
 
-    if (response.ok) {
-        revalidatePath("/exercises")
-        return
-    }
-
-    throw new Error("Error creating exercise")
+    if (!response.ok) throw new Error("Error updating exercise")
+    revalidatePath("/exercises")
 }
 
 export async function deleteExercise(id: number): Promise<void> {
-    const response = await backendFetch(BACKEND_URL + "/workouts/exercises/" + id, {
-        method: "DELETE",
-    })
+    const { response } = await api.DELETE("/api/workouts/exercises/{id}", { params: { path: { id: String(id) } } })
 
-    if (response.ok) {
-        revalidatePath("/exercises")
-        return
-    }
-
-    throw new Error("Error creating exercise")
+    if (!response.ok) throw new Error("Error deleting exercise")
+    revalidatePath("/exercises")
 }

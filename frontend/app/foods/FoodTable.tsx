@@ -6,7 +6,8 @@ import EditFood from "./EditFood";
 
 const formatValue = (value: number | null | undefined) => (value ?? 0).toLocaleString("de-DE", { maximumFractionDigits: 1 })
 
-export default function FoodTable({ foods }: { foods: FoodWithPortion[] }) {
+// the list comes without portions, EditFood starts with none
+export default function FoodTable({ foods }: { foods: Food[] }) {
 
     const [selected, setSelected] = useState<FoodWithPortion>()
 
@@ -20,7 +21,7 @@ export default function FoodTable({ foods }: { foods: FoodWithPortion[] }) {
         </TableHeader>
         <TableBody>
             {foods.map((food) => (
-                <TableRow key={food.id} onClick={() => setSelected(food)} className="cursor-pointer">
+                <TableRow key={food.id} onClick={() => setSelected({ ...food, portions: [] })} className="cursor-pointer">
                     <TableCell className="font-medium whitespace-normal">{food.name}</TableCell>
                     <TableCell className="text-right tabular-nums">{formatValue(food.protein)} g</TableCell>
                     <TableCell className="text-right tabular-nums">{formatValue(food.kcal)}</TableCell>

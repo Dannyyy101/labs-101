@@ -23,6 +23,16 @@ import { useIsMobile } from "@/hooks/use-mobile"
 import { cn } from "@/lib/utils"
 import { MUSCLES } from "../workouts/stats"
 
+type BodyPart = Exercise["bodyParts"][number]
+// the highlighter has no nulls and knows the slugs, the id of the stored row is kept for the backend
+const toHighlighter = ({ id, color, intensity, side, slug }: BodyPart): ExtendedBodyPart & { id?: number } => ({
+    id: id ?? undefined, color: color ?? undefined, intensity: intensity ?? undefined,
+    side: side === "left" || side === "right" ? side : undefined, slug: slug as Slug,
+})
+const fromHighlighter = (part: ExtendedBodyPart & { id?: number }): BodyPart => ({
+    id: part.id ?? null, color: part.color ?? null, intensity: part.intensity ?? null, side: part.side ?? null, slug: part.slug ?? "",
+})
+
 const EXERCISE_TYPES: ExerciseTypes[] = ["Strength Training", "Swimming", "Running", "Stretching"]
 
 const EditExercise: React.FC<{ exercise: Exercise, children: React.ReactNode, className?: string }> = ({ exercise: oldExercise, children, className }) => {
@@ -86,10 +96,10 @@ const EditExercise: React.FC<{ exercise: Exercise, children: React.ReactNode, cl
                             id="exercise-description"
                             name="exercise-description"
                             className="text-base md:text-sm"
-                            value={exercise.description}
+                            value={exercise.description ?? ""}
                             onChange={(e) => setExercise((prev) => ({ ...prev, description: e.target.value }))} />
                     </Field>
-                    <MusclePicker parts={exercise.bodyParts} setBodyParts={(parts) => setExercise((prev) => ({ ...prev, bodyParts: parts }))} />
+                    <MusclePicker parts={exercise.bodyParts.map(toHighlighter)} setBodyParts={(parts) => setExercise((prev) => ({ ...prev, bodyParts: parts.map(fromHighlighter) }))} />
                 </div>
             </form>
             <DrawerFooter className="flex-row border-t pt-3 pb-[max(1rem,env(safe-area-inset-bottom))]">

@@ -1,43 +1,15 @@
+import type { Schemas } from "@/lib/api/types"
 
-export interface Food {
-    id: number,
-    blsCode: string,
-    name: string,
-    kcal: number | null,
-    water: number | null,
-    protein: number | null,
-    fat: number | null,
-    carbohydrates: number | null
-    fiber: number | null
-}
+export type Food = Schemas["FoodDto"]
+export type FoodPortion = Schemas["FoodPortionDto"]
 
-export interface FoodWithPortion extends Food {
-    portions: FoodPortion[],
-}
+// a food of our database, the ones of the open food database have no id yet
+export type FoodWithPortion = Omit<Schemas["FoodWithPortionsDto"], "id"> & { id: number }
 
-export interface SearchFood {
-    // null while the food only exists in the open food database
-    id: number | null,
-    name: string,
-    openFoodId: number | null
-}
+// null while the food only exists in the open food database
+export type SearchFood = Schemas["SearchFoodResponseDto"]
 
-export interface CreateFoodWithAmount {
-    foodId: number,
-    userId: string,
-    amount: number,
-    portionId: number | null
-    meal: Meal
-}
-
-export interface TrackedFood {
-    id: number
-    food: Food
-    amount: number,
-    meal: { type: string, typeLabel: string }
-    portion: FoodPortion | null
-    createDate: string
-}
+export type TrackedFood = Schemas["TrackedFoodDto"]
 
 export interface CreateTrackedFood {
     id?: number | null;
@@ -47,38 +19,16 @@ export interface CreateTrackedFood {
     portionId: number | null
 }
 
-export interface FoodPortion {
-    id: number,
-    grams: number,
-    label: string,
-    isDefault: boolean
-}
+export type FoodWithLastEntry = Schemas["FoodWithLastEntryAndPortionsDto"]
 
-export interface FoodWithLastEntry extends Food {
-    portions: FoodPortion[]
-    lastEntry?: {
-        amount: number,
-    }
-}
+export type Meal = Schemas["FoodImageAnalysisDto"]["meal"]
+// fails to compile when the backend gets another meal
+export const Meal = {
+    BREAKFAST: "BREAKFAST",
+    LUNCH: "LUNCH",
+    DINNER: "DINNER",
+    SNACK: "SNACK",
+} as const satisfies { [M in Meal]: M }
 
-export interface TrackFoodForUser {
-    foodId: number,
-    userId: string
-    amount: number
-}
-
-export enum Meal {
-    BREAKFAST = "BREAKFAST",
-    LUNCH = "LUNCH",
-    DINNER = "DINNER",
-    SNACK = "SNACK"
-}
-
-export interface ExtractedFood {
-    query: string,
-    amount: number,
-    unit: string | null,
-    // id is null for open foods, they are only copied into our foods once tracked
-    food: (Omit<FoodWithPortion, "id"> & { id: number | null }) | null
-    openFoodId: number | null
-}
+// food.id is null for open foods, they are only copied into our foods once tracked
+export type ExtractedFood = Schemas["ExtractedFoodDto"]

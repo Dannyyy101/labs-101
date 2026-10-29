@@ -1,32 +1,9 @@
 'use server'
 
-import { backendFetch } from "@/utils/backend"
-import { BACKEND_URL } from "@/utils/constants"
-import { ApiError } from "@/utils/types/api"
+import { api, toResult } from "@/lib/api/client"
 import { FriendProfile, Friends } from "@/utils/types/friend"
 import { Result } from "@/utils/types/result"
 import { revalidatePath } from "next/cache"
-
-const FRIENDS = `${BACKEND_URL}/users/me/friends`
-
-// the localized message of the backend if there is one ("Du hast dieses Training schon angefeuert")
-async function request<T>(url: string, init: RequestInit, failure: string, parse: (response: Response) => Promise<T>): Promise<Result<T>> {
-    try {
-        const response = await backendFetch(url, { ...init, cache: 'no-store' })
-        if (response.ok) {
-            return { ok: true, data: await parse(response) }
-        }
-        console.error(`${failure}: ${response.status}`)
-        const apiError = await response.json().catch(() => null) as ApiError | null
-        return { ok: false, error: apiError?.errorMessage || failure }
-    } catch (e) {
-        console.error(failure, e)
-        return { ok: false, error: `${failure}, der Server ist nicht erreichbar` }
-    }
-}
-
-const json = <T,>(response: Response) => response.json() as Promise<T>
-const none = async () => undefined
 
 // the friends page and the open profile show the change right away
 async function changed<T>(result: Result<T>, friendId?: string): Promise<Result<T>> {
@@ -38,16 +15,15 @@ async function changed<T>(result: Result<T>, friendId?: string): Promise<Result<
 }
 
 export async function getFriends(): Promise<Result<Friends>> {
-    return request(FRIENDS, {}, "Freunde konnten nicht geladen werden", json<Friends>)
+    return toResult(() => api.GET("/api/users/me/friends"), "Freunde konnten nicht geladen werden")
 }
 
 // null for someone who isn't a friend (the backend answers 404 then)
 export async function getFriendProfile(friendId: string): Promise<Result<FriendProfile | null>> {
-    const url = `${FRIENDS}/${encodeURIComponent(friendId)}/profile`
     try {
-        const response = await backendFetch(url, { cache: 'no-store' })
+        const { data, response } = await api.GET("/api/users/me/friends/{friendId}/profile", { params: { path: { friendId } } })
         if (response.status === 404) return { ok: true, data: null }
-        if (response.ok) return { ok: true, data: await response.json() as FriendProfile }
+        if (data) return { ok: true, data }
         console.error(`Profil konnte nicht geladen werden: ${response.status}`)
     } catch (e) {
         console.error("Profil konnte nicht geladen werden", e)
@@ -56,28 +32,27 @@ export async function getFriendProfile(friendId: string): Promise<Result<FriendP
 }
 
 export async function sendFriendRequest(userId: string): Promise<Result<void>> {
-    return changed(await request(`${FRIENDS}/requests`, {
-        method: "POST",
-        body: JSON.stringify({ userId }),
-        headers: { 'Content-Type': 'application/json' },
-    }, "Anfrage konnte nicht gesendet werden", none))
+    return changed(await toResult(() => api.POST("/api/users/me/friends/requests", { body: { userId } }),
+        "Anfrage konnte nicht gesendet werden"))
 }
 
 export async function acceptFriendRequest(id: number): Promise<Result<void>> {
-    return changed(await request(`${FRIENDS}/requests/${id}`, { method: "PUT" }, "Anfrage konnte nicht angenommen werden", none))
+    return changed(await toResult(() => api.PUT("/api/users/me/friends/requests/{id}", { params: { path: { id } } }),
+        "Anfrage konnte nicht angenommen werden"))
 }
 
 // declines a request to the user or takes back one of the user
 export async function deleteFriendRequest(id: number): Promise<Result<void>> {
-    return changed(await request(`${FRIENDS}/requests/${id}`, { method: "DELETE" }, "Anfrage konnte nicht entfernt werden", none))
+    return changed(await toResult(() => api.DELETE("/api/users/me/friends/requests/{id}", { params: { path: { id } } }),
+        "Anfrage konnte nicht entfernt werden"))
 }
 
 export async function removeFriend(friendId: string): Promise<Result<void>> {
-    return changed(await request(`${FRIENDS}/${encodeURIComponent(friendId)}`, { method: "DELETE" },
-        "Freund konnte nicht entfernt werden", none), friendId)
+    return changed(await toResult(() => api.DELETE("/api/users/me/friends/{friendId}", { params: { path: { friendId } } }),
+        "Freund konnte nicht entfernt werden"), friendId)
 }
 
 export async function cheerFriend(friendId: string): Promise<Result<void>> {
-    return changed(await request(`${FRIENDS}/${encodeURIComponent(friendId)}/cheers`, { method: "POST" },
-        "Anfeuern hat nicht geklappt", none), friendId)
+    return changed(await toResult(() => api.POST("/api/users/me/friends/{friendId}/cheers", { params: { path: { friendId } } }),
+        "Anfeuern hat nicht geklappt"), friendId)
 }

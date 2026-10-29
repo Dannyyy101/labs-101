@@ -1,12 +1,10 @@
+import type { Schemas } from "@/lib/api/types"
+
 /** What the calendar shows of a person. */
-export interface CalendarUser {
-    id: string
-    name: string | null
-    image: string | null
-}
+export type CalendarUser = Schemas["CalendarUserDto"]
 
 /** How often an event repeats, null when it doesn't. */
-export type Recurrence = "DAILY" | "WEEKLY" | "MONTHLY"
+export type Recurrence = NonNullable<CalendarEventDto["recurrence"]>
 
 export interface CalendarEvent {
     id: string,
@@ -29,39 +27,12 @@ export interface CalendarEvent {
     allDay?: boolean
 }
 
-export interface CalendarEventDto {
-    id: string,
-    title: string
-    startDate: string
-    endDate: string
-    workoutId: number | null
-    workoutName: string | null
-    creatorId: string
-    creator: CalendarUser
-    invitees: CalendarUser[]
-    recurrence: Recurrence | null
-    recurrenceEnd: string | null
-}
+export type CalendarEventDto = Schemas["CalendarEventDto"]
 
 /**
  * An Apple calendar shown in the user's calendar, of a connected Apple ID or shared by link (then without account).
  * {@link error} says why it couldn't be loaded the last time.
  */
-export interface ExternalCalendar {
-    id: number
-    name: string
-    url: string
-    error: string | null
-    accountId: number | null
-    appleId: string | null
-}
+export type ExternalCalendar = Schemas["ExternalCalendarDto"]
 
-export interface ExternalCalendarEventDto {
-    calendarId: number
-    calendarName: string
-    uid: string | null
-    title: string | null
-    startDate: string
-    endDate: string
-    allDay: boolean
-}
+export type ExternalCalendarEventDto = Schemas["ExternalCalendarEventDto"]

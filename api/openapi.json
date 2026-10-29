@@ -787,7 +787,8 @@
                 "required" : [ "image" ]
               }
             }
-          }
+          },
+          "required" : true
         },
         "responses" : {
           "202" : {
@@ -2449,7 +2450,7 @@
             "format" : "double"
           }
         },
-        "required" : [ "id", "target" ]
+        "required" : [ "achievedAt", "id", "progress", "target" ]
       },
       "AckHealthWriteRequestDto" : {
         "type" : "object",
@@ -2536,7 +2537,7 @@
             "format" : "double"
           }
         },
-        "required" : [ "activeEnergy", "basalEnergy", "daylightMinutes", "distance", "exerciseMinutes", "flightsClimbed", "standHours", "steps" ]
+        "required" : [ "activeEnergy", "basalEnergy", "daylightMinutes", "distance", "energyConsumed", "exerciseMinutes", "flightsClimbed", "standHours", "steps" ]
       },
       "BestEffortDto" : {
         "type" : "object",
@@ -2576,16 +2577,15 @@
             "type" : "string"
           }
         },
-        "required" : [ "slug" ]
+        "required" : [ "color", "id", "intensity", "side", "slug" ]
       },
       "CalendarEventDto" : {
         "type" : "object",
         "properties" : {
           "creator" : {
-            "oneOf" : [ {
+            "type" : [ "object", "null" ],
+            "allOf" : [ {
               "$ref" : "#/components/schemas/CalendarUserDto"
-            }, {
-              "type" : "null"
             } ]
           },
           "creatorId" : {
@@ -2607,7 +2607,7 @@
           },
           "recurrence" : {
             "type" : [ "string", "null" ],
-            "enum" : [ "DAILY", "WEEKLY", "MONTHLY" ]
+            "enum" : [ "DAILY", "WEEKLY", "MONTHLY", null ]
           },
           "recurrenceEnd" : {
             "type" : [ "string", "null" ],
@@ -2628,7 +2628,7 @@
             "type" : [ "string", "null" ]
           }
         },
-        "required" : [ "creatorId", "endDate", "id", "invitees", "startDate", "title" ]
+        "required" : [ "creator", "creatorId", "endDate", "id", "invitees", "recurrence", "recurrenceEnd", "startDate", "title", "workoutId", "workoutName" ]
       },
       "CalendarUserDto" : {
         "type" : "object",
@@ -2643,7 +2643,7 @@
             "type" : [ "string", "null" ]
           }
         },
-        "required" : [ "id" ]
+        "required" : [ "id", "image", "name" ]
       },
       "CardioItemDto" : {
         "allOf" : [ {
@@ -2664,7 +2664,8 @@
                 "$ref" : "#/components/schemas/SetDto"
               }
             }
-          }
+          },
+          "required" : [ "exercise", "minutes", "sets" ]
         } ]
       },
       "CompleteFullSyncDto" : {
@@ -2710,7 +2711,7 @@
           },
           "recurrence" : {
             "type" : [ "string", "null" ],
-            "enum" : [ "DAILY", "WEEKLY", "MONTHLY" ]
+            "enum" : [ "DAILY", "WEEKLY", "MONTHLY", null ]
           },
           "recurrenceEnd" : {
             "type" : [ "string", "null" ],
@@ -2826,7 +2827,7 @@
             "format" : "double"
           },
           "foodId" : {
-            "type" : "integer",
+            "type" : [ "integer", "null" ],
             "format" : "int64"
           },
           "meal" : {
@@ -2840,7 +2841,7 @@
             "type" : [ "string", "null" ]
           }
         },
-        "required" : [ "amount", "foodId", "meal" ]
+        "required" : [ "amount", "meal" ]
       },
       "CreateHealthWriteRequestDto" : {
         "type" : "object",
@@ -2890,7 +2891,7 @@
           },
           "type" : {
             "type" : [ "string", "null" ],
-            "enum" : [ "INFO", "SUCCESS", "WARNING", "ERROR" ]
+            "enum" : [ "INFO", "SUCCESS", "WARNING", "ERROR", null ]
           }
         },
         "required" : [ "title" ]
@@ -3009,7 +3010,7 @@
             "format" : "int32"
           }
         },
-        "required" : [ "activeEnergy", "date", "steps" ]
+        "required" : [ "activeEnergy", "date", "hrv", "recovery", "restingHeartRate", "sleep", "sleepScore", "steps", "strain" ]
       },
       "DeleteHealthSamplesDto" : {
         "type" : "object",
@@ -3061,10 +3062,14 @@
             "type" : "string"
           }
         },
-        "required" : [ "bodyParts", "id", "name", "type" ]
+        "required" : [ "bodyParts", "description", "id", "name", "type" ]
       },
       "ExerciseItem" : {
         "discriminator" : {
+          "mapping" : {
+            "CARDIO_EXERCISE" : "#/components/schemas/CardioItemDto",
+            "STRENGTH_EXERCISE" : "#/components/schemas/StrengthItemDto"
+          },
           "propertyName" : "type"
         },
         "properties" : {
@@ -3098,7 +3103,7 @@
             "type" : "string"
           }
         },
-        "required" : [ "id", "name", "url" ]
+        "required" : [ "accountId", "appleId", "error", "id", "name", "url" ]
       },
       "ExternalCalendarEventDto" : {
         "type" : "object",
@@ -3128,7 +3133,7 @@
             "type" : [ "string", "null" ]
           }
         },
-        "required" : [ "allDay", "calendarId", "calendarName", "endDate", "startDate" ]
+        "required" : [ "allDay", "calendarId", "calendarName", "endDate", "startDate", "title", "uid" ]
       },
       "ExtractFoodRequestDto" : {
         "type" : "object",
@@ -3147,10 +3152,9 @@
             "format" : "double"
           },
           "food" : {
-            "oneOf" : [ {
+            "type" : [ "object", "null" ],
+            "allOf" : [ {
               "$ref" : "#/components/schemas/FoodWithPortionsDto"
-            }, {
-              "type" : "null"
             } ]
           },
           "openFoodId" : {
@@ -3164,7 +3168,7 @@
             "type" : [ "string", "null" ]
           }
         },
-        "required" : [ "amount", "query" ]
+        "required" : [ "amount", "food", "openFoodId", "query", "unit" ]
       },
       "FoodDto" : {
         "type" : "object",
@@ -3204,7 +3208,7 @@
             "format" : "double"
           }
         },
-        "required" : [ "id", "name" ]
+        "required" : [ "blsCode", "carbohydrates", "fat", "fiber", "id", "kcal", "name", "protein", "water" ]
       },
       "FoodImageAnalysisDto" : {
         "type" : "object",
@@ -3246,7 +3250,7 @@
             "enum" : [ "PENDING", "READY", "FAILED", "ACCEPTED", "REJECTED" ]
           }
         },
-        "required" : [ "createdAt", "id", "items", "meal", "status" ]
+        "required" : [ "analyzedAt", "createdAt", "description", "error", "id", "items", "meal", "reviewedAt", "status" ]
       },
       "FoodImageItemDto" : {
         "type" : "object",
@@ -3256,14 +3260,13 @@
             "format" : "double"
           },
           "food" : {
-            "oneOf" : [ {
+            "type" : [ "object", "null" ],
+            "allOf" : [ {
               "$ref" : "#/components/schemas/FoodWithPortionsDto"
-            }, {
-              "type" : "null"
             } ]
           },
           "gramsPerUnit" : {
-            "type" : [ "number", "null" ],
+            "type" : "number",
             "format" : "double"
           },
           "openFoodId" : {
@@ -3274,10 +3277,10 @@
             "type" : "string"
           },
           "unit" : {
-            "type" : [ "string", "null" ]
+            "type" : "string"
           }
         },
-        "required" : [ "amount", "query" ]
+        "required" : [ "amount", "food", "gramsPerUnit", "openFoodId", "query", "unit" ]
       },
       "FoodImageUsageDto" : {
         "type" : "object",
@@ -3340,10 +3343,9 @@
             "format" : "double"
           },
           "lastEntry" : {
-            "oneOf" : [ {
+            "type" : [ "object", "null" ],
+            "allOf" : [ {
               "$ref" : "#/components/schemas/LastEntry"
-            }, {
-              "type" : "null"
             } ]
           },
           "name" : {
@@ -3364,7 +3366,7 @@
             "format" : "double"
           }
         },
-        "required" : [ "id", "name", "portions" ]
+        "required" : [ "blsCode", "carbohydrates", "fat", "fiber", "id", "kcal", "lastEntry", "name", "portions", "protein", "water" ]
       },
       "FoodWithPortionsDto" : {
         "type" : "object",
@@ -3410,7 +3412,7 @@
             "format" : "double"
           }
         },
-        "required" : [ "name", "portions" ]
+        "required" : [ "blsCode", "carbohydrates", "fat", "fiber", "id", "kcal", "name", "portions", "protein", "water" ]
       },
       "FriendDto" : {
         "type" : "object",
@@ -3429,14 +3431,13 @@
             "format" : "date-time"
           },
           "training" : {
-            "oneOf" : [ {
+            "type" : [ "object", "null" ],
+            "allOf" : [ {
               "$ref" : "#/components/schemas/TrainingDto"
-            }, {
-              "type" : "null"
             } ]
           }
         },
-        "required" : [ "id", "since" ]
+        "required" : [ "id", "image", "name", "since", "training" ]
       },
       "FriendProfileDto" : {
         "type" : "object",
@@ -3521,10 +3522,9 @@
             "$ref" : "#/components/schemas/RecoveryDto"
           },
           "sleep" : {
-            "oneOf" : [ {
+            "type" : [ "object", "null" ],
+            "allOf" : [ {
               "$ref" : "#/components/schemas/SleepDto"
-            }, {
-              "type" : "null"
             } ]
           },
           "strain" : {
@@ -3543,7 +3543,7 @@
             }
           }
         },
-        "required" : [ "activity", "date", "heartRate", "history", "recovery", "strain", "timeZone", "vitals", "workouts" ]
+        "required" : [ "activity", "date", "heartRate", "history", "recovery", "sleep", "strain", "timeZone", "vitals", "workouts" ]
       },
       "HealthSampleDto" : {
         "type" : "object",
@@ -3584,7 +3584,7 @@
             "format" : "double"
           }
         },
-        "required" : [ "endDate", "kind", "startDate", "type", "uuid" ]
+        "required" : [ "endDate", "kind", "payload", "sourceBundleId", "sourceName", "startDate", "type", "unit", "uuid", "value" ]
       },
       "HealthSyncResultDto" : {
         "type" : "object",
@@ -3623,7 +3623,7 @@
             "type" : "string"
           }
         },
-        "required" : [ "count", "kind", "type" ]
+        "required" : [ "count", "firstDate", "kind", "lastDate", "lastSyncedAt", "type" ]
       },
       "HealthWriteRequestDto" : {
         "type" : "object",
@@ -3673,7 +3673,7 @@
             "format" : "double"
           }
         },
-        "required" : [ "createdAt", "endDate", "id", "kind", "startDate", "status", "type" ]
+        "required" : [ "createdAt", "endDate", "error", "id", "kind", "metadata", "sampleUuid", "startDate", "status", "type", "unit", "value" ]
       },
       "Item" : {
         "type" : "object",
@@ -3687,7 +3687,7 @@
             "format" : "int64"
           },
           "gramsPerUnit" : {
-            "type" : [ "number", "null" ],
+            "type" : "number",
             "format" : "double"
           },
           "openFoodId" : {
@@ -3695,10 +3695,10 @@
             "format" : "int64"
           },
           "unit" : {
-            "type" : [ "string", "null" ]
+            "type" : "string"
           }
         },
-        "required" : [ "amount" ]
+        "required" : [ "amount", "gramsPerUnit", "unit" ]
       },
       "LastEntry" : {
         "type" : "object",
@@ -3754,7 +3754,7 @@
             "enum" : [ "INFO", "SUCCESS", "WARNING", "ERROR" ]
           }
         },
-        "required" : [ "createdAt", "id", "title", "type" ]
+        "required" : [ "createdAt", "id", "link", "linkLabel", "message", "readAt", "title", "type" ]
       },
       "OverviewWorkoutDto" : {
         "type" : "object",
@@ -3792,7 +3792,7 @@
             "format" : "date-time"
           }
         },
-        "required" : [ "activityType", "duration", "endDate", "id", "startDate" ]
+        "required" : [ "activityType", "averageHeartRate", "distance", "duration", "endDate", "energy", "id", "startDate" ]
       },
       "PageFoodDto" : {
         "type" : "object",
@@ -3899,7 +3899,7 @@
             "format" : "date"
           }
         },
-        "required" : [ "achievements", "days", "streak", "today" ]
+        "required" : [ "achievements", "calorieGoal", "days", "memberSince", "streak", "today" ]
       },
       "RecoveryDto" : {
         "type" : "object",
@@ -3940,7 +3940,8 @@
             "type" : [ "number", "null" ],
             "format" : "double"
           }
-        }
+        },
+        "required" : [ "hrv", "hrvBaseline", "oxygenSaturation", "respiratoryRate", "respiratoryRateBaseline", "restingHeartRate", "restingHeartRateBaseline", "score", "wristTemperatureDeviation" ]
       },
       "RunDetailDto" : {
         "type" : "object",
@@ -3995,7 +3996,7 @@
             "format" : "double"
           }
         },
-        "required" : [ "distance", "latitude", "longitude", "time" ]
+        "required" : [ "distance", "elevation", "heartRate", "latitude", "longitude", "pace", "time" ]
       },
       "RunSplitDto" : {
         "type" : "object",
@@ -4017,7 +4018,7 @@
             "format" : "double"
           }
         },
-        "required" : [ "distance", "index", "time" ]
+        "required" : [ "distance", "heartRate", "index", "time" ]
       },
       "RunSummaryDto" : {
         "type" : "object",
@@ -4098,7 +4099,7 @@
             }
           }
         },
-        "required" : [ "bestEfforts", "distance", "duration", "endDate", "id", "indoor", "name", "startDate", "thumbnail", "timeZone", "zoneSeconds" ]
+        "required" : [ "averageHeartRate", "bestEfforts", "cadence", "distance", "duration", "elevationGain", "endDate", "energy", "id", "indoor", "maxHeartRate", "name", "sourceName", "startDate", "thumbnail", "timeZone", "zoneSeconds" ]
       },
       "SaveUserSettingsDto" : {
         "type" : "object",
@@ -4124,7 +4125,7 @@
             "format" : "int64"
           }
         },
-        "required" : [ "name" ]
+        "required" : [ "id", "name", "openFoodId" ]
       },
       "SendFriendRequestDto" : {
         "type" : "object",
@@ -4152,10 +4153,9 @@
         "type" : "object",
         "properties" : {
           "cardio" : {
-            "oneOf" : [ {
+            "type" : [ "object", "null" ],
+            "allOf" : [ {
               "$ref" : "#/components/schemas/SessionCardioDto"
-            }, {
-              "type" : "null"
             } ]
           },
           "exerciseId" : {
@@ -4175,7 +4175,7 @@
             }
           }
         },
-        "required" : [ "name", "sets" ]
+        "required" : [ "cardio", "exerciseId", "name", "note", "sets" ]
       },
       "SessionSetDto" : {
         "type" : "object",
@@ -4200,7 +4200,7 @@
             "format" : "double"
           }
         },
-        "required" : [ "done", "reps", "weightKg" ]
+        "required" : [ "done", "reps", "restSeconds", "rpe", "weightKg" ]
       },
       "SetDto" : {
         "type" : "object",
@@ -4226,7 +4226,7 @@
             "format" : "double"
           }
         },
-        "required" : [ "order", "reps", "weightKg" ]
+        "required" : [ "order", "reps", "restSeconds", "rpe", "weightKg" ]
       },
       "ShareWorkoutDto" : {
         "type" : "object",
@@ -4298,7 +4298,7 @@
             "format" : "date-time"
           }
         },
-        "required" : [ "asleep", "awake", "core", "deep", "end", "inBed", "need", "rem", "score", "stages", "start" ]
+        "required" : [ "asleep", "awake", "core", "deep", "end", "inBed", "need", "oxygenSaturation", "rem", "respiratoryRate", "score", "stages", "start" ]
       },
       "SleepStageDto" : {
         "type" : "object",
@@ -4402,7 +4402,7 @@
             }
           }
         },
-        "required" : [ "load", "maxHeartRate", "score", "zoneSeconds" ]
+        "required" : [ "averageHeartRate", "load", "maxHeartRate", "peakHeartRate", "score", "zoneSeconds" ]
       },
       "StreakDto" : {
         "type" : "object",
@@ -4436,7 +4436,8 @@
                 "$ref" : "#/components/schemas/SetDto"
               }
             }
-          }
+          },
+          "required" : [ "exercise", "sets" ]
         } ]
       },
       "TrackedFoodDto" : {
@@ -4461,14 +4462,13 @@
             "$ref" : "#/components/schemas/MealDto"
           },
           "portion" : {
-            "oneOf" : [ {
+            "type" : [ "object", "null" ],
+            "allOf" : [ {
               "$ref" : "#/components/schemas/FoodPortionDto"
-            }, {
-              "type" : "null"
             } ]
           }
         },
-        "required" : [ "amount", "createDate", "food", "id", "meal" ]
+        "required" : [ "amount", "createDate", "food", "id", "meal", "portion" ]
       },
       "TrainingDto" : {
         "type" : "object",
@@ -4488,7 +4488,7 @@
             "format" : "date-time"
           }
         },
-        "required" : [ "cheered", "sessionId", "startedAt" ]
+        "required" : [ "cheered", "name", "sessionId", "startedAt" ]
       },
       "UnreadCountDto" : {
         "type" : "object",
@@ -4523,7 +4523,7 @@
           },
           "recurrence" : {
             "type" : [ "string", "null" ],
-            "enum" : [ "DAILY", "WEEKLY", "MONTHLY" ]
+            "enum" : [ "DAILY", "WEEKLY", "MONTHLY", null ]
           },
           "recurrenceEnd" : {
             "type" : [ "string", "null" ],
@@ -4656,7 +4656,7 @@
             "type" : [ "string", "null" ]
           }
         },
-        "required" : [ "id" ]
+        "required" : [ "email", "id", "image", "name" ]
       },
       "UserSettingsDto" : {
         "type" : "object",
@@ -4669,7 +4669,7 @@
             "type" : "string"
           }
         },
-        "required" : [ "userId" ]
+        "required" : [ "calorieGoal", "userId" ]
       },
       "VitalsDto" : {
         "type" : "object",
@@ -4686,7 +4686,8 @@
             "type" : [ "number", "null" ],
             "format" : "double"
           }
-        }
+        },
+        "required" : [ "bodyMass", "bodyMassChange", "vo2Max" ]
       },
       "WorkoutDto" : {
         "type" : "object",
@@ -4724,7 +4725,7 @@
             }
           }
         },
-        "required" : [ "editable", "id", "name", "sharedWith", "sharedWithMe", "workoutExercises" ]
+        "required" : [ "editable", "id", "name", "ownerName", "sharedWith", "sharedWithMe", "workoutExercises" ]
       },
       "WorkoutSessionDto" : {
         "type" : "object",
@@ -4755,7 +4756,7 @@
             "format" : "int64"
           }
         },
-        "required" : [ "exercises", "id", "name", "startedAt" ]
+        "required" : [ "endedAt", "exercises", "id", "name", "startedAt", "workoutId" ]
       }
     },
     "securitySchemes" : {

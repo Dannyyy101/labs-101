@@ -1,55 +1,31 @@
 'use server'
 
-import { BACKEND_URL } from "@/utils/constants";
-import { backendFetch } from "@/utils/backend";
-import { FoodWithPortion } from "@/utils/types/food";
+import { api } from "@/lib/api/client";
+import { Food, FoodWithPortion } from "@/utils/types/food";
 import { Page } from "@/utils/types/page";
 import { revalidatePath } from "next/cache";
 
-export async function getAllFoods(page: number = 0, sort: string = "asc", query: string = ""): Promise<Page<FoodWithPortion>> {
-    const url = new URL(BACKEND_URL + "/foods")
+// without portions, EditFood starts with none
+export async function getAllFoods(page: number = 0, sort: string = "asc", query: string = ""): Promise<Page<Food>> {
+    const { data } = await api.GET("/api/foods", { params: { query: { page, sort: [sort], query } } })
 
-    url.searchParams.append("page", String(page))
-    url.searchParams.append("sort", String(sort))
-    url.searchParams.append("query", String(query))
-
-    const response = await backendFetch(url.toString(), { cache: 'no-store' })
-
-    if (response.ok) {
-        return await response.json() as Page<FoodWithPortion>
-    }
-
-    throw new Error("Error fetching foods")
+    if (!data) throw new Error("Error fetching foods")
+    return data
 }
 
 export async function createFood(food: Omit<FoodWithPortion, "id">) {
-    const response = await backendFetch(BACKEND_URL + "/foods", {
-        method: "POST", body: JSON.stringify(food), headers: {
-            'Content-Type': 'application/json'
-        }
-    })
+    const { response } = await api.POST("/api/foods", { body: food })
 
     if (response.ok) {
         revalidatePath("/foods")
-        return
     }
-
 }
 
 export async function updateFood(food: FoodWithPortion) {
+    const { response } = await api.PUT("/api/foods/{id}", { params: { path: { id: food.id } }, body: food })
 
-    const response = await backendFetch(BACKEND_URL + "/foods/" + food.id, {
-        method: "PUT", body: JSON.stringify(food), headers: {
-            'Content-Type': 'application/json'
-        }
-    })
-
-    if (response.ok) {
-        revalidatePath("/foods")
-        return
-    }
-
-    throw new Error("Error updating foods")
+    if (!response.ok) throw new Error("Error updating foods")
+    revalidatePath("/foods")
 }
 
 export async function deleteFood(foodId: number) {
