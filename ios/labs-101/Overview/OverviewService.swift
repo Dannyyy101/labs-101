@@ -1,4 +1,5 @@
 import Foundation
+import LabsAPI
 import SwiftUI
 
 /// The health overview endpoint of the backend, for the signed in user.
@@ -11,10 +12,9 @@ nonisolated struct OverviewService: Sendable {
 
     /// The overview of the day in the time zone of the calendar.
     func overview(on day: Date, calendar: Calendar = .current) async throws -> HealthOverview {
-        try await client.get("users/me/health/overview", query: [
-            URLQueryItem(name: "date", value: day.isoDay(calendar: calendar)),
-            URLQueryItem(name: "zone", value: calendar.timeZone.identifier),
-        ])
+        let query = Operations.HealthOverviewGetOverview.Input.Query(date: day.isoDay(calendar: calendar),
+                                                                      zone: calendar.timeZone.identifier)
+        return HealthOverview(try await client.call { try await $0.healthOverviewGetOverview(query: query).ok.body.json })
     }
 }
 

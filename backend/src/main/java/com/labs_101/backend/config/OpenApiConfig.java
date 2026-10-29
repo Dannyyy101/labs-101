@@ -18,12 +18,14 @@ import java.util.stream.Stream;
 
 import org.jspecify.annotations.Nullable;
 import org.springdoc.core.customizers.OpenApiCustomizer;
+import org.springdoc.core.customizers.OperationCustomizer;
 import org.springdoc.core.utils.SpringDocUtils;
 import org.springframework.beans.factory.annotation.AnnotatedBeanDefinition;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.util.ClassUtils;
+import org.springframework.util.StringUtils;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.labs_101.backend.security.CurrentUser;
@@ -66,6 +68,19 @@ public class OpenApiConfig {
         SpringDocUtils.getConfig().addAnnotationsToIgnore(CurrentUser.class)
                 // free JSON of HealthKit, not the methods of Jackson's tree
                 .replaceWithSchema(JsonNode.class, typed("object"));
+    }
+
+    /**
+     * Controller and method, e.g. {@code friendGetProfile}: the methods of the Swift client are named after it
+     * and springdoc would number the ones with the same name in the order it finds them.
+     */
+    @Bean
+    OperationCustomizer operationIds() {
+        return (operation, handler) -> {
+            String controller = handler.getBeanType().getSimpleName().replace("Controller", "");
+            String method = handler.getMethod().getName();
+            return operation.operationId(StringUtils.uncapitalize(controller) + StringUtils.capitalize(method));
+        };
     }
 
     @Bean

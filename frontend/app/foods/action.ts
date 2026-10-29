@@ -16,9 +16,8 @@ export async function getAllFoods(page: number = 0, sort: string = "asc", query:
 export async function createFood(food: Omit<FoodWithPortion, "id">) {
     const { response } = await api.POST("/api/foods", { body: food })
 
-    if (response.ok) {
-        revalidatePath("/foods")
-    }
+    if (!response.ok) return
+    revalidatePath("/foods")
 }
 
 export async function updateFood(food: FoodWithPortion) {

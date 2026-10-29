@@ -6,9 +6,9 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get: operations["getAllCalendarEvents"];
+        get: operations["calendarGetAllCalendarEvents"];
         put?: never;
-        post: operations["createCalendarEvent"];
+        post: operations["calendarCreateCalendarEvent"];
         delete?: never;
         options?: never;
         head?: never;
@@ -22,9 +22,9 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get: operations["getCalendars"];
+        get: operations["externalCalendarGetCalendars"];
         put?: never;
-        post: operations["addCalendar"];
+        post: operations["externalCalendarAddCalendar"];
         delete?: never;
         options?: never;
         head?: never;
@@ -40,7 +40,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        post: operations["connectAppleAccount"];
+        post: operations["externalCalendarConnectAppleAccount"];
         delete?: never;
         options?: never;
         head?: never;
@@ -57,7 +57,7 @@ export interface paths {
         get?: never;
         put?: never;
         post?: never;
-        delete: operations["disconnectAppleAccount"];
+        delete: operations["externalCalendarDisconnectAppleAccount"];
         options?: never;
         head?: never;
         patch?: never;
@@ -70,7 +70,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get: operations["getEvents"];
+        get: operations["externalCalendarGetEvents"];
         put?: never;
         post?: never;
         delete?: never;
@@ -89,7 +89,7 @@ export interface paths {
         get?: never;
         put?: never;
         post?: never;
-        delete: operations["deleteCalendar"];
+        delete: operations["externalCalendarDeleteCalendar"];
         options?: never;
         head?: never;
         patch?: never;
@@ -103,9 +103,9 @@ export interface paths {
             cookie?: never;
         };
         get?: never;
-        put: operations["updateCalendarEvent"];
+        put: operations["calendarUpdateCalendarEvent"];
         post?: never;
-        delete: operations["deleteCalendarEvent"];
+        delete: operations["calendarDeleteCalendarEvent"];
         options?: never;
         head?: never;
         patch?: never;
@@ -118,9 +118,9 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get: operations["getAll_1"];
+        get: operations["foodGetAll"];
         put?: never;
-        post: operations["create"];
+        post: operations["foodCreate"];
         delete?: never;
         options?: never;
         head?: never;
@@ -134,7 +134,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get: operations["getByBarcode"];
+        get: operations["foodGetByBarcode"];
         put?: never;
         post?: never;
         delete?: never;
@@ -152,7 +152,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        post: operations["extract"];
+        post: operations["foodExtract"];
         delete?: never;
         options?: never;
         head?: never;
@@ -168,7 +168,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        post: operations["createOpenFood"];
+        post: operations["foodCreateOpenFood"];
         delete?: never;
         options?: never;
         head?: never;
@@ -182,7 +182,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get: operations["getOpenFood"];
+        get: operations["foodGetOpenFood"];
         put?: never;
         post?: never;
         delete?: never;
@@ -200,7 +200,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        post: operations["importOpenFood"];
+        post: operations["foodImportOpenFood"];
         delete?: never;
         options?: never;
         head?: never;
@@ -216,7 +216,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        post: operations["trackOpenFood"];
+        post: operations["foodTrackOpenFood"];
         delete?: never;
         options?: never;
         head?: never;
@@ -230,7 +230,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get: operations["search"];
+        get: operations["foodSearch"];
         put?: never;
         post?: never;
         delete?: never;
@@ -247,7 +247,7 @@ export interface paths {
             cookie?: never;
         };
         get?: never;
-        put: operations["updateFood"];
+        put: operations["foodUpdateFood"];
         post?: never;
         delete?: never;
         options?: never;
@@ -264,7 +264,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        post: operations["addFoodPortions"];
+        post: operations["foodAddFoodPortions"];
         delete?: never;
         options?: never;
         head?: never;
@@ -280,7 +280,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        post: operations["trackFoodForUser"];
+        post: operations["foodTrackFoodForUser"];
         delete?: never;
         options?: never;
         head?: never;
@@ -294,7 +294,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get: operations["searchUsers"];
+        get: operations["userSearchUsers"];
         put?: never;
         post?: never;
         delete?: never;
@@ -310,7 +310,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get: operations["getProfile"];
+        get: operations["userGetProfile"];
         put?: never;
         post?: never;
         delete?: never;
@@ -326,9 +326,9 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get: operations["getAll"];
+        get: operations["foodImageGetAll"];
         put?: never;
-        post: operations["upload"];
+        post: operations["foodImageUpload"];
         delete?: never;
         options?: never;
         head?: never;
@@ -342,7 +342,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get: operations["usage"];
+        get: operations["foodImageUsage"];
         put?: never;
         post?: never;
         delete?: never;
@@ -358,7 +358,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get: operations["get"];
+        get: operations["foodImageGet"];
         put?: never;
         post?: never;
         delete?: never;
@@ -376,7 +376,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        post: operations["accept"];
+        post: operations["foodImageAccept"];
         delete?: never;
         options?: never;
         head?: never;
@@ -390,7 +390,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get: operations["getImage"];
+        get: operations["foodImageGetImage"];
         put?: never;
         post?: never;
         delete?: never;
@@ -408,7 +408,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        post: operations["reject"];
+        post: operations["foodImageReject"];
         delete?: never;
         options?: never;
         head?: never;
@@ -422,7 +422,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get: operations["getLastTracked"];
+        get: operations["userGetLastTracked"];
         put?: never;
         post?: never;
         delete?: never;
@@ -438,7 +438,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get: operations["getFriends"];
+        get: operations["friendGetFriends"];
         put?: never;
         post?: never;
         delete?: never;
@@ -456,7 +456,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        post: operations["sendRequest"];
+        post: operations["friendSendRequest"];
         delete?: never;
         options?: never;
         head?: never;
@@ -471,9 +471,9 @@ export interface paths {
             cookie?: never;
         };
         get?: never;
-        put: operations["acceptRequest"];
+        put: operations["friendAcceptRequest"];
         post?: never;
-        delete: operations["deleteRequest"];
+        delete: operations["friendDeleteRequest"];
         options?: never;
         head?: never;
         patch?: never;
@@ -489,7 +489,7 @@ export interface paths {
         get?: never;
         put?: never;
         post?: never;
-        delete: operations["removeFriend"];
+        delete: operations["friendRemoveFriend"];
         options?: never;
         head?: never;
         patch?: never;
@@ -504,7 +504,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        post: operations["cheer"];
+        post: operations["friendCheer"];
         delete?: never;
         options?: never;
         head?: never;
@@ -518,7 +518,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get: operations["getProfile_2"];
+        get: operations["friendGetProfile"];
         put?: never;
         post?: never;
         delete?: never;
@@ -534,8 +534,8 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get: operations["getCharacteristics"];
-        put: operations["saveCharacteristics"];
+        get: operations["healthGetCharacteristics"];
+        put: operations["healthSaveCharacteristics"];
         post?: never;
         delete?: never;
         options?: never;
@@ -550,7 +550,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get: operations["getOverview"];
+        get: operations["healthOverviewGetOverview"];
         put?: never;
         post?: never;
         delete?: never;
@@ -566,7 +566,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get: operations["getEnergy"];
+        get: operations["healthOverviewGetEnergy"];
         put?: never;
         post?: never;
         delete?: never;
@@ -582,9 +582,9 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get: operations["getSamples"];
+        get: operations["healthGetSamples"];
         put?: never;
-        post: operations["uploadSamples"];
+        post: operations["healthUploadSamples"];
         delete?: never;
         options?: never;
         head?: never;
@@ -600,7 +600,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        post: operations["deleteSamples"];
+        post: operations["healthDeleteSamples"];
         delete?: never;
         options?: never;
         head?: never;
@@ -616,7 +616,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        post: operations["completeFullSync"];
+        post: operations["healthCompleteFullSync"];
         delete?: never;
         options?: never;
         head?: never;
@@ -630,7 +630,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get: operations["getSummary"];
+        get: operations["healthGetSummary"];
         put?: never;
         post?: never;
         delete?: never;
@@ -646,9 +646,9 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get: operations["getWriteRequests"];
+        get: operations["healthGetWriteRequests"];
         put?: never;
-        post: operations["createWriteRequest"];
+        post: operations["healthCreateWriteRequest"];
         delete?: never;
         options?: never;
         head?: never;
@@ -664,7 +664,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        post: operations["acknowledgeWriteRequest"];
+        post: operations["healthAcknowledgeWriteRequest"];
         delete?: never;
         options?: never;
         head?: never;
@@ -678,9 +678,9 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get: operations["getNotifications"];
+        get: operations["notificationGetNotifications"];
         put?: never;
-        post: operations["createNotification"];
+        post: operations["notificationCreateNotification"];
         delete?: never;
         options?: never;
         head?: never;
@@ -695,7 +695,7 @@ export interface paths {
             cookie?: never;
         };
         get?: never;
-        put: operations["markAllRead"];
+        put: operations["notificationMarkAllRead"];
         post?: never;
         delete?: never;
         options?: never;
@@ -710,7 +710,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get: operations["getUnreadCount"];
+        get: operations["notificationGetUnreadCount"];
         put?: never;
         post?: never;
         delete?: never;
@@ -729,7 +729,7 @@ export interface paths {
         get?: never;
         put?: never;
         post?: never;
-        delete: operations["deleteNotification"];
+        delete: operations["notificationDeleteNotification"];
         options?: never;
         head?: never;
         patch?: never;
@@ -743,9 +743,9 @@ export interface paths {
             cookie?: never;
         };
         get?: never;
-        put: operations["markRead"];
+        put: operations["notificationMarkRead"];
         post?: never;
-        delete: operations["markUnread"];
+        delete: operations["notificationMarkUnread"];
         options?: never;
         head?: never;
         patch?: never;
@@ -758,7 +758,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get: operations["getProfile_1"];
+        get: operations["userProfileGetProfile"];
         put?: never;
         post?: never;
         delete?: never;
@@ -774,7 +774,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get: operations["getRuns"];
+        get: operations["runGetRuns"];
         put?: never;
         post?: never;
         delete?: never;
@@ -790,7 +790,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get: operations["getRun"];
+        get: operations["runGetRun"];
         put?: never;
         post?: never;
         delete?: never;
@@ -806,10 +806,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get: operations["getSettings"];
-        put: operations["updateSettings"];
-        post: operations["createSettings"];
-        delete: operations["deleteSettings"];
+        get: operations["userSettingsGetSettings"];
+        put: operations["userSettingsUpdateSettings"];
+        post: operations["userSettingsCreateSettings"];
+        delete: operations["userSettingsDeleteSettings"];
         options?: never;
         head?: never;
         patch?: never;
@@ -822,7 +822,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get: operations["getTrackedFoodForUser"];
+        get: operations["userGetTrackedFoodForUser"];
         put?: never;
         post?: never;
         delete?: never;
@@ -838,10 +838,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get: operations["getTrackedFoodById"];
-        put: operations["updateTrackedFoodById"];
+        get: operations["userGetTrackedFoodById"];
+        put: operations["userUpdateTrackedFoodById"];
         post?: never;
-        delete: operations["deleteTrackedFoodById"];
+        delete: operations["userDeleteTrackedFoodById"];
         options?: never;
         head?: never;
         patch?: never;
@@ -854,9 +854,9 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get: operations["getSessions"];
+        get: operations["workoutSessionGetSessions"];
         put?: never;
-        post: operations["start"];
+        post: operations["workoutSessionStart"];
         delete?: never;
         options?: never;
         head?: never;
@@ -870,7 +870,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get: operations["getActive"];
+        get: operations["workoutSessionGetActive"];
         put?: never;
         post?: never;
         delete?: never;
@@ -886,10 +886,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get: operations["getSession"];
-        put: operations["update"];
+        get: operations["workoutSessionGetSession"];
+        put: operations["workoutSessionUpdate"];
         post?: never;
-        delete: operations["delete"];
+        delete: operations["workoutSessionDelete"];
         options?: never;
         head?: never;
         patch?: never;
@@ -904,7 +904,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        post: operations["finish"];
+        post: operations["workoutSessionFinish"];
         delete?: never;
         options?: never;
         head?: never;
@@ -918,9 +918,9 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get: operations["getAllWorkouts"];
+        get: operations["workoutGetAllWorkouts"];
         put?: never;
-        post: operations["createWorkout"];
+        post: operations["workoutCreateWorkout"];
         delete?: never;
         options?: never;
         head?: never;
@@ -934,9 +934,9 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get: operations["getAllExercises"];
+        get: operations["workoutGetAllExercises"];
         put?: never;
-        post: operations["createExercise"];
+        post: operations["workoutCreateExercise"];
         delete?: never;
         options?: never;
         head?: never;
@@ -951,9 +951,9 @@ export interface paths {
             cookie?: never;
         };
         get?: never;
-        put: operations["updateExerciseById"];
+        put: operations["workoutUpdateExerciseById"];
         post?: never;
-        delete: operations["deleteExercise"];
+        delete: operations["workoutDeleteExercise"];
         options?: never;
         head?: never;
         patch?: never;
@@ -966,10 +966,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get: operations["getWorkoutById"];
-        put: operations["updateWorkout"];
+        get: operations["workoutGetWorkoutById"];
+        put: operations["workoutUpdateWorkout"];
         post?: never;
-        delete: operations["deleteWorkout"];
+        delete: operations["workoutDeleteWorkout"];
         options?: never;
         head?: never;
         patch?: never;
@@ -983,7 +983,7 @@ export interface paths {
             cookie?: never;
         };
         get?: never;
-        put: operations["shareWorkout"];
+        put: operations["workoutShareWorkout"];
         post?: never;
         delete?: never;
         options?: never;
@@ -1001,7 +1001,7 @@ export interface paths {
         get?: never;
         put?: never;
         post?: never;
-        delete: operations["leaveWorkout"];
+        delete: operations["workoutLeaveWorkout"];
         options?: never;
         head?: never;
         patch?: never;
@@ -1932,7 +1932,7 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
-    getAllCalendarEvents: {
+    calendarGetAllCalendarEvents: {
         parameters: {
             query?: {
                 startDate?: string;
@@ -1955,7 +1955,7 @@ export interface operations {
             };
         };
     };
-    createCalendarEvent: {
+    calendarCreateCalendarEvent: {
         parameters: {
             query?: never;
             header?: never;
@@ -1979,7 +1979,7 @@ export interface operations {
             };
         };
     };
-    getCalendars: {
+    externalCalendarGetCalendars: {
         parameters: {
             query?: never;
             header?: never;
@@ -1999,7 +1999,7 @@ export interface operations {
             };
         };
     };
-    addCalendar: {
+    externalCalendarAddCalendar: {
         parameters: {
             query?: never;
             header?: never;
@@ -2023,7 +2023,7 @@ export interface operations {
             };
         };
     };
-    connectAppleAccount: {
+    externalCalendarConnectAppleAccount: {
         parameters: {
             query?: never;
             header?: never;
@@ -2047,7 +2047,7 @@ export interface operations {
             };
         };
     };
-    disconnectAppleAccount: {
+    externalCalendarDisconnectAppleAccount: {
         parameters: {
             query?: never;
             header?: never;
@@ -2067,7 +2067,7 @@ export interface operations {
             };
         };
     };
-    getEvents: {
+    externalCalendarGetEvents: {
         parameters: {
             query: {
                 startDate: string;
@@ -2090,7 +2090,7 @@ export interface operations {
             };
         };
     };
-    deleteCalendar: {
+    externalCalendarDeleteCalendar: {
         parameters: {
             query?: never;
             header?: never;
@@ -2110,7 +2110,7 @@ export interface operations {
             };
         };
     };
-    updateCalendarEvent: {
+    calendarUpdateCalendarEvent: {
         parameters: {
             query?: never;
             header?: never;
@@ -2136,7 +2136,7 @@ export interface operations {
             };
         };
     };
-    deleteCalendarEvent: {
+    calendarDeleteCalendarEvent: {
         parameters: {
             query?: never;
             header?: never;
@@ -2156,7 +2156,7 @@ export interface operations {
             };
         };
     };
-    getAll_1: {
+    foodGetAll: {
         parameters: {
             query?: {
                 query?: string;
@@ -2184,7 +2184,7 @@ export interface operations {
             };
         };
     };
-    create: {
+    foodCreate: {
         parameters: {
             query?: never;
             header?: never;
@@ -2206,7 +2206,7 @@ export interface operations {
             };
         };
     };
-    getByBarcode: {
+    foodGetByBarcode: {
         parameters: {
             query?: never;
             header?: never;
@@ -2228,7 +2228,7 @@ export interface operations {
             };
         };
     };
-    extract: {
+    foodExtract: {
         parameters: {
             query?: never;
             header?: never;
@@ -2252,7 +2252,7 @@ export interface operations {
             };
         };
     };
-    createOpenFood: {
+    foodCreateOpenFood: {
         parameters: {
             query?: never;
             header?: never;
@@ -2274,7 +2274,7 @@ export interface operations {
             };
         };
     };
-    getOpenFood: {
+    foodGetOpenFood: {
         parameters: {
             query?: never;
             header?: never;
@@ -2296,7 +2296,7 @@ export interface operations {
             };
         };
     };
-    importOpenFood: {
+    foodImportOpenFood: {
         parameters: {
             query?: never;
             header?: never;
@@ -2318,7 +2318,7 @@ export interface operations {
             };
         };
     };
-    trackOpenFood: {
+    foodTrackOpenFood: {
         parameters: {
             query?: never;
             header?: never;
@@ -2342,7 +2342,7 @@ export interface operations {
             };
         };
     };
-    search: {
+    foodSearch: {
         parameters: {
             query: {
                 /** @description Zero-based page index (0..N) */
@@ -2370,7 +2370,7 @@ export interface operations {
             };
         };
     };
-    updateFood: {
+    foodUpdateFood: {
         parameters: {
             query?: never;
             header?: never;
@@ -2396,7 +2396,7 @@ export interface operations {
             };
         };
     };
-    addFoodPortions: {
+    foodAddFoodPortions: {
         parameters: {
             query?: never;
             header?: never;
@@ -2420,7 +2420,7 @@ export interface operations {
             };
         };
     };
-    trackFoodForUser: {
+    foodTrackFoodForUser: {
         parameters: {
             query?: never;
             header?: never;
@@ -2444,7 +2444,7 @@ export interface operations {
             };
         };
     };
-    searchUsers: {
+    userSearchUsers: {
         parameters: {
             query: {
                 query: string;
@@ -2466,7 +2466,7 @@ export interface operations {
             };
         };
     };
-    getProfile: {
+    userGetProfile: {
         parameters: {
             query?: never;
             header?: never;
@@ -2486,7 +2486,7 @@ export interface operations {
             };
         };
     };
-    getAll: {
+    foodImageGetAll: {
         parameters: {
             query?: {
                 limit?: number;
@@ -2508,7 +2508,7 @@ export interface operations {
             };
         };
     };
-    upload: {
+    foodImageUpload: {
         parameters: {
             query: {
                 meal: string;
@@ -2538,7 +2538,7 @@ export interface operations {
             };
         };
     };
-    usage: {
+    foodImageUsage: {
         parameters: {
             query?: never;
             header?: never;
@@ -2558,7 +2558,7 @@ export interface operations {
             };
         };
     };
-    get: {
+    foodImageGet: {
         parameters: {
             query?: never;
             header?: never;
@@ -2580,7 +2580,7 @@ export interface operations {
             };
         };
     };
-    accept: {
+    foodImageAccept: {
         parameters: {
             query?: never;
             header?: never;
@@ -2606,7 +2606,7 @@ export interface operations {
             };
         };
     };
-    getImage: {
+    foodImageGetImage: {
         parameters: {
             query?: never;
             header?: never;
@@ -2628,7 +2628,7 @@ export interface operations {
             };
         };
     };
-    reject: {
+    foodImageReject: {
         parameters: {
             query?: never;
             header?: never;
@@ -2650,7 +2650,7 @@ export interface operations {
             };
         };
     };
-    getLastTracked: {
+    userGetLastTracked: {
         parameters: {
             query?: never;
             header?: never;
@@ -2672,7 +2672,7 @@ export interface operations {
             };
         };
     };
-    getFriends: {
+    friendGetFriends: {
         parameters: {
             query?: never;
             header?: never;
@@ -2692,7 +2692,7 @@ export interface operations {
             };
         };
     };
-    sendRequest: {
+    friendSendRequest: {
         parameters: {
             query?: never;
             header?: never;
@@ -2714,7 +2714,7 @@ export interface operations {
             };
         };
     };
-    acceptRequest: {
+    friendAcceptRequest: {
         parameters: {
             query?: never;
             header?: never;
@@ -2734,7 +2734,7 @@ export interface operations {
             };
         };
     };
-    deleteRequest: {
+    friendDeleteRequest: {
         parameters: {
             query?: never;
             header?: never;
@@ -2754,7 +2754,7 @@ export interface operations {
             };
         };
     };
-    removeFriend: {
+    friendRemoveFriend: {
         parameters: {
             query?: never;
             header?: never;
@@ -2774,7 +2774,7 @@ export interface operations {
             };
         };
     };
-    cheer: {
+    friendCheer: {
         parameters: {
             query?: never;
             header?: never;
@@ -2794,7 +2794,7 @@ export interface operations {
             };
         };
     };
-    getProfile_2: {
+    friendGetProfile: {
         parameters: {
             query?: {
                 zone?: string;
@@ -2818,7 +2818,7 @@ export interface operations {
             };
         };
     };
-    getCharacteristics: {
+    healthGetCharacteristics: {
         parameters: {
             query?: never;
             header?: never;
@@ -2838,7 +2838,7 @@ export interface operations {
             };
         };
     };
-    saveCharacteristics: {
+    healthSaveCharacteristics: {
         parameters: {
             query?: never;
             header?: never;
@@ -2860,7 +2860,7 @@ export interface operations {
             };
         };
     };
-    getOverview: {
+    healthOverviewGetOverview: {
         parameters: {
             query?: {
                 date?: string;
@@ -2883,7 +2883,7 @@ export interface operations {
             };
         };
     };
-    getEnergy: {
+    healthOverviewGetEnergy: {
         parameters: {
             query?: {
                 date?: string;
@@ -2906,7 +2906,7 @@ export interface operations {
             };
         };
     };
-    getSamples: {
+    healthGetSamples: {
         parameters: {
             query?: {
                 type?: string;
@@ -2932,7 +2932,7 @@ export interface operations {
             };
         };
     };
-    uploadSamples: {
+    healthUploadSamples: {
         parameters: {
             query?: never;
             header?: never;
@@ -2956,7 +2956,7 @@ export interface operations {
             };
         };
     };
-    deleteSamples: {
+    healthDeleteSamples: {
         parameters: {
             query?: never;
             header?: never;
@@ -2980,7 +2980,7 @@ export interface operations {
             };
         };
     };
-    completeFullSync: {
+    healthCompleteFullSync: {
         parameters: {
             query?: never;
             header?: never;
@@ -3004,7 +3004,7 @@ export interface operations {
             };
         };
     };
-    getSummary: {
+    healthGetSummary: {
         parameters: {
             query?: never;
             header?: never;
@@ -3024,7 +3024,7 @@ export interface operations {
             };
         };
     };
-    getWriteRequests: {
+    healthGetWriteRequests: {
         parameters: {
             query?: {
                 status?: "PENDING" | "WRITTEN" | "FAILED";
@@ -3046,7 +3046,7 @@ export interface operations {
             };
         };
     };
-    createWriteRequest: {
+    healthCreateWriteRequest: {
         parameters: {
             query?: never;
             header?: never;
@@ -3070,7 +3070,7 @@ export interface operations {
             };
         };
     };
-    acknowledgeWriteRequest: {
+    healthAcknowledgeWriteRequest: {
         parameters: {
             query?: never;
             header?: never;
@@ -3096,7 +3096,7 @@ export interface operations {
             };
         };
     };
-    getNotifications: {
+    notificationGetNotifications: {
         parameters: {
             query?: {
                 unreadOnly?: boolean;
@@ -3119,7 +3119,7 @@ export interface operations {
             };
         };
     };
-    createNotification: {
+    notificationCreateNotification: {
         parameters: {
             query?: never;
             header?: never;
@@ -3143,7 +3143,7 @@ export interface operations {
             };
         };
     };
-    markAllRead: {
+    notificationMarkAllRead: {
         parameters: {
             query?: never;
             header?: never;
@@ -3161,7 +3161,7 @@ export interface operations {
             };
         };
     };
-    getUnreadCount: {
+    notificationGetUnreadCount: {
         parameters: {
             query?: never;
             header?: never;
@@ -3181,7 +3181,7 @@ export interface operations {
             };
         };
     };
-    deleteNotification: {
+    notificationDeleteNotification: {
         parameters: {
             query?: never;
             header?: never;
@@ -3201,7 +3201,7 @@ export interface operations {
             };
         };
     };
-    markRead: {
+    notificationMarkRead: {
         parameters: {
             query?: never;
             header?: never;
@@ -3223,7 +3223,7 @@ export interface operations {
             };
         };
     };
-    markUnread: {
+    notificationMarkUnread: {
         parameters: {
             query?: never;
             header?: never;
@@ -3245,7 +3245,7 @@ export interface operations {
             };
         };
     };
-    getProfile_1: {
+    userProfileGetProfile: {
         parameters: {
             query?: {
                 zone?: string;
@@ -3267,7 +3267,7 @@ export interface operations {
             };
         };
     };
-    getRuns: {
+    runGetRuns: {
         parameters: {
             query?: {
                 from?: string;
@@ -3290,7 +3290,7 @@ export interface operations {
             };
         };
     };
-    getRun: {
+    runGetRun: {
         parameters: {
             query?: never;
             header?: never;
@@ -3312,7 +3312,7 @@ export interface operations {
             };
         };
     };
-    getSettings: {
+    userSettingsGetSettings: {
         parameters: {
             query?: never;
             header?: never;
@@ -3332,7 +3332,7 @@ export interface operations {
             };
         };
     };
-    updateSettings: {
+    userSettingsUpdateSettings: {
         parameters: {
             query?: never;
             header?: never;
@@ -3356,7 +3356,7 @@ export interface operations {
             };
         };
     };
-    createSettings: {
+    userSettingsCreateSettings: {
         parameters: {
             query?: never;
             header?: never;
@@ -3380,7 +3380,7 @@ export interface operations {
             };
         };
     };
-    deleteSettings: {
+    userSettingsDeleteSettings: {
         parameters: {
             query?: never;
             header?: never;
@@ -3398,7 +3398,7 @@ export interface operations {
             };
         };
     };
-    getTrackedFoodForUser: {
+    userGetTrackedFoodForUser: {
         parameters: {
             query?: {
                 date?: string;
@@ -3420,7 +3420,7 @@ export interface operations {
             };
         };
     };
-    getTrackedFoodById: {
+    userGetTrackedFoodById: {
         parameters: {
             query?: never;
             header?: never;
@@ -3442,7 +3442,7 @@ export interface operations {
             };
         };
     };
-    updateTrackedFoodById: {
+    userUpdateTrackedFoodById: {
         parameters: {
             query?: never;
             header?: never;
@@ -3466,7 +3466,7 @@ export interface operations {
             };
         };
     };
-    deleteTrackedFoodById: {
+    userDeleteTrackedFoodById: {
         parameters: {
             query?: never;
             header?: never;
@@ -3486,7 +3486,7 @@ export interface operations {
             };
         };
     };
-    getSessions: {
+    workoutSessionGetSessions: {
         parameters: {
             query?: {
                 from?: string;
@@ -3509,7 +3509,7 @@ export interface operations {
             };
         };
     };
-    start: {
+    workoutSessionStart: {
         parameters: {
             query?: never;
             header?: never;
@@ -3533,7 +3533,7 @@ export interface operations {
             };
         };
     };
-    getActive: {
+    workoutSessionGetActive: {
         parameters: {
             query?: never;
             header?: never;
@@ -3560,7 +3560,7 @@ export interface operations {
             };
         };
     };
-    getSession: {
+    workoutSessionGetSession: {
         parameters: {
             query?: never;
             header?: never;
@@ -3582,7 +3582,7 @@ export interface operations {
             };
         };
     };
-    update: {
+    workoutSessionUpdate: {
         parameters: {
             query?: never;
             header?: never;
@@ -3608,7 +3608,7 @@ export interface operations {
             };
         };
     };
-    delete: {
+    workoutSessionDelete: {
         parameters: {
             query?: never;
             header?: never;
@@ -3628,7 +3628,7 @@ export interface operations {
             };
         };
     };
-    finish: {
+    workoutSessionFinish: {
         parameters: {
             query?: never;
             header?: never;
@@ -3654,7 +3654,7 @@ export interface operations {
             };
         };
     };
-    getAllWorkouts: {
+    workoutGetAllWorkouts: {
         parameters: {
             query?: never;
             header?: never;
@@ -3674,7 +3674,7 @@ export interface operations {
             };
         };
     };
-    createWorkout: {
+    workoutCreateWorkout: {
         parameters: {
             query?: never;
             header?: never;
@@ -3698,7 +3698,7 @@ export interface operations {
             };
         };
     };
-    getAllExercises: {
+    workoutGetAllExercises: {
         parameters: {
             query?: {
                 name?: string;
@@ -3721,7 +3721,7 @@ export interface operations {
             };
         };
     };
-    createExercise: {
+    workoutCreateExercise: {
         parameters: {
             query?: never;
             header?: never;
@@ -3743,7 +3743,7 @@ export interface operations {
             };
         };
     };
-    updateExerciseById: {
+    workoutUpdateExerciseById: {
         parameters: {
             query?: never;
             header?: never;
@@ -3769,7 +3769,7 @@ export interface operations {
             };
         };
     };
-    deleteExercise: {
+    workoutDeleteExercise: {
         parameters: {
             query?: never;
             header?: never;
@@ -3789,7 +3789,7 @@ export interface operations {
             };
         };
     };
-    getWorkoutById: {
+    workoutGetWorkoutById: {
         parameters: {
             query?: never;
             header?: never;
@@ -3811,7 +3811,7 @@ export interface operations {
             };
         };
     };
-    updateWorkout: {
+    workoutUpdateWorkout: {
         parameters: {
             query?: never;
             header?: never;
@@ -3837,7 +3837,7 @@ export interface operations {
             };
         };
     };
-    deleteWorkout: {
+    workoutDeleteWorkout: {
         parameters: {
             query?: never;
             header?: never;
@@ -3857,7 +3857,7 @@ export interface operations {
             };
         };
     };
-    shareWorkout: {
+    workoutShareWorkout: {
         parameters: {
             query?: never;
             header?: never;
@@ -3883,7 +3883,7 @@ export interface operations {
             };
         };
     };
-    leaveWorkout: {
+    workoutLeaveWorkout: {
         parameters: {
             query?: never;
             header?: never;

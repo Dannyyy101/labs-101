@@ -164,7 +164,7 @@ nonisolated struct ExtractedFood: Codable, Sendable {
     let openFoodId: Int?
 }
 
-nonisolated struct Page<Element: Decodable & Sendable>: Decodable, Sendable {
+nonisolated struct Page<Element: Sendable>: Sendable {
     let content: [Element]
     let last: Bool
     let number: Int

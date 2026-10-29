@@ -1,4 +1,5 @@
 import Foundation
+import LabsAPI
 import SwiftUI
 
 /// The signed in user, the backend asks Zitadel for it (see UserController). Name and picture are changed in Zitadel.
@@ -22,7 +23,8 @@ nonisolated struct ProfileService: Sendable {
     }
 
     func profile() async throws -> UserProfile {
-        try await client.get("users/me")
+        let dto = try await client.call { try await $0.userGetProfile().ok.body.json }
+        return UserProfile(id: dto.id, name: dto.name, email: dto.email, image: dto.image.flatMap(URL.init(string:)))
     }
 
     /// The own profile in the Zitadel console, where name and picture are changed.

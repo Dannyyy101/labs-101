@@ -14,7 +14,7 @@
   "paths" : {
     "/api/calendar" : {
       "get" : {
-        "operationId" : "getAllCalendarEvents",
+        "operationId" : "calendarGetAllCalendarEvents",
         "parameters" : [ {
           "in" : "query",
           "name" : "startDate",
@@ -50,7 +50,7 @@
         "tags" : [ "calendar-controller" ]
       },
       "post" : {
-        "operationId" : "createCalendarEvent",
+        "operationId" : "calendarCreateCalendarEvent",
         "requestBody" : {
           "content" : {
             "application/json" : {
@@ -78,7 +78,7 @@
     },
     "/api/calendar/external" : {
       "get" : {
-        "operationId" : "getCalendars",
+        "operationId" : "externalCalendarGetCalendars",
         "responses" : {
           "200" : {
             "content" : {
@@ -97,7 +97,7 @@
         "tags" : [ "external-calendar-controller" ]
       },
       "post" : {
-        "operationId" : "addCalendar",
+        "operationId" : "externalCalendarAddCalendar",
         "requestBody" : {
           "content" : {
             "application/json" : {
@@ -125,7 +125,7 @@
     },
     "/api/calendar/external/apple" : {
       "post" : {
-        "operationId" : "connectAppleAccount",
+        "operationId" : "externalCalendarConnectAppleAccount",
         "requestBody" : {
           "content" : {
             "application/json" : {
@@ -156,7 +156,7 @@
     },
     "/api/calendar/external/apple/{accountId}" : {
       "delete" : {
-        "operationId" : "disconnectAppleAccount",
+        "operationId" : "externalCalendarDisconnectAppleAccount",
         "parameters" : [ {
           "in" : "path",
           "name" : "accountId",
@@ -176,7 +176,7 @@
     },
     "/api/calendar/external/events" : {
       "get" : {
-        "operationId" : "getEvents",
+        "operationId" : "externalCalendarGetEvents",
         "parameters" : [ {
           "in" : "query",
           "name" : "startDate",
@@ -214,7 +214,7 @@
     },
     "/api/calendar/external/{id}" : {
       "delete" : {
-        "operationId" : "deleteCalendar",
+        "operationId" : "externalCalendarDeleteCalendar",
         "parameters" : [ {
           "in" : "path",
           "name" : "id",
@@ -234,7 +234,7 @@
     },
     "/api/calendar/{id}" : {
       "delete" : {
-        "operationId" : "deleteCalendarEvent",
+        "operationId" : "calendarDeleteCalendarEvent",
         "parameters" : [ {
           "in" : "path",
           "name" : "id",
@@ -252,7 +252,7 @@
         "tags" : [ "calendar-controller" ]
       },
       "put" : {
-        "operationId" : "updateCalendarEvent",
+        "operationId" : "calendarUpdateCalendarEvent",
         "parameters" : [ {
           "in" : "path",
           "name" : "id",
@@ -289,7 +289,7 @@
     },
     "/api/foods" : {
       "get" : {
-        "operationId" : "getAll_1",
+        "operationId" : "foodGetAll",
         "parameters" : [ {
           "in" : "query",
           "name" : "query",
@@ -344,7 +344,7 @@
         "tags" : [ "food-controller" ]
       },
       "post" : {
-        "operationId" : "create",
+        "operationId" : "foodCreate",
         "requestBody" : {
           "content" : {
             "application/json" : {
@@ -365,7 +365,7 @@
     },
     "/api/foods/bar-code/{code}" : {
       "get" : {
-        "operationId" : "getByBarcode",
+        "operationId" : "foodGetByBarcode",
         "parameters" : [ {
           "in" : "path",
           "name" : "code",
@@ -391,7 +391,7 @@
     },
     "/api/foods/extract" : {
       "post" : {
-        "operationId" : "extract",
+        "operationId" : "foodExtract",
         "requestBody" : {
           "content" : {
             "application/json" : {
@@ -422,7 +422,7 @@
     },
     "/api/foods/open-food" : {
       "post" : {
-        "operationId" : "createOpenFood",
+        "operationId" : "foodCreateOpenFood",
         "requestBody" : {
           "content" : {
             "application/json" : {
@@ -443,7 +443,7 @@
     },
     "/api/foods/open-food/{openFoodId}" : {
       "get" : {
-        "operationId" : "getOpenFood",
+        "operationId" : "foodGetOpenFood",
         "parameters" : [ {
           "in" : "path",
           "name" : "openFoodId",
@@ -470,7 +470,7 @@
     },
     "/api/foods/open-food/{openFoodId}/import" : {
       "post" : {
-        "operationId" : "importOpenFood",
+        "operationId" : "foodImportOpenFood",
         "parameters" : [ {
           "in" : "path",
           "name" : "openFoodId",
@@ -497,7 +497,7 @@
     },
     "/api/foods/open-food/{openFoodId}/track" : {
       "post" : {
-        "operationId" : "trackOpenFood",
+        "operationId" : "foodTrackOpenFood",
         "parameters" : [ {
           "in" : "path",
           "name" : "openFoodId",
@@ -527,7 +527,7 @@
     },
     "/api/foods/search/byNameAndUser" : {
       "get" : {
-        "operationId" : "search",
+        "operationId" : "foodSearch",
         "parameters" : [ {
           "description" : "Zero-based page index (0..N)",
           "in" : "query",
@@ -584,7 +584,7 @@
     },
     "/api/foods/{id}" : {
       "put" : {
-        "operationId" : "updateFood",
+        "operationId" : "foodUpdateFood",
         "parameters" : [ {
           "in" : "path",
           "name" : "id",
@@ -621,7 +621,7 @@
     },
     "/api/foods/{id}/portions" : {
       "post" : {
-        "operationId" : "addFoodPortions",
+        "operationId" : "foodAddFoodPortions",
         "parameters" : [ {
           "in" : "path",
           "name" : "id",
@@ -651,7 +651,7 @@
     },
     "/api/foods/{id}/track" : {
       "post" : {
-        "operationId" : "trackFoodForUser",
+        "operationId" : "foodTrackFoodForUser",
         "parameters" : [ {
           "in" : "path",
           "name" : "id",
@@ -681,7 +681,7 @@
     },
     "/api/users" : {
       "get" : {
-        "operationId" : "searchUsers",
+        "operationId" : "userSearchUsers",
         "parameters" : [ {
           "in" : "query",
           "name" : "query",
@@ -710,7 +710,7 @@
     },
     "/api/users/me" : {
       "get" : {
-        "operationId" : "getProfile",
+        "operationId" : "userGetProfile",
         "responses" : {
           "200" : {
             "content" : {
@@ -728,7 +728,7 @@
     },
     "/api/users/me/food-images" : {
       "get" : {
-        "operationId" : "getAll",
+        "operationId" : "foodImageGetAll",
         "parameters" : [ {
           "in" : "query",
           "name" : "limit",
@@ -757,7 +757,7 @@
         "tags" : [ "food-image-controller" ]
       },
       "post" : {
-        "operationId" : "upload",
+        "operationId" : "foodImageUpload",
         "parameters" : [ {
           "in" : "query",
           "name" : "meal",
@@ -807,7 +807,7 @@
     },
     "/api/users/me/food-images/usage" : {
       "get" : {
-        "operationId" : "usage",
+        "operationId" : "foodImageUsage",
         "responses" : {
           "200" : {
             "content" : {
@@ -825,7 +825,7 @@
     },
     "/api/users/me/food-images/{id}" : {
       "get" : {
-        "operationId" : "get",
+        "operationId" : "foodImageGet",
         "parameters" : [ {
           "in" : "path",
           "name" : "id",
@@ -852,7 +852,7 @@
     },
     "/api/users/me/food-images/{id}/accept" : {
       "post" : {
-        "operationId" : "accept",
+        "operationId" : "foodImageAccept",
         "parameters" : [ {
           "in" : "path",
           "name" : "id",
@@ -889,7 +889,7 @@
     },
     "/api/users/me/food-images/{id}/image" : {
       "get" : {
-        "operationId" : "getImage",
+        "operationId" : "foodImageGetImage",
         "parameters" : [ {
           "in" : "path",
           "name" : "id",
@@ -917,7 +917,7 @@
     },
     "/api/users/me/food-images/{id}/reject" : {
       "post" : {
-        "operationId" : "reject",
+        "operationId" : "foodImageReject",
         "parameters" : [ {
           "in" : "path",
           "name" : "id",
@@ -944,7 +944,7 @@
     },
     "/api/users/me/foods/{foodId}/last" : {
       "get" : {
-        "operationId" : "getLastTracked",
+        "operationId" : "userGetLastTracked",
         "parameters" : [ {
           "in" : "path",
           "name" : "foodId",
@@ -971,7 +971,7 @@
     },
     "/api/users/me/friends" : {
       "get" : {
-        "operationId" : "getFriends",
+        "operationId" : "friendGetFriends",
         "responses" : {
           "200" : {
             "content" : {
@@ -989,7 +989,7 @@
     },
     "/api/users/me/friends/requests" : {
       "post" : {
-        "operationId" : "sendRequest",
+        "operationId" : "friendSendRequest",
         "requestBody" : {
           "content" : {
             "application/json" : {
@@ -1010,7 +1010,7 @@
     },
     "/api/users/me/friends/requests/{id}" : {
       "delete" : {
-        "operationId" : "deleteRequest",
+        "operationId" : "friendDeleteRequest",
         "parameters" : [ {
           "in" : "path",
           "name" : "id",
@@ -1028,7 +1028,7 @@
         "tags" : [ "friend-controller" ]
       },
       "put" : {
-        "operationId" : "acceptRequest",
+        "operationId" : "friendAcceptRequest",
         "parameters" : [ {
           "in" : "path",
           "name" : "id",
@@ -1048,7 +1048,7 @@
     },
     "/api/users/me/friends/{friendId}" : {
       "delete" : {
-        "operationId" : "removeFriend",
+        "operationId" : "friendRemoveFriend",
         "parameters" : [ {
           "in" : "path",
           "name" : "friendId",
@@ -1067,7 +1067,7 @@
     },
     "/api/users/me/friends/{friendId}/cheers" : {
       "post" : {
-        "operationId" : "cheer",
+        "operationId" : "friendCheer",
         "parameters" : [ {
           "in" : "path",
           "name" : "friendId",
@@ -1086,7 +1086,7 @@
     },
     "/api/users/me/friends/{friendId}/profile" : {
       "get" : {
-        "operationId" : "getProfile_2",
+        "operationId" : "friendGetProfile",
         "parameters" : [ {
           "in" : "path",
           "name" : "friendId",
@@ -1119,7 +1119,7 @@
     },
     "/api/users/me/health/characteristics" : {
       "get" : {
-        "operationId" : "getCharacteristics",
+        "operationId" : "healthGetCharacteristics",
         "responses" : {
           "200" : {
             "content" : {
@@ -1135,7 +1135,7 @@
         "tags" : [ "health-controller" ]
       },
       "put" : {
-        "operationId" : "saveCharacteristics",
+        "operationId" : "healthSaveCharacteristics",
         "requestBody" : {
           "content" : {
             "application/json" : {
@@ -1156,7 +1156,7 @@
     },
     "/api/users/me/health/overview" : {
       "get" : {
-        "operationId" : "getOverview",
+        "operationId" : "healthOverviewGetOverview",
         "parameters" : [ {
           "in" : "query",
           "name" : "date",
@@ -1190,7 +1190,7 @@
     },
     "/api/users/me/health/overview/energy" : {
       "get" : {
-        "operationId" : "getEnergy",
+        "operationId" : "healthOverviewGetEnergy",
         "parameters" : [ {
           "in" : "query",
           "name" : "date",
@@ -1224,7 +1224,7 @@
     },
     "/api/users/me/health/samples" : {
       "get" : {
-        "operationId" : "getSamples",
+        "operationId" : "healthGetSamples",
         "parameters" : [ {
           "in" : "query",
           "name" : "type",
@@ -1285,7 +1285,7 @@
         "tags" : [ "health-controller" ]
       },
       "post" : {
-        "operationId" : "uploadSamples",
+        "operationId" : "healthUploadSamples",
         "requestBody" : {
           "content" : {
             "application/json" : {
@@ -1313,7 +1313,7 @@
     },
     "/api/users/me/health/samples/delete" : {
       "post" : {
-        "operationId" : "deleteSamples",
+        "operationId" : "healthDeleteSamples",
         "requestBody" : {
           "content" : {
             "application/json" : {
@@ -1341,7 +1341,7 @@
     },
     "/api/users/me/health/sync/complete" : {
       "post" : {
-        "operationId" : "completeFullSync",
+        "operationId" : "healthCompleteFullSync",
         "requestBody" : {
           "content" : {
             "application/json" : {
@@ -1369,7 +1369,7 @@
     },
     "/api/users/me/health/types" : {
       "get" : {
-        "operationId" : "getSummary",
+        "operationId" : "healthGetSummary",
         "responses" : {
           "200" : {
             "content" : {
@@ -1390,7 +1390,7 @@
     },
     "/api/users/me/health/write-requests" : {
       "get" : {
-        "operationId" : "getWriteRequests",
+        "operationId" : "healthGetWriteRequests",
         "parameters" : [ {
           "in" : "query",
           "name" : "status",
@@ -1419,7 +1419,7 @@
         "tags" : [ "health-controller" ]
       },
       "post" : {
-        "operationId" : "createWriteRequest",
+        "operationId" : "healthCreateWriteRequest",
         "requestBody" : {
           "content" : {
             "application/json" : {
@@ -1447,7 +1447,7 @@
     },
     "/api/users/me/health/write-requests/{id}/ack" : {
       "post" : {
-        "operationId" : "acknowledgeWriteRequest",
+        "operationId" : "healthAcknowledgeWriteRequest",
         "parameters" : [ {
           "in" : "path",
           "name" : "id",
@@ -1484,7 +1484,7 @@
     },
     "/api/users/me/notifications" : {
       "get" : {
-        "operationId" : "getNotifications",
+        "operationId" : "notificationGetNotifications",
         "parameters" : [ {
           "in" : "query",
           "name" : "unreadOnly",
@@ -1520,7 +1520,7 @@
         "tags" : [ "notification-controller" ]
       },
       "post" : {
-        "operationId" : "createNotification",
+        "operationId" : "notificationCreateNotification",
         "requestBody" : {
           "content" : {
             "application/json" : {
@@ -1548,7 +1548,7 @@
     },
     "/api/users/me/notifications/read" : {
       "put" : {
-        "operationId" : "markAllRead",
+        "operationId" : "notificationMarkAllRead",
         "responses" : {
           "204" : {
             "description" : "No Content"
@@ -1559,7 +1559,7 @@
     },
     "/api/users/me/notifications/unread-count" : {
       "get" : {
-        "operationId" : "getUnreadCount",
+        "operationId" : "notificationGetUnreadCount",
         "responses" : {
           "200" : {
             "content" : {
@@ -1577,7 +1577,7 @@
     },
     "/api/users/me/notifications/{id}" : {
       "delete" : {
-        "operationId" : "deleteNotification",
+        "operationId" : "notificationDeleteNotification",
         "parameters" : [ {
           "in" : "path",
           "name" : "id",
@@ -1597,7 +1597,7 @@
     },
     "/api/users/me/notifications/{id}/read" : {
       "delete" : {
-        "operationId" : "markUnread",
+        "operationId" : "notificationMarkUnread",
         "parameters" : [ {
           "in" : "path",
           "name" : "id",
@@ -1622,7 +1622,7 @@
         "tags" : [ "notification-controller" ]
       },
       "put" : {
-        "operationId" : "markRead",
+        "operationId" : "notificationMarkRead",
         "parameters" : [ {
           "in" : "path",
           "name" : "id",
@@ -1649,7 +1649,7 @@
     },
     "/api/users/me/profile" : {
       "get" : {
-        "operationId" : "getProfile_1",
+        "operationId" : "userProfileGetProfile",
         "parameters" : [ {
           "in" : "query",
           "name" : "zone",
@@ -1675,7 +1675,7 @@
     },
     "/api/users/me/runs" : {
       "get" : {
-        "operationId" : "getRuns",
+        "operationId" : "runGetRuns",
         "parameters" : [ {
           "in" : "query",
           "name" : "from",
@@ -1713,7 +1713,7 @@
     },
     "/api/users/me/runs/{id}" : {
       "get" : {
-        "operationId" : "getRun",
+        "operationId" : "runGetRun",
         "parameters" : [ {
           "in" : "path",
           "name" : "id",
@@ -1740,7 +1740,7 @@
     },
     "/api/users/me/settings" : {
       "delete" : {
-        "operationId" : "deleteSettings",
+        "operationId" : "userSettingsDeleteSettings",
         "responses" : {
           "204" : {
             "description" : "No Content"
@@ -1749,7 +1749,7 @@
         "tags" : [ "user-settings-controller" ]
       },
       "get" : {
-        "operationId" : "getSettings",
+        "operationId" : "userSettingsGetSettings",
         "responses" : {
           "200" : {
             "content" : {
@@ -1765,7 +1765,7 @@
         "tags" : [ "user-settings-controller" ]
       },
       "post" : {
-        "operationId" : "createSettings",
+        "operationId" : "userSettingsCreateSettings",
         "requestBody" : {
           "content" : {
             "application/json" : {
@@ -1791,7 +1791,7 @@
         "tags" : [ "user-settings-controller" ]
       },
       "put" : {
-        "operationId" : "updateSettings",
+        "operationId" : "userSettingsUpdateSettings",
         "requestBody" : {
           "content" : {
             "application/json" : {
@@ -1819,7 +1819,7 @@
     },
     "/api/users/me/tracked-foods" : {
       "get" : {
-        "operationId" : "getTrackedFoodForUser",
+        "operationId" : "userGetTrackedFoodForUser",
         "parameters" : [ {
           "in" : "query",
           "name" : "date",
@@ -1849,7 +1849,7 @@
     },
     "/api/users/me/tracked-foods/{trackedFoodId}" : {
       "delete" : {
-        "operationId" : "deleteTrackedFoodById",
+        "operationId" : "userDeleteTrackedFoodById",
         "parameters" : [ {
           "in" : "path",
           "name" : "trackedFoodId",
@@ -1867,7 +1867,7 @@
         "tags" : [ "user-controller" ]
       },
       "get" : {
-        "operationId" : "getTrackedFoodById",
+        "operationId" : "userGetTrackedFoodById",
         "parameters" : [ {
           "in" : "path",
           "name" : "trackedFoodId",
@@ -1892,7 +1892,7 @@
         "tags" : [ "user-controller" ]
       },
       "put" : {
-        "operationId" : "updateTrackedFoodById",
+        "operationId" : "userUpdateTrackedFoodById",
         "parameters" : [ {
           "in" : "path",
           "name" : "trackedFoodId",
@@ -1922,7 +1922,7 @@
     },
     "/api/users/me/workout-sessions" : {
       "get" : {
-        "operationId" : "getSessions",
+        "operationId" : "workoutSessionGetSessions",
         "parameters" : [ {
           "in" : "query",
           "name" : "from",
@@ -1958,7 +1958,7 @@
         "tags" : [ "workout-session-controller" ]
       },
       "post" : {
-        "operationId" : "start",
+        "operationId" : "workoutSessionStart",
         "requestBody" : {
           "content" : {
             "application/json" : {
@@ -1986,7 +1986,7 @@
     },
     "/api/users/me/workout-sessions/active" : {
       "get" : {
-        "operationId" : "getActive",
+        "operationId" : "workoutSessionGetActive",
         "responses" : {
           "200" : {
             "content" : {
@@ -2007,7 +2007,7 @@
     },
     "/api/users/me/workout-sessions/{id}" : {
       "delete" : {
-        "operationId" : "delete",
+        "operationId" : "workoutSessionDelete",
         "parameters" : [ {
           "in" : "path",
           "name" : "id",
@@ -2025,7 +2025,7 @@
         "tags" : [ "workout-session-controller" ]
       },
       "get" : {
-        "operationId" : "getSession",
+        "operationId" : "workoutSessionGetSession",
         "parameters" : [ {
           "in" : "path",
           "name" : "id",
@@ -2050,7 +2050,7 @@
         "tags" : [ "workout-session-controller" ]
       },
       "put" : {
-        "operationId" : "update",
+        "operationId" : "workoutSessionUpdate",
         "parameters" : [ {
           "in" : "path",
           "name" : "id",
@@ -2087,7 +2087,7 @@
     },
     "/api/users/me/workout-sessions/{id}/finish" : {
       "post" : {
-        "operationId" : "finish",
+        "operationId" : "workoutSessionFinish",
         "parameters" : [ {
           "in" : "path",
           "name" : "id",
@@ -2123,7 +2123,7 @@
     },
     "/api/workouts" : {
       "get" : {
-        "operationId" : "getAllWorkouts",
+        "operationId" : "workoutGetAllWorkouts",
         "responses" : {
           "200" : {
             "content" : {
@@ -2142,7 +2142,7 @@
         "tags" : [ "workout-controller" ]
       },
       "post" : {
-        "operationId" : "createWorkout",
+        "operationId" : "workoutCreateWorkout",
         "requestBody" : {
           "content" : {
             "application/json" : {
@@ -2170,7 +2170,7 @@
     },
     "/api/workouts/exercises" : {
       "get" : {
-        "operationId" : "getAllExercises",
+        "operationId" : "workoutGetAllExercises",
         "parameters" : [ {
           "in" : "query",
           "name" : "name",
@@ -2204,7 +2204,7 @@
         "tags" : [ "workout-controller" ]
       },
       "post" : {
-        "operationId" : "createExercise",
+        "operationId" : "workoutCreateExercise",
         "requestBody" : {
           "content" : {
             "application/json" : {
@@ -2225,7 +2225,7 @@
     },
     "/api/workouts/exercises/{id}" : {
       "delete" : {
-        "operationId" : "deleteExercise",
+        "operationId" : "workoutDeleteExercise",
         "parameters" : [ {
           "in" : "path",
           "name" : "id",
@@ -2242,7 +2242,7 @@
         "tags" : [ "workout-controller" ]
       },
       "put" : {
-        "operationId" : "updateExerciseById",
+        "operationId" : "workoutUpdateExerciseById",
         "parameters" : [ {
           "in" : "path",
           "name" : "id",
@@ -2278,7 +2278,7 @@
     },
     "/api/workouts/{id}" : {
       "delete" : {
-        "operationId" : "deleteWorkout",
+        "operationId" : "workoutDeleteWorkout",
         "parameters" : [ {
           "in" : "path",
           "name" : "id",
@@ -2296,7 +2296,7 @@
         "tags" : [ "workout-controller" ]
       },
       "get" : {
-        "operationId" : "getWorkoutById",
+        "operationId" : "workoutGetWorkoutById",
         "parameters" : [ {
           "in" : "path",
           "name" : "id",
@@ -2321,7 +2321,7 @@
         "tags" : [ "workout-controller" ]
       },
       "put" : {
-        "operationId" : "updateWorkout",
+        "operationId" : "workoutUpdateWorkout",
         "parameters" : [ {
           "in" : "path",
           "name" : "id",
@@ -2358,7 +2358,7 @@
     },
     "/api/workouts/{id}/shares" : {
       "put" : {
-        "operationId" : "shareWorkout",
+        "operationId" : "workoutShareWorkout",
         "parameters" : [ {
           "in" : "path",
           "name" : "id",
@@ -2395,7 +2395,7 @@
     },
     "/api/workouts/{id}/shares/me" : {
       "delete" : {
-        "operationId" : "leaveWorkout",
+        "operationId" : "workoutLeaveWorkout",
         "parameters" : [ {
           "in" : "path",
           "name" : "id",
