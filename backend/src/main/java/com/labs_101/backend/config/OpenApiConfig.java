@@ -24,6 +24,11 @@ import org.springframework.beans.factory.annotation.AnnotatedBeanDefinition;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.util.ClassUtils;
 import org.springframework.util.StringUtils;
 
@@ -35,6 +40,7 @@ import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
 import io.swagger.v3.oas.annotations.info.Info;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.security.SecurityScheme;
+import io.swagger.v3.oas.annotations.servers.Server;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.media.Content;
 import io.swagger.v3.oas.models.media.JsonSchema;
@@ -44,7 +50,7 @@ import tools.jackson.databind.JsonNode;
 /**
  * The OpenAPI spec at {@code /v3/api-docs} is the contract with the frontend and
  * the iOS app, both generate their clients from {@code api/openapi.json}
- * (written by {@code OpenApiSpecTest}).
+ * (written by {@code mvn verify} with the springdoc plugin, see pom.xml).
  * <p>
  * Jackson always writes every property, so every property of a DTO the backend
  * answers with is required, the ones that can be {@code null} are marked with
@@ -52,7 +58,9 @@ import tools.jackson.databind.JsonNode;
  * sent to the backend may leave out the nullable ones.
  */
 @Configuration
-@OpenAPIDefinition(info = @Info(title = "labs-101", version = "1"), security = @SecurityRequirement(name = "zitadel"))
+// the clients set the address of the backend themselves, without a server springdoc would write the one of the build
+@OpenAPIDefinition(info = @Info(title = "labs-101", version = "1"), servers = @Server(url = "/"),
+        security = @SecurityRequirement(name = "zitadel"))
 @SecurityScheme(name = "zitadel", type = SecuritySchemeType.HTTP, scheme = "bearer", bearerFormat = "JWT")
 public class OpenApiConfig {
     private static final String DTO_PACKAGE = "com.labs_101.backend.dtos";
@@ -68,6 +76,20 @@ public class OpenApiConfig {
         SpringDocUtils.getConfig().addAnnotationsToIgnore(CurrentUser.class)
                 // free JSON of HealthKit, not the methods of Jackson's tree
                 .replaceWithSchema(JsonNode.class, typed("object"));
+    }
+
+    /**
+     * Only for {@code mvn verify}: the springdoc plugin reads the spec without token, everywhere else it needs one
+     * like every other request.
+     */
+    @Bean
+    @Profile("openapi")
+    @Order(Ordered.HIGHEST_PRECEDENCE)
+    SecurityFilterChain apiDocsSecurityFilterChain(HttpSecurity http) throws Exception {
+        return http
+                .securityMatcher("/v3/api-docs/**")
+                .authorizeHttpRequests(requests -> requests.anyRequest().permitAll())
+                .build();
     }
 
     /**

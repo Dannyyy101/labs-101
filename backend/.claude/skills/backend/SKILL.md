@@ -10,7 +10,10 @@ Es gelten zuerst die Grundregeln des Skills `labs-101`: Fehler zuerst prüfen, H
 ## Controller und DTOs sind der API-Vertrag
 
 Aus den Controllern erzeugt springdoc die Spec (`/v3/api-docs`, Konfiguration in
-`config/OpenApiConfig.java`). `OpenApiSpecTest` schreibt sie nach `../api/openapi.json`.
+`config/OpenApiConfig.java`). Bei `mvn verify` startet `spring-boot-maven-plugin` die App mit dem
+Profil `openapi` (Port 8089, `/v3/api-docs` ohne Token), das springdoc-Maven-Plugin schreibt die
+Spec nach `../api/openapi.json`, danach wird die App gestoppt. Ohne dieses Profil braucht
+`/v3/api-docs` einen Token wie jede andere Anfrage.
 
 - **DTOs sind Records** (oder Lombok-Klassen) in `com.labs_101.backend.dtos`. Nur dort sucht
   `OpenApiConfig` nach `@Nullable`.
@@ -35,11 +38,12 @@ Aus den Controllern erzeugt springdoc die Spec (`/v3/api-docs`, Konfiguration in
 
 ```sh
 docker compose up -d db          # im Repo-Root
-cd backend && mvn test -Dtest=OpenApiSpecTest
+cd backend && mvn verify -DskipTests
 ```
 
 Danach Frontend (`npm run generate:api`) und iOS anpassen und `api/openapi.json` mitcommitten.
-In der CI (`CI=true`) schlägt der Test fehl, wenn die committete Spec nicht zu den Controllern passt.
+Die CI führt `mvn verify` aus und schlägt mit `git diff --exit-code api/openapi.json` fehl, wenn die
+committete Spec nicht zu den Controllern passt.
 
 ## Tests
 

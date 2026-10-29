@@ -20,9 +20,11 @@ jobs:
                   distribution: "temurin"
             - name: Enable a database
               run: docker compose --env-file .env.example up -d db
-            # OpenApiSpecTest fails when api/openapi.json doesn't match the controllers (CI=true)
+            # also writes the OpenAPI spec of the controllers to api/openapi.json
             - name: Run the Maven verify phase
               run: cd backend && mvn --batch-mode --update-snapshots verify
+            - name: Check the OpenAPI spec
+              run: git diff --exit-code api/openapi.json
     frontend:
         name: frontend
         runs-on: ubuntu-latest

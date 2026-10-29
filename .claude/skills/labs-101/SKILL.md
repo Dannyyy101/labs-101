@@ -56,18 +56,18 @@ self.init(...)
 ## 2. Ein Vertrag für die API
 
 Die Controller des Backends sind die einzige Quelle für die API. springdoc erzeugt daraus die
-Spec, `OpenApiSpecTest` schreibt sie nach `api/openapi.json`. Das Frontend (openapi-typescript +
+Spec, `mvn verify` schreibt sie mit dem springdoc-Maven-Plugin nach `api/openapi.json`. Das Frontend (openapi-typescript +
 openapi-fetch) und iOS (swift-openapi-generator im Paket `ios/LabsAPI`) generieren daraus ihre
 Typen und Clients. Ändert sich ein DTO, bricht der Build im Frontend bzw. in iOS.
 
 Ablauf bei einer Änderung an Controller oder DTO:
 
-1. Backend ändern, `cd backend && mvn test -Dtest=OpenApiSpecTest` schreibt `api/openapi.json` neu
-   (braucht die Datenbank: `docker compose up -d db`).
+1. Backend ändern, `cd backend && mvn verify -DskipTests` schreibt `api/openapi.json` neu
+   (startet die App kurz mit dem Profil `openapi`, braucht die Datenbank: `docker compose up -d db`).
 2. `cd frontend && npm run generate:api` schreibt `lib/api/schema.d.ts` neu, dann `npx tsc --noEmit`.
 3. iOS generiert bei jedem Build selbst, Xcode bzw. `xcodebuild ... -skipPackagePluginValidation`.
-4. Alle Fehler beheben und `api/openapi.json` und `frontend/lib/api/schema.d.ts` mitcommitten. In
-   der CI schlagen `OpenApiSpecTest` (mit `CI=true`) und der Frontend-Job fehl, wenn sie veraltet sind.
+4. Alle Fehler beheben und `api/openapi.json` und `frontend/lib/api/schema.d.ts` mitcommitten. Die
+   CI generiert beide neu und schlägt fehl, wenn die committeten Dateien veraltet sind.
 
 Nie Typen für Backend-Antworten von Hand schreiben, immer die generierten verwenden.
 
