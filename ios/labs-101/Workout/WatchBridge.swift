@@ -97,7 +97,8 @@ final class WatchBridge: NSObject {
             sessionID: model.session.id,
             name: model.name,
             startedAt: model.session.startedAt,
-            exercises: model.exercises.map { item in
+            // the watch only knows sets, cardio is tracked on the iPhone
+            exercises: model.exercises.filter { $0.cardio == nil }.map { item in
                 WatchWorkoutState.Exercise(
                     id: item.id, name: item.name, sets: item.sets.map(Self.watchSet),
                     previous: WorkoutStats.lastSets(of: item.exerciseId, in: history)?.map(Self.watchSet))
@@ -196,6 +197,7 @@ final class WatchBridge: NSObject {
         do {
             let recent = Set(history.flatMap { $0.exercises.compactMap(\.exerciseId) })
             let entries = try await catalog()
+                .filter { !$0.isCardio }
                 .map { WatchCatalogEntry(id: $0.id, name: $0.name, recent: recent.contains($0.id)) }
                 .sorted { a, b in
                     a.recent != b.recent ? a.recent : a.name.localizedStandardCompare(b.name) == .orderedAscending

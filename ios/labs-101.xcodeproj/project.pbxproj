@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		A7E100000000000000000009 /* labs-101-watch.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = A7E100000000000000000001 /* labs-101-watch.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		A7E1000000000000000000A3 /* LabsAPI in Frameworks */ = {isa = PBXBuildFile; productRef = A7E1000000000000000000A2 /* LabsAPI */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -65,6 +66,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A7E1000000000000000000A3 /* LabsAPI in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -131,6 +133,7 @@
 			);
 			name = "labs-101";
 			packageProductDependencies = (
+				A7E1000000000000000000A2 /* LabsAPI */,
 			);
 			productName = "labs-101";
 			productReference = 65DC12D73038BBD0009BECA7 /* labs-101.app */;
@@ -186,6 +189,9 @@
 			);
 			mainGroup = 65DC12CE3038BBD0009BECA7;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				A7E1000000000000000000A1 /* XCLocalSwiftPackageReference "LabsAPI" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 65DC12D83038BBD0009BECA7 /* Products */;
 			projectDirPath = "";
@@ -548,6 +554,20 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCLocalSwiftPackageReference section */
+		A7E1000000000000000000A1 /* XCLocalSwiftPackageReference "LabsAPI" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = LabsAPI;
+		};
+/* End XCLocalSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		A7E1000000000000000000A2 /* LabsAPI */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = LabsAPI;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 65DC12CF3038BBD0009BECA7 /* Project object */;
 }

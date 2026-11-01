@@ -1,15 +1,11 @@
 'use server'
 
-import { backendFetch } from "@/utils/backend"
-import { BACKEND_URL } from "@/utils/constants"
+import { api } from "@/lib/api/client"
 import { Profile } from "@/utils/types/profile"
 
 export async function getProfile(): Promise<Profile> {
-    const response = await backendFetch(`${BACKEND_URL}/users/me/profile`, { cache: 'no-store' })
+    const { data } = await api.GET("/api/users/me/profile")
 
-    if (response.ok) {
-        return await response.json() as Profile
-    }
-
-    throw new Error("Error fetching profile")
+    if (!data) throw new Error("Error fetching profile")
+    return data
 }

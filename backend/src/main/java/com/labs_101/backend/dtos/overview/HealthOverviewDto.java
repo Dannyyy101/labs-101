@@ -1,5 +1,7 @@
 package com.labs_101.backend.dtos.overview;
 
+import org.jspecify.annotations.Nullable;
+
 import java.time.LocalDate;
 import java.util.List;
 
@@ -14,7 +16,7 @@ import java.util.List;
 public record HealthOverviewDto(
         LocalDate date,
         String timeZone,
-        SleepDto sleep,
+        @Nullable SleepDto sleep,
         RecoveryDto recovery,
         StrainDto strain,
         ActivityDto activity,

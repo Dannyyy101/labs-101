@@ -16,12 +16,12 @@ import com.labs_101.backend.dtos.workout.session.UpdateWorkoutSessionDto;
 import com.labs_101.backend.dtos.workout.session.WorkoutSessionDto;
 import com.labs_101.backend.entities.workout.Workout;
 import com.labs_101.backend.entities.workout.WorkoutSession;
+import com.labs_101.backend.entities.workout.workoutExercises.CardioItem;
 import com.labs_101.backend.entities.workout.workoutExercises.StrengthItem;
 import com.labs_101.backend.exception.BadRequestException;
 import com.labs_101.backend.exception.NotFoundException;
 import com.labs_101.backend.mapper.WorkoutSessionMapper;
 import com.labs_101.backend.repositories.UserRepository;
-import com.labs_101.backend.repositories.WorkoutRepository;
 import com.labs_101.backend.repositories.WorkoutSessionRepository;
 
 /**
@@ -33,13 +33,13 @@ public class WorkoutSessionService {
     private static final String DEFAULT_NAME = "Training";
 
     private final WorkoutSessionRepository sessionRepository;
-    private final WorkoutRepository workoutRepository;
+    private final WorkoutService workoutService;
     private final UserRepository userRepository;
 
-    WorkoutSessionService(WorkoutSessionRepository sessionRepository, WorkoutRepository workoutRepository,
+    WorkoutSessionService(WorkoutSessionRepository sessionRepository, WorkoutService workoutService,
             UserRepository userRepository) {
         this.sessionRepository = sessionRepository;
-        this.workoutRepository = workoutRepository;
+        this.workoutService = workoutService;
         this.userRepository = userRepository;
     }
 
@@ -75,8 +75,8 @@ public class WorkoutSessionService {
         session.setName(DEFAULT_NAME);
 
         if (request.workoutId() != null) {
-            Workout workout = workoutRepository.findById(request.workoutId())
-                    .orElseThrow(() -> NotFoundException.workout(request.workoutId()));
+            // the own templates and the ones shared with the user
+            Workout workout = workoutService.findVisible(userId, request.workoutId());
             session.setWorkout(workout);
             session.setName(workout.getName());
             Map<Long, String> notes = lastNotes(userId);
@@ -87,7 +87,10 @@ public class WorkoutSessionService {
                                     ? strength.getSettings().sets().stream()
                                             .map((set) -> new WorkoutSession.Set(set.reps(), set.weightKg(), set.rpe(), false, set.restSeconds()))
                                             .toList()
-                                    : List.of()))
+                                    : List.of(),
+                            item instanceof CardioItem cardio
+                                    ? new WorkoutSession.Cardio(cardio.getSettings().minutes(), false)
+                                    : null))
                     .toList()));
         }
         if (request.name() != null && !request.name().isBlank()) {
@@ -108,7 +111,7 @@ public class WorkoutSessionService {
         return WorkoutSessionMapper.toDto(sessionRepository.save(session));
     }
 
-    /** Saves the last state and ends the workout, sets that weren't checked off are dropped. */
+    /** Saves the last state and ends the workout, sets and cardio that weren't checked off are dropped. */
     @Transactional
     public WorkoutSessionDto finish(String userId, Long id, UpdateWorkoutSessionDto request) {
         WorkoutSession session = find(userId, id);
@@ -116,9 +119,9 @@ public class WorkoutSessionService {
             apply(session, request);
         }
         session.setLog(new WorkoutSession.Log(session.getLog().exercises().stream()
+                .filter(WorkoutSession.Entry::isDone)
                 .map((entry) -> new WorkoutSession.Entry(entry.exerciseId(), entry.name(), entry.note(),
-                        entry.sets().stream().filter(WorkoutSession.Set::done).toList()))
-                .filter((entry) -> !entry.sets().isEmpty())
+                        entry.sets().stream().filter(WorkoutSession.Set::done).toList(), entry.cardio()))
                 .toList()));
         if (session.getEndedAt() == null) {
             session.setEndedAt(Instant.now());

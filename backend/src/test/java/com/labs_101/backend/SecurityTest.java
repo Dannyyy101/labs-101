@@ -47,6 +47,9 @@ public class SecurityTest {
                 .andExpect(status().isUnauthorized());
         mockMvc.perform(get("/api/users/me/settings"))
                 .andExpect(status().isUnauthorized());
+        // only open with the profile openapi of mvn verify
+        mockMvc.perform(get("/v3/api-docs"))
+                .andExpect(status().isUnauthorized());
     }
 
     @Test

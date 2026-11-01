@@ -13,6 +13,7 @@ nonisolated enum WorkoutStats {
     }
 
     static let defaultRest = 90
+    static let defaultCardioMinutes = 10
     /// 0 turns the rest timer off
     static let restOptions = [0, 30, 45, 60, 90, 120, 150, 180, 240, 300]
 
@@ -32,11 +33,22 @@ nonisolated enum WorkoutStats {
         return nil
     }
 
+    /// The minutes of the cardio in the newest of the sessions (sorted newest first) that contains it.
+    static func lastCardioMinutes(of exerciseId: Int?, in sessions: [WorkoutSession]) -> Int? {
+        guard let exerciseId else { return nil }
+        for session in sessions {
+            if let cardio = session.exercises.first(where: { $0.exerciseId == exerciseId && $0.cardio?.done == true })?.cardio {
+                return cardio.minutes
+            }
+        }
+        return nil
+    }
+
     /// The note of the last workout with the exercise, nil when it had none, so a removed note doesn't come back.
     static func lastNote(of exerciseId: Int?, in sessions: [WorkoutSession]) -> String? {
         guard let exerciseId else { return nil }
         for session in sessions {
-            if let found = session.exercises.first(where: { $0.exerciseId == exerciseId && $0.sets.contains(where: \.done) }) {
+            if let found = session.exercises.first(where: { $0.exerciseId == exerciseId && $0.isDone }) {
                 return found.note
             }
         }

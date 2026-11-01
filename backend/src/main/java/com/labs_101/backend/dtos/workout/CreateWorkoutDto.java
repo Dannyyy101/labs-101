@@ -1,5 +1,7 @@
 package com.labs_101.backend.dtos.workout;
 
+import org.jspecify.annotations.Nullable;
+
 import java.time.Instant;
 import java.util.List;
 
@@ -12,6 +14,6 @@ import lombok.Setter;
 
 public record CreateWorkoutDto(
         String name,
-        Instant scheduledFor,
+        @Nullable Instant scheduledFor,
         List<ExerciseItem> exercises) {
 }

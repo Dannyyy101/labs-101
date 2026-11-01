@@ -64,7 +64,7 @@ public class CalendarService {
     public CalendarEventDto createCalendarEvent(CreateCalendarEventDto eventDto) {
         User creator = findUser(eventDto.getCreatorId());
         CalendarEvent event = CalendarMapper.fromCreateCalendarEventDto(eventDto, creator,
-                findWorkout(eventDto.getWorkoutId()));
+                findWorkout(eventDto.getWorkoutId(), creator.getId()));
         event.setInvitees(findInvitees(eventDto.getInviteeIds(), creator));
         CalendarEvent saved = calendarRepository.save(event);
         notifyInvitees(saved, saved.getInvitees());
@@ -158,7 +158,10 @@ public class CalendarService {
         event.setRecurrence(eventDto.getRecurrence());
         event.setRecurrenceEnd(eventDto.getRecurrenceEnd());
 
-        event.setWorkout(findWorkout(eventDto.getWorkoutId()));
+        // a template that is no longer shared stays planned, it just can't be picked again
+        if (event.getWorkout() == null || !event.getWorkout().getId().equals(eventDto.getWorkoutId())) {
+            event.setWorkout(findWorkout(eventDto.getWorkoutId(), event.getCreator().getId()));
+        }
 
         Set<User> added = Set.of();
         if (eventDto.getInviteeIds() != null) {
@@ -184,11 +187,13 @@ public class CalendarService {
         return CalendarMapper.fromCalendarEvent(event, startDate, endDate, zitadelClient::avatarUrl);
     }
 
-    private Workout findWorkout(Long workoutId) {
+    /** Only a template the creator of the event sees can be planned. */
+    private Workout findWorkout(Long workoutId, String creatorId) {
         if (workoutId == null) {
             return null;
         }
-        return workoutRepository.findById(workoutId).orElseThrow(() -> NotFoundException.workout(workoutId));
+        return workoutRepository.findById(workoutId).filter((workout) -> workout.isVisibleTo(creatorId))
+                .orElseThrow(() -> NotFoundException.workout(workoutId));
     }
 
     private User findUser(String userId) {

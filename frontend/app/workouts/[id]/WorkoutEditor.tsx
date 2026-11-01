@@ -2,22 +2,23 @@
 
 import { Card, CardHead, Stat } from "@/components/dashboard"
 import { cn } from "@/lib/utils"
-import { ExerciseSet, Workout, WorkoutExercise, WorkoutExerciseType } from "@/utils/types/types"
+import { CardioExercise, ExerciseSet, Workout, WorkoutExercise, WorkoutExerciseType } from "@/utils/types/types"
+import { Friend } from "@/utils/types/friend"
 import { Exercise } from "@/utils/types/workoutTypes"
-import { ArrowDown, ArrowUp, ChevronLeft, Play, Plus, Trash2, X } from "lucide-react"
+import { ArrowDown, ArrowUp, Check, ChevronLeft, HeartPulse, Play, Plus, Trash2, Users, X } from "lucide-react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useMemo, useState, useTransition } from "react"
-import { deleteWorkout, saveWorkout, startSession } from "../action"
+import { deleteWorkout, leaveWorkout, saveWorkout, shareWorkout, startSession } from "../action"
 import ExercisePicker from "../ExercisePicker"
 import NumberInput from "../NumberInput"
 import RestPicker from "../RestPicker"
 import MuscleMap from "../MuscleMap"
-import { DEFAULT_REST, formatRest, formatVolume, formatWeight, MUSCLES, restOf, setsPerMuscle, volume } from "../stats"
+import { DEFAULT_CARDIO_MINUTES, DEFAULT_REST, formatRest, formatVolume, formatWeight, isCardio, MUSCLES, restOf, setsPerMuscle, volume } from "../stats"
 
 const DEFAULT_SET: ExerciseSet = { order: 0, reps: 10, weightKg: 20, rpe: null, restSeconds: DEFAULT_REST }
 
-export default function WorkoutEditor({ workout, exercises }: { workout: Workout | null, exercises: Exercise[] }) {
+export default function WorkoutEditor({ workout, exercises, friends }: { workout: Workout | null, exercises: Exercise[], friends: Friend[] }) {
     const router = useRouter()
     const [name, setName] = useState(workout?.name ?? "")
     const [items, setItems] = useState<WorkoutExercise[]>(workout?.workoutExercises ?? [])
@@ -28,6 +29,9 @@ export default function WorkoutEditor({ workout, exercises }: { workout: Workout
     const readOnly = !!workout && !workout.editable
 
     const exerciseById = useMemo(() => new Map(exercises.map((e) => [e.id, e])), [exercises])
+    const strengthExercises = useMemo(() => exercises.filter((e) => !isCardio(e)), [exercises])
+    const cardioExercises = useMemo(() => exercises.filter(isCardio), [exercises])
+    const cardioMinutes = items.reduce((sum, e) => sum + (e.type === WorkoutExerciseType.CARDIO_EXERCISE ? e.minutes : 0), 0)
     const muscles = useMemo(() => setsPerMuscle(items.map((e) => ({ exerciseId: e.exercise.id, sets: e.sets.length })), exerciseById), [items, exerciseById])
     const sets = items.flatMap((e) => e.sets)
     const [vol, volUnit] = formatVolume(volume(sets))
@@ -46,6 +50,10 @@ export default function WorkoutEditor({ workout, exercises }: { workout: Workout
     const add = (exercise: Exercise) => {
         // functional update, several exercises can be picked before the next render
         setItems((prev) => [...prev, { type: WorkoutExerciseType.STRENGTH_EXERCISE, exercise, sets: [{ ...DEFAULT_SET }, { ...DEFAULT_SET }, { ...DEFAULT_SET }] }])
+        setDirty(true)
+    }
+    const addCardio = (exercise: Exercise) => {
+        setItems((prev) => [...prev, { type: WorkoutExerciseType.CARDIO_EXERCISE, exercise, minutes: DEFAULT_CARDIO_MINUTES, sets: [] }])
         setDirty(true)
     }
 
@@ -74,6 +82,13 @@ export default function WorkoutEditor({ workout, exercises }: { workout: Workout
         await startSession(saved.id)
         router.push("/workouts/session")
     })
+    const onLeave = () => {
+        if (!workout || !confirm(`„${workout.name}“ aus deiner Liste entfernen? ${workout.ownerName ?? "Dein Freund"} behält das Workout.`)) return
+        run(async () => {
+            await leaveWorkout(workout.id)
+            router.push("/workouts")
+        })
+    }
     const onDelete = () => {
         if (!workout || !confirm(`Vorlage „${workout.name}“ löschen? Deine bisherigen Trainings bleiben erhalten.`)) return
         run(async () => {
@@ -83,6 +98,7 @@ export default function WorkoutEditor({ workout, exercises }: { workout: Workout
     }
 
     const actions = <>
+        {workout?.sharedWithMe && <button onClick={onLeave} disabled={pending} className="rounded-full px-3.5 py-2 text-sm font-semibold text-[#ff453a] hover:bg-[#ff453a]/10 disabled:opacity-50">Entfernen</button>}
         {workout && !readOnly && <button onClick={onDelete} disabled={pending} className="rounded-full px-3.5 py-2 text-sm font-semibold text-[#ff453a] hover:bg-[#ff453a]/10 disabled:opacity-50">Löschen</button>}
         {!readOnly && <button onClick={onSave} disabled={pending || (!!workout && !dirty)} className="flex-1 rounded-full bg-background px-4 py-2.5 text-sm font-semibold shadow-[0_1px_3px_rgba(0,0,0,.12)] disabled:opacity-50 md:flex-none md:py-2">
             {pending ? "Speichert…" : "Speichern"}
@@ -103,7 +119,7 @@ export default function WorkoutEditor({ workout, exercises }: { workout: Workout
                             className="mt-1 w-full bg-transparent text-[28px] font-bold leading-tight tracking-tight outline-none placeholder:text-muted-foreground/50 md:text-[34px]" />}
                     <p className="text-muted-foreground">
                         {readOnly
-                            ? `Vorlage von ${workout.ownerName ?? "jemand anderem"} · nur ansehen`
+                            ? `${workout.sharedWithMe ? "Geteilt von" : "Vorlage von"} ${workout.ownerName ?? "jemand anderem"} · nur ansehen`
                             : workout ? (dirty ? "Ungespeicherte Änderungen" : "Gespeichert") : "Neue Vorlage"}
                     </p>
                 </div>
@@ -113,15 +129,27 @@ export default function WorkoutEditor({ workout, exercises }: { workout: Workout
 
             <div className="grid grid-cols-1 gap-4 lg:grid-cols-12">
                 <div className="flex flex-col gap-3 md:gap-4 lg:col-span-8">
-                    {items.map((item, index) => <ExerciseCard key={index} item={item} exercise={exerciseById.get(item.exercise.id)} readOnly={readOnly}
-                        onChange={(next) => update(index, next)}
-                        onRemove={() => change(items.filter((_, i) => i !== index))}
-                        onMoveUp={index > 0 ? () => move(index, -1) : undefined}
-                        onMoveDown={index < items.length - 1 ? () => move(index, 1) : undefined} />)}
-                    {!readOnly && <ExercisePicker exercises={exercises} onPick={add}
-                        className="flex items-center justify-center gap-2 rounded-[18px] border-2 border-dashed p-5 font-semibold text-[#0a84ff] hover:bg-card">
-                        <Plus className="size-5" />Übung hinzufügen
-                    </ExercisePicker>}
+                    {items.map((item, index) => {
+                        const props = {
+                            readOnly,
+                            onRemove: () => change(items.filter((_, i) => i !== index)),
+                            onMoveUp: index > 0 ? () => move(index, -1) : undefined,
+                            onMoveDown: index < items.length - 1 ? () => move(index, 1) : undefined,
+                        }
+                        return item.type === WorkoutExerciseType.CARDIO_EXERCISE
+                            ? <CardioCard key={index} item={item} onChange={(next) => update(index, next)} {...props} />
+                            : <ExerciseCard key={index} item={item} exercise={exerciseById.get(item.exercise.id)} onChange={(next) => update(index, next)} {...props} />
+                    })}
+                    {!readOnly && <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                        <ExercisePicker exercises={strengthExercises} onPick={add}
+                            className="flex items-center justify-center gap-2 rounded-[18px] border-2 border-dashed p-5 font-semibold text-[#0a84ff] hover:bg-card">
+                            <Plus className="size-5" />Übung hinzufügen
+                        </ExercisePicker>
+                        <ExercisePicker exercises={cardioExercises} onPick={addCardio} title="Cardio hinzufügen"
+                            className="flex items-center justify-center gap-2 rounded-[18px] border-2 border-dashed p-5 font-semibold text-[#ff375f] hover:bg-card">
+                            <HeartPulse className="size-5" />Cardio hinzufügen
+                        </ExercisePicker>
+                    </div>}
                     {readOnly && !items.length && <p className="py-6 text-center text-muted-foreground">Keine Übungen</p>}
                 </div>
 
@@ -131,9 +159,12 @@ export default function WorkoutEditor({ workout, exercises }: { workout: Workout
                         <dl className="grid grid-cols-3 gap-3">
                             <Stat label="Übungen" value={`${items.length}`} />
                             <Stat label="Sätze" value={`${sets.length}`} />
-                            <Stat label="Volumen" value={vol} unit={volUnit} />
+                            {cardioMinutes > 0
+                                ? <Stat label="Cardio" value={`${cardioMinutes}`} unit="min" />
+                                : <Stat label="Volumen" value={vol} unit={volUnit} />}
                         </dl>
                     </Card>
+                    {workout && !readOnly && <ShareCard workout={workout} friends={friends} />}
                     <Card className="p-4 md:p-5">
                         <CardHead title="Muskeln" right="Sätze pro Muskel" />
                         <MuscleMap muscles={muscles} />
@@ -149,6 +180,86 @@ export default function WorkoutEditor({ workout, exercises }: { workout: Workout
             </div>
         </div>
     </div>
+}
+
+/** Friends the template is shared with, they see and train it but can't change it. */
+function ShareCard({ workout, friends }: { workout: Workout, friends: Friend[] }) {
+    const router = useRouter()
+    const [shared, setShared] = useState(() => new Set(workout.sharedWith.map((u) => u.id)))
+    const [pending, start] = useTransition()
+    const [error, setError] = useState(false)
+
+    const toggle = (friendId: string) => {
+        const next = new Set(shared)
+        if (next.has(friendId)) next.delete(friendId)
+        else next.add(friendId)
+        const before = shared
+        setShared(next)
+        setError(false)
+        start(async () => {
+            try {
+                await shareWorkout(workout.id, [...next])
+                router.refresh()
+            } catch {
+                setShared(before)
+                setError(true)
+            }
+        })
+    }
+
+    return <Card className="p-4 md:p-5">
+        <CardHead title="Teilen" right={shared.size ? `mit ${shared.size} ${shared.size === 1 ? "Freund" : "Freunden"}` : "Nur für dich"} />
+        {friends.length
+            ? <div className="-mx-2 flex flex-col">
+                {friends.map((friend) => {
+                    const on = shared.has(friend.id)
+                    return <button key={friend.id} type="button" onClick={() => toggle(friend.id)} disabled={pending} aria-pressed={on}
+                        className="flex items-center gap-3 rounded-xl px-2 py-2 text-left hover:bg-muted disabled:opacity-60">
+                        {friend.image
+                            // eslint-disable-next-line @next/next/no-img-element
+                            ? <img src={friend.image} alt="" className="size-8 rounded-full object-cover" />
+                            : <span className="grid size-8 place-items-center rounded-full bg-muted text-sm font-semibold">{(friend.name ?? "?").charAt(0).toUpperCase()}</span>}
+                        <span className="min-w-0 flex-1 truncate text-[15px] font-medium">{friend.name ?? "Unbekannt"}</span>
+                        <span className={cn("grid size-6 place-items-center rounded-full", on ? "bg-[#30d158] text-white" : "bg-muted text-transparent")}>
+                            <Check className="size-3.5" strokeWidth={3} />
+                        </span>
+                    </button>
+                })}
+            </div>
+            : <p className="flex items-center gap-2 text-sm text-muted-foreground">
+                <Users className="size-4" />Füge unter <Link href="/friends" className="font-medium text-[#0a84ff]">Freunde</Link> jemanden hinzu, um Workouts zu teilen.
+            </p>}
+        <p className="mt-2 text-xs text-muted-foreground">Freunde sehen und trainieren das Workout, ändern kannst nur du es.</p>
+        {error && <p className="mt-2 text-sm font-medium text-[#ff453a]">Teilen fehlgeschlagen, versuche es noch einmal.</p>}
+    </Card>
+}
+
+/** Cardio like running or rowing, only with its minutes. */
+function CardioCard({ item, readOnly, onChange, onRemove, onMoveUp, onMoveDown }: {
+    item: CardioExercise, readOnly: boolean, onChange: (item: CardioExercise) => void,
+    onRemove: () => void, onMoveUp?: () => void, onMoveDown?: () => void
+}) {
+    return <Card className="p-4 md:p-5">
+        <div className="flex items-center gap-1 md:gap-2">
+            <span className="mr-2 grid size-9 flex-none place-items-center rounded-[10px] bg-[#ff375f]/12 text-[#ff375f]"><HeartPulse className="size-5" /></span>
+            <div className="min-w-0 flex-1">
+                <h2 className="truncate text-[17px] font-semibold">{item.exercise.name}</h2>
+                <p className="truncate text-sm text-muted-foreground">Cardio</p>
+            </div>
+            {readOnly
+                ? <span className="rounded-[10px] bg-muted/60 px-3 py-2 text-[15px] font-semibold tabular-nums">{item.minutes} min</span>
+                : <>
+                    <div className="flex w-28 items-center gap-1.5">
+                        <NumberInput value={item.minutes} onChange={(minutes) => onChange({ ...item, minutes: Math.max(0, Math.round(minutes)) })}
+                            label={`Minuten ${item.exercise.name}`} className="h-10 md:h-9" />
+                        <span className="text-sm text-muted-foreground">min</span>
+                    </div>
+                    <IconButton label="Nach oben" onClick={onMoveUp}><ArrowUp /></IconButton>
+                    <IconButton label="Nach unten" onClick={onMoveDown}><ArrowDown /></IconButton>
+                    <IconButton label="Cardio entfernen" onClick={onRemove} className="text-[#ff453a]"><Trash2 /></IconButton>
+                </>}
+        </div>
+    </Card>
 }
 
 function ExerciseCard({ item, exercise, readOnly, onChange, onRemove, onMoveUp, onMoveDown }: {

@@ -65,8 +65,17 @@ public class WorkoutSession {
     /**
      * {@code name} is kept so the history still reads right after the exercise is renamed or deleted.
      * {@code note} is a short note of the user, e.g. the seat height, null when there is none.
+     * {@code cardio} is set for cardio like running or rowing, which has minutes instead of sets.
      */
-    public record Entry(Long exerciseId, String name, String note, List<Set> sets) {
+    public record Entry(Long exerciseId, String name, String note, List<Set> sets, Cardio cardio) {
+        /** Whether it is kept when the workout is finished. */
+        public boolean isDone() {
+            return cardio != null ? cardio.done() && cardio.minutes() > 0 : sets.stream().anyMatch(Set::done);
+        }
+    }
+
+    /** {@code done} is checked off during the workout like a set, only done cardio counts. */
+    public record Cardio(int minutes, boolean done) {
     }
 
     /**

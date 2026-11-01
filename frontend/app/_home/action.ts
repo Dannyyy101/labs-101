@@ -1,20 +1,12 @@
 'use server'
 
-import { backendFetch } from "@/utils/backend"
-import { BACKEND_URL } from "@/utils/constants"
+import { api } from "@/lib/api/client"
 import { HealthOverview } from "@/utils/types/overview"
 
 // `day` as "YYYY-MM-DD", today if missing
 export async function getHealthOverview(day?: string): Promise<HealthOverview> {
+    const { data } = await api.GET("/api/users/me/health/overview", { params: { query: { date: day } } })
 
-    const url = new URL(`${BACKEND_URL}/users/me/health/overview`)
-    if (day) url.searchParams.append("date", day)
-
-    const response = await backendFetch(url.toString(), { cache: 'no-store' })
-
-    if (response.ok) {
-        return await response.json() as HealthOverview
-    }
-
-    throw new Error("Error fetching health overview")
+    if (!data) throw new Error("Error fetching health overview")
+    return data
 }

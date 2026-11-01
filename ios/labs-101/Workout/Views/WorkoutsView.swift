@@ -191,9 +191,14 @@ private struct TemplateRow: View {
             VStack(alignment: .leading, spacing: 2) {
                 Text(template.name)
                     .font(.headline)
-                Text("\(count(template.workoutExercises.count, "Übung", "Übungen")) · \(count(template.setCount, "Satz", "Sätze"))")
+                Text(summary)
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
+                if template.sharedWithMe == true {
+                    Label("Geteilt von \(template.ownerName ?? "einem Freund")", systemImage: "person.2.fill")
+                        .font(.caption)
+                        .foregroundStyle(.blue)
+                }
                 Text(last.map { "Zuletzt \($0.startedAt.formatted(.dateTime.day().month()))" } ?? "Noch nie trainiert")
                     .font(.caption)
                     .foregroundStyle(.secondary)
@@ -205,6 +210,14 @@ private struct TemplateRow: View {
                 .foregroundStyle(.white)
                 .disabled(disabled)
         }
+    }
+
+    private var summary: String {
+        var parts = [count(template.workoutExercises.count, "Übung", "Übungen"), count(template.setCount, "Satz", "Sätze")]
+        if template.cardioMinutes > 0 {
+            parts.append("\(template.cardioMinutes) min Cardio")
+        }
+        return parts.joined(separator: " · ")
     }
 
     private func count(_ value: Int, _ one: String, _ many: String) -> String {
@@ -223,7 +236,7 @@ private struct SessionRow: View {
             Text("\(session.startedAt.formatted(.dateTime.weekday(.abbreviated).day().month().hour().minute())) · \(session.duration().workoutDuration)")
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
-            Text("\(sets.count) Sätze · \(WorkoutStats.formattedVolume(WorkoutStats.volume(sets)))")
+            Text("\(sets.count) Sätze · \(WorkoutStats.formattedVolume(WorkoutStats.volume(sets)))" + (session.cardioMinutes > 0 ? " · \(session.cardioMinutes) min Cardio" : ""))
                 .font(.caption)
                 .foregroundStyle(.secondary)
         }
@@ -250,6 +263,10 @@ struct WorkoutSessionDetailView: View {
                     if let note = exercise.note {
                         Label(note, systemImage: "note.text")
                             .foregroundStyle(.secondary)
+                    }
+                    if let cardio = exercise.cardio {
+                        LabeledContent("Cardio", value: "\(cardio.minutes) min")
+                            .monospacedDigit()
                     }
                     ForEach(Array(exercise.sets.filter(\.done).enumerated()), id: \.offset) { index, set in
                         LabeledContent("Satz \(index + 1)", value: set.formatted)

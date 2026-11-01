@@ -1,5 +1,7 @@
 package com.labs_101.backend.dtos.notification;
 
+import org.jspecify.annotations.Nullable;
+
 import java.time.Instant;
 
 import com.labs_101.backend.entities.NotificationType;
@@ -17,9 +19,9 @@ public class NotificationDto {
     private Long id;
     private NotificationType type;
     private String title;
-    private String message;
-    private String link;
-    private String linkLabel;
+    private @Nullable String message;
+    private @Nullable String link;
+    private @Nullable String linkLabel;
     private Instant createdAt;
-    private Instant readAt;
+    private @Nullable Instant readAt;
 }

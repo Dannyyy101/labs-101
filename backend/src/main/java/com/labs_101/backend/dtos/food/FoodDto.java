@@ -1,12 +1,14 @@
 package com.labs_101.backend.dtos.food;
 
-public record FoodDto(Long id, String blsCode,
+import org.jspecify.annotations.Nullable;
+
+public record FoodDto(Long id, @Nullable String blsCode,
         String name,
-        Double kcal,
-        Double water,
-        Double protein,
-        Double fat,
-        Double carbohydrates,
-        Double fiber) {
+        @Nullable Double kcal,
+        @Nullable Double water,
+        @Nullable Double protein,
+        @Nullable Double fat,
+        @Nullable Double carbohydrates,
+        @Nullable Double fiber) {
 
 }

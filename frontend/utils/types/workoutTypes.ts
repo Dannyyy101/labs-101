@@ -1,4 +1,4 @@
-import { ExtendedBodyPart } from "react-muscle-highlighter"
+import type { Schemas } from "@/lib/api/types"
 
 export interface WorkoutTemplate {
     id: string,
@@ -6,19 +6,12 @@ export interface WorkoutTemplate {
     type: string
 }
 
-export interface BaseExercise {
-    id: number,
-    name: string
-    description: string
-    type: ExerciseTypes
-    bodyParts: ExtendedBodyPart[]
-}
+// see WorkoutController in the backend
+export type Exercise = Schemas["ExerciseDto"]
+export type CreateExercise = Schemas["CreateExerciseDto"]
 
-export interface CreateExercise {
-    name: string
-    description: string
-    type: string
-    bodyParts: ExtendedBodyPart[]
+export interface BaseExercise extends Omit<Exercise, "type"> {
+    type: ExerciseTypes
 }
 
 export interface StrengthTraining extends BaseExercise {
@@ -45,5 +38,4 @@ export interface Set {
 }
 
 export type ExerciseTypes = "Strength Training" | "Swimming" | "Running" | "Stretching"
-export type Exercise = BaseExercise
 export type ExerciseTraining = StrengthTraining | SwimmingTraining | RunningTraining | StretchingTraining

@@ -5,6 +5,7 @@ import com.labs_101.backend.mapper.ExerciseMapper;
 import com.labs_101.backend.mapper.WorkoutMapper;
 import com.labs_101.backend.repositories.CalendarRepository;
 import com.labs_101.backend.repositories.ExerciseRepository;
+import com.labs_101.backend.repositories.FriendshipRepository;
 import com.labs_101.backend.repositories.UserRepository;
 import com.labs_101.backend.repositories.WorkoutRepository;
 import com.labs_101.backend.repositories.WorkoutSessionRepository;
@@ -12,8 +13,11 @@ import com.labs_101.backend.repositories.WorkoutSessionRepository;
 import jakarta.transaction.Transactional;
 
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.springframework.data.jpa.domain.Specification;
@@ -23,15 +27,22 @@ import org.springframework.stereotype.Service;
 import com.labs_101.backend.dtos.BodyPartDto;
 import com.labs_101.backend.dtos.exercises.CreateExerciseDto;
 import com.labs_101.backend.dtos.exercises.ExerciseDto;
+import com.labs_101.backend.dtos.notification.CreateNotificationDto;
+import com.labs_101.backend.dtos.workout.CardioItemDto;
 import com.labs_101.backend.dtos.workout.CreateWorkoutDto;
 import com.labs_101.backend.dtos.workout.ExerciseItem;
 import com.labs_101.backend.dtos.workout.StrengthItemDto;
 import com.labs_101.backend.dtos.workout.WorkoutDto;
+import com.labs_101.backend.entities.workout.workoutExercises.CardioItem;
 import com.labs_101.backend.entities.workout.workoutExercises.StrengthItem;
+import com.labs_101.backend.security.ZitadelClient;
 import com.labs_101.backend.exception.ForbiddenException;
 import com.labs_101.backend.exception.NotFoundException;
 import com.labs_101.backend.entities.BodyPart;
 import com.labs_101.backend.entities.Exercise;
+import com.labs_101.backend.entities.Friendship;
+import com.labs_101.backend.entities.NotificationType;
+import com.labs_101.backend.entities.User;
 import com.labs_101.backend.entities.workout.Workout;
 import com.labs_101.backend.entities.workout.WorkoutExercise;
 
@@ -42,15 +53,23 @@ public class WorkoutService {
     private final WorkoutSessionRepository sessionRepository;
     private final CalendarRepository calendarRepository;
     private final UserRepository userRepository;
+    private final FriendshipRepository friendshipRepository;
+    private final NotificationService notificationService;
+    private final ZitadelClient zitadelClient;
 
     WorkoutService(ExerciseRepository exerciseRepository,
             WorkoutRepository workoutRepository, WorkoutSessionRepository sessionRepository,
-            CalendarRepository calendarRepository, UserRepository userRepository) {
+            CalendarRepository calendarRepository, UserRepository userRepository,
+            FriendshipRepository friendshipRepository, NotificationService notificationService,
+            ZitadelClient zitadelClient) {
         this.exerciseRepository = exerciseRepository;
         this.workoutRepository = workoutRepository;
         this.sessionRepository = sessionRepository;
         this.calendarRepository = calendarRepository;
         this.userRepository = userRepository;
+        this.friendshipRepository = friendshipRepository;
+        this.notificationService = notificationService;
+        this.zitadelClient = zitadelClient;
     }
 
     @Transactional
@@ -83,7 +102,7 @@ public class WorkoutService {
         workout.setDuration(0.0);
         workout.setOwner(userRepository.getReferenceById(userId));
         apply(workout, request);
-        return WorkoutMapper.fromWorkoutToWorkoutDto(workoutRepository.save(workout), userId);
+        return toDto(workoutRepository.save(workout), userId);
     }
 
     /** Replaces name and exercises, sessions started from the workout keep their copy. */
@@ -94,7 +113,7 @@ public class WorkoutService {
         // removes the old rows before the new ones are inserted
         workoutRepository.flush();
         apply(workout, request);
-        return WorkoutMapper.fromWorkoutToWorkoutDto(workoutRepository.save(workout), userId);
+        return toDto(workoutRepository.save(workout), userId);
     }
 
     @Transactional
@@ -107,23 +126,76 @@ public class WorkoutService {
         workoutRepository.delete(workout);
     }
 
+    /** The own templates and the ones friends shared with the user. */
     @Transactional
     public List<WorkoutDto> getAll(String userId) {
-        return workoutRepository.findAll().stream().map((workout) -> WorkoutMapper.fromWorkoutToWorkoutDto(workout, userId)).toList();
+        return workoutRepository.findVisibleTo(userId).stream().map((workout) -> toDto(workout, userId)).toList();
     }
 
     @Transactional
     public WorkoutDto getById(String userId, Long id) {
-        Workout workout = workoutRepository.findById(id).orElseThrow(() -> NotFoundException.workout(id));
-        return WorkoutMapper.fromWorkoutToWorkoutDto(workout, userId);
+        return toDto(findVisible(userId, id), userId);
+    }
+
+    /**
+     * Shares the template with exactly these friends, the ones newly added get a notification.
+     * Only friends, anyone else is reported as not found like everywhere else.
+     */
+    @Transactional
+    public WorkoutDto share(String userId, Long id, List<String> friendIds) {
+        Workout workout = findEditable(userId, id);
+        Set<User> friends = new LinkedHashSet<>();
+        for (String friendId : new LinkedHashSet<>(friendIds == null ? List.<String>of() : friendIds)) {
+            if (friendId.equals(userId)) {
+                continue;
+            }
+            Friendship friendship = friendshipRepository.findBetween(userId, friendId).filter(Friendship::isAccepted)
+                    .orElseThrow(() -> NotFoundException.friend(friendId));
+            friends.add(friendship.other(userId));
+        }
+
+        Set<String> before = new HashSet<>(workout.getSharedWith().stream().map(User::getId).toList());
+        workout.getSharedWith().clear();
+        workout.getSharedWith().addAll(friends);
+        Workout saved = workoutRepository.save(workout);
+
+        String owner = name(userRepository.findById(userId).orElse(null));
+        friends.stream().filter((friend) -> !before.contains(friend.getId())).forEach((friend) ->
+                notificationService.create(friend.getId(), new CreateNotificationDto(NotificationType.INFO,
+                        owner + " hat das Workout „" + saved.getName() + "“ mit dir geteilt", null,
+                        "/workouts/" + saved.getId(), "Workout ansehen")));
+        return toDto(saved, userId);
+    }
+
+    /** Removes a template a friend shared from the own list, the friend keeps it. */
+    @Transactional
+    public void leave(String userId, Long id) {
+        Workout workout = findVisible(userId, id);
+        if (!workout.getSharedWith().removeIf((user) -> user.getId().equals(userId))) {
+            throw NotFoundException.workout(id);
+        }
+    }
+
+    /** Templates the user doesn't see are reported as not found, so their ids give nothing away. */
+    public Workout findVisible(String userId, Long id) {
+        return workoutRepository.findById(id).filter((workout) -> workout.isVisibleTo(userId))
+                .orElseThrow(() -> NotFoundException.workout(id));
     }
 
     private Workout findEditable(String userId, Long id) {
-        Workout workout = workoutRepository.findById(id).orElseThrow(() -> NotFoundException.workout(id));
+        Workout workout = findVisible(userId, id);
         if (!workout.isEditableBy(userId)) {
             throw ForbiddenException.workout(id);
         }
         return workout;
+    }
+
+    private WorkoutDto toDto(Workout workout, String userId) {
+        return WorkoutMapper.fromWorkoutToWorkoutDto(workout, userId, zitadelClient::avatarUrl);
+    }
+
+    private static String name(User user) {
+        return user != null && user.getName() != null && !user.getName().isBlank() ? user.getName().strip() : "Jemand";
     }
 
     private void apply(Workout workout, CreateWorkoutDto request) {
@@ -143,6 +215,7 @@ public class WorkoutService {
                             s.sets().stream()
                                     .map(d -> new StrengthItem.Set(d.order(), d.reps(), d.weightKg(), d.rpe(), d.restSeconds()))
                                     .toList()));
+            case CardioItemDto c -> new CardioItem(exercise, new CardioItem.Settings(Math.max(0, c.minutes())));
         };
     }
 

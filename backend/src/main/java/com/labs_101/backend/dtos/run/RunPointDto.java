@@ -1,5 +1,7 @@
 package com.labs_101.backend.dtos.run;
 
+import org.jspecify.annotations.Nullable;
+
 /**
  * Point of the track, resampled to a fixed distance.
  *
@@ -13,7 +15,7 @@ public record RunPointDto(
         double time,
         double latitude,
         double longitude,
-        Double elevation,
-        Double pace,
-        Double heartRate) {
+        @Nullable Double elevation,
+        @Nullable Double pace,
+        @Nullable Double heartRate) {
 }

@@ -50,11 +50,30 @@ export function lastSets(sessions: WorkoutSession[], exerciseId: number | null):
 export function lastNote(sessions: WorkoutSession[], exerciseId: number | null): string | null {
     if (exerciseId == null) return null
     for (const session of sessions) {
-        const found = session.exercises.find((e) => e.exerciseId === exerciseId && e.sets.some((s) => s.done))
+        const found = session.exercises.find((e) => e.exerciseId === exerciseId && (e.sets.some((s) => s.done) || e.cardio?.done))
         if (found) return found.note ?? null
     }
     return null
 }
+
+// exercises of these types are logged with minutes instead of sets
+export const CARDIO_TYPES = ["Cardio", "Running", "Swimming"]
+export const isCardio = (exercise: { type: string }) => CARDIO_TYPES.includes(exercise.type)
+export const DEFAULT_CARDIO_MINUTES = 10
+
+/** Minutes of the cardio of the newest of the sessions (sorted newest first) that contains it. */
+export function lastCardioMinutes(sessions: WorkoutSession[], exerciseId: number | null): number | null {
+    if (exerciseId == null) return null
+    for (const session of sessions) {
+        const found = session.exercises.find((e) => e.exerciseId === exerciseId && e.cardio?.done)
+        if (found) return found.cardio!.minutes
+    }
+    return null
+}
+
+/** Minutes of done cardio. */
+export const cardioMinutes = (session: WorkoutSession) =>
+    session.exercises.reduce((sum, e) => sum + (e.cardio?.done ? e.cardio.minutes : 0), 0)
 
 export const DEFAULT_REST = 90
 // 0 turns the rest timer off

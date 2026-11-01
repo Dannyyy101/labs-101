@@ -1,5 +1,7 @@
 package com.labs_101.backend.dtos.workout.session;
 
+import org.jspecify.annotations.Nullable;
+
 import java.time.Instant;
 import java.util.List;
 
@@ -10,9 +12,9 @@ import java.util.List;
  */
 public record WorkoutSessionDto(
         Long id,
-        Long workoutId,
+        @Nullable Long workoutId,
         String name,
         Instant startedAt,
-        Instant endedAt,
+        @Nullable Instant endedAt,
         List<SessionExerciseDto> exercises) {
 }

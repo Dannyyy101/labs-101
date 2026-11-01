@@ -1,155 +1,89 @@
 'use server'
 
-import { BACKEND_URL } from "@/utils/constants"
-import { backendFetch } from "@/utils/backend"
-import { ApiError } from "@/utils/types/api"
-import { CreateFoodWithAmount, CreateTrackedFood, ExtractedFood, Food, FoodPortion, FoodWithPortion, FoodWithLastEntry, SearchFood, TrackedFood, TrackFoodForUser } from "@/utils/types/food"
-import { Page } from "@/utils/types/page"
+import { api, errorMessage } from "@/lib/api/client"
+import { CreateTrackedFood, ExtractedFood, Food, FoodPortion, FoodWithLastEntry, FoodWithPortion, SearchFood, TrackedFood } from "@/utils/types/food"
+import { Slice } from "@/utils/types/page"
 import { Result } from "@/utils/types/result"
 import { revalidatePath } from "next/cache"
 
-export async function findFoodByNameAndUserId(name: string, filter?: { page?: number }): Promise<Page<SearchFood>> {
-    const url = new URL(BACKEND_URL + "/foods/search/byNameAndUser")
+export async function findFoodByNameAndUserId(name: string, filter?: { page?: number }): Promise<Slice<SearchFood>> {
+    const { data } = await api.GET("/api/foods/search/byNameAndUser", {
+        params: { query: { name, page: filter?.page || undefined } },
+    })
 
-    url.searchParams.append("name", name)
-    if (filter?.page) {
-        url.searchParams.append("page", String(filter.page))
-    }
-
-    const response = await backendFetch(url.toString(), { cache: 'no-store' })
-
-    if (response.ok) {
-        return await response.json() as Page<SearchFood>
-    }
-
-    throw new Error("Error fetching foods")
+    if (!data) throw new Error("Error fetching foods")
+    return data
 }
 
 export async function getTrackedFood(date: Date): Promise<TrackedFood[]> {
+    const { data } = await api.GET("/api/users/me/tracked-foods", { params: { query: { date: date.toISOString() } } })
 
-    const url = new URL(`${BACKEND_URL}/users/me/tracked-foods`)
+    if (!data) throw new Error("Error fetching tracked foods")
+    return data
+}
 
-    url.searchParams.append("date", date.toISOString())
+// kcal burned by activity on the day (from Apple Health), 0 without health data
+export async function getBurnedCalories(day: string): Promise<number> {
+    const answer = await api.GET("/api/users/me/health/overview/energy", { params: { query: { date: day } } }).catch(() => null)
 
-    const response = await backendFetch(url.toString(), { cache: 'no-store' })
-
-    if (response.ok) {
-        return await response.json() as TrackedFood[]
-    }
-
-    throw new Error("Error fetching tracked foods")
+    return answer?.data?.activeEnergy ?? 0
 }
 
 export async function getTrackedFoodByFoodId(foodId: number): Promise<FoodWithLastEntry> {
+    const { data } = await api.GET("/api/users/me/foods/{foodId}/last", { params: { path: { foodId } } })
 
-    const url = new URL(`${BACKEND_URL}/users/me/foods/${foodId}/last`)
-
-    const response = await backendFetch(url.toString(), { cache: 'no-store' })
-
-    if (response.ok) {
-        return await response.json() as FoodWithLastEntry
-    }
-
-    throw new Error(`Error fetching food by ${foodId}`)
+    if (!data) throw new Error(`Error fetching food by ${foodId}`)
+    return data
 }
 
 export async function getTrackedFoodByTrackedFoodId(trackedFoodId: number): Promise<TrackedFood> {
+    const { data } = await api.GET("/api/users/me/tracked-foods/{trackedFoodId}", { params: { path: { trackedFoodId } } })
 
-    const url = new URL(`${BACKEND_URL}/users/me/tracked-foods/${trackedFoodId}`)
-
-    const response = await backendFetch(url.toString(), { cache: 'no-store' })
-
-    if (response.ok) {
-        return await response.json() as TrackedFood
-    }
-
-    throw new Error(`Error fetching tracked food by ${trackedFoodId}`)
+    if (!data) throw new Error(`Error fetching tracked food by ${trackedFoodId}`)
+    return data
 }
 
 export async function updateTrackFood(foodWithAmount: CreateTrackedFood) {
-    const url = new URL(`${BACKEND_URL}/users/me/tracked-foods/${foodWithAmount.id}`)
-
-    const response = await backendFetch(url.toString(), {
-        method: "PUT",
-        body: JSON.stringify(foodWithAmount), headers: {
-            'Content-Type': 'application/json'
-        }
+    const { error, response } = await api.PUT("/api/users/me/tracked-foods/{trackedFoodId}", {
+        params: { path: { trackedFoodId: foodWithAmount.id! } }, body: foodWithAmount,
     })
-    if (response.ok) {
-        revalidatePath("/foods/track")
-        return
-    }
-    throw new Error(await response.json())
+
+    if (!response.ok) throw new Error(errorMessage(error, "Error updating tracked food"))
+    revalidatePath("/foods/track")
 }
 
 export async function createTrackFood(foodWithAmount: CreateTrackedFood) {
-    const url = new URL(`${BACKEND_URL}/foods/${foodWithAmount.foodId}/track`)
-
-    console.log(url)
-    const response = await backendFetch(url.toString(), {
-        method: "POST",
-        body: JSON.stringify(foodWithAmount), headers: {
-            'Content-Type': 'application/json'
-        }
+    const { error, response } = await api.POST("/api/foods/{id}/track", {
+        params: { path: { id: foodWithAmount.foodId } }, body: foodWithAmount,
     })
-    if (response.ok) {
-        revalidatePath("/foods/track")
-        return
-    }
-    throw new Error(await response.json())
+
+    if (!response.ok) throw new Error(errorMessage(error, "Error tracking food"))
+    revalidatePath("/foods/track")
 }
 
 export async function deleteTrackedFood(trackedFoodId: number) {
-    const url = new URL(`${BACKEND_URL}/users/me/tracked-foods/${trackedFoodId}`)
-    const response = await backendFetch(url.toString(), {
-        method: "DELETE",
-    })
-    if (response.ok) {
-        revalidatePath("/foods/track")
-        return
-    }
-    throw new Error(await response.json())
+    const { error, response } = await api.DELETE("/api/users/me/tracked-foods/{trackedFoodId}", { params: { path: { trackedFoodId } } })
+
+    if (!response.ok) throw new Error(errorMessage(error, "Error deleting tracked food"))
+    revalidatePath("/foods/track")
 }
 
 export async function findAndSafeFoodIfNotExistByBarcode(code: string): Promise<Result<Food>> {
-    const url = new URL(`${BACKEND_URL}/foods/bar-code/${code}`)
-    const response = await backendFetch(url.toString())
+    const { data, error } = await api.GET("/api/foods/bar-code/{code}", { params: { path: { code } } })
 
-    if (response.ok) {
-        return { ok: true, data: await response.json() as Food }
-    }
-
-    const apiError = await response.json().catch(() => null) as ApiError | null
-    return {
-        ok: false,
-        error: apiError?.errorMessage ?? ""
-    }
+    if (!data) return { ok: false, error: errorMessage(error, "") }
+    return { ok: true, data }
 }
+
 export async function extractFoodsFromText(text: string): Promise<ExtractedFood[]> {
-    const url = new URL(`${BACKEND_URL}/foods/extract`)
-    const response = await backendFetch(url.toString(), {
-        method: "POST",
-        body: JSON.stringify({ text }), headers: {
-            'Content-Type': 'application/json'
-        },
-        cache: 'no-store'
-    })
+    const { data } = await api.POST("/api/foods/extract", { body: { text } })
 
-    if (response.ok) {
-        return await response.json() as ExtractedFood[]
-    }
-
-    throw new Error("Error extracting foods from text")
+    if (!data) throw new Error("Error extracting foods from text")
+    return data
 }
 
 export async function addFoodPortion(foodId: number, portion: Omit<FoodPortion, "id">): Promise<FoodPortion[]> {
-    const url = new URL(`${BACKEND_URL}/foods/${foodId}/portions`)
-    const response = await backendFetch(url.toString(), {
-        method: "POST",
-        body: JSON.stringify(portion), headers: {
-            'Content-Type': 'application/json'
-        }
-    })
+    const { response } = await api.POST("/api/foods/{id}/portions", { params: { path: { id: foodId } }, body: portion })
 
     if (!response.ok) throw new Error(`Error adding portion to food ${foodId}`)
 
@@ -159,38 +93,25 @@ export async function addFoodPortion(foodId: number, portion: Omit<FoodPortion, 
 
 // only reads the open food, it gets imported when it is tracked
 export async function getOpenFood(openFoodId: number): Promise<FoodWithPortion> {
-    const url = new URL(`${BACKEND_URL}/foods/open-food/${openFoodId}`)
-    const response = await backendFetch(url.toString(), { cache: 'no-store' })
+    const { data } = await api.GET("/api/foods/open-food/{openFoodId}", { params: { path: { openFoodId } } })
 
-    if (response.ok) {
-        return await response.json() as FoodWithPortion
-    }
-
-    throw new Error(`Error fetching open food ${openFoodId}`)
+    if (!data) throw new Error(`Error fetching open food ${openFoodId}`)
+    // without id until it is imported
+    return { ...data, id: data.id ?? 0 }
 }
 
 export async function importOpenFood(openFoodId: number): Promise<FoodWithPortion> {
-    const url = new URL(`${BACKEND_URL}/foods/open-food/${openFoodId}/import`)
-    const response = await backendFetch(url.toString(), { method: "POST" })
+    const { data } = await api.POST("/api/foods/open-food/{openFoodId}/import", { params: { path: { openFoodId } } })
 
-    if (response.ok) {
-        return await response.json() as FoodWithPortion
-    }
-
-    throw new Error(`Error importing open food ${openFoodId}`)
+    if (!data?.id) throw new Error(`Error importing open food ${openFoodId}`)
+    return { ...data, id: data.id }
 }
 
 export async function trackOpenFood(openFoodId: number, trackedFood: Omit<CreateTrackedFood, "foodId">) {
-    const url = new URL(`${BACKEND_URL}/foods/open-food/${openFoodId}/track`)
-    const response = await backendFetch(url.toString(), {
-        method: "POST",
-        body: JSON.stringify(trackedFood), headers: {
-            'Content-Type': 'application/json'
-        }
+    const { response } = await api.POST("/api/foods/open-food/{openFoodId}/track", {
+        params: { path: { openFoodId } }, body: trackedFood,
     })
-    if (response.ok) {
-        revalidatePath("/foods/track")
-        return
-    }
-    throw new Error(`Error tracking open food ${openFoodId}`)
+
+    if (!response.ok) throw new Error(`Error tracking open food ${openFoodId}`)
+    revalidatePath("/foods/track")
 }

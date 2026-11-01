@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
+import com.labs_101.backend.dtos.overview.EnergyDto;
 import com.labs_101.backend.dtos.overview.HealthOverviewDto;
 import com.labs_101.backend.services.HealthOverviewService;
 import com.labs_101.backend.security.CurrentUser;
@@ -32,12 +33,24 @@ public class HealthOverviewController {
     public HealthOverviewDto getOverview(@CurrentUser String userId,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
             @RequestParam(required = false) String zone) {
-        ZoneId zoneId;
+        ZoneId zoneId = zoneId(zone);
+        return healthOverviewService.getOverview(userId, date != null ? date : LocalDate.now(zoneId), zoneId);
+    }
+
+    /** kcal burned on a day for the food tracker, same defaults as the overview. */
+    @GetMapping("/energy")
+    public EnergyDto getEnergy(@CurrentUser String userId,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
+            @RequestParam(required = false) String zone) {
+        ZoneId zoneId = zoneId(zone);
+        return healthOverviewService.getEnergy(userId, date != null ? date : LocalDate.now(zoneId), zoneId);
+    }
+
+    private static ZoneId zoneId(String zone) {
         try {
-            zoneId = zone != null ? ZoneId.of(zone) : HealthOverviewService.DEFAULT_ZONE;
+            return zone != null ? ZoneId.of(zone) : HealthOverviewService.DEFAULT_ZONE;
         } catch (DateTimeException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "unknown time zone " + zone);
         }
-        return healthOverviewService.getOverview(userId, date != null ? date : LocalDate.now(zoneId), zoneId);
     }
 }

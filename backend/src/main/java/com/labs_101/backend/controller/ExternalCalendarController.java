@@ -22,6 +22,8 @@ import com.labs_101.backend.dtos.calendar.ExternalCalendarEventDto;
 import com.labs_101.backend.security.CurrentUser;
 import com.labs_101.backend.services.ExternalCalendarService;
 
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+
 /** Calendars of other apps the signed in user shows in their calendar, read only. */
 @RestController()
 @RequestMapping("/api/calendar/external")
@@ -38,6 +40,7 @@ public class ExternalCalendarController {
     }
 
     @PostMapping("")
+    @ApiResponse(responseCode = "201")
     public ResponseEntity<ExternalCalendarDto> addCalendar(@CurrentUser String userId,
             @RequestBody CreateExternalCalendarDto dto) {
         return ResponseEntity.status(HttpStatus.CREATED).body(externalCalendarService.addCalendar(userId, dto));
@@ -51,12 +54,14 @@ public class ExternalCalendarController {
     }
 
     @DeleteMapping("/apple/{accountId}")
+    @ApiResponse(responseCode = "204")
     public ResponseEntity<Void> disconnectAppleAccount(@CurrentUser String userId, @PathVariable Long accountId) {
         externalCalendarService.disconnectAppleAccount(userId, accountId);
         return ResponseEntity.noContent().build();
     }
 
     @DeleteMapping("/{id}")
+    @ApiResponse(responseCode = "204")
     public ResponseEntity<Void> deleteCalendar(@CurrentUser String userId, @PathVariable Long id) {
         externalCalendarService.deleteCalendar(userId, id);
         return ResponseEntity.noContent().build();

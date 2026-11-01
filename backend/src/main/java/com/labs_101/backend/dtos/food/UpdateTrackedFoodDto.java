@@ -1,5 +1,7 @@
 package com.labs_101.backend.dtos.food;
 
-public record UpdateTrackedFoodDto(Long foodId, Double amount, String meal, Long portionId) {
+import org.jspecify.annotations.Nullable;
+
+public record UpdateTrackedFoodDto(@Nullable Long foodId, Double amount, String meal, @Nullable Long portionId) {
 
 }

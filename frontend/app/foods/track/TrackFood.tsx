@@ -23,7 +23,7 @@ const currentMeal = () => {
     return Meal.DINNER
 }
 
-export default function TrackFood({ food, day, calorieGoal, settingsError }: { food: TrackedFood[], day: string, calorieGoal: number, settingsError?: string }) {
+export default function TrackFood({ food, day, calorieGoal, burned, settingsError }: { food: TrackedFood[], day: string, calorieGoal: number, burned: number, settingsError?: string }) {
     const selectedFoodStore = useSelectedFoodStore();
 
     const foodWithAmount = food.filter((f) => f.amount > 0)
@@ -56,7 +56,7 @@ export default function TrackFood({ food, day, calorieGoal, settingsError }: { f
                         </Alert>
                     )}
                     <div className="rounded-3xl bg-card shadow-sm p-6 mt-5">
-                        <CalorieCard props={{ consumed: totalCalories, goal: calorieGoal, burned: 0 }} />
+                        <CalorieCard props={{ consumed: totalCalories, goal: calorieGoal, burned }} />
                         <div className="border-t my-5" />
                         <div className="flex flex-col gap-y-4">
                             <NutritionCard props={{ name: "Protein", color: "protein", consumed: total("protein"), goal: NUTRITION_GOALS.protein }} />
@@ -78,7 +78,7 @@ export default function TrackFood({ food, day, calorieGoal, settingsError }: { f
                             <MealView key={meal.type} props={{
                                 meal: meal.type,
                                 trackedFood: food.filter((f) => f.meal.type === meal.type),
-                                remainingCalories: calorieGoal - totalCalories,
+                                remainingCalories: calorieGoal + burned - totalCalories,
                                 selectedFoodStore,
                             }} />
                         )}

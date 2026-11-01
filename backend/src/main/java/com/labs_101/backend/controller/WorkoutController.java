@@ -3,6 +3,7 @@ package com.labs_101.backend.controller;
 import com.labs_101.backend.dtos.exercises.CreateExerciseDto;
 import com.labs_101.backend.dtos.exercises.ExerciseDto;
 import com.labs_101.backend.dtos.workout.CreateWorkoutDto;
+import com.labs_101.backend.dtos.workout.ShareWorkoutDto;
 import com.labs_101.backend.dtos.workout.WorkoutDto;
 import com.labs_101.backend.security.CurrentUser;
 import com.labs_101.backend.services.WorkoutService;
@@ -19,6 +20,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 
 @RestController()
 @RequestMapping("/api/workouts")
@@ -47,17 +50,34 @@ public class WorkoutController {
 
     /** Only the creator of the template can delete it. */
     @DeleteMapping("{id}")
+    @ApiResponse(responseCode = "204")
     public ResponseEntity<Void> deleteWorkout(@CurrentUser String userId, @PathVariable Long id) {
         workoutService.delete(userId, id);
         return ResponseEntity.noContent().build();
     }
 
+    /** Only the creator can share, with friends only. Replaces the friends it was shared with before. */
+    @PutMapping("{id}/shares")
+    public WorkoutDto shareWorkout(@CurrentUser String userId, @PathVariable Long id, @RequestBody ShareWorkoutDto dto) {
+        return workoutService.share(userId, id, dto.userIds());
+    }
+
+    /** Removes a template a friend shared from the own list. */
+    @DeleteMapping("{id}/shares/me")
+    @ApiResponse(responseCode = "204")
+    public ResponseEntity<Void> leaveWorkout(@CurrentUser String userId, @PathVariable Long id) {
+        workoutService.leave(userId, id);
+        return ResponseEntity.noContent().build();
+    }
+
+    /** The own templates and the ones friends shared with the user. */
     @GetMapping("")
     public List<WorkoutDto> getAllWorkouts(@CurrentUser String userId) {
         return workoutService.getAll(userId);
     }
 
     @PostMapping("/exercises")
+    @ApiResponse(responseCode = "204")
     public ResponseEntity<Void> createExercise(@RequestBody CreateExerciseDto exerciseDto) {
         try {
             workoutService.createExercise(exerciseDto);

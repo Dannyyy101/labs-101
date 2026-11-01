@@ -1,28 +1,7 @@
-export interface Page<T> {
-    content: T[]
-    empty: boolean,
-    first: boolean,
-    last: boolean,
-    number: number,
-    numberOfElements: number,
-    pageable: {
-        offset: number,
-        pageNumber: number,
-        pageSize: number,
-        paged: boolean,
-        sort: {
-            empty: boolean,
-            sorted: boolean,
-            unsorted: boolean
-        },
-        unpaged: boolean
-    },
-    size: number,
-    sort: {
-        empty: boolean,
-        sorted: boolean,
-        unsorted: boolean
-    },
-    totalElements: number,
-    totalPages: number
-}
+import type { Schemas } from "@/lib/api/types"
+
+// a page of Spring Data, every page has the same fields
+export type Page<T> = Omit<Schemas["PageFoodDto"], "content"> & { content: T[] }
+
+// a slice of Spring Data, it doesn't count the pages
+export type Slice<T> = Omit<Schemas["SliceSearchFoodResponseDto"], "content"> & { content: T[] }

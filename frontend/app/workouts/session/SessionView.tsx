@@ -5,7 +5,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { cn } from "@/lib/utils"
 import { SessionExercise, SessionSet, WorkoutSession } from "@/utils/types/types"
 import { Exercise } from "@/utils/types/workoutTypes"
-import { Check, ChevronLeft, Plus, StickyNote, Trash2, X } from "lucide-react"
+import { Check, ChevronLeft, HeartPulse, Plus, StickyNote, Trash2, X } from "lucide-react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore, useTransition } from "react"
@@ -16,7 +16,7 @@ import NumberInput from "../NumberInput"
 import RepsPicker from "../RepsPicker"
 import RestPicker from "../RestPicker"
 import MuscleMap from "../MuscleMap"
-import { COLORS, DEFAULT_REST, formatSet, formatVolume, formatWeight, lastNote, lastSets, MUSCLES, restOf, sessionDuration, setsPerMuscle, volume } from "../stats"
+import { COLORS, DEFAULT_CARDIO_MINUTES, DEFAULT_REST, formatSet, formatVolume, formatWeight, isCardio, lastCardioMinutes, lastNote, lastSets, MUSCLES, restOf, sessionDuration, setsPerMuscle, volume } from "../stats"
 import { useNow } from "../useNow"
 
 const SAVE_DELAY = 700
@@ -32,6 +32,8 @@ export default function SessionView({ session, exercises, history }: { session: 
     const [finishing, setFinishing] = useState(false)
 
     const exerciseById = useMemo(() => new Map(exercises.map((e) => [e.id, e])), [exercises])
+    const strengthExercises = useMemo(() => exercises.filter((e) => !isCardio(e)), [exercises])
+    const cardioExercises = useMemo(() => exercises.filter(isCardio), [exercises])
     const sets = items.flatMap((e) => e.sets)
     const done = sets.filter((s) => s.done)
     const [vol, volUnit] = formatVolume(volume(done))
@@ -44,8 +46,13 @@ export default function SessionView({ session, exercises, history }: { session: 
         const last = lastSets(history, exercise.id)
         const fresh: SessionSet = { reps: 10, weightKg: 0, rpe: null, done: false, restSeconds: DEFAULT_REST }
         const template = last?.length ? last : [fresh, fresh, fresh]
-        return [...prev, { exerciseId: exercise.id, name: exercise.name, note: lastNote(history, exercise.id), sets: template.map((s) => ({ ...s, done: false })) }]
+        return [...prev, { exerciseId: exercise.id, name: exercise.name, note: lastNote(history, exercise.id), sets: template.map((s) => ({ ...s, done: false })), cardio: null }]
     })
+    // with the minutes of last time
+    const addCardio = (exercise: Exercise) => setItems((prev) => [...prev, {
+        exerciseId: exercise.id, name: exercise.name, note: lastNote(history, exercise.id), sets: [],
+        cardio: { minutes: lastCardioMinutes(history, exercise.id) ?? DEFAULT_CARDIO_MINUTES, done: false },
+    }])
     // checking a set off starts its rest
     const toggled = (set: SessionSet) => {
         const seconds = restOf(set)
@@ -72,21 +79,31 @@ export default function SessionView({ session, exercises, history }: { session: 
 
             <div className="grid grid-cols-1 gap-4 lg:grid-cols-12">
                 <div className="flex flex-col gap-4 lg:col-span-8">
-                    {items.map((item, index) => <ExerciseLog key={index} item={item} exercise={item.exerciseId != null ? exerciseById.get(item.exerciseId) : undefined}
-                        previous={lastSets(history, item.exerciseId)}
-                        onChange={(next) => update(index, next)} onToggle={toggled}
-                        onRemove={() => {
-                            if (!item.sets.some((s) => s.done) || confirm(`${item.name} mit allen Sätzen entfernen?`))
-                                setItems((prev) => prev.filter((_, i) => i !== index))
-                        }} />)}
+                    {items.map((item, index) => item.cardio
+                        ? <CardioLog key={index} item={item} previous={lastCardioMinutes(history, item.exerciseId)}
+                            onChange={(next) => update(index, next)}
+                            onRemove={() => setItems((prev) => prev.filter((_, i) => i !== index))} />
+                        : <ExerciseLog key={index} item={item} exercise={item.exerciseId != null ? exerciseById.get(item.exerciseId) : undefined}
+                            previous={lastSets(history, item.exerciseId)}
+                            onChange={(next) => update(index, next)} onToggle={toggled}
+                            onRemove={() => {
+                                if (!item.sets.some((s) => s.done) || confirm(`${item.name} mit allen Sätzen entfernen?`))
+                                    setItems((prev) => prev.filter((_, i) => i !== index))
+                            }} />)}
                     {!items.length && <Card className="py-10 text-center">
                         <p className="text-lg font-semibold">Leeres Training</p>
                         <p className="mt-1 text-muted-foreground">Füge die erste Übung hinzu, um Sätze zu erfassen.</p>
                     </Card>}
-                    <ExercisePicker exercises={exercises} onPick={add}
-                        className="flex items-center justify-center gap-2 rounded-[18px] border-2 border-dashed p-5 font-semibold text-[#0a84ff] hover:bg-card">
-                        <Plus className="size-5" />Übung hinzufügen
-                    </ExercisePicker>
+                    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                        <ExercisePicker exercises={strengthExercises} onPick={add}
+                            className="flex items-center justify-center gap-2 rounded-[18px] border-2 border-dashed p-5 font-semibold text-[#0a84ff] hover:bg-card">
+                            <Plus className="size-5" />Übung hinzufügen
+                        </ExercisePicker>
+                        <ExercisePicker exercises={cardioExercises} onPick={addCardio} title="Cardio hinzufügen"
+                            className="flex items-center justify-center gap-2 rounded-[18px] border-2 border-dashed p-5 font-semibold text-[#ff375f] hover:bg-card">
+                            <HeartPulse className="size-5" />Cardio hinzufügen
+                        </ExercisePicker>
+                    </div>
                     <button onClick={() => setFinishing(true)} className="rounded-full bg-[#30d158] px-5 py-3 font-semibold text-white">Training beenden</button>
                     <DiscardButton session={session} />
                 </div>
@@ -286,6 +303,36 @@ function ExerciseLog({ item, exercise, previous, onChange, onToggle, onRemove }:
     </Card>
 }
 
+/** Cardio like running or rowing: only its minutes, checked off like a set. */
+function CardioLog({ item, previous, onChange, onRemove }: {
+    item: SessionExercise, previous: number | null, onChange: (item: SessionExercise) => void, onRemove: () => void
+}) {
+    const cardio = item.cardio!
+    const update = (next: Partial<typeof cardio>) => onChange({ ...item, cardio: { ...cardio, ...next } })
+    return <Card className={cn("transition-shadow", cardio.done && "ring-2 ring-[#30d158]/40")}>
+        <div className="flex items-center gap-3">
+            <span className="grid size-10 flex-none place-items-center rounded-[10px] bg-[#ff375f]/12 text-[#ff375f]"><HeartPulse className="size-5" /></span>
+            <div className="min-w-0 flex-1">
+                <h2 className="truncate text-[17px] font-semibold">{item.name}</h2>
+                <p className="truncate text-sm text-muted-foreground">{previous != null ? `Letztes Mal: ${previous} min` : "Cardio"}</p>
+            </div>
+            <div className="flex w-28 items-center gap-1.5">
+                <NumberInput value={cardio.minutes} onChange={(minutes) => update({ minutes: Math.max(0, Math.round(minutes)) })}
+                    label={`Minuten ${item.name}`} className={cn(cardio.done && "bg-[#30d158]/12")} />
+                <span className="text-sm text-muted-foreground">min</span>
+            </div>
+            <button type="button" aria-label={cardio.done ? `${item.name} nicht erledigt` : `${item.name} erledigt`} aria-pressed={cardio.done}
+                onClick={() => update({ done: !cardio.done })}
+                className={cn("grid h-9 w-10 place-items-center rounded-[10px] transition-colors",
+                    cardio.done ? "bg-[#30d158] text-white" : "bg-muted text-muted-foreground hover:text-foreground")}>
+                <Check className="size-5" strokeWidth={3} />
+            </button>
+            <button type="button" aria-label="Cardio entfernen" title="Cardio entfernen" onClick={onRemove}
+                className="grid size-8 flex-none place-items-center rounded-full text-[#ff453a] hover:bg-muted"><Trash2 className="size-4" /></button>
+        </div>
+    </Card>
+}
+
 /** A short note for the exercise, it is taken into the next workout with it. */
 function NoteField({ note, onChange }: { note: string | null, onChange: (note: string | null) => void }) {
     const [open, setOpen] = useState(false)
@@ -358,7 +405,11 @@ function FinishDialog({ open, onOpenChange, session, name, items, elapsed, befor
     const sets = items.flatMap((e) => e.sets)
     const done = sets.filter((s) => s.done)
     const [vol, volUnit] = formatVolume(volume(done))
-    const open_ = sets.length - done.length
+    const cardio = items.flatMap((e) => e.cardio ? [e.cardio] : [])
+    const cardioDone = cardio.filter((c) => c.done && c.minutes > 0)
+    const open_ = sets.length - done.length + cardio.length - cardioDone.length
+    // done cardio alone is worth saving too
+    const anyDone = done.length + cardioDone.length
 
     const finish = () => start(async () => {
         setError(false)
@@ -379,22 +430,24 @@ function FinishDialog({ open, onOpenChange, session, name, items, elapsed, befor
     return <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent className="gap-5">
             <DialogHeader>
-                <DialogTitle className="text-xl">{done.length ? "Training beenden?" : "Noch kein Satz erledigt"}</DialogTitle>
+                <DialogTitle className="text-xl">{anyDone ? "Training beenden?" : "Noch kein Satz erledigt"}</DialogTitle>
                 <DialogDescription>
-                    {done.length
-                        ? open_ > 0 ? `${open_} ${open_ === 1 ? "Satz ist" : "Sätze sind"} nicht abgehakt und ${open_ === 1 ? "wird" : "werden"} nicht gespeichert.` : "Starke Leistung, alle Sätze erledigt!"
+                    {anyDone
+                        ? open_ > 0 ? `${open_} ${open_ === 1 ? "Eintrag ist" : "Einträge sind"} nicht abgehakt und ${open_ === 1 ? "wird" : "werden"} nicht gespeichert.` : "Starke Leistung, alles erledigt!"
                         : "Hake erledigte Sätze ab, damit sie gespeichert werden – oder verwirf das Training."}
                 </DialogDescription>
             </DialogHeader>
             <dl className="grid grid-cols-3 gap-3 rounded-[14px] bg-muted/60 p-4">
                 <Stat label="Zeit" value={formatDuration(elapsed)} />
                 <Stat label="Sätze" value={`${done.length}`} />
-                <Stat label="Volumen" value={vol} unit={volUnit} />
+                {cardioDone.length && !done.length
+                    ? <Stat label="Cardio" value={`${cardioDone.reduce((sum, c) => sum + c.minutes, 0)}`} unit="min" />
+                    : <Stat label="Volumen" value={vol} unit={volUnit} />}
             </dl>
             {error && <p className="text-sm font-medium text-[#ff453a]">Beenden fehlgeschlagen, versuche es noch einmal.</p>}
             <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
                 <button onClick={() => onOpenChange(false)} disabled={pending} className="rounded-full bg-muted px-4 py-2.5 font-semibold disabled:opacity-50">Weiter trainieren</button>
-                {done.length
+                {anyDone
                     ? <button onClick={finish} disabled={pending} className="rounded-full bg-[#30d158] px-5 py-2.5 font-semibold text-white disabled:opacity-50">
                         {pending ? "Speichert…" : "Training beenden"}
                     </button>

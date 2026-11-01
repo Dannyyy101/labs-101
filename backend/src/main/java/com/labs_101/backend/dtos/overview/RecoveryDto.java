@@ -1,5 +1,7 @@
 package com.labs_101.backend.dtos.overview;
 
+import org.jspecify.annotations.Nullable;
+
 /**
  * How recovered the body is, the measurements of the night compared with the
  * averages of the 30 days before.
@@ -12,13 +14,13 @@ package com.labs_101.backend.dtos.overview;
  * @param wristTemperatureDeviation °C compared with the baseline
  */
 public record RecoveryDto(
-        Integer score,
-        Double hrv,
-        Double hrvBaseline,
-        Double restingHeartRate,
-        Double restingHeartRateBaseline,
-        Double respiratoryRate,
-        Double respiratoryRateBaseline,
-        Double oxygenSaturation,
-        Double wristTemperatureDeviation) {
+        @Nullable Integer score,
+        @Nullable Double hrv,
+        @Nullable Double hrvBaseline,
+        @Nullable Double restingHeartRate,
+        @Nullable Double restingHeartRateBaseline,
+        @Nullable Double respiratoryRate,
+        @Nullable Double respiratoryRateBaseline,
+        @Nullable Double oxygenSaturation,
+        @Nullable Double wristTemperatureDeviation) {
 }

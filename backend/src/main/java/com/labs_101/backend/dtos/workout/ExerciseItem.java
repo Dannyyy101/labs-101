@@ -7,7 +7,8 @@ import com.labs_101.backend.dtos.exercises.ExerciseDto;
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
 @JsonSubTypes({
         @JsonSubTypes.Type(value = StrengthItemDto.class, name = "STRENGTH_EXERCISE"),
+        @JsonSubTypes.Type(value = CardioItemDto.class, name = "CARDIO_EXERCISE"),
 })
-public sealed interface ExerciseItem permits StrengthItemDto {
+public sealed interface ExerciseItem permits StrengthItemDto, CardioItemDto {
     ExerciseDto exercise();
 }

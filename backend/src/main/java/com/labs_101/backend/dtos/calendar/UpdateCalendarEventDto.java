@@ -1,5 +1,7 @@
 package com.labs_101.backend.dtos.calendar;
 
+import org.jspecify.annotations.Nullable;
+
 import java.time.Instant;
 import java.util.List;
 
@@ -13,21 +15,21 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 public class UpdateCalendarEventDto {
-    private Long id;
+    private @Nullable Long id;
     private String title;
     private Instant startDate;
     private Instant endDate;
     /** Always applied, null removes the planned workout. */
-    private Long workoutId;
+    private @Nullable Long workoutId;
     /** Replaces the invitees, null keeps them. */
-    private List<String> inviteeIds;
+    private @Nullable List<String> inviteeIds;
     /** Always applied, null ends the repetition. */
-    private Recurrence recurrence;
+    private @Nullable Recurrence recurrence;
     /** Always applied, null repeats forever. */
-    private Instant recurrenceEnd;
+    private @Nullable Instant recurrenceEnd;
     /**
      * The start of the edited occurrence of a repeating event. The series is moved by as much as this
      * occurrence was, null when the first one or a single event was edited.
      */
-    private Instant occurrenceStartDate;
+    private @Nullable Instant occurrenceStartDate;
 }
