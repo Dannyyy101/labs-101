@@ -1,5 +1,6 @@
 'use client'
 
+import { AvatarImage } from "@/components/AvatarImage"
 import { Card, CardHead, Stat } from "@/components/dashboard"
 import { cn } from "@/lib/utils"
 import { CardioExercise, ExerciseSet, Workout, WorkoutExercise, WorkoutExerciseType } from "@/utils/types/types"
@@ -215,10 +216,9 @@ function ShareCard({ workout, friends }: { workout: Workout, friends: Friend[] }
                     const on = shared.has(friend.id)
                     return <button key={friend.id} type="button" onClick={() => toggle(friend.id)} disabled={pending} aria-pressed={on}
                         className="flex items-center gap-3 rounded-xl px-2 py-2 text-left hover:bg-muted disabled:opacity-60">
-                        {friend.image
-                            // eslint-disable-next-line @next/next/no-img-element
-                            ? <img src={friend.image} alt="" className="size-8 rounded-full object-cover" />
-                            : <span className="grid size-8 place-items-center rounded-full bg-muted text-sm font-semibold">{(friend.name ?? "?").charAt(0).toUpperCase()}</span>}
+                        <span className="grid size-8 flex-none place-items-center overflow-hidden rounded-full bg-muted text-sm font-semibold">
+                            <AvatarImage src={friend.image} alt="" size={32} className="size-full object-cover" fallback={(friend.name?.trim() || "?").charAt(0).toUpperCase()} />
+                        </span>
                         <span className="min-w-0 flex-1 truncate text-[15px] font-medium">{friend.name ?? "Unbekannt"}</span>
                         <span className={cn("grid size-6 place-items-center rounded-full", on ? "bg-[#30d158] text-white" : "bg-muted text-transparent")}>
                             <Check className="size-3.5" strokeWidth={3} />
