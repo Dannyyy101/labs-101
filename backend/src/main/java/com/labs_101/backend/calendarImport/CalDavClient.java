@@ -42,8 +42,8 @@ public class CalDavClient {
 
     /** Apple ID or password are wrong, or the password was revoked. */
     public static class UnauthorizedException extends RuntimeException {
-        UnauthorizedException() {
-            super("Apple ID or app-specific password wrong");
+        UnauthorizedException(int status) {
+            super("Apple ID or app-specific password wrong: HTTP " + status);
         }
     }
 
@@ -117,7 +117,7 @@ public class CalDavClient {
                 HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
                 int status = response.statusCode();
                 if (status == 401 || status == 403) {
-                    throw new UnauthorizedException();
+                    throw new UnauthorizedException(status);
                 }
                 if (status >= 300 && status < 400) {
                     current = current.resolve(response.headers().firstValue("Location")
