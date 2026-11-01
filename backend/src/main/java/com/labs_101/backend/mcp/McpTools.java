@@ -1,13 +1,17 @@
 package com.labs_101.backend.mcp;
 
+import static com.labs_101.backend.mcp.McpTool.array;
 import static com.labs_101.backend.mcp.McpTool.date;
+import static com.labs_101.backend.mcp.McpTool.dateTime;
 import static com.labs_101.backend.mcp.McpTool.enumeration;
 import static com.labs_101.backend.mcp.McpTool.id;
 import static com.labs_101.backend.mcp.McpTool.integer;
+import static com.labs_101.backend.mcp.McpTool.nonNegative;
 import static com.labs_101.backend.mcp.McpTool.number;
 import static com.labs_101.backend.mcp.McpTool.schema;
 import static com.labs_101.backend.mcp.McpTool.string;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -25,12 +29,22 @@ import java.util.stream.Collectors;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
 
+import com.labs_101.backend.dtos.calendar.CalendarEventDto;
+import com.labs_101.backend.dtos.calendar.CreateCalendarEventDto;
+import com.labs_101.backend.dtos.exercises.ExerciseDto;
 import com.labs_101.backend.dtos.food.CreateFoodUserDto;
 import com.labs_101.backend.dtos.food.FoodPortionDto;
 import com.labs_101.backend.dtos.food.FoodWithLastEntryAndPortionsDto;
 import com.labs_101.backend.dtos.food.FoodWithPortionsDto;
 import com.labs_101.backend.dtos.food.SearchFoodResponseDto;
 import com.labs_101.backend.dtos.food.TrackedFoodDto;
+import com.labs_101.backend.dtos.workout.CardioItemDto;
+import com.labs_101.backend.dtos.workout.CreateWorkoutDto;
+import com.labs_101.backend.dtos.workout.ExerciseItem;
+import com.labs_101.backend.dtos.workout.SetDto;
+import com.labs_101.backend.dtos.workout.StrengthItemDto;
+import com.labs_101.backend.dtos.workout.WorkoutDto;
+import com.labs_101.backend.entities.Recurrence;
 import com.labs_101.backend.entities.food.MealType;
 import com.labs_101.backend.repositories.LoginDayRepository;
 import com.labs_101.backend.services.CalendarService;
@@ -44,12 +58,26 @@ import com.labs_101.backend.services.WorkoutSessionService;
 
 /**
  * The tools of the MCP server, so Claude can analyze training, health and
- * nutrition of the signed in user. Only the nutrition can be changed: Claude
- * can track meals and remove tracked entries.
+ * nutrition of the signed in user. Claude can also track meals and remove
+ * tracked entries, create workout templates and plan calendar events.
  */
 @Component
 class McpTools {
     private static final int SEARCH_RESULTS = 8;
+    // like the app, see CARDIO_TYPES in the frontend
+    private static final List<String> CARDIO_TYPES = List.of("Cardio", "Running", "Swimming");
+    private static final int DEFAULT_REST_SECONDS = 90;
+    private static final Map<String, Object> SET = schema(Map.of(
+            "reps", integer("Repetitions", 1, 1000),
+            "weightKg", nonNegative("Weight in kg, 0 for bodyweight"),
+            "rpe", integer("Planned RPE", 1, 10),
+            "restSeconds", integer("Rest after the set in seconds, defaults to 90, 0 turns the timer off", 0, 3600)),
+            "reps");
+    private static final Map<String, Object> TEMPLATE_EXERCISE = schema(Map.of(
+            "exerciseId", id("Id of the exercise from list_exercises"),
+            "sets", array("The sets of a strength exercise, in order", SET),
+            "minutes", integer("Minutes of a cardio exercise", 1, 600)),
+            "exerciseId");
     private static final Map<String, Object> RANGE = Map.of(
             "from", date("First day (YYYY-MM-DD), included"),
             "to", date("Last day (YYYY-MM-DD), included, defaults to today"));
@@ -106,6 +134,25 @@ class McpTools {
                         "The workout templates of the user with their planned exercises and sets.",
                         schema(Map.of()),
                         (userId, args) -> workoutService.getAll(userId)),
+
+                McpTool.read("list_exercises", "Übungen",
+                        "The exercises of the app with their id and type, for create_workout_template. Exercises of the "
+                                + "types " + String.join(", ", CARDIO_TYPES) + " are cardio and are planned in minutes, the "
+                                + "others in sets.",
+                        schema(Map.of("name", string("Part of the name, e.g. \"Bank\", leave it out for all"))),
+                        (userId, args) -> workoutService.getAllExercises(args.string("name"), null).stream()
+                                .map(McpTools::exercise).toList()),
+
+                McpTool.write("create_workout_template", "Trainingsplan erstellen",
+                        "Creates a workout template for the user, as in the workout editor of the app. Every exercise "
+                                + "needs its id from list_exercises and either sets (strength) or minutes (cardio). "
+                                + "Tell the user what you created.",
+                        schema(Map.of(
+                                "name", string("Name of the template, e.g. \"Push\""),
+                                "exercises", array("The exercises in order", TEMPLATE_EXERCISE)),
+                                "name", "exercises"),
+                        false,
+                        (userId, args) -> createWorkoutTemplate(workoutService, userId, args)),
 
                 McpTool.read("list_runs", "Läufe",
                         "Runs from Apple Health with distance (m), moving time (s), elevation, heart rate, heart rate zones "
@@ -188,7 +235,24 @@ class McpTools {
                                             LocalDate.now(McpArguments.ZONE).plusDays(13))
                                     : args.range(14, 366);
                             return calendarService.getAllCalendarEvents(userId, range.start(), range.end());
-                        }));
+                        }),
+
+                McpTool.write("create_calendar_event", "Termin erstellen",
+                        "Creates an event in the user's calendar, optionally with a workout template from "
+                                + "list_workout_templates to plan a training. Times are local times in Europe/Berlin. "
+                                + "Tell the user what you created.",
+                        schema(Map.of(
+                                "title", string("Title of the event"),
+                                "start", dateTime("Start as local date and time, e.g. 2026-10-28T18:30"),
+                                "end", dateTime("End as local date and time, defaults to one hour after the start"),
+                                "workoutId", id("Id of a workout template from list_workout_templates"),
+                                "recurrence", enumeration("How often the event repeats, leave it out for a single event",
+                                        "DAILY", "WEEKLY", "MONTHLY"),
+                                "recurrenceEnd", date("Last day (YYYY-MM-DD) the event repeats on, leave it out to repeat "
+                                        + "forever")),
+                                "title", "start"),
+                        false,
+                        (userId, args) -> createCalendarEvent(calendarService, userId, args)));
 
         tools = list.stream().collect(Collectors.toMap(McpTool::name, Function.identity(), (a, b) -> a, LinkedHashMap::new));
     }
@@ -199,6 +263,88 @@ class McpTools {
 
     Optional<McpTool> find(String name) {
         return Optional.ofNullable(tools.get(name));
+    }
+
+    // MARK: training
+
+    private static WorkoutDto createWorkoutTemplate(WorkoutService workoutService, String userId,
+            McpArguments args) {
+        String name = args.requiredString("name");
+        Map<Long, ExerciseDto> exercises = workoutService.getAllExercises(null, null).stream()
+                .collect(Collectors.toMap(ExerciseDto::getId, Function.identity()));
+        List<ExerciseItem> items = new ArrayList<>();
+        for (McpArguments entry : args.objects("exercises")) {
+            Long exerciseId = entry.id("exerciseId");
+            if (exerciseId == null) {
+                throw new IllegalArgumentException("every exercise needs an exerciseId");
+            }
+            ExerciseDto exercise = exercises.get(exerciseId);
+            if (exercise == null) {
+                throw new IllegalArgumentException(exerciseId + " is no exercise from list_exercises");
+            }
+            items.add(item(exercise, entry));
+        }
+        return workoutService.create(userId, new CreateWorkoutDto(name, null, items));
+    }
+
+    private static ExerciseItem item(ExerciseDto exercise, McpArguments entry) {
+        if (CARDIO_TYPES.contains(exercise.getType())) {
+            Integer minutes = entry.integer("minutes", 1, 600);
+            if (minutes == null) {
+                throw new IllegalArgumentException(exercise.getName() + " is cardio and needs minutes");
+            }
+            return new CardioItemDto(exercise, minutes, List.of());
+        }
+        List<SetDto> sets = new ArrayList<>();
+        for (McpArguments set : entry.objects("sets")) {
+            sets.add(new SetDto(sets.size(), set.integer("reps", 0, 1, 1000), set.nonNegative("weightKg", 0),
+                    set.integer("rpe", 1, 10), set.integer("restSeconds", DEFAULT_REST_SECONDS, 0, 3600)));
+        }
+        return new StrengthItemDto(exercise, sets);
+    }
+
+    private static Map<String, Object> exercise(ExerciseDto exercise) {
+        Map<String, Object> result = new LinkedHashMap<>();
+        result.put("exerciseId", exercise.getId());
+        result.put("name", exercise.getName());
+        result.put("type", exercise.getType());
+        return result;
+    }
+
+    // MARK: calendar
+
+    private static CalendarEventDto createCalendarEvent(CalendarService calendarService, String userId,
+            McpArguments args) {
+        String title = args.requiredString("title");
+        Instant start = args.dateTime("start");
+        Instant end = args.string("end") == null ? start.plus(Duration.ofHours(1)) : args.dateTime("end");
+        if (!end.isAfter(start)) {
+            throw new IllegalArgumentException("end has to be after start");
+        }
+        Recurrence recurrence = recurrence(args.string("recurrence"));
+        LocalDate lastDay = args.date("recurrenceEnd", null);
+        if (lastDay != null && recurrence == null) {
+            throw new IllegalArgumentException("recurrenceEnd needs a recurrence");
+        }
+        // the end of the last day, so an occurrence on that day is still included
+        Instant recurrenceEnd = lastDay == null ? null
+                : lastDay.plusDays(1).atStartOfDay(McpArguments.ZONE).toInstant().minusSeconds(1);
+        if (recurrenceEnd != null && recurrenceEnd.isBefore(start)) {
+            throw new IllegalArgumentException("recurrenceEnd can't be before start");
+        }
+        return calendarService.createCalendarEvent(new CreateCalendarEventDto(title, start, end, userId,
+                args.id("workoutId"), null, recurrence, recurrenceEnd));
+    }
+
+    private static Recurrence recurrence(String value) {
+        if (value == null) {
+            return null;
+        }
+        try {
+            return Recurrence.valueOf(value.toUpperCase(Locale.ROOT));
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("recurrence has to be DAILY, WEEKLY or MONTHLY");
+        }
     }
 
     // MARK: nutrition

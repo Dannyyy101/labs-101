@@ -67,12 +67,25 @@ record McpTool(String name, String title, String description, Map<String, Object
         return Map.of("type", "string", "format", "date", "description", description);
     }
 
+    /** A time of day without offset, it is read in the zone of the user. */
+    static Map<String, Object> dateTime(String description) {
+        return Map.of("type", "string", "description", description);
+    }
+
+    static Map<String, Object> array(String description, Map<String, Object> items) {
+        return Map.of("type", "array", "items", items, "minItems", 1, "description", description);
+    }
+
     static Map<String, Object> id(String description) {
         return Map.of("type", "integer", "minimum", 1, "description", description);
     }
 
     static Map<String, Object> number(String description) {
         return Map.of("type", "number", "exclusiveMinimum", 0, "description", description);
+    }
+
+    static Map<String, Object> nonNegative(String description) {
+        return Map.of("type", "number", "minimum", 0, "description", description);
     }
 
     static Map<String, Object> enumeration(String description, String... values) {
