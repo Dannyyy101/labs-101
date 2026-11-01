@@ -1,5 +1,7 @@
 package com.labs_101.backend.dtos.health;
 
+import org.jspecify.annotations.Nullable;
+
 import java.time.Instant;
 import java.util.UUID;
 
@@ -11,11 +13,11 @@ public record HealthWriteRequestDto(
         String type,
         Instant startDate,
         Instant endDate,
-        Double value,
-        String unit,
-        JsonNode metadata,
+        @Nullable Double value,
+        @Nullable String unit,
+        @Nullable JsonNode metadata,
         HealthWriteRequestStatus status,
-        UUID sampleUuid,
-        String error,
+        @Nullable UUID sampleUuid,
+        @Nullable String error,
         Instant createdAt) {
 }

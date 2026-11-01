@@ -112,6 +112,12 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-data-rest</artifactId>
 		</dependency>
+		<!-- OpenAPI spec of the controllers at /v3/api-docs, written to api/openapi.json by mvn verify (see below) -->
+		<dependency>
+			<groupId>org.springdoc</groupId>
+			<artifactId>springdoc-openapi-starter-webmvc-api</artifactId>
+			<version>3.2.0</version>
+		</dependency>
 		<!-- reads the iCalendar feeds of shared Apple calendars, with their repetitions and time zones -->
 		<dependency>
 			<groupId>net.sf.biweekly</groupId>
@@ -122,9 +128,50 @@
 
 	<build>
 		<plugins>
+			<!-- starts the app with the profile openapi for the springdoc plugin below and stops it again -->
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>openapi-start</id>
+						<goals>
+							<goal>start</goal>
+						</goals>
+						<configuration>
+							<profiles>
+								<profile>openapi</profile>
+							</profiles>
+						</configuration>
+					</execution>
+					<execution>
+						<id>openapi-stop</id>
+						<goals>
+							<goal>stop</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<!-- mvn verify writes the OpenAPI spec of the controllers to api/openapi.json, the frontend and
+			     the iOS app generate their clients from it -->
+			<plugin>
+				<groupId>org.springdoc</groupId>
+				<artifactId>springdoc-openapi-maven-plugin</artifactId>
+				<version>1.5</version>
+				<executions>
+					<execution>
+						<id>openapi</id>
+						<phase>integration-test</phase>
+						<goals>
+							<goal>generate</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<apiDocsUrl>http://localhost:8089/v3/api-docs</apiDocsUrl>
+					<outputDir>${project.basedir}/../api</outputDir>
+					<outputFileName>openapi.json</outputFileName>
+				</configuration>
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>

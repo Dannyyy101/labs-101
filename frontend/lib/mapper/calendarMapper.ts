@@ -1,7 +1,7 @@
 import { CalendarEvent, CalendarEventDto, ExternalCalendarEventDto } from "@/utils/types/calendarTypes";
 
 export function mapFromCalendarEventDto(dto: CalendarEventDto): CalendarEvent {
-    return { id: dto.id, title: dto.title, startDate: new Date(dto.startDate), endDate: new Date(dto.endDate), workoutId: dto.workoutId, workoutName: dto.workoutName, creatorId: dto.creatorId, creator: dto.creator, invitees: dto.invitees ?? [], recurrence: dto.recurrence ?? null, recurrenceEnd: dto.recurrenceEnd ? new Date(dto.recurrenceEnd) : null }
+    return { id: String(dto.id), title: dto.title, startDate: new Date(dto.startDate), endDate: new Date(dto.endDate), workoutId: dto.workoutId, workoutName: dto.workoutName, creatorId: dto.creatorId, creator: dto.creator ?? undefined, invitees: dto.invitees ?? [], recurrence: dto.recurrence ?? null, recurrenceEnd: dto.recurrenceEnd ? new Date(dto.recurrenceEnd) : null }
 }
 
 export function mapFromExternalCalendarEventDto(dto: ExternalCalendarEventDto): CalendarEvent {

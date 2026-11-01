@@ -1,5 +1,7 @@
 package com.labs_101.backend.dtos.overview;
 
+import org.jspecify.annotations.Nullable;
+
 /**
  * Cardiovascular load of the day.
  *
@@ -9,5 +11,5 @@ package com.labs_101.backend.dtos.overview;
  * @param maxHeartRate the maximum heart rate the zones are based on
  */
 public record StrainDto(int score, double load, double[] zoneSeconds, double maxHeartRate,
-        Double averageHeartRate, Double peakHeartRate) {
+        @Nullable Double averageHeartRate, @Nullable Double peakHeartRate) {
 }

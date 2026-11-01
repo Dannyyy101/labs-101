@@ -28,7 +28,7 @@ export const STAGES: { stage: SleepStage, label: string, color: string }[] = [
 ]
 
 // sleep without a recorded stage is drawn as core sleep
-const row = (stage: SleepStage) => stage === "ASLEEP" ? 2 : STAGES.findIndex((s) => s.stage === stage)
+const row = (stage: string) => stage === "ASLEEP" ? 2 : STAGES.findIndex((s) => s.stage === stage)
 
 /** The stages of the night over time, awake at the top and deep sleep at the bottom like in Apple Health. */
 export function Hypnogram({ sleep }: { sleep: Sleep }) {
@@ -72,7 +72,7 @@ export function Hypnogram({ sleep }: { sleep: Sleep }) {
 }
 
 /** Heart rate of the whole day with the resting heart rate as a dashed line. */
-export function HeartRateChart({ points, day, resting, color }: { points: [number, number][], day: string, resting: number | null, color: string }) {
+export function HeartRateChart({ points, day, resting, color }: { points: number[][], day: string, resting: number | null, color: string }) {
     const [ref, W] = useWidth()
     const [hover, setHover] = useState<number | null>(null)
     const H = 200, ml = 34, mr = 8, mt = 10, mb = 24

@@ -22,15 +22,17 @@ import org.springframework.web.bind.annotation.RestController;
 import com.labs_101.backend.exception.BaseException;
 import com.labs_101.backend.security.CurrentUser;
 
+import io.swagger.v3.oas.annotations.Hidden;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.json.JsonMapper;
 
 /**
  * MCP server (Streamable HTTP, without sessions or streams) so Claude can read
- * the data of the signed in user, see {@link McpTools} for what it can read.
+ * and change the data of the signed in user, see {@link McpTools} for what it can do.
  * Claude signs in with Zitadel like the apps, the token comes in the
  * {@code Authorization} header of every request.
  */
+@Hidden
 @RestController
 @RequestMapping(McpController.PATH)
 public class McpController {
@@ -43,7 +45,9 @@ public class McpController {
     private static final String INSTRUCTIONS = """
             Data of the user's labs-101 account: strength workouts, runs, Apple Health data, nutrition and the \
             calendar. The tools only read, except track_food and delete_tracked_food, which change the nutrition \
-            log: search the food with search_foods first. Dates are days (YYYY-MM-DD) in Europe/Berlin, weights \
+            log (search the food with search_foods first), create_workout_template, which creates a workout \
+            template (find the exercises with list_exercises first), and create_calendar_event, which plans an \
+            event in the calendar. Dates are days (YYYY-MM-DD) in Europe/Berlin, weights \
             are in kg, distances in meters, times in seconds and energy in kcal.""";
 
     private final McpTools tools;

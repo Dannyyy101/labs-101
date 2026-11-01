@@ -1,5 +1,7 @@
 package com.labs_101.backend.dtos.food;
 
-public record UpdateFoodPortionDto(Long id, Double grams, String label, Boolean isDefault) {
+import org.jspecify.annotations.Nullable;
+
+public record UpdateFoodPortionDto(@Nullable Long id, Double grams, String label, @Nullable Boolean isDefault) {
 
 }

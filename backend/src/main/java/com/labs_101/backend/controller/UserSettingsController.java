@@ -15,6 +15,8 @@ import com.labs_101.backend.dtos.settings.UserSettingsDto;
 import com.labs_101.backend.services.UserSettingsService;
 import com.labs_101.backend.security.CurrentUser;
 
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+
 @RestController()
 @RequestMapping("/api/users/me/settings")
 public class UserSettingsController {
@@ -31,6 +33,7 @@ public class UserSettingsController {
     }
 
     @PostMapping("")
+    @ApiResponse(responseCode = "201")
     public ResponseEntity<UserSettingsDto> createSettings(@CurrentUser String userId,
             @RequestBody SaveUserSettingsDto dto) {
         return ResponseEntity.status(HttpStatus.CREATED).body(userSettingsService.createSettings(userId, dto));
@@ -42,6 +45,7 @@ public class UserSettingsController {
     }
 
     @DeleteMapping("")
+    @ApiResponse(responseCode = "204")
     public ResponseEntity<Void> deleteSettings(@CurrentUser String userId) {
         userSettingsService.deleteSettings(userId);
         return ResponseEntity.noContent().build();

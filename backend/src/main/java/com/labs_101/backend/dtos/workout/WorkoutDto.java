@@ -1,5 +1,7 @@
 package com.labs_101.backend.dtos.workout;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -13,7 +15,7 @@ import lombok.Setter;
 public class WorkoutDto extends WorkoutHeaderDto {
     private List<ExerciseItem> workoutExercises = new ArrayList<>();
     /** Name of the creator, null if unknown. */
-    private String ownerName;
+    private @Nullable String ownerName;
     /** Whether the requesting user may change and delete the template. */
     private boolean editable;
     /** Whether a friend shared the template with the requesting user. */

@@ -1,5 +1,7 @@
 package com.labs_101.backend.dtos.overview;
 
+import org.jspecify.annotations.Nullable;
+
 /**
  * Totals of the day, samples of several devices (iPhone and Watch) are not
  * counted twice.
@@ -15,5 +17,5 @@ public record ActivityDto(
         int standHours,
         double flightsClimbed,
         double daylightMinutes,
-        Double energyConsumed) {
+        @Nullable Double energyConsumed) {
 }

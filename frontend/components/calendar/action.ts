@@ -1,74 +1,38 @@
 'use server'
 
+import { api } from "@/lib/api/client"
 import { mapFromCalendarEventDto, mapFromExternalCalendarEventDto } from "@/lib/mapper/calendarMapper"
-import { BACKEND_URL } from "@/utils/constants"
-import { backendFetch } from "@/utils/backend"
-import { CalendarEvent, CalendarEventDto, CalendarUser, ExternalCalendarEventDto } from "@/utils/types/calendarTypes"
+import { CalendarEvent, CalendarUser } from "@/utils/types/calendarTypes"
 import { Result } from "@/utils/types/types"
-import { Exercise, WorkoutTemplate } from "@/utils/types/workoutTypes"
-import { sortWorkoutTemplates } from "@/utils/workout"
+import { Exercise } from "@/utils/types/workoutTypes"
 import { revalidatePath } from "next/cache"
 
-export async function getAllWorkoutTemplates(): Promise<Result<Map<string, WorkoutTemplate[]>>> {
-    const response = await backendFetch(BACKEND_URL + "/workouts/templates")
+export async function getAllExercises(): Promise<Exercise[]> {
+    const { data } = await api.GET("/api/workouts/exercises")
 
-    if (response.ok) {
-        try {
-            const templates = await response.json() as WorkoutTemplate[]
-            return { value: sortWorkoutTemplates(templates), error: null }
-        } catch (e) {
-            return { value: null, error: e as Error }
-        }
-    }
-
-    return { value: null, error: new Error("Error fetching workout templates") }
+    if (!data) throw new Error("Error fetching exercises")
+    return data
 }
 
-export async function getAllExercises(): Promise<Exercise[]> {
-    const response = await backendFetch(BACKEND_URL + "/workouts/exercises")
-
-    if (response.ok) {
-        return await response.json() as Exercise[]
-    }
-
-    throw new Error("Error fetching workout templates")
+const range = (dateRange: Date, steps: number) => {
+    const endDate = new Date(dateRange)
+    endDate.setDate(endDate.getDate() + steps)
+    return { startDate: dateRange.toISOString(), endDate: endDate.toISOString() }
 }
 
 export async function getAllCalendarEvents(dateRange: Date, steps: number): Promise<Result<CalendarEvent[]>> {
-    const url = new URL(BACKEND_URL + "/calendar")
     // only the user's own events and the ones they were invited to
-    url.searchParams.append("startDate", dateRange.toISOString())
-    const endDate = new Date(dateRange)
-    endDate.setDate(endDate.getDate() + steps)
-    url.searchParams.append("endDate", endDate.toISOString())
+    const { data } = await api.GET("/api/calendar", { params: { query: range(dateRange, steps) } })
 
-    const response = await backendFetch(url.toString())
-
-    if (response.ok) {
-        try {
-            const events = await response.json() as CalendarEventDto[]
-            return { value: events.map((e) => mapFromCalendarEventDto(e)), error: null }
-        } catch (e) {
-            return { value: null, error: e as Error }
-        }
-    }
-
-    return { value: null, error: new Error("Error fetching calendar events") }
+    if (!data) return { value: null, error: new Error("Error fetching calendar events") }
+    return { value: data.map(mapFromCalendarEventDto), error: null }
 }
 
 /** The events of the user's Apple calendars, empty when there are none or they can't be loaded. */
 export async function getExternalCalendarEvents(dateRange: Date, steps: number): Promise<CalendarEvent[]> {
-    const url = new URL(BACKEND_URL + "/calendar/external/events")
-    url.searchParams.append("startDate", dateRange.toISOString())
-    const endDate = new Date(dateRange)
-    endDate.setDate(endDate.getDate() + steps)
-    url.searchParams.append("endDate", endDate.toISOString())
-
     try {
-        const response = await backendFetch(url.toString(), { cache: "no-store" })
-        if (response.ok) {
-            return (await response.json() as ExternalCalendarEventDto[]).map(mapFromExternalCalendarEventDto)
-        }
+        const { data, response } = await api.GET("/api/calendar/external/events", { params: { query: range(dateRange, steps) } })
+        if (data) return data.map(mapFromExternalCalendarEventDto)
         console.error(`Error fetching external calendar events: ${response.status}`)
     } catch (e) {
         console.error("Error fetching external calendar events", e)
@@ -79,75 +43,50 @@ export async function getExternalCalendarEvents(dateRange: Date, steps: number):
 
 /** The ids of the invitees instead of the people, the backend only needs those. */
 const toRequestBody = (calendarEvent: CalendarEvent) => ({
-    ...calendarEvent,
+    title: calendarEvent.title,
     startDate: calendarEvent.startDate.toISOString(),
     endDate: calendarEvent.endDate.toISOString(),
-    recurrenceEnd: calendarEvent.recurrenceEnd?.toISOString() ?? null,
-    invitees: undefined,
+    creatorId: calendarEvent.creatorId,
+    workoutId: calendarEvent.workoutId,
     inviteeIds: calendarEvent.invitees.map((user) => user.id),
+    recurrence: calendarEvent.recurrence,
+    recurrenceEnd: calendarEvent.recurrenceEnd?.toISOString() ?? null,
 })
 
 /** People to invite, matched by name or email. */
 export async function searchUsers(query: string): Promise<CalendarUser[]> {
-    const url = new URL(BACKEND_URL + "/users")
-    url.searchParams.append("query", query)
+    const { data } = await api.GET("/api/users", { params: { query: { query } } })
 
-    const response = await backendFetch(url.toString(), { cache: "no-store" })
-
-    if (response.ok) {
-        return await response.json() as CalendarUser[]
-    }
-
-    throw new Error("Error searching users")
+    if (!data) throw new Error("Error searching users")
+    return data
 }
 
 export async function createCalendarEvent(calendarEvent: CalendarEvent): Promise<CalendarEvent> {
-    const response = await backendFetch(BACKEND_URL + "/calendar", {
-        method: "POST", body: JSON.stringify(toRequestBody(calendarEvent)), headers: {
-            'Content-Type': 'application/json'
-        }
-    })
+    const { data, response } = await api.POST("/api/calendar", { body: toRequestBody(calendarEvent) })
 
-    if (response.ok) {
-        revalidatePath("/planner")
-        return mapFromCalendarEventDto(await response.json() as CalendarEventDto)
+    if (!data) {
+        console.error(response.status, response.statusText)
+        throw new Error("Error creating calendar events")
     }
-    console.error(response.status, response.statusText, response.body)
-
-    throw new Error("Error creating calendar events")
+    revalidatePath("/planner")
+    return mapFromCalendarEventDto(data)
 }
+
 /** {@link occurrenceStartDate} is the start of the edited occurrence of a repeating event, the whole series is moved like it. */
 export async function updateCalendarEvent(calendarEvent: CalendarEvent, occurrenceStartDate?: Date): Promise<Result<void>> {
-    const response = await backendFetch(BACKEND_URL + "/calendar/" + calendarEvent.id, {
-        method: "PUT", body: JSON.stringify({ ...toRequestBody(calendarEvent), occurrenceStartDate: occurrenceStartDate?.toISOString() }), headers: {
-            'Content-Type': 'application/json'
-        }
+    const id = Number(calendarEvent.id)
+    const { response } = await api.PUT("/api/calendar/{id}", {
+        params: { path: { id } },
+        body: { ...toRequestBody(calendarEvent), id, occurrenceStartDate: occurrenceStartDate?.toISOString() ?? null },
     })
-    console.log(response, calendarEvent)
-    if (response.ok) {
-        try {
-            return { value: null, error: null }
-        } catch (e) {
-            return { value: null, error: e as Error }
-        }
-    }
 
-    return { value: null, error: new Error("Error fetching calendar events") }
+    if (!response.ok) return { value: null, error: new Error("Error updating calendar event") }
+    return { value: null, error: null }
 }
 
-
 export async function deleteCalendarEvent(id: string): Promise<Result<void>> {
-    const response = await backendFetch(BACKEND_URL + "/calendar/" + id, {
-        method: "DELETE"
-    })
+    const { response } = await api.DELETE("/api/calendar/{id}", { params: { path: { id: Number(id) } } })
 
-    if (response.ok) {
-        try {
-            return { value: null, error: null }
-        } catch (e) {
-            return { value: null, error: e as Error }
-        }
-    }
-
-    return { value: null, error: new Error(`Error deleting calendar event with id: ${id}`) }
+    if (!response.ok) return { value: null, error: new Error(`Error deleting calendar event with id: ${id}`) }
+    return { value: null, error: null }
 }

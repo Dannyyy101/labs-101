@@ -2,9 +2,12 @@ package com.labs_101.backend.mcp;
 
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeParseException;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.List;
 
 import tools.jackson.databind.JsonNode;
 
@@ -54,6 +57,18 @@ final class McpArguments {
         return value.asDouble();
     }
 
+    /** A number of at least 0, the fallback when not set. */
+    double nonNegative(String name, double fallback) {
+        JsonNode value = node == null ? null : node.get(name);
+        if (value == null || value.isNull()) {
+            return fallback;
+        }
+        if (!value.isNumber() || !(value.asDouble() >= 0)) {
+            throw new IllegalArgumentException(name + " has to be a number of at least 0");
+        }
+        return value.asDouble();
+    }
+
     /** An id, given as number or string, null when not set. */
     Long id(String name) {
         JsonNode value = node == null ? null : node.get(name);
@@ -85,10 +100,26 @@ final class McpArguments {
         }
     }
 
+    /** A time of day in the zone of the user, like 2026-10-28T18:30. */
+    Instant dateTime(String name) {
+        String value = requiredString(name);
+        try {
+            return LocalDateTime.parse(value).atZone(ZONE).toInstant();
+        } catch (DateTimeParseException e) {
+            throw new IllegalArgumentException(name + " has to be a date and time like 2026-10-28T18:30");
+        }
+    }
+
     int integer(String name, int fallback, int minimum, int maximum) {
+        Integer number = integer(name, minimum, maximum);
+        return number == null ? fallback : number;
+    }
+
+    /** A whole number between minimum and maximum, null when not set. */
+    Integer integer(String name, int minimum, int maximum) {
         JsonNode value = node == null ? null : node.get(name);
         if (value == null || value.isNull()) {
-            return fallback;
+            return null;
         }
         if (!value.canConvertToInt() || !value.isIntegralNumber()) {
             throw new IllegalArgumentException(name + " has to be a whole number");
@@ -98,6 +129,25 @@ final class McpArguments {
             throw new IllegalArgumentException(name + " has to be between " + minimum + " and " + maximum);
         }
         return number;
+    }
+
+    /** A list of objects that has at least one entry. */
+    List<McpArguments> objects(String name) {
+        JsonNode value = node == null ? null : node.get(name);
+        if (value == null || value.isNull()) {
+            throw new IllegalArgumentException(name + " is required");
+        }
+        if (!value.isArray() || value.isEmpty()) {
+            throw new IllegalArgumentException(name + " has to be a list with at least one entry");
+        }
+        List<McpArguments> objects = new ArrayList<>();
+        for (JsonNode entry : value) {
+            if (!entry.isObject()) {
+                throw new IllegalArgumentException("the entries of " + name + " have to be objects");
+            }
+            objects.add(new McpArguments(entry));
+        }
+        return objects;
     }
 
     /**

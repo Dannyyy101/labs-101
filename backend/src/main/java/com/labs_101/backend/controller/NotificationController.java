@@ -20,6 +20,8 @@ import com.labs_101.backend.dtos.notification.UnreadCountDto;
 import com.labs_101.backend.services.NotificationService;
 import com.labs_101.backend.security.CurrentUser;
 
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+
 @RestController()
 @RequestMapping("/api/users/me/notifications")
 public class NotificationController {
@@ -43,6 +45,7 @@ public class NotificationController {
     }
 
     @PostMapping("")
+    @ApiResponse(responseCode = "201")
     public ResponseEntity<NotificationDto> createNotification(@CurrentUser String userId,
             @RequestBody CreateNotificationDto dto) {
         return ResponseEntity.status(HttpStatus.CREATED).body(notificationService.create(userId, dto));
@@ -59,12 +62,14 @@ public class NotificationController {
     }
 
     @PutMapping("/read")
+    @ApiResponse(responseCode = "204")
     public ResponseEntity<Void> markAllRead(@CurrentUser String userId) {
         notificationService.markAllRead(userId);
         return ResponseEntity.noContent().build();
     }
 
     @DeleteMapping("/{id}")
+    @ApiResponse(responseCode = "204")
     public ResponseEntity<Void> deleteNotification(@CurrentUser String userId, @PathVariable Long id) {
         notificationService.delete(userId, id);
         return ResponseEntity.noContent().build();
