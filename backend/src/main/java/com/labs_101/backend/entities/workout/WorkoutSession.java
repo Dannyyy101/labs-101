@@ -7,6 +7,8 @@ import java.util.List;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.labs_101.backend.entities.User;
 
 import jakarta.persistence.Column;
@@ -66,9 +68,12 @@ public class WorkoutSession {
      * {@code name} is kept so the history still reads right after the exercise is renamed or deleted.
      * {@code note} is a short note of the user, e.g. the seat height, null when there is none.
      * {@code cardio} is set for cardio like running or rowing, which has minutes instead of sets.
+     * Unknown properties are ignored because older logs still contain the derived {@code done}.
      */
+    @JsonIgnoreProperties(ignoreUnknown = true)
     public record Entry(Long exerciseId, String name, String note, List<Set> sets, Cardio cardio) {
         /** Whether it is kept when the workout is finished. */
+        @JsonIgnore
         public boolean isDone() {
             return cardio != null ? cardio.done() && cardio.minutes() > 0 : sets.stream().anyMatch(Set::done);
         }
