@@ -10,7 +10,9 @@ struct ExerciseTrackerView: View {
     }
 
     @State private var selectedSetID: UUID?
-    @FocusState private var field: Field?
+    /// the value the crown changes, a tap on the other box switches it
+    @State private var activeField = Field.weight
+    @FocusState private var crownFocused: Bool
 
     private var exercise: WatchWorkoutState.Exercise? {
         model.state?.exercises.first { $0.id == exerciseID }
@@ -42,12 +44,29 @@ struct ExerciseTrackerView: View {
 
                 if let selected = selectedSet(of: exercise) {
                     let (index, set) = selected
+                    // one crown handler for both boxes: with one per box the focus stayed on the weight
+                    // and the crown changed it even when reps were marked
                     HStack(spacing: 6) {
-                        valueBox(set.weightKg.weightFormatted, unit: "kg", field: .weight, done: set.done,
-                                 value: weightBinding(set), range: 0...500, step: 0.5, sensitivity: .high)
-                        valueBox("\(set.reps)", unit: "Wdh", field: .reps, done: set.done,
-                                 value: repsBinding(set), range: 0...100, step: 1, sensitivity: .low)
+                        valueBox(set.weightKg.weightFormatted, unit: "kg", field: .weight, done: set.done)
+                        valueBox("\(set.reps)", unit: "Wdh", field: .reps, done: set.done)
                     }
+                    .focusable()
+                    .focused($crownFocused)
+                    // the boxes appear only once a set is selected, too late for defaultFocus, and a focus
+                    // request during the push animation is dropped, so the crown moved the pages instead.
+                    // ask again until the focus sticks
+                    .task {
+                        activeField = .weight
+                        for _ in 0..<10 where !crownFocused {
+                            crownFocused = true
+                            try? await Task.sleep(for: .milliseconds(150))
+                        }
+                    }
+                    .digitalCrownRotation(activeField == .weight ? weightBinding(set) : repsBinding(set),
+                                          from: 0, through: activeField == .weight ? 500 : 100,
+                                          by: activeField == .weight ? 0.5 : 1,
+                                          sensitivity: activeField == .weight ? .medium : .low,
+                                          isContinuous: false, isHapticFeedbackEnabled: true)
 
                     if let previous = exercise.previous?[safe: index] {
                         Button("Letztes Mal \(previous.formatted)") {
@@ -65,11 +84,12 @@ struct ExerciseTrackerView: View {
                               systemImage: set.done ? "arrow.uturn.backward" : "checkmark")
                             .frame(maxWidth: .infinity)
                     }
-                    .tint(set.done ? .gray : .green)
+                    .tint(set.done ? .gray : .brand)
+                    .foregroundStyle(set.done ? Color.white : Color.onBrand)
                     .buttonStyle(.borderedProminent)
                 } else if !exercise.sets.isEmpty {
                     Label("Alle Sätze erledigt", systemImage: "checkmark.circle.fill")
-                        .foregroundStyle(.green)
+                        .foregroundStyle(Color.success)
                 }
 
                 Button("Satz hinzufügen", systemImage: "plus") {
@@ -80,8 +100,8 @@ struct ExerciseTrackerView: View {
                 .font(.footnote)
             }
         }
-        // the Digital Crown changes the weight right away
-        .defaultFocus($field, .weight)
+        // the Digital Crown changes the values right away
+        .defaultFocus($crownFocused, true)
         .onChange(of: exercise.sets.map(\.id)) { _, _ in
             if selectedSet(of: exercise) == nil { selectFirstOpenSet(of: exercise) }
         }
@@ -89,9 +109,8 @@ struct ExerciseTrackerView: View {
 
     // MARK: Values
 
-    private func valueBox(_ text: String, unit: LocalizedStringKey, field: Field, done: Bool, value: Binding<Double>,
-                          range: ClosedRange<Double>, step: Double, sensitivity: DigitalCrownRotationalSensitivity) -> some View {
-        let isFocused = self.field == field
+    private func valueBox(_ text: String, unit: LocalizedStringKey, field: Field, done: Bool) -> some View {
+        let isFocused = activeField == field
         return VStack(spacing: 0) {
             Text(text)
                 .font(.system(.title2, design: .rounded).weight(.semibold))
@@ -104,16 +123,15 @@ struct ExerciseTrackerView: View {
         }
         .frame(maxWidth: .infinity)
         .padding(.vertical, 6)
-        .background(done ? Color.green.opacity(0.2) : Color.white.opacity(0.1), in: .rect(cornerRadius: 10))
+        .background(done ? Color.successBar.opacity(0.25) : Color.white.opacity(0.1), in: .rect(cornerRadius: 10))
         .overlay {
             RoundedRectangle(cornerRadius: 10)
-                .stroke(isFocused ? Color.green : .clear, lineWidth: 2)
+                .stroke(isFocused ? Color.brand : .clear, lineWidth: 2)
         }
-        .focusable()
-        .focused($field, equals: field)
-        .digitalCrownRotation(value, from: range.lowerBound, through: range.upperBound, by: step,
-                              sensitivity: sensitivity, isContinuous: false, isHapticFeedbackEnabled: true)
-        .onTapGesture { self.field = field }
+        .onTapGesture {
+            activeField = field
+            crownFocused = true
+        }
         .accessibilityLabel(Text(field == .weight ? "Gewicht" : "Wiederholungen"))
         .accessibilityValue(Text(text))
     }
@@ -174,8 +192,8 @@ private struct SetChips: View {
                         Text("\(index + 1)")
                             .font(.footnote.weight(.semibold))
                             .frame(width: 26, height: 26)
-                            .foregroundStyle(set.done ? .black : .primary)
-                            .background(set.done ? Color.green : Color.white.opacity(0.15), in: .circle)
+                            .foregroundStyle(set.done ? Color.onBrand : .primary)
+                            .background(set.done ? Color.successBar : Color.white.opacity(0.15), in: .circle)
                             .overlay {
                                 Circle().stroke(set.id == selected ? Color.white : .clear, lineWidth: 2)
                             }
@@ -208,7 +226,7 @@ private struct RestView: View {
                         .monospacedDigit()
                 }
                 .gaugeStyle(.accessoryCircularCapacity)
-                .tint(.orange)
+                .tint(.brand)
                 .scaleEffect(1.3)
                 .frame(height: 76)
             }
@@ -226,7 +244,7 @@ private struct RestView: View {
                 Button("+15") { onAdjust(15) }
                 Button("Pause beenden", systemImage: "forward.fill", action: onEnd)
                     .labelStyle(.iconOnly)
-                    .tint(.orange)
+                    .tint(.brand)
             }
             .controlSize(.small)
         }
