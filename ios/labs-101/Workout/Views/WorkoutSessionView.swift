@@ -26,6 +26,7 @@ struct WorkoutSessionView: View {
     var body: some View {
         NavigationStack {
             List {
+                Group {
                 ForEach($model.exercises) { $item in
                     if item.cardio != nil {
                         CardioSection(item: $item,
@@ -65,13 +66,15 @@ struct WorkoutSessionView: View {
                             .frame(maxWidth: .infinity)
                     }
                     .buttonStyle(.borderedProminent)
-                    .tint(.green)
                     .controlSize(.large)
                     .listRowInsets(EdgeInsets())
                     .listRowBackground(Color.clear)
                 }
+                }
+                .glassRows()
             }
             .listSectionSpacing(.compact)
+            .glassList()
             .navigationTitle($model.name)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar { toolbar }
@@ -122,7 +125,7 @@ struct WorkoutSessionView: View {
             ToolbarItem(placement: .status) {
                 Button("Nicht gespeichert – erneut versuchen") { Task { await model.save() } }
                     .font(.caption)
-                    .tint(.red)
+                    .tint(.danger)
             }
         }
         ToolbarItemGroup(placement: .keyboard) {
@@ -198,7 +201,7 @@ private struct ExerciseSection: View {
                 .font(.subheadline)
                 .lineLimit(1...4)
                 .focused(focusedField, equals: item.id)
-                .listRowBackground(item.note == nil ? nil : Color.yellow.opacity(0.15))
+                .listRowBackground(item.note == nil ? nil : Color.warningSoft)
 
             ForEach(Array($item.sets.enumerated()), id: \.element.id) { index, $set in
                 SetRow(number: index + 1, set: $set, previous: previous?[safe: index],
@@ -215,7 +218,7 @@ private struct ExerciseSection: View {
                         Text(item.name)
                         if !item.sets.isEmpty && item.sets.allSatisfy(\.done) {
                             Image(systemName: "checkmark.circle.fill")
-                                .foregroundStyle(.green)
+                                .foregroundStyle(Color.success)
                         }
                     }
                     .font(.headline)
@@ -267,7 +270,7 @@ private struct SetRow: View {
             setLine
             restPicker
         }
-        .listRowBackground(set.done ? Color.green.opacity(0.12) : nil)
+        .listRowBackground(set.done ? Color.successSoft : nil)
     }
 
     private var setLine: some View {
@@ -302,8 +305,8 @@ private struct SetRow: View {
             .labelStyle(.iconOnly)
             .font(.headline)
             .frame(width: 40, height: 34)
-            .foregroundStyle(set.done ? .white : .secondary)
-            .background(set.done ? Color.green : Color(.tertiarySystemFill), in: .rect(cornerRadius: 10))
+            .foregroundStyle(set.done ? Color.onBrand : .secondary)
+            .background(set.done ? Color.successBar : Color(.tertiarySystemFill), in: .rect(cornerRadius: 10))
             .buttonStyle(.plain)
             .sensoryFeedback(.impact, trigger: set.done)
         }
@@ -412,7 +415,7 @@ private struct CardioSection: View {
             if let cardio = Binding($item.cardio) {
                 HStack(spacing: 10) {
                     Image(systemName: "heart.fill")
-                        .foregroundStyle(.pink)
+                        .foregroundStyle(Color.brand)
                         .frame(width: 22)
                     Stepper("Minuten", value: cardio.minutes, in: 0...600, step: 5)
                         .labelsHidden()
@@ -427,11 +430,11 @@ private struct CardioSection: View {
                     .font(.headline)
                     .frame(width: 40, height: 34)
                     .foregroundStyle(cardio.wrappedValue.done ? .white : .secondary)
-                    .background(cardio.wrappedValue.done ? Color.green : Color(.tertiarySystemFill), in: .rect(cornerRadius: 10))
+                    .background(cardio.wrappedValue.done ? Color.successBar : Color(.tertiarySystemFill), in: .rect(cornerRadius: 10))
                     .buttonStyle(.plain)
                     .sensoryFeedback(.impact, trigger: cardio.wrappedValue.done)
                 }
-                .listRowBackground(cardio.wrappedValue.done ? Color.green.opacity(0.12) : nil)
+                .listRowBackground(cardio.wrappedValue.done ? Color.successSoft : nil)
             }
         } header: {
             HStack {
@@ -440,7 +443,7 @@ private struct CardioSection: View {
                         Text(item.name)
                         if item.cardio?.done == true {
                             Image(systemName: "checkmark.circle.fill")
-                                .foregroundStyle(.green)
+                                .foregroundStyle(Color.success)
                         }
                     }
                     .font(.headline)
@@ -532,14 +535,14 @@ private struct RestBar: View {
                     Text("Pause \(left.rounded(.up).workoutDuration)")
                         .font(.headline)
                         .monospacedDigit()
-                        .foregroundStyle(.orange)
+                        .foregroundStyle(Color.brandStrong)
                     Spacer()
                     Button("−15") { onAdjust(-15) }
                     Button("+15") { onAdjust(15) }
                 } else {
                     Text("Pause vorbei – nächster Satz!")
                         .font(.headline)
-                        .foregroundStyle(.green)
+                        .foregroundStyle(Color.success)
                     Spacer()
                 }
                 Button("Pause beenden", systemImage: "xmark", action: onEnd)
@@ -552,7 +555,7 @@ private struct RestBar: View {
             .padding(.vertical, 8)
             .background(alignment: .leading) {
                 GeometryReader { geometry in
-                    (left > 0 ? Color.orange : Color.green).opacity(0.15)
+                    (left > 0 ? Color.brandSoft : Color.successSoft)
                         .frame(width: left > 0 ? geometry.size.width * left / rest.total : geometry.size.width)
                         .animation(.linear(duration: 1), value: left)
                 }
@@ -607,7 +610,6 @@ private struct FinishSheet: View {
                             .frame(maxWidth: .infinity)
                     }
                     .buttonStyle(.borderedProminent)
-                    .tint(.green)
                     .controlSize(.large)
                     .disabled(isFinishing)
                 }

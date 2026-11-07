@@ -37,10 +37,10 @@ struct CalorieRingView: View {
         HStack(spacing: 24) {
             ZStack {
                 Circle()
-                    .stroke(.quaternary, lineWidth: 14)
+                    .stroke(Color.track, lineWidth: 14)
                 Circle()
                     .trim(from: 0, to: progress)
-                    .stroke(remaining < 0 ? Color.red : Color.orange, style: StrokeStyle(lineWidth: 14, lineCap: .round))
+                    .stroke(remaining < 0 ? Color.danger : Color.brand, style: StrokeStyle(lineWidth: 14, lineCap: .round))
                     .rotationEffect(.degrees(-90))
                     .animation(.smooth, value: progress)
                 VStack(spacing: 0) {
@@ -97,8 +97,7 @@ struct MacroProgressView: View {
             }
             .monospacedDigit()
 
-            ProgressView(value: min(consumed, goal), total: max(goal, 1))
-                .tint(tint)
+            GoalBar(value: consumed, goal: max(goal, 1), color: tint)
                 .animation(.smooth, value: consumed)
         }
         .accessibilityElement(children: .combine)
@@ -106,9 +105,9 @@ struct MacroProgressView: View {
 }
 
 extension Color {
-    static let protein = Color.pink
-    static let carbohydrates = Color.blue
-    static let fat = Color.green
+    static let protein = Color.series1
+    static let carbohydrates = Color.series2
+    static let fat = Color.series3
 }
 
 #Preview {

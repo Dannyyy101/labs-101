@@ -41,8 +41,11 @@ struct HealthOverviewView: View {
                 }
                 .buttonStyle(.borderedProminent)
             }
+            .background { Backdrop() }
         } else {
             ProgressView()
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .background { Backdrop() }
         }
     }
 
@@ -78,6 +81,7 @@ private struct OverviewList: View {
         let target = OverviewStatus.strainTarget(recovery.score)
 
         List {
+            Group {
             if !overview.hasData {
                 Section {
                     ContentUnavailableView(
@@ -91,14 +95,14 @@ private struct OverviewList: View {
             Section {
                 HStack(spacing: 0) {
                     ScoreColumn(title: "Belastung", score: strain.score,
-                                colors: [Color(red: 1, green: 0.85, blue: 0.45), .strain, Color(red: 0.95, green: 0.4, blue: 0.15)],
+                                colors: [.brand, .brand],
                                 target: target)
                     Divider()
                     ScoreColumn(title: "Erholung", score: recovery.score,
                                 colors: OverviewStatus.recoveryGradient(recovery.score))
                     Divider()
                     ScoreColumn(title: "Schlaf", score: overview.sleep?.score,
-                                colors: [.sleep, Color(red: 0.62, green: 0.68, blue: 0.97)])
+                                colors: [.brand, .brand])
                 }
                 .padding(.vertical, 8)
             }
@@ -137,11 +141,11 @@ private struct OverviewList: View {
 
             Section("Aktivität") {
                 GoalRow(systemImage: "figure.walk", label: "Schritte", value: activity.steps, goal: goals.steps,
-                        color: .recoveryHigh) { $0.roundedFormatted }
+                        color: .brand) { $0.roundedFormatted }
                 GoalRow(systemImage: "flame.fill", label: "Trainingsminuten", value: activity.exerciseMinutes, goal: goals.exercise,
-                        color: Color(red: 0.64, green: 0.97, blue: 0)) { "\(Int($0.rounded())) min" }
+                        color: .brand) { "\(Int($0.rounded())) min" }
                 GoalRow(systemImage: "figure.stand", label: "Stehstunden", value: Double(activity.standHours), goal: goals.stand,
-                        color: Color(red: 0.39, green: 0.82, blue: 1)) { "\(Int($0)) h" }
+                        color: .brand) { "\(Int($0)) h" }
                 StatGrid(stats: [
                     ("Aktive Energie", activity.activeEnergy.roundedFormatted, "kcal"),
                     ("Gesamt", (activity.activeEnergy + activity.basalEnergy).roundedFormatted, "kcal"),
@@ -155,7 +159,7 @@ private struct OverviewList: View {
             if !overview.history.isEmpty {
                 Section("Verlauf") {
                     TrendBars(title: "Erholung", history: overview.history, selectedDay: overview.date,
-                              value: { $0.recovery.map(Double.init) }, color: .recoveryHigh,
+                              value: { $0.recovery.map(Double.init) }, color: .brand,
                               format: { "\(Int($0.rounded())) %" }, max: 100, onSelect: onSelectDay)
                     TrendBars(title: "Belastung", history: overview.history, selectedDay: overview.date,
                               value: { $0.strain.map(Double.init) }, color: .strain,
@@ -195,8 +199,11 @@ private struct OverviewList: View {
                     Text("Gewicht")
                 }
             }
+            }
+            .glassRows()
         }
         .listSectionSpacing(.compact)
+        .glassList()
     }
 }
 
@@ -387,7 +394,7 @@ private struct VitalRow: View {
                     if let change, abs(change) >= 0.02 {
                         Label(abs(change).percentFormatted(), systemImage: change > 0 ? "arrow.up.right" : "arrow.down.right")
                             .font(.subheadline.weight(.medium))
-                            .foregroundStyle(neutral ? .secondary : good ? Color.recoveryHigh : Color.recoveryLow)
+                            .foregroundStyle(neutral ? .secondary : good ? Color.success : Color.danger)
                     }
                     Text("Ø \(baseline.decimalFormatted(decimals))")
                         .font(.subheadline)
@@ -402,11 +409,11 @@ private struct VitalRow: View {
 
 private struct ZonesView: View {
     private static let zones: [(key: String, color: Color)] = [
-        ("Z1", Color(red: 0.39, green: 0.82, blue: 1)),
-        ("Z2", Color(red: 0.19, green: 0.82, blue: 0.35)),
-        ("Z3", Color(red: 1, green: 0.84, blue: 0.04)),
-        ("Z4", Color(red: 1, green: 0.62, blue: 0.04)),
-        ("Z5", Color(red: 1, green: 0.27, blue: 0.23)),
+        ("Z1", .ramp1),
+        ("Z2", .ramp2),
+        ("Z3", .ramp3),
+        ("Z4", .ramp4),
+        ("Z5", .ramp5),
     ]
 
     let seconds: [Double]
@@ -458,11 +465,7 @@ private struct GoalRow: View {
 
     var body: some View {
         HStack(spacing: 12) {
-            Image(systemName: systemImage)
-                .font(.body.weight(.semibold))
-                .foregroundStyle(color)
-                .frame(width: 36, height: 36)
-                .background(color.opacity(0.15), in: .circle)
+            IconTile(systemImage: systemImage)
             VStack(spacing: 6) {
                 HStack(alignment: .firstTextBaseline) {
                     Text(label)
@@ -473,8 +476,7 @@ private struct GoalRow: View {
                 }
                 .font(.subheadline)
                 .monospacedDigit()
-                ProgressView(value: min(value, goal), total: goal)
-                    .tint(color)
+                GoalBar(value: value, goal: goal, color: color)
             }
         }
         .accessibilityElement(children: .combine)
@@ -486,11 +488,7 @@ private struct WorkoutRow: View {
 
     var body: some View {
         HStack(spacing: 12) {
-            Image(systemName: WorkoutActivity.symbol(workout.activityType))
-                .font(.body.weight(.semibold))
-                .foregroundStyle(Color.strain)
-                .frame(width: 40, height: 40)
-                .background(Color.strain.opacity(0.15), in: .circle)
+            IconTile(systemImage: WorkoutActivity.symbol(workout.activityType), size: 40)
             VStack(alignment: .leading, spacing: 2) {
                 Text(WorkoutActivity.name(workout.activityType))
                     .font(.headline)

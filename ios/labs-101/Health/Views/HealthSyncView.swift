@@ -20,14 +20,18 @@ struct HealthSyncView: View {
     var body: some View {
         NavigationStack {
             List {
-                if needsAuthorization {
-                    authorizationSection
+                Group {
+                    if needsAuthorization {
+                        authorizationSection
+                    }
+                    syncSection
+                    notificationSection
+                    storedSection
+                    accountSection
                 }
-                syncSection
-                notificationSection
-                storedSection
-                accountSection
+                .glassRows()
             }
+            .glassList()
             .navigationTitle("Health")
             .refreshable {
                 await sync()
@@ -67,7 +71,7 @@ struct HealthSyncView: View {
                 }
             }
             if let authorizationError {
-                Text(authorizationError).foregroundStyle(.red)
+                Text(authorizationError).foregroundStyle(Color.danger)
             }
         } footer: {
             Text("Erlaube am besten alle Kategorien, nur freigegebene Daten werden synchronisiert.")
@@ -100,7 +104,7 @@ struct HealthSyncView: View {
             }
             if let report = status.lastReport {
                 if let error = report.error {
-                    Text(error).foregroundStyle(.red)
+                    Text(error).foregroundStyle(Color.danger)
                 } else if report.stoppedEarly {
                     Text("Wird beim nächsten Sync fortgesetzt").foregroundStyle(.secondary)
                 }
@@ -150,7 +154,7 @@ struct HealthSyncView: View {
     private var storedSection: some View {
         Section {
             if let summaryError {
-                Text(summaryError).foregroundStyle(.red)
+                Text(summaryError).foregroundStyle(Color.danger)
             }
             ForEach(summary) { type in
                 VStack(alignment: .leading) {

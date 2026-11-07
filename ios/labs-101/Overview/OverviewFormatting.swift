@@ -25,26 +25,27 @@ extension Double {
 }
 
 extension Color {
-    static let recoveryHigh = Color(red: 0.19, green: 0.82, blue: 0.35)
-    static let recoveryMid = Color(red: 1, green: 0.84, blue: 0.04)
-    static let recoveryLow = Color(red: 1, green: 0.27, blue: 0.23)
-    static let strain = Color(red: 1, green: 0.62, blue: 0.04)
-    static let sleep = Color(red: 0.37, green: 0.36, blue: 0.9)
-    static let heart = Color(red: 1, green: 0.22, blue: 0.37)
-    static let hrv = Color(red: 0.19, green: 0.82, blue: 0.35)
+    // like the web: status colours only for recovery, every other chart shows one measure in the brand blue
+    static let recoveryHigh = Color.successBar
+    static let recoveryMid = Color.warning
+    static let recoveryLow = Color.danger
+    static let strain = Color.brand
+    static let sleep = Color.brand
+    static let heart = Color.brand
+    static let hrv = Color.brand
 }
 
 // MARK: Status texts, the same as on the web
 
 enum OverviewStatus {
     static func recoveryColor(_ score: Int?) -> Color {
-        guard let score else { return .gray }
+        guard let score else { return .track }
         return score >= 67 ? .recoveryHigh : score >= 34 ? .recoveryMid : .recoveryLow
     }
 
     static func recoveryGradient(_ score: Int?) -> [Color] {
         let color = recoveryColor(score)
-        return [color.mix(with: .green, by: 0.25).mix(with: .black, by: 0.1), color, color.mix(with: .yellow, by: 0.4)]
+        return [color, color]
     }
 
     static func recovery(_ score: Int?) -> String {

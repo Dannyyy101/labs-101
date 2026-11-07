@@ -171,13 +171,13 @@ private struct PreviewRow: View {
     private var statusIcon: some View {
         switch item.status {
         case .ok:
-            Image(systemName: "checkmark.circle.fill").foregroundStyle(.green)
+            Image(systemName: "checkmark.circle.fill").foregroundStyle(Color.success)
                 .accessibilityLabel("Erkannt")
         case .newUnit:
-            Image(systemName: "questionmark.circle.fill").foregroundStyle(.orange)
+            Image(systemName: "questionmark.circle.fill").foregroundStyle(Color.warning)
                 .accessibilityLabel("Neue Einheit")
         case .notFound:
-            Image(systemName: "xmark.circle.fill").foregroundStyle(.red)
+            Image(systemName: "xmark.circle.fill").foregroundStyle(Color.danger)
                 .accessibilityLabel("Nicht gefunden")
         }
     }

@@ -40,10 +40,14 @@ struct WorkoutsView: View {
                 Button("Erneut versuchen") { reload() }
                     .buttonStyle(.borderedProminent)
             }
+            .background { Backdrop() }
         } else if !model.hasLoaded {
             ProgressView()
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .background { Backdrop() }
         } else {
             List {
+                Group {
                 if let active = model.active {
                     Section {
                         ActiveWorkoutBanner(session: active) { openSession = active }
@@ -86,7 +90,10 @@ struct WorkoutsView: View {
                             .foregroundStyle(.secondary)
                     }
                 }
+                }
+                .glassRows()
             }
+            .glassList()
         }
     }
 
@@ -141,9 +148,10 @@ private struct ActiveWorkoutBanner: View {
                 }
                 Image(systemName: "chevron.right")
             }
-            .foregroundStyle(.white)
+            .foregroundStyle(Color.onBrand)
         }
-        .listRowBackground(Color.green)
+        // the running object is filled with the brand, like a solid icon tile on the web
+        .listRowBackground(Color.brand)
     }
 }
 
@@ -154,28 +162,33 @@ private struct RecentStats: View {
         let sets = sessions.flatMap(\.doneSets)
         Grid(horizontalSpacing: 16, verticalSpacing: 12) {
             GridRow {
-                stat("Trainings", "\(sessions.count)", .pink)
-                stat("Zeit", sessions.reduce(0) { $0 + $1.duration() }.workoutHours, .blue)
+                stat("Trainings", "\(sessions.count)", "figure.strengthtraining.traditional")
+                stat("Zeit", sessions.reduce(0) { $0 + $1.duration() }.workoutHours, "clock")
             }
             GridRow {
-                stat("Volumen", WorkoutStats.formattedVolume(WorkoutStats.volume(sets)), .orange)
-                stat("Sätze", "\(sets.count)", .green)
+                stat("Volumen", WorkoutStats.formattedVolume(WorkoutStats.volume(sets)), "scalemass")
+                stat("Sätze", "\(sets.count)", "checklist")
             }
         }
         .padding(.vertical, 4)
     }
 
-    private func stat(_ title: LocalizedStringKey, _ value: String, _ tint: Color) -> some View {
-        VStack(alignment: .leading, spacing: 2) {
-            Text(title)
-                .font(.caption.weight(.semibold))
-                .foregroundStyle(tint)
-                .textCase(.uppercase)
-            Text(value)
-                .font(.title3.bold())
-                .monospacedDigit()
+    private func stat(_ title: LocalizedStringKey, _ value: String, _ systemImage: String) -> some View {
+        HStack(spacing: 10) {
+            IconTile(systemImage: systemImage)
+            VStack(alignment: .leading, spacing: 0) {
+                Text(title)
+                    .font(.caption.weight(.medium))
+                    .foregroundStyle(Color.inkMuted)
+                Text(value)
+                    .font(.title3.bold())
+                    .monospacedDigit()
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.7)
+            }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
+        .accessibilityElement(children: .combine)
     }
 }
 
@@ -197,18 +210,23 @@ private struct TemplateRow: View {
                 if template.sharedWithMe == true {
                     Label("Geteilt von \(template.ownerName ?? "einem Freund")", systemImage: "person.2.fill")
                         .font(.caption)
-                        .foregroundStyle(.blue)
+                        .foregroundStyle(Color.brandStrong)
                 }
                 Text(last.map { "Zuletzt \($0.startedAt.formatted(.dateTime.day().month()))" } ?? "Noch nie trainiert")
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
             Spacer()
-            Button(isStarting ? "Startet…" : "Starten", systemImage: "play.fill", action: onStart)
-                .buttonStyle(.borderedProminent)
-                .tint(.green)
-                .foregroundStyle(.white)
-                .disabled(disabled)
+            Button(action: onStart) {
+                // a fixed width, so the label stays centred when it switches to "Startet…"
+                Label(isStarting ? "Startet…" : "Starten", systemImage: "play.fill")
+                    .lineLimit(1)
+                    .frame(minWidth: 96)
+            }
+            .buttonStyle(.borderedProminent)
+            .foregroundStyle(Color.onBrand)
+            .fixedSize()
+            .disabled(disabled)
         }
     }
 
@@ -253,6 +271,7 @@ struct WorkoutSessionDetailView: View {
 
     var body: some View {
         List {
+            Group {
             Section {
                 LabeledContent("Datum", value: session.startedAt.formatted(date: .long, time: .shortened))
                 LabeledContent("Dauer", value: session.duration().workoutDuration)
@@ -278,7 +297,10 @@ struct WorkoutSessionDetailView: View {
                 Button("Training löschen", role: .destructive) { confirmDelete = true }
                     .frame(maxWidth: .infinity)
             }
+            }
+            .glassRows()
         }
+        .glassList()
         .navigationTitle(session.name)
         .navigationBarTitleDisplayMode(.inline)
         .confirmationDialog("„\(session.name)“ löschen?", isPresented: $confirmDelete, titleVisibility: .visible) {

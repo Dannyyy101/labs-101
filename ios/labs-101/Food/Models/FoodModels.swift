@@ -19,12 +19,13 @@ nonisolated enum Meal: String, Codable, CaseIterable, Identifiable, Sendable {
         }
     }
 
+    /// the chart series in a fixed order like on the web, red stays reserved for problems
     var color: Color {
         switch self {
-        case .breakfast: .orange
-        case .lunch: .blue
-        case .snack: .green
-        case .dinner: .red
+        case .breakfast: .series2
+        case .lunch: .series1
+        case .snack: .series3
+        case .dinner: .series4
         }
     }
 
