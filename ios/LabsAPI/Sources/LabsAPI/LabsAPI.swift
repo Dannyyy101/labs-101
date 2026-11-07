@@ -17,13 +17,23 @@ extension Client {
         session: URLSession = .shared,
         token: @escaping @Sendable (_ forceRefresh: Bool) async throws -> String
     ) -> Client {
-        let serverURL = apiBaseURL.lastPathComponent == "api" ? apiBaseURL.deletingLastPathComponent() : apiBaseURL
         return Client(
-            serverURL: serverURL,
+            serverURL: serverURL(apiBaseURL),
             configuration: Configuration(dateTranscoder: InstantTranscoder()),
             transport: URLSessionTransport(configuration: .init(session: session)),
             middlewares: [AuthMiddleware(token: token)]
         )
+    }
+
+    /// The server without "/api" and without a trailing slash: deletingLastPathComponent leaves "https://host/",
+    /// the client then sends "//api/users/...", which the backend doesn't accept as /api and answers with 401.
+    static func serverURL(_ apiBaseURL: URL) -> URL {
+        guard apiBaseURL.lastPathComponent == "api" else { return apiBaseURL }
+        let server = apiBaseURL.deletingLastPathComponent().absoluteString
+        guard server.hasSuffix("/"), let trimmed = URL(string: String(server.dropLast())) else {
+            return apiBaseURL.deletingLastPathComponent()
+        }
+        return trimmed
     }
 }
 
