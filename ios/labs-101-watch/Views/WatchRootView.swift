@@ -13,6 +13,7 @@ struct WatchRootView: View {
                 IdleView(model: model)
             }
         }
+        .background { WatchBackdrop() }
         .alert("Fehler", isPresented: Binding { model.error != nil } set: { if !$0 { model.error = nil } }) {
             Button("OK") {}
         } message: {
@@ -35,12 +36,15 @@ private struct WorkoutPagesView: View {
         TabView(selection: $page) {
             ControlsView(model: model)
                 .tag(Page.controls)
+                .containerBackground(Color.field.gradient, for: .tabView)
             NavigationStack {
                 ExerciseListView(model: model)
             }
             .tag(Page.exercises)
+            .containerBackground(Color.field.gradient, for: .tabView)
             MetricsView(model: model)
                 .tag(Page.metrics)
+                .containerBackground(Color.field.gradient, for: .tabView)
         }
         .tabViewStyle(.page)
     }
@@ -55,7 +59,7 @@ private struct IdleView: View {
             VStack(spacing: 10) {
                 Image(systemName: "figure.strengthtraining.traditional")
                     .font(.system(size: 40))
-                    .foregroundStyle(.green)
+                    .foregroundStyle(Color.brand)
                 Text("Kein Training aktiv")
                     .font(.headline)
                 Text(model.isPhoneReachable
@@ -80,14 +84,14 @@ private struct SummaryView: View {
             VStack(alignment: .leading, spacing: 8) {
                 Label("Gespeichert", systemImage: "checkmark.circle.fill")
                     .font(.headline)
-                    .foregroundStyle(.green)
+                    .foregroundStyle(Color.success)
                 Text(summary.name)
                     .font(.title3.bold())
-                MetricRow(title: "Zeit", value: summary.duration.workoutDuration, tint: .yellow)
-                MetricRow(title: "Sätze", value: "\(summary.sets)", tint: .green)
-                MetricRow(title: "Volumen", value: summary.volume.formattedVolume, tint: .orange)
+                MetricRow(title: "Zeit", value: summary.duration.workoutDuration, tint: .brandStrong)
+                MetricRow(title: "Sätze", value: "\(summary.sets)", tint: .brandStrong)
+                MetricRow(title: "Volumen", value: summary.volume.formattedVolume, tint: .brandStrong)
                 if summary.energy > 0 {
-                    MetricRow(title: "Aktive kcal", value: Int(summary.energy).formatted(), tint: .pink)
+                    MetricRow(title: "Aktive kcal", value: Int(summary.energy).formatted(), tint: .brandStrong)
                 }
                 Button("Fertig", action: onClose)
                     .padding(.top, 6)

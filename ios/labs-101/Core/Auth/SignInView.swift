@@ -19,7 +19,7 @@ struct SignInView: View {
         } description: {
             Text("Melde dich an, um Essen, Trainings und Health-Daten zu synchronisieren.")
             if let error {
-                Text(error).foregroundStyle(.red)
+                Text(error).foregroundStyle(Color.danger)
             }
         } actions: {
             Button {

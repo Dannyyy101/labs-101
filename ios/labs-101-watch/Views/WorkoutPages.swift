@@ -11,7 +11,7 @@ struct ExerciseListView: View {
                     HStack {
                         Text(state.startedAt, style: .timer)
                             .font(.title3.weight(.semibold))
-                            .foregroundStyle(.yellow)
+                            .foregroundStyle(Color.brandStrong)
                             .monospacedDigit()
                         Spacer()
                         HeartRate(bpm: model.workout.heartRate)
@@ -57,12 +57,12 @@ private struct ExerciseRow: View {
                     .lineLimit(2)
                 if finished {
                     Image(systemName: "checkmark.circle.fill")
-                        .foregroundStyle(.green)
+                        .foregroundStyle(Color.success)
                 }
             }
             Text("\(done) / \(exercise.sets.count) Sätze")
                 .font(.footnote)
-                .foregroundStyle(finished ? .green : .secondary)
+                .foregroundStyle(finished ? Color.success : .secondary)
         }
     }
 }
@@ -75,7 +75,7 @@ struct HeartRate: View {
             Text(bpm.map { Int($0).formatted() } ?? "--")
                 .monospacedDigit()
             Image(systemName: "heart.fill")
-                .foregroundStyle(.red)
+                .foregroundStyle(Color.brand)
                 .symbolEffect(.pulse, isActive: bpm != nil)
         }
         .font(.headline)
@@ -93,14 +93,14 @@ struct MetricsView: View {
                     TimelineView(.periodic(from: .now, by: 1)) { context in
                         Text(context.date.timeIntervalSince(state.startedAt).workoutDuration)
                             .font(.system(.title, design: .rounded).weight(.semibold))
-                            .foregroundStyle(.yellow)
+                            .foregroundStyle(Color.brandStrong)
                             .monospacedDigit()
                     }
                     HeartRate(bpm: model.workout.heartRate)
                         .font(.title3)
-                    MetricRow(title: "Aktive kcal", value: Int(model.workout.activeEnergy).formatted(), tint: .pink)
-                    MetricRow(title: "Sätze", value: "\(state.doneSets.count) / \(state.allSets.count)", tint: .green)
-                    MetricRow(title: "Volumen", value: state.volume.formattedVolume, tint: .orange)
+                    MetricRow(title: "Aktive kcal", value: Int(model.workout.activeEnergy).formatted(), tint: .brandStrong)
+                    MetricRow(title: "Sätze", value: "\(state.doneSets.count) / \(state.allSets.count)", tint: .brandStrong)
+                    MetricRow(title: "Volumen", value: state.volume.formattedVolume, tint: .brandStrong)
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
             }
@@ -124,7 +124,8 @@ struct ControlsView: View {
                 Label("Beenden", systemImage: "checkmark")
                     .frame(maxWidth: .infinity)
             }
-            .tint(.green)
+            .tint(.brand)
+            .foregroundStyle(Color.onBrand)
             .disabled(done == 0)
 
             Button(role: .destructive) {

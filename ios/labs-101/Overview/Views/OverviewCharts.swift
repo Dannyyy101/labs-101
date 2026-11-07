@@ -21,12 +21,12 @@ struct ScoreRing<Label: View>: View {
         ZStack {
             // raised disc behind the ring
             Circle()
-                .fill(.background)
-                .shadow(color: .black.opacity(0.08), radius: 8, y: 3)
+                .fill(Color.surfaceRaised.opacity(0.6))
+                .shadow(color: Color.brand.opacity(0.10), radius: 8, y: 3)
                 .padding(-lineWidth * 0.9)
 
             Circle()
-                .stroke(Color.primary.opacity(0.06), lineWidth: lineWidth)
+                .stroke(Color.track, lineWidth: lineWidth)
 
             if let target {
                 Circle()
@@ -78,10 +78,10 @@ extension SleepStage {
 
     var color: Color {
         switch row {
-        case .awake: Color(red: 1, green: 0.62, blue: 0.04)
-        case .rem: Color(red: 0.39, green: 0.82, blue: 1)
-        case .deep: Color(red: 0.37, green: 0.36, blue: 0.9)
-        case .core, .asleep: Color(red: 0.04, green: 0.52, blue: 1)
+        case .awake: .series2
+        case .rem: .ramp2
+        case .deep: .ramp5
+        case .core, .asleep: .ramp3
         }
     }
 }

@@ -48,8 +48,10 @@ struct FoodTrackerView: View {
                 Button("Erneut versuchen") { reload() }
                     .buttonStyle(.borderedProminent)
             }
+            .background { Backdrop() }
         } else {
             List {
+                Group {
                 Section {
                     DaySummaryView(consumed: { model.total($0) }, goals: model.goals, burnedKcal: model.burnedKcal)
                 }
@@ -64,8 +66,11 @@ struct FoodTrackerView: View {
                         onDelete: { entry in Task { await model.delete(entry, using: foodService) } }
                     )
                 }
+                }
+                .glassRows()
             }
             .listSectionSpacing(.compact)
+            .glassList()
             .overlay {
                 if model.isLoading && model.entries.isEmpty {
                     ProgressView()

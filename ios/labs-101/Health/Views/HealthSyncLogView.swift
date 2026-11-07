@@ -6,6 +6,7 @@ struct HealthSyncLogView: View {
 
     var body: some View {
         List {
+            Group {
             if entries.isEmpty {
                 Text("Noch keine Hintergrund-Syncs. iOS entscheidet selbst, wann die App geweckt wird, meist wenn neue Health-Daten da sind.")
                     .foregroundStyle(.secondary)
@@ -19,7 +20,7 @@ struct HealthSyncLogView: View {
                             .foregroundStyle(.secondary)
                     }
                     Text(result(entry))
-                        .foregroundStyle(entry.error != nil && !entry.locked ? .red : .primary)
+                        .foregroundStyle(entry.error != nil && !entry.locked ? Color.danger : .primary)
                     if !entry.types.isEmpty {
                         Text(entry.types.joined(separator: ", "))
                             .font(.caption)
@@ -29,7 +30,10 @@ struct HealthSyncLogView: View {
                 }
                 .font(.subheadline)
             }
+            }
+            .glassRows()
         }
+        .glassList()
         .navigationTitle("Hintergrund-Syncs")
         .toolbar {
             if !entries.isEmpty {
