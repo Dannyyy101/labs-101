@@ -73,4 +73,12 @@ public class ExternalCalendarController {
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Instant endDate) {
         return externalCalendarService.getEvents(userId, startDate, endDate);
     }
+
+    /** Loads the events of the window from Apple again, slow, the stored ones are returned by {@link #getEvents}. */
+    @PostMapping("/events/sync")
+    public List<ExternalCalendarEventDto> syncEvents(@CurrentUser String userId,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Instant startDate,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Instant endDate) {
+        return externalCalendarService.syncEvents(userId, startDate, endDate);
+    }
 }

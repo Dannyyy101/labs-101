@@ -8,7 +8,7 @@ import { useEffect, useRef, useState } from 'react';
 
 import { EventDialog } from './EventDialog';
 import { CalendarEvent } from '@/utils/types/calendarTypes';
-import { getAllCalendarEvents, getExternalCalendarEvents } from './action';
+import { getAllCalendarEvents, getExternalCalendarEvents, syncExternalCalendarEvents } from './action';
 import { ChevronRight, ChevronLeft, Dumbbell, Repeat } from "lucide-react";
 import { startAtTime } from "@/utils/date";
 import { AvatarStack } from "./UserAvatar";
@@ -96,13 +96,23 @@ export default function Calendar() {
     useEffect(() => {
         if (!isSizeKnown) return
 
+        // a week switched to in the meantime keeps its events
+        let current = true
+
         const fetch = async () => {
-            // the Apple calendars are slower, they are loaded from Apple when they weren't for a while
+            // the Apple events stored the last time first, loading them from Apple takes a few seconds
+            const sync = syncExternalCalendarEvents(dateRange, STEPS)
             const [own, external] = await Promise.all([getAllCalendarEvents(dateRange, STEPS), getExternalCalendarEvents(dateRange, STEPS)])
+            if (!current) return
             setEvents([...(own.value || []), ...external])
+
+            const synced = await sync
+            if (!current || !synced) return
+            setEvents([...(own.value || []), ...synced])
         }
 
         fetch()
+        return () => { current = false }
     }, [dateRange, STEPS, isSizeKnown, version])
 
     // the hours fill the window down to its bottom edge, the header above grows with the all-day events

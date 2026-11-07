@@ -211,6 +211,44 @@
         "tags" : [ "external-calendar-controller" ]
       }
     },
+    "/api/calendar/external/events/sync" : {
+      "post" : {
+        "operationId" : "externalCalendarSyncEvents",
+        "parameters" : [ {
+          "in" : "query",
+          "name" : "startDate",
+          "required" : true,
+          "schema" : {
+            "type" : "string",
+            "format" : "date-time"
+          }
+        }, {
+          "in" : "query",
+          "name" : "endDate",
+          "required" : true,
+          "schema" : {
+            "type" : "string",
+            "format" : "date-time"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/ExternalCalendarEventDto"
+                  }
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "external-calendar-controller" ]
+      }
+    },
     "/api/calendar/external/{id}" : {
       "delete" : {
         "operationId" : "externalCalendarDeleteCalendar",

@@ -20,8 +20,9 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 /**
- * A calendar of the user in another app, its events are shown in the user's calendar but aren't stored. A calendar
- * of an {@link AppleAccount} is read over CalDAV, otherwise {@link #url} is the iCalendar feed of a shared calendar.
+ * A calendar of the user in another app, its events are shown in the user's calendar and stored as
+ * {@link ExternalCalendarEvent}. A calendar of an {@link AppleAccount} is read over CalDAV, otherwise {@link #url} is
+ * the iCalendar feed of a shared calendar.
  */
 @Getter
 @Setter

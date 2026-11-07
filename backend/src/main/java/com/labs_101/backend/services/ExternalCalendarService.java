@@ -3,18 +3,21 @@ package com.labs_101.backend.services;
 import java.net.URI;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Comparator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import com.labs_101.backend.calendarImport.CalDavClient;
 import com.labs_101.backend.calendarImport.CalDavClient.DiscoveredCalendar;
@@ -29,15 +32,18 @@ import com.labs_101.backend.dtos.calendar.ExternalCalendarDto;
 import com.labs_101.backend.dtos.calendar.ExternalCalendarEventDto;
 import com.labs_101.backend.entities.AppleAccount;
 import com.labs_101.backend.entities.ExternalCalendar;
+import com.labs_101.backend.entities.ExternalCalendarEvent;
 import com.labs_101.backend.exception.BadRequestException;
 import com.labs_101.backend.exception.NotFoundException;
 import com.labs_101.backend.repositories.AppleAccountRepository;
+import com.labs_101.backend.repositories.ExternalCalendarEventRepository;
 import com.labs_101.backend.repositories.ExternalCalendarRepository;
 import com.labs_101.backend.repositories.UserRepository;
 
 /**
  * The user's calendars of other apps: the calendars of connected iCloud accounts and shared Apple calendars.
- * What was loaded is kept in memory for {@link #MAX_AGE}, to not ask Apple on every request.
+ * Their events are stored to show them right away, a sync loads them again. What was loaded is also kept in memory
+ * for {@link #MAX_AGE}, to not ask Apple on every sync.
  */
 @Service
 public class ExternalCalendarService {
@@ -53,16 +59,22 @@ public class ExternalCalendarService {
     private final Map<String, Cached> cache = new ConcurrentHashMap<>();
     /** Why a calendar couldn't be loaded the last time, by its id. */
     private final Map<Long, String> errors = new ConcurrentHashMap<>();
+    private final Map<Long, Object> locks = new ConcurrentHashMap<>();
     private final ExternalCalendarRepository externalCalendarRepository;
     private final AppleAccountRepository appleAccountRepository;
     private final UserRepository userRepository;
     private final IcsClient icsClient;
     private final CalDavClient calDavClient;
     private final CredentialCipher credentialCipher;
+    private final ExternalCalendarEventRepository externalCalendarEventRepository;
+    private final TransactionTemplate transactionTemplate;
 
     ExternalCalendarService(ExternalCalendarRepository externalCalendarRepository,
             AppleAccountRepository appleAccountRepository, UserRepository userRepository, IcsClient icsClient,
-            CalDavClient calDavClient, CredentialCipher credentialCipher) {
+            CalDavClient calDavClient, CredentialCipher credentialCipher,
+            ExternalCalendarEventRepository externalCalendarEventRepository, TransactionTemplate transactionTemplate) {
+        this.externalCalendarEventRepository = externalCalendarEventRepository;
+        this.transactionTemplate = transactionTemplate;
         this.externalCalendarRepository = externalCalendarRepository;
         this.appleAccountRepository = appleAccountRepository;
         this.userRepository = userRepository;
@@ -172,22 +184,56 @@ public class ExternalCalendarService {
                 .orElseThrow(() -> NotFoundException.externalCalendar(id)));
     }
 
-    /** The events of all calendars of the user in the window, a calendar that can't be read is left out. */
+    /**
+     * The events of all calendars of the user in the window as they were loaded the last time, fast but maybe not
+     * up to date. {@link #syncEvents} loads them again.
+     */
     @Transactional(readOnly = true)
     public List<ExternalCalendarEventDto> getEvents(String userId, Instant startDate, Instant endDate) {
-        List<ExternalCalendarEventDto> events = new ArrayList<>();
-        for (ExternalCalendar calendar : externalCalendarRepository.findByUser_IdOrderByCreatedAt(userId)) {
-            Feed feed = feed(calendar, startDate, endDate);
-            if (feed == null) {
-                continue;
-            }
-            for (ImportedEvent event : IcsParser.events(feed, startDate, endDate)) {
-                events.add(new ExternalCalendarEventDto(calendar.getId(), calendar.getName(), event.uid(),
-                        event.title(), event.startDate(), event.endDate(), event.allDay()));
+        return externalCalendarEventRepository.findInWindow(userId, startDate, endDate).stream()
+                .map(ExternalCalendarService::toDto).toList();
+    }
+
+    /**
+     * Loads the events of the window from Apple, stores them and returns all of the window. A calendar that can't
+     * be read keeps the events it had, Apple is down now and then.
+     */
+    public List<ExternalCalendarEventDto> syncEvents(String userId, Instant startDate, Instant endDate) {
+        List<ExternalCalendar> calendars = externalCalendarRepository.findWithAccountByUser_Id(userId);
+        // one after the other the slow calendars add up, Apple answers each in about a second
+        Map<ExternalCalendar, Future<Feed>> feeds = new LinkedHashMap<>();
+        try (ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor()) {
+            for (ExternalCalendar calendar : calendars) {
+                feeds.put(calendar, executor.submit(() -> feed(calendar, startDate, endDate)));
             }
         }
-        events.sort(Comparator.comparing(ExternalCalendarEventDto::startDate));
-        return events;
+        feeds.forEach((calendar, future) -> {
+            Feed feed = future.resultNow();
+            if (feed == null) {
+                return;
+            }
+            store(calendar, IcsParser.events(feed, startDate, endDate), startDate, endDate);
+        });
+        return getEvents(userId, startDate, endDate);
+    }
+
+    /** Replaces the stored events of the calendar in the window, one sync at a time so none are stored twice. */
+    private void store(ExternalCalendar calendar, List<ImportedEvent> events, Instant startDate, Instant endDate) {
+        Object lock = locks.computeIfAbsent(calendar.getId(), (id) -> new Object());
+        synchronized (lock) {
+            try {
+                transactionTemplate.executeWithoutResult((status) -> {
+                    externalCalendarEventRepository.deleteInWindow(calendar.getId(), startDate, endDate);
+                    externalCalendarEventRepository.saveAll(events.stream()
+                            .map((event) -> new ExternalCalendarEvent(null, calendar, event.uid(), event.title(),
+                                    event.startDate(), event.endDate(), event.allDay()))
+                            .toList());
+                });
+            } catch (RuntimeException e) {
+                // e.g. removed while it was loading
+                logger.warn("Events of external calendar {} not stored: {}", calendar.getId(), e.getMessage());
+            }
+        }
     }
 
     /** A shared calendar is loaded as a whole, of an account's calendar only the events of the window. */
@@ -209,8 +255,8 @@ public class ExternalCalendarService {
             errors.put(calendar.getId(), e instanceof CalDavClient.UnauthorizedException
                     ? "Das app-spezifische Passwort gilt nicht mehr, bitte die Apple-ID neu verbinden"
                     : "Konnte zuletzt nicht geladen werden");
-            // the last events are still shown, Apple is down now and then
-            return cached == null ? null : cached.feed();
+            // the stored events stay
+            return null;
         }
     }
 
@@ -235,13 +281,20 @@ public class ExternalCalendarService {
     }
 
     private void delete(ExternalCalendar calendar) {
+        // the stored events go with it, on delete cascade in the database
         externalCalendarRepository.delete(calendar);
+        locks.remove(calendar.getId());
         cache.keySet().removeIf((key) -> key.startsWith(calendar.getId() + "@"));
         errors.remove(calendar.getId());
     }
 
     private static String feedKey(ExternalCalendar calendar) {
         return calendar.getId() + "@feed";
+    }
+
+    private static ExternalCalendarEventDto toDto(ExternalCalendarEvent event) {
+        return new ExternalCalendarEventDto(event.getCalendar().getId(), event.getCalendar().getName(), event.getUid(),
+                event.getTitle(), event.getStartDate(), event.getEndDate(), event.isAllDay());
     }
 
     private ExternalCalendarDto toDto(ExternalCalendar calendar) {

@@ -28,7 +28,7 @@ export async function getAllCalendarEvents(dateRange: Date, steps: number): Prom
     return { value: data.map(mapFromCalendarEventDto), error: null }
 }
 
-/** The events of the user's Apple calendars, empty when there are none or they can't be loaded. */
+/** The stored events of the user's Apple calendars, empty when there are none or they can't be loaded. */
 export async function getExternalCalendarEvents(dateRange: Date, steps: number): Promise<CalendarEvent[]> {
     try {
         const { data, response } = await api.GET("/api/calendar/external/events", { params: { query: range(dateRange, steps) } })
@@ -39,6 +39,18 @@ export async function getExternalCalendarEvents(dateRange: Date, steps: number):
     }
     // the own events are still shown
     return []
+}
+
+/** Loads the events of the user's Apple calendars from Apple again, null when that didn't work. */
+export async function syncExternalCalendarEvents(dateRange: Date, steps: number): Promise<CalendarEvent[] | null> {
+    try {
+        const { data, response } = await api.POST("/api/calendar/external/events/sync", { params: { query: range(dateRange, steps) } })
+        if (data) return data.map(mapFromExternalCalendarEventDto)
+        console.error(`Error syncing external calendar events: ${response.status}`)
+    } catch (e) {
+        console.error("Error syncing external calendar events", e)
+    }
+    return null
 }
 
 /** The ids of the invitees instead of the people, the backend only needs those. */
