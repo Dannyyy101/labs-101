@@ -9,7 +9,6 @@ import { useEffect, useRef, useState } from 'react';
 import { EventDialog } from './EventDialog';
 import { CalendarEvent } from '@/utils/types/calendarTypes';
 import { getAllCalendarEvents, getExternalCalendarEvents } from './action';
-import { Button } from "../ui/button";
 import { ChevronRight, ChevronLeft, Dumbbell, Repeat } from "lucide-react";
 import { startAtTime } from "@/utils/date";
 import { AvatarStack } from "./UserAvatar";
@@ -133,9 +132,16 @@ export default function Calendar() {
 
     return (
         <div className="px-4 w-full relative">
-            <div className="absolute right-4 z-20 flex">
-                <Button variant="secondary" onClick={() => setDateRange((prev) => increaseDateByDays(prev, -STEPS))}><ChevronLeft /></Button>
-                <Button variant="secondary" onClick={() => setDateRange((prev) => increaseDateByDays(prev, STEPS))}><ChevronRight /></Button>
+            {/* one glass group like the day switcher on the home page */}
+            <div className="glass absolute right-4 top-2 z-20 flex gap-0.5 rounded-[12px] p-[3px]">
+                <button type="button" aria-label={STEPS === 7 ? "Vorherige Woche" : "Vorheriger Tag"} onClick={() => setDateRange((prev) => increaseDateByDays(prev, -STEPS))}
+                    className="grid size-8 place-items-center rounded-[9px] text-ink-muted transition-colors hover:bg-surface-raised/60 hover:text-ink dark:hover:bg-white/10">
+                    <ChevronLeft className="size-4" />
+                </button>
+                <button type="button" aria-label={STEPS === 7 ? "Nächste Woche" : "Nächster Tag"} onClick={() => setDateRange((prev) => increaseDateByDays(prev, STEPS))}
+                    className="grid size-8 place-items-center rounded-[9px] text-ink-muted transition-colors hover:bg-surface-raised/60 hover:text-ink dark:hover:bg-white/10">
+                    <ChevronRight className="size-4" />
+                </button>
             </div>
 
             <div ref={headerRef} className="mt-10 grid min-h-10" style={{ gridTemplateColumns: `60px repeat(${STEPS}, minmax(0, 1fr))` }}>
