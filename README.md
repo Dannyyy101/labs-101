@@ -1,83 +1,83 @@
 # labs-101
 
-Persönliche Health- & Fitness-Plattform: Ernährung tracken, Workouts planen und loggen, Läufe auswerten und Apple-Health-Daten zentral speichern.
+Personal health & fitness platform: track nutrition, plan and log workouts, analyze runs and store Apple Health data in one place.
 
-Das Projekt besteht aus drei Clients/Diensten und dem Identity Provider Zitadel, die sich eine Postgres-Instanz teilen:
+The project consists of three clients/services and the identity provider Zitadel, all sharing one Postgres instance:
 
-| Teil | Technik | Aufgabe |
+| Part | Tech | Purpose |
 | --- | --- | --- |
-| [`backend/`](backend/) | Spring Boot 4 · Java 25 · JPA · Flyway | REST-API unter `/api`, Geschäftslogik, Datenbank-Migrationen |
-| [`frontend/`](frontend/) | Next.js 16 · React 19 · Tailwind 4 · shadcn · openid-client | Web-App mit Login, Dashboards und Formularen |
-| [`ios/`](ios/) | SwiftUI · HealthKit (iOS 26.5) | Apple-Health-Sync, Essen- und Workout-Tracking unterwegs |
-| Zitadel | Docker (v4) lokal, Helm-Chart `helm/auth` im Infra-Repo in Produktion | Gemeinsamer Identity Provider aller Apps unter `auth.project101.tech`: Login mit Passwort, Passkey oder Google |
-| Postgres | Docker | Datenbank `labs101` (App-Daten), lokal zusätzlich `zitadel` |
+| [`backend/`](backend/) | Spring Boot 4 · Java 25 · JPA · Flyway | REST API under `/api`, business logic, database migrations |
+| [`frontend/`](frontend/) | Next.js 16 · React 19 · Tailwind 4 · shadcn · openid-client | Web app with login, dashboards and forms |
+| [`ios/`](ios/) | SwiftUI · HealthKit (iOS 26.5) | Apple Health sync, food and workout tracking on the go |
+| Zitadel | Docker (v4) locally, Helm chart `helm/auth` in the infra repo in production | Shared identity provider for all apps at `auth.project101.tech`: login with password, passkey or Google |
+| Postgres | Docker | Database `labs101` (app data), locally also `zitadel` |
 
 ```mermaid
 flowchart LR
-    iOS["iOS-App<br/>(HealthKit)"] -- "Login (PKCE)" --> IdP["Zitadel<br/>:8081"]
-    Web["Next.js-Frontend<br/>:3000"] -- "Login (PKCE)" --> IdP
-    iOS -- "Bearer-Token" --> API["Spring-Backend<br/>:8080/api"]
-    Web -- "Bearer-Token" --> API
-    API -- "prüft Token (JWKS)" --> IdP
+    iOS["iOS app<br/>(HealthKit)"] -- "Login (PKCE)" --> IdP["Zitadel<br/>:8081"]
+    Web["Next.js frontend<br/>:3000"] -- "Login (PKCE)" --> IdP
+    iOS -- "Bearer token" --> API["Spring backend<br/>:8080/api"]
+    Web -- "Bearer token" --> API
+    API -- "verifies token (JWKS)" --> IdP
     API --> DB[("Postgres<br/>labs101")]
     IdP --> ZDB[("Postgres<br/>zitadel")]
 ```
 
 ## Features
 
-- **Ernährung** – Lebensmittel suchen (Trigram-Volltextsuche), per Barcode scannen, aus Freitext extrahieren und mit Portionen tracken. Datenbasis: Bundeslebensmittelschlüssel (BLS) und Open Food Facts.
-- **Workouts** – Übungen mit trainierten Muskeln, Workout-Vorlagen, Live-Sessions, Statistiken und Muskelkarte.
-- **Läufe** – Auswertung der aus Apple Health synchronisierten Läufe inkl. GPS-Route auf der Karte.
-- **Apple-Health-Sync** – die iOS-App spiegelt HealthKit-Samples ins Backend; das Backend kann umgekehrt Schreibaufträge hinterlegen. Details: [`documents/health-sync.md`](documents/health-sync.md).
-- **Health-Übersicht & Planer** – Startseite mit Kennzahlen, Kalender für geplante Einheiten.
-- **Freunde** – Freundschaftsanfragen per Name/E-Mail senden und annehmen, Profil (Streak, Heatmap, Achievements) von Freunden ansehen, sehen wer gerade trainiert und einmal pro Training anfeuern (der Freund bekommt eine Benachrichtigung).
-- **Einstellungen** – nutzerbezogene Settings.
-- **Claude (MCP)** – das Backend ist ein MCP-Server, Claude meldet sich über Zitadel an, kann Trainings, Läufe, Health-Daten, Ernährung und Kalender auswerten und Mahlzeiten tracken, siehe [Claude verbinden](#claude-verbinden-mcp).
-- **Benachrichtigungen (iOS)** – lokal, nach jedem Health-Sync geprüft: morgens die Schlafauswertung, nach dem Training die Statistiken, um 20 Uhr ein Hinweis, wenn noch ≥ 500 kcal offen sind, außerdem die ungelesenen Benachrichtigungen des Backends (Glocke im Web). Abschaltbar im Health-Tab, im Debug-Build gibt es dort einen Test-Button.
+- **Nutrition** – search foods (trigram full-text search), scan barcodes, extract foods from free text and track them with portions. Data sources: Bundeslebensmittelschlüssel (BLS, the German food composition database) and Open Food Facts.
+- **Workouts** – exercises with trained muscles, workout templates, live sessions, statistics and a muscle map.
+- **Runs** – analysis of runs synced from Apple Health, including the GPS route on a map.
+- **Apple Health sync** – the iOS app mirrors HealthKit samples to the backend; in the other direction, the backend can queue write requests. Details: [`documents/health-sync.md`](documents/health-sync.md).
+- **Health overview & planner** – home page with key metrics, calendar for planned sessions.
+- **Friends** – send and accept friend requests by name/email, view friends' profiles (streak, heatmap, achievements), see who is currently training and cheer them on once per workout (the friend gets a notification).
+- **Settings** – per-user settings.
+- **Claude (MCP)** – the backend is an MCP server; Claude signs in via Zitadel, can analyze workouts, runs, health data, nutrition and the calendar, and can track meals, create workout templates and plan events, see [Connecting Claude](#connecting-claude-mcp).
+- **Notifications (iOS)** – local, checked after every health sync: the sleep summary in the morning, statistics after a workout, a reminder at 8 pm if ≥ 500 kcal are still left, plus the backend's unread notifications (the bell in the web app). Can be turned off in the Health tab; debug builds have a test button there.
 
-## Schnellstart mit Docker
+## Quick start with Docker
 
-Voraussetzung: Docker mit Compose.
+Requirement: Docker with Compose.
 
 ```sh
-cp .env.example .env   # und Werte ergänzen, siehe unten
+cp .env.example .env   # and fill in the values, see below
 docker compose --profile local up -d --build
 ```
 
-Zitadel gehört zum Compose-Profil `local`. Ohne `--profile local` startet es nicht, so wie auf dem Server, wo das gemeinsame Zitadel aus dem Infra-Repo läuft.
+Zitadel belongs to the Compose profile `local`. Without `--profile local` it does not start, just like on the server, where the shared Zitadel from the infra repo runs.
 
-Danach laufen:
+Afterwards these are running:
 
 - Frontend: <http://localhost:3000>
 - Backend: <http://localhost:8080/api>
-- Zitadel: <http://localhost:8081/ui/console> (Einrichtung siehe [Authentifizierung](#authentifizierung-zitadel))
-- Postgres: `localhost:5432`, Datenbank `labs101`
+- Zitadel: <http://localhost:8081/ui/console> (setup see [Authentication](#authentication-zitadel))
+- Postgres: `localhost:5432`, database `labs101`
 
-Die Datenbank-Migrationen (Flyway, [`backend/src/main/resources/db/migration`](backend/src/main/resources/db/migration)) laufen beim Start des Backends automatisch.
+The database migrations (Flyway, [`backend/src/main/resources/db/migration`](backend/src/main/resources/db/migration)) run automatically when the backend starts.
 
-### Umgebungsvariablen
+### Environment variables
 
-Die `.env` im Repo-Root wird von Docker Compose und der VS-Code-Launch-Config des Backends gelesen.
+The `.env` in the repo root is read by Docker Compose and by the backend's VS Code launch config.
 
-| Variable | Genutzt von | Beschreibung |
+| Variable | Used by | Description |
 | --- | --- | --- |
-| `POSTGRES_USERNAME` / `POSTGRES_PASSWORD` | DB, Backend, Zitadel | Zugangsdaten der Datenbank, Zitadel legt damit beim ersten Start seine eigene Datenbank an |
-| `ZITADEL_EXTERNALDOMAIN` / `ZITADEL_EXTERNALPORT` / `ZITADEL_EXTERNALSECURE` | Zitadel | Öffentliche Adresse, Produktion: `auth.project101.tech`, `443`, `true` |
-| `ZITADEL_TLS_MODE` | Zitadel | `external` hinter dem Reverse Proxy (Produktion), `disabled` lokal |
-| `ZITADEL_MASTERKEY` | Zitadel | Genau 32 Zeichen, verschlüsselt die Secrets in der Zitadel-Datenbank. **Nie mehr ändern.** |
-| `ZITADEL_DB_PASSWORD` | Zitadel | Passwort des Datenbank-Users `zitadel` |
-| `ZITADEL_ADMIN_USERNAME` / `ZITADEL_ADMIN_PASSWORD` | Zitadel | Erster Admin, nur beim allerersten Start verwendet |
-| `AUTH_ISSUER` | Backend, Frontend | Öffentliche URL von Zitadel, muss dem `iss` der Tokens entsprechen |
-| `AUTH_AUDIENCE` | Backend | Optional: Projekt-ID in Zitadel, Tokens anderer Projekte werden dann abgelehnt |
-| `ZITADEL_ORG_ID` | Backend, Frontend | ID der Organisation der Nutzer in Zitadel, daraus entstehen die URLs der Profilbilder. Leer: keine Bilder, nur Anfangsbuchstaben |
-| `APP_URL` | Frontend | Öffentliche URL des Frontends, Zitadel leitet nach `${APP_URL}/auth/callback` zurück |
-| `AUTH_CLIENT_ID` / `AUTH_CLIENT_SECRET` | Frontend | Web-App in Zitadel |
-| `AUTH_SECRET` | Frontend | Mindestens 32 zufällige Zeichen, verschlüsselt das Session-Cookie |
-| `MCP_RESOURCE_URL` | Backend | Öffentliche URL des MCP-Servers, genau die Adresse, die in Claude eingetragen wird. Produktion: `https://api.project101.tech/api/mcp` |
+| `POSTGRES_USERNAME` / `POSTGRES_PASSWORD` | DB, backend, Zitadel | Database credentials; Zitadel uses them to create its own database on first start |
+| `ZITADEL_EXTERNALDOMAIN` / `ZITADEL_EXTERNALPORT` / `ZITADEL_EXTERNALSECURE` | Zitadel | Public address, production: `auth.project101.tech`, `443`, `true` |
+| `ZITADEL_TLS_MODE` | Zitadel | `external` behind the reverse proxy (production), `disabled` locally |
+| `ZITADEL_MASTERKEY` | Zitadel | Exactly 32 characters, encrypts the secrets in the Zitadel database. **Never change it.** |
+| `ZITADEL_DB_PASSWORD` | Zitadel | Password of the database user `zitadel` |
+| `ZITADEL_ADMIN_USERNAME` / `ZITADEL_ADMIN_PASSWORD` | Zitadel | First admin, only used on the very first start |
+| `AUTH_ISSUER` | Backend, frontend | Public URL of Zitadel, must match the `iss` of the tokens |
+| `AUTH_AUDIENCE` | Backend | Optional: project ID in Zitadel; tokens from other projects are then rejected |
+| `ZITADEL_ORG_ID` | Backend, frontend | ID of the users' organization in Zitadel, used to build the profile picture URLs. Empty: no pictures, initials only |
+| `APP_URL` | Frontend | Public URL of the frontend; Zitadel redirects back to `${APP_URL}/auth/callback` |
+| `AUTH_CLIENT_ID` / `AUTH_CLIENT_SECRET` | Frontend | Web app in Zitadel |
+| `AUTH_SECRET` | Frontend | At least 32 random characters, encrypts the session cookie |
+| `MCP_RESOURCE_URL` | Backend | Public URL of the MCP server, exactly the address entered in Claude. Production: `https://api.project101.tech/api/mcp` |
 
-## Lokale Entwicklung
+## Local development
 
-Für die Entwicklung reicht es, nur die Datenbank in Docker zu starten:
+For development it is enough to run only the database in Docker:
 
 ```sh
 docker compose up -d db
@@ -85,16 +85,16 @@ docker compose up -d db
 
 ### Backend
 
-Benötigt JDK 25.
+Requires JDK 25.
 
 ```sh
 cd backend
 AUTH_ISSUER=http://localhost:8081 ./mvnw spring-boot:run
 ```
 
-Die Standard-Verbindung (`localhost:5432`, `user` / `abc123`) steht in [`application.properties`](backend/src/main/resources/application.properties) und passt zu `.env.example`. Alternativ in VS Code die Launch-Config „Spring Boot-BackendApplication“ starten – sie lädt die `.env` automatisch.
+The default connection (`localhost:5432`, `user` / `abc123`) is set in [`application.properties`](backend/src/main/resources/application.properties) and matches `.env.example`. Alternatively, start the VS Code launch config "Spring Boot-BackendApplication" – it loads the `.env` automatically.
 
-Tests (u. a. mit Embedded Postgres):
+Tests (including embedded Postgres):
 
 ```sh
 cd backend
@@ -103,7 +103,7 @@ cd backend
 
 ### Frontend
 
-Benötigt Node.js 22+. `AUTH_ISSUER`, `APP_URL`, `AUTH_CLIENT_ID`, `AUTH_CLIENT_SECRET`, `AUTH_SECRET` und `BACKEND_URL=http://localhost:8080/api` gehören in `frontend/.env`, Vorlage: `cp frontend/.env.example frontend/.env`.
+Requires Node.js 22+. `AUTH_ISSUER`, `APP_URL`, `AUTH_CLIENT_ID`, `AUTH_CLIENT_SECRET`, `AUTH_SECRET` and `BACKEND_URL=http://localhost:8080/api` go into `frontend/.env`, template: `cp frontend/.env.example frontend/.env`.
 
 ```sh
 cd frontend
@@ -113,18 +113,18 @@ npm run lint
 npm run build
 ```
 
-Lokal läuft Zitadel per `docker compose up -d db zitadel` auf <http://localhost:8081>, Backend und Frontend direkt auf dem Rechner. Ein Backend im Docker-Netz kann `localhost:8081` nicht erreichen, deshalb lokal nicht alles in Docker starten.
+Locally, Zitadel runs via `docker compose up -d db zitadel` on <http://localhost:8081>, while backend and frontend run directly on the machine. A backend inside the Docker network cannot reach `localhost:8081`, so don't run everything in Docker locally.
 
-### iOS-App
+### iOS app
 
-Benötigt Xcode 26 und ein Gerät bzw. einen Simulator mit iOS 26.5.
+Requires Xcode 26 and a device or simulator with iOS 26.5.
 
-1. Secrets anlegen:
+1. Create the secrets:
    ```sh
    cp ios/Config/Secrets.example.xcconfig ios/Config/Secrets.xcconfig
    ```
-   und `API_BASE_URL`, `AUTH_ISSUER` und `AUTH_CLIENT_ID` (native App in Zitadel) eintragen. Die App meldet sich beim Start über die Login-Seite von Zitadel an, Tokens liegen in der Keychain. In `.xcconfig`-Dateien beginnt `//` einen Kommentar, URLs werden deshalb als `http:/$()/host:8080/api` geschrieben.
-2. `ios/labs-101.xcodeproj` in Xcode öffnen und starten – oder per Kommandozeile:
+   and fill in `API_BASE_URL`, `AUTH_ISSUER` and `AUTH_CLIENT_ID` (native app in Zitadel). On launch the app signs in through Zitadel's login page; tokens are stored in the Keychain. In `.xcconfig` files `//` starts a comment, so URLs are written as `http:/$()/host:8080/api`.
+2. Open `ios/labs-101.xcodeproj` in Xcode and run it – or from the command line:
 
 ```sh
 cd ios
@@ -134,7 +134,7 @@ xcodebuild -project labs-101.xcodeproj -scheme labs-101 \
   -destination 'platform=iOS Simulator,OS=26.5,name=iPhone 17 Pro' \
   -configuration Debug -derivedDataPath ./build/labs101-dd build
 
-# Angeschlossenes iPhone (IDs über `xcrun xctrace list devices` bzw. `xcrun devicectl list devices`)
+# Connected iPhone (IDs via `xcrun xctrace list devices` or `xcrun devicectl list devices`)
 xcodebuild -project labs-101.xcodeproj -scheme labs-101 \
   -destination 'platform=iOS,id=<XCODE_DEVICE_ID>' \
   -configuration Debug -derivedDataPath ./build/labs101-dev \
@@ -144,15 +144,15 @@ xcrun devicectl device install app \
   ./build/labs101-dev/Build/Products/Debug-iphoneos/labs-101.app
 ```
 
-## Daten importieren
+## Importing data
 
-Die Rohdaten liegen in `data/` (git-ignoriert), die Import-Skripte in [`scripts/`](scripts/).
+The raw data lives in `data/` (git-ignored), the import scripts in [`scripts/`](scripts/).
 
-| Skript | Zweck |
+| Script | Purpose |
 | --- | --- |
-| `import_BLS_data.py` | Importiert den Bundeslebensmittelschlüssel (Excel) über die Backend-API, das Access-Token kommt aus `ACCESS_TOKEN`. Benötigt `pandas`, `openpyxl`, `requests`. |
-| `off_copy_import.py` | Streamt den Open-Food-Facts-CSV-Export (~6 GB) per `COPY` direkt in die Tabelle `open_food`. Benötigt `psycopg2-binary`. |
-| `seed_exercises.sql` | Grundstock an Übungen inkl. Muskelgruppen für die Muskelkarte. |
+| `import_BLS_data.py` | Imports the Bundeslebensmittelschlüssel (Excel) through the backend API; the access token comes from `ACCESS_TOKEN`. Requires `pandas`, `openpyxl`, `requests`. |
+| `off_copy_import.py` | Streams the Open Food Facts CSV export (~6 GB) via `COPY` directly into the `open_food` table. Requires `psycopg2-binary`. |
+| `seed_exercises.sql` | Base set of exercises including muscle groups for the muscle map. |
 
 ```sh
 # Open Food Facts
@@ -160,102 +160,108 @@ python scripts/off_copy_import.py \
   --dsn "postgresql://user:abc123@localhost:5432/labs101" \
   --file data/en.openfoodfacts.org.products.csv
 
-# Übungen
+# Exercises
 docker exec -i postgres-labs-101 psql -U user -d labs101 < scripts/seed_exercises.sql
 ```
 
 ## API
 
-Alle Endpunkte liegen unter `/api` und verlangen ein Access-Token von Zitadel im Header `Authorization: Bearer …`. Der Nutzer kommt aus dem Token (`sub`), nutzerbezogene Pfade beginnen deshalb mit `/api/users/me`. Beim ersten Request legt das Backend den Nutzer in der Tabelle `user` an. Die wichtigsten Ressourcen:
+All endpoints live under `/api` and require a Zitadel access token in the `Authorization: Bearer …` header. The user is taken from the token (`sub`), so user-specific paths start with `/api/users/me`. On the first request the backend creates the user in the `user` table. The main resources:
 
-| Pfad | Inhalt |
+| Path | Content |
 | --- | --- |
-| `/api/foods` | Lebensmittel, Suche, Barcode, Open Food Facts, Text-Extraktion, Tracking |
-| `/api/workouts` | Workout-Vorlagen und Übungen |
-| `/api/calendar` | Kalendereinträge des Planers |
-| `/api/users/me/tracked-foods` | Getrackte Mahlzeiten |
-| `/api/users/me/workout-sessions` | Aktive und abgeschlossene Trainings |
-| `/api/users/me/runs` | Ausgewertete Läufe |
-| `/api/users/me/health` | Health-Sync: Samples, Characteristics, Schreibaufträge |
-| `/api/users/me/health/overview` | Kennzahlen für die Startseite |
-| `/api/users/me/settings` | Nutzereinstellungen |
+| `/api/foods` | Foods, search, barcode, Open Food Facts, text extraction, tracking |
+| `/api/workouts` | Workout templates and exercises |
+| `/api/calendar` | Planner calendar entries |
+| `/api/users/me/tracked-foods` | Tracked meals |
+| `/api/users/me/workout-sessions` | Active and completed workouts |
+| `/api/users/me/runs` | Analyzed runs |
+| `/api/users/me/health` | Health sync: samples, characteristics, write requests |
+| `/api/users/me/health/overview` | Key metrics for the home page |
+| `/api/users/me/settings` | User settings |
 
-Eine fertige Request-Sammlung für [Bruno](https://www.usebruno.com/) liegt in [`bruno-labs-101/`](bruno-labs-101/) (Environments `development` und `production`). Das Token kommt in die Environment-Variable `access_token`, z. B. von einem Service-User in Zitadel (Token-Typ JWT) per Client Credentials:
+A ready-made request collection for [Bruno](https://www.usebruno.com/) is in [`bruno-labs-101/`](bruno-labs-101/) (environments `development` and `production`). The token goes into the environment variable `access_token`, e.g. from a service user in Zitadel (token type JWT) via client credentials:
 
 ```sh
 curl -s -u '<client id>:<client secret>' -d 'grant_type=client_credentials&scope=openid' \
   https://auth.project101.tech/oauth/v2/token | jq -r .access_token
 ```
 
-## Claude verbinden (MCP)
+## Connecting Claude (MCP)
 
-Das Backend ist unter `/api/mcp` ein [MCP-Server](https://modelcontextprotocol.io) (Streamable HTTP), Code in [`backend/…/mcp`](backend/src/main/java/com/labs_101/backend/mcp). Claude meldet sich wie die Apps über Zitadel an, jeder sieht nur seine eigenen Daten. Bis auf das Tracken von Essen lesen alle Tools nur:
+The backend is an [MCP server](https://modelcontextprotocol.io) (Streamable HTTP) at `/api/mcp`, code in [`backend/…/mcp`](backend/src/main/java/com/labs_101/backend/mcp). Claude signs in through Zitadel just like the apps, and everyone only sees their own data. All tools are read-only except the ones marked **writes**, which track food, create workout templates and plan calendar events:
 
-| Tool | Inhalt |
+| Tool | Content |
 | --- | --- |
-| `get_profile` | Streak, Aktivitätstage, Achievements, Kalorienziel |
-| `get_daily_health_overview` | Schlaf, Erholung, Belastung, Aktivität, Vitalwerte eines Tages |
-| `list_health_data_types` / `get_health_samples` | Synchronisierte Apple-Health-Typen und ihre Rohdaten |
-| `list_workouts` / `list_workout_templates` | Abgeschlossene Trainings mit Sätzen und Notizen, Trainingspläne |
-| `list_runs` / `get_run` | Läufe mit Splits, Puls und Route |
-| `get_nutrition` | Getrackte Mahlzeiten pro Tag (max. 31 Tage) |
-| `search_foods` | Lebensmittel suchen, mit Nährwerten pro 100 g, Portionen und zuletzt getrackter Menge |
-| `track_food` | **schreibt:** Lebensmittel in Gramm oder Portionen für eine Mahlzeit tracken, auch für einen vergangenen Tag |
-| `delete_tracked_food` | **schreibt:** einen eigenen getrackten Eintrag löschen |
-| `list_calendar_events` | Geplante Termine |
+| `get_profile` | Streak, active days, achievements, calorie goal |
+| `get_daily_health_overview` | Sleep, recovery, strain, activity, vitals for one day |
+| `list_health_data_types` / `get_health_samples` | Synced Apple Health types and their raw data |
+| `list_workouts` / `list_workout_templates` | Completed workouts with sets and notes, workout plans |
+| `list_exercises` | Exercises with their ID and type (strength or cardio), for `create_workout_template` |
+| `create_workout_template` | **writes:** create a workout template from exercises with sets (strength) or minutes (cardio) |
+| `list_runs` / `get_run` | Runs with splits, heart rate and route |
+| `get_nutrition` | Tracked meals per day (max. 31 days) |
+| `search_foods` | Search foods, with nutrients per 100 g, portions and the last tracked amount |
+| `track_food` | **writes:** track a food in grams or portions for a meal, also for a past day |
+| `delete_tracked_food` | **writes:** delete one of your own tracked entries |
+| `list_calendar_events` | Planned events (default: the next 14 days) |
+| `create_calendar_event` | **writes:** plan an event, optionally with a workout template and a daily/weekly/monthly recurrence |
 
-Ohne Token antwortet `/api/mcp` mit `401` und `WWW-Authenticate: Bearer resource_metadata="…"`, unter `/.well-known/oauth-protected-resource/api/mcp` steht, dass Zitadel die Tokens ausstellt (RFC 9728). Claude-Anfragen zählen nicht als Login für den Streak.
+Without a token, `/api/mcp` responds with `401` and `WWW-Authenticate: Bearer resource_metadata="…"`; `/.well-known/oauth-protected-resource/api/mcp` states that Zitadel issues the tokens (RFC 9728). Claude requests do not count as a login for the streak.
 
-Einrichtung:
+Setup:
 
-1. In Zitadel im Projekt `labs-101` eine **Web-App** `Claude` anlegen: Authentifizierung *Code* (Client Secret), Redirect-URI `https://claude.ai/api/mcp/auth_callback`. Unter *Token Settings* **Auth Token Type JWT** und *Refresh Token* aktivieren.
-2. In Claude unter *Einstellungen → Connectors → Benutzerdefinierten Connector hinzufügen* die URL `https://api.project101.tech/api/mcp` eintragen (muss genau `MCP_RESOURCE_URL` entsprechen) und unter *Erweiterte Einstellungen* Client-ID und Client-Secret der App aus Schritt 1.
-3. *Verbinden* – es öffnet sich der Login von Zitadel, danach kann Claude z. B. „Wie hat sich mein Bankdrücken in den letzten 3 Monaten entwickelt?“ beantworten.
+1. In Zitadel, create a **web app** `Claude` in the `labs-101` project: authentication *Code* (client secret), redirect URI `https://claude.ai/api/mcp/auth_callback`. Under *Token Settings*, enable **Auth Token Type JWT** and *Refresh Token*.
+2. In Claude, under *Settings → Connectors → Add custom connector*, enter the URL `https://api.project101.tech/api/mcp` (must match `MCP_RESOURCE_URL` exactly) and, under *Advanced settings*, the client ID and client secret of the app from step 1.
+3. *Connect* – Zitadel's login opens; afterwards Claude can answer questions like "How has my bench press developed over the last 3 months?".
 
-Zitadel hat keine Dynamic Client Registration, deshalb die eigene App mit Client-ID und Secret. Für Claude Code bräuchte die App zusätzlich die Loopback-Redirects `http://localhost/callback` und `http://127.0.0.1/callback` mit beliebigem Port.
+Zitadel does not support Dynamic Client Registration, hence the dedicated app with client ID and secret. For Claude Code, the app would additionally need the loopback redirects `http://localhost/callback` and `http://127.0.0.1/callback` with any port.
 
-## Authentifizierung (Zitadel)
+## Authentication (Zitadel)
 
-Einmalige Einrichtung in der Zitadel-Console (`/ui/console`, Login mit `ZITADEL_ADMIN_USERNAME@labs-101.<domain>`, das Passwort muss beim ersten Login geändert werden):
+One-time setup in the Zitadel console (`/ui/console`, log in with `ZITADEL_ADMIN_USERNAME@labs-101.<domain>`; the password must be changed on first login):
 
-1. **Projekt** `labs-101` anlegen.
-2. **Web-App** im Projekt: Typ *Web*, Authentifizierung *Code* (Client Secret), Redirect-URI `https://project101.tech/auth/callback`, Post-Logout-URI `https://project101.tech/sign-in` (lokal `http://localhost:3000/…`, dafür *Development Mode* aktivieren). Client-ID und Secret → `AUTH_CLIENT_ID` / `AUTH_CLIENT_SECRET`.
-3. **Native App** im Projekt: Typ *Native*, Authentifizierung *PKCE*, Redirect-URI `labs101://auth/callback`. Client-ID → `AUTH_CLIENT_ID` in `ios/Config/Secrets.xcconfig`.
-4. Bei **beiden Apps** unter *Token Settings* den **Auth Token Type auf JWT** stellen und *Refresh Token* erlauben. Das Backend prüft die Tokens nur über die Schlüssel von Zitadel und kann mit undurchsichtigen Tokens nichts anfangen.
-5. **Google** (#82): unter *Settings → Identity Providers* Google mit Client-ID/Secret aus der Google Cloud Console anlegen (Redirect-URI zeigt Zitadel an) und in den *Login Settings* aktivieren.
-6. **Profilbilder:** die ID der Organisation, in der die Nutzer liegen (Console → *Organization*, steht beim Namen), als `ZITADEL_ORG_ID` für Backend und Frontend eintragen.
-7. **Registrierung abschalten** (*Login Settings → Register allowed* aus) und Nutzer selbst anlegen bzw. einladen. Das ersetzt die frühere Allowlist `ALLOWED_EMAIL_ADDRESSES`. Für Google-Logins *Account creation* beim Identity Provider aus und *Account linking* per E-Mail an lassen.
+1. Create the **project** `labs-101`.
+2. **Web app** in the project: type *Web*, authentication *Code* (client secret), redirect URI `https://project101.tech/auth/callback`, post-logout URI `https://project101.tech/sign-in` (locally `http://localhost:3000/…`, enable *Development Mode* for that). Client ID and secret → `AUTH_CLIENT_ID` / `AUTH_CLIENT_SECRET`.
+3. **Native app** in the project: type *Native*, authentication *PKCE*, redirect URI `labs101://auth/callback`. Client ID → `AUTH_CLIENT_ID` in `ios/Config/Secrets.xcconfig`.
+4. For **both apps**, set the **Auth Token Type to JWT** under *Token Settings* and allow *Refresh Token*. The backend validates tokens only against Zitadel's keys and cannot handle opaque tokens.
+5. **Google** (#82): under *Settings → Identity Providers*, add Google with the client ID/secret from the Google Cloud Console (Zitadel shows the redirect URI) and enable it in the *Login Settings*.
+6. **Profile pictures:** enter the ID of the organization the users belong to (console → *Organization*, shown next to the name) as `ZITADEL_ORG_ID` for backend and frontend.
+7. **Disable registration** (*Login Settings → Register allowed* off) and create or invite users yourself. This replaces the former allowlist `ALLOWED_EMAIL_ADDRESSES`. For Google logins, turn *Account creation* off at the identity provider and leave *Account linking* by email on.
 
-**Profile** (Name, E-Mail, Profilbild) pflegt jeder Nutzer selbst in Zitadel unter `/ui/console/users/me`, Web und iOS verlinken dorthin. Das Backend speichert keine Kopie davon. Profilbilder haben wie bei GitHub eine feste URL pro Nutzer, `${AUTH_ISSUER}/assets/v1/${ZITADEL_ORG_ID}/users/<user id>/avatar`, ein neues Bild erscheint dort ohne Abgleich. Ohne Bild antwortet Zitadel mit 404, die Apps zeigen dann den Anfangsbuchstaben. Bilder als JPG oder PNG hochladen, HEIC (iPhone-Fotos) zeigen Chrome und Firefox nicht an. Das eigene Profil (`GET /api/users/me`) holt das Backend über den Userinfo-Endpunkt mit dem Token des Nutzers.
+**Profiles** (name, email, profile picture) are maintained by each user in Zitadel at `/ui/console/users/me`; web and iOS link there. The backend does not store a copy. Like on GitHub, profile pictures have a fixed URL per user, `${AUTH_ISSUER}/assets/v1/${ZITADEL_ORG_ID}/users/<user id>/avatar`, so a new picture shows up there without any syncing. Without a picture Zitadel responds with 404 and the apps show the initial instead. Upload pictures as JPG or PNG; Chrome and Firefox don't display HEIC (iPhone photos). The backend fetches the user's own profile (`GET /api/users/me`) from the userinfo endpoint using the user's token.
 
-Produktion: Zitadel läuft nicht mehr in diesem Compose, sondern als gemeinsamer Identity Provider für alle Apps im Kubernetes-Cluster (Helm-Chart `helm/auth` im Repo [`infra`](https://github.com/Dannyyy101/infra)). Ein Cloudflare Tunnel leitet `auth.project101.tech` an den Service `auth-zitadel.auth.svc.cluster.local:8085` weiter. Backend und Frontend brauchen davon nur `AUTH_ISSUER=https://auth.project101.tech`.
+Production: Zitadel no longer runs in this Compose setup but as the shared identity provider for all apps in the Kubernetes cluster (Helm chart `helm/auth` in the [`infra`](https://github.com/Dannyyy101/infra) repo). A Cloudflare Tunnel forwards `auth.project101.tech` to the service `auth-zitadel.auth.svc.cluster.local:8085`. Backend and frontend only need `AUTH_ISSUER=https://auth.project101.tech` from that.
 
-### Umstieg von Better Auth
+### Migrating from Better Auth
 
-Bestehende Daten hängen an den alten Better-Auth-IDs. Für jeden Nutzer nach dem Anlegen in Zitadel einmal (die Zitadel-ID steht in der Console beim User):
+Existing data is tied to the old Better Auth IDs. For each user, after creating them in Zitadel, run once (the Zitadel ID is shown on the user in the console):
 
 ```sh
 docker exec -i postgres-labs-101 psql -U user -d labs101 \
   -c "SELECT move_user(id, '<zitadel user id>') FROM \"user\" WHERE email = 'max@example.com' AND id <> '<zitadel user id>'"
 ```
 
-`move_user` (Flyway-Migration V5) zieht alle Daten über die Foreign Keys auf die neue ID um, auch wenn sich der Nutzer schon neu angemeldet hat. Danach entfernt [`scripts/drop_better_auth_tables.sql`](scripts/drop_better_auth_tables.sql) die alten Tabellen `session`, `account` und `verification`. Das Skript bricht ab, solange noch Nutzer mit Better-Auth-ID existieren.
+`move_user` (Flyway migration V5) moves all data to the new ID via the foreign keys, even if the user has already signed in again. Afterwards, [`scripts/drop_better_auth_tables.sql`](scripts/drop_better_auth_tables.sql) removes the old tables `session`, `account` and `verification`. The script aborts as long as users with a Better Auth ID still exist.
 
-## Projektstruktur
+## Project structure
 
 ```
 .
-├── backend/            Spring-Boot-API
-├── frontend/           Next.js-Web-App
-├── ios/                SwiftUI-App mit HealthKit-Sync
-├── bruno-labs-101/     API-Requests für Bruno
-├── documents/          Architektur-Doku (Health-Sync, DB-Diagramme)
-├── scripts/            Datenimporte und Seeds
-├── data/               Rohdaten für Importe (nicht im Repo)
-└── docker-compose.yml  DB, Backend und Frontend
+├── backend/            Spring Boot API
+├── frontend/           Next.js web app
+├── ios/                SwiftUI app with HealthKit sync
+├── api/                OpenAPI spec, the shared API contract
+├── deploy/helm/        Helm chart for the Kubernetes deployment
+├── bruno-labs-101/     API requests for Bruno
+├── documents/          Architecture docs (health sync, DB diagrams)
+├── scripts/            Data imports and seeds
+├── data/               Raw data for imports (not in the repo)
+└── docker-compose.yml  DB, backend and frontend
 ```
 
 ## CI/CD
 
-- **Test And Build** ([`.github/workflows/test-build.yaml`](.github/workflows/test-build.yaml)) – bei jedem Pull Request: `mvn verify` für das Backend gegen eine Postgres aus Docker, `npm run build` für das Frontend.
-- **Deploy to server** ([`.github/workflows/deployment.yaml`](.github/workflows/deployment.yaml)) – bei Push auf `main`: `docker compose up -d --build` auf einem Self-hosted Runner, die Secrets kommen aus dem GitHub-Environment `production`.
+- **Test And Build** ([`.github/workflows/test-build.yaml`](.github/workflows/test-build.yaml)) – on every pull request: `mvn verify` for the backend against a Postgres in Docker, `npm run build` for the frontend. Both jobs also check that the API contract is up to date: the backend build regenerates [`api/openapi.json`](api/openapi.json), the frontend regenerates its API types from it, and the job fails if either file changed.
+- **Images** ([`.github/workflows/images.yaml`](.github/workflows/images.yaml)) – on push to `main` (only when `backend/` or `frontend/` changed, or manually): builds the images of the changed components and pushes them to `ghcr.io/dannyyy101/labs-101-backend` / `-frontend`, tagged with the commit SHA and `latest`. It then writes the new tags into `values/labs-101.yaml` in the [`infra`](https://github.com/Dannyyy101/infra) repo (deploy key `INFRA_DEPLOY_KEY` from the GitHub environment `production`).
+- **Deployment (GitOps)** – Argo CD watches the infra repo and deploys exactly those builds to the Kubernetes cluster with the Helm chart [`deploy/helm/labs-101`](deploy/helm/labs-101) (frontend, backend, Postgres, ingress, ServiceMonitor and the Grafana dashboard for the backend). The workflows never touch the cluster themselves. Manual installation and the required secrets are described in the [chart README](deploy/helm/labs-101/README.md).
