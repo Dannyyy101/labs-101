@@ -60,6 +60,13 @@ backend:
   calendarImportAllowedHosts: icloud.com
   # public URL of the MCP server for Claude, defaults to https://<hosts.backend>/api/mcp
   mcpResourceUrl: ""
+  # actuator (health probes, /actuator/prometheus), never routed publicly
+  managementPort: 9090
+  metrics:
+    serviceMonitor:
+      # needs the prometheus operator (kube-prometheus-stack)
+      enabled: false
+      interval: 30s
   javaOpts: "-XX:MaxRAMPercentage=75"
   extraEnv: []
   resources:

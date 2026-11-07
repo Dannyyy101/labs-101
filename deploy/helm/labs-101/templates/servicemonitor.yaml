@@ -1,0 +1,17 @@
+{{- if and .Values.backend.enabled .Values.backend.metrics.serviceMonitor.enabled }}
+# picked up by the prometheus operator (kube-prometheus-stack in the infra repo)
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: {{ include "labs101.fullname" . }}-backend
+  labels:
+    {{- include "labs101.labels" . | nindent 4 }}
+spec:
+  selector:
+    matchLabels:
+      {{- include "labs101.selectorLabels" (list . "backend") | nindent 6 }}
+  endpoints:
+    - port: management
+      path: /actuator/prometheus
+      interval: {{ .Values.backend.metrics.serviceMonitor.interval }}
+{{- end }}

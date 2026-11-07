@@ -6,6 +6,8 @@ metadata:
   name: {{ $name }}
   labels:
     {{- include "labs101.labels" . | nindent 4 }}
+    # the ServiceMonitor selects the service by these
+    {{- include "labs101.selectorLabels" (list . "backend") | nindent 4 }}
 spec:
   selector:
     {{- include "labs101.selectorLabels" (list . "backend") | nindent 4 }}
@@ -13,6 +15,10 @@ spec:
     - name: http
       port: 8080
       targetPort: http
+    # actuator (health, prometheus), only reachable inside the cluster
+    - name: management
+      port: {{ .Values.backend.managementPort }}
+      targetPort: management
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -44,7 +50,11 @@ spec:
           ports:
             - name: http
               containerPort: 8080
+            - name: management
+              containerPort: {{ .Values.backend.managementPort }}
           env:
+            - name: MANAGEMENT_PORT
+              value: {{ .Values.backend.managementPort | quote }}
             - name: SPRING_DATASOURCE_URL
               value: "jdbc:postgresql://{{ include "labs101.postgresHost" . }}:{{ .Values.postgres.port }}/{{ .Values.postgres.database }}"
             {{- include "labs101.secretEnv" (list . "SPRING_DATASOURCE_USERNAME" "POSTGRES_USERNAME") | nindent 12 }}
@@ -72,19 +82,23 @@ spec:
             {{- with .Values.backend.extraEnv }}
             {{- toYaml . | nindent 12 }}
             {{- end }}
-          # no actuator in the backend, so only the port is checked
+          # spring boot's availability state: readiness is down while starting or shutting down,
+          # liveness only when the app is broken, a slow database doesn't restart the pod
           startupProbe:
-            tcpSocket:
-              port: http
+            httpGet:
+              path: /actuator/health/liveness
+              port: management
             periodSeconds: 5
             failureThreshold: 60
           readinessProbe:
-            tcpSocket:
-              port: http
+            httpGet:
+              path: /actuator/health/readiness
+              port: management
             periodSeconds: 10
           livenessProbe:
-            tcpSocket:
-              port: http
+            httpGet:
+              path: /actuator/health/liveness
+              port: management
             periodSeconds: 30
           resources:
             {{- toYaml .Values.backend.resources | nindent 12 }}
