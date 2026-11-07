@@ -67,6 +67,9 @@ backend:
       # needs the prometheus operator (kube-prometheus-stack)
       enabled: false
       interval: 30s
+    # grafana dashboard as a config map, needs the dashboard sidecar of grafana
+    dashboard:
+      enabled: false
   javaOpts: "-XX:MaxRAMPercentage=75"
   extraEnv: []
   resources:

@@ -3,3 +3,5 @@
 *.bak
 *.tmp
 values-*.local.yaml
+# generator of the dashboards, only its json output is part of the chart
+dashboards/*.py
