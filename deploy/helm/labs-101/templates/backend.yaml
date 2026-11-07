@@ -1,0 +1,91 @@
+{{- if .Values.backend.enabled }}
+{{- $name := printf "%s-backend" (include "labs101.fullname" .) }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ $name }}
+  labels:
+    {{- include "labs101.labels" . | nindent 4 }}
+spec:
+  selector:
+    {{- include "labs101.selectorLabels" (list . "backend") | nindent 4 }}
+  ports:
+    - name: http
+      port: 8080
+      targetPort: http
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ $name }}
+  labels:
+    {{- include "labs101.labels" . | nindent 4 }}
+    {{- include "labs101.selectorLabels" (list . "backend") | nindent 4 }}
+spec:
+  replicas: {{ .Values.backend.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "labs101.selectorLabels" (list . "backend") | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "labs101.selectorLabels" (list . "backend") | nindent 8 }}
+      annotations:
+        checksum/secret: {{ include (print $.Template.BasePath "/secret.yaml") . | sha256sum }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: backend
+          image: "{{ .Values.backend.image.repository }}:{{ .Values.backend.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.backend.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: 8080
+          env:
+            - name: SPRING_DATASOURCE_URL
+              value: "jdbc:postgresql://{{ include "labs101.postgresHost" . }}:{{ .Values.postgres.port }}/{{ .Values.postgres.database }}"
+            {{- include "labs101.secretEnv" (list . "SPRING_DATASOURCE_USERNAME" "POSTGRES_USERNAME") | nindent 12 }}
+            {{- include "labs101.secretEnv" (list . "SPRING_DATASOURCE_PASSWORD" "POSTGRES_PASSWORD") | nindent 12 }}
+            - name: SPRING_JPA_HIBERNATE_DDL_AUTO
+              value: {{ .Values.backend.ddlAuto | quote }}
+            - name: AUTH_ISSUER
+              value: {{ include "labs101.authIssuer" . | quote }}
+            - name: AUTH_AUDIENCE
+              value: {{ .Values.auth.audience | quote }}
+            - name: ZITADEL_ORG_ID
+              value: {{ .Values.auth.zitadelOrgId | quote }}
+            {{- include "labs101.optionalSecretEnv" (list . "GEMINI_API_KEY" "GEMINI_API_KEY") | nindent 12 }}
+            - name: GEMINI_MODEL
+              value: {{ .Values.backend.geminiModel | quote }}
+            - name: FOOD_IMAGE_DAILY_LIMIT
+              value: {{ .Values.backend.foodImageDailyLimit | quote }}
+            - name: CALENDAR_IMPORT_ALLOWED_HOSTS
+              value: {{ .Values.backend.calendarImportAllowedHosts | quote }}
+            {{- include "labs101.optionalSecretEnv" (list . "CALENDAR_ENCRYPTION_KEY" "CALENDAR_ENCRYPTION_KEY") | nindent 12 }}
+            - name: MCP_RESOURCE_URL
+              value: {{ .Values.backend.mcpResourceUrl | default (printf "https://%s/api/mcp" .Values.hosts.backend) | quote }}
+            - name: JAVA_TOOL_OPTIONS
+              value: {{ .Values.backend.javaOpts | quote }}
+            {{- with .Values.backend.extraEnv }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
+          # no actuator in the backend, so only the port is checked
+          startupProbe:
+            tcpSocket:
+              port: http
+            periodSeconds: 5
+            failureThreshold: 60
+          readinessProbe:
+            tcpSocket:
+              port: http
+            periodSeconds: 10
+          livenessProbe:
+            tcpSocket:
+              port: http
+            periodSeconds: 30
+          resources:
+            {{- toYaml .Values.backend.resources | nindent 12 }}
+{{- end }}

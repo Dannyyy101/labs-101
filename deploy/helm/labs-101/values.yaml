@@ -1,0 +1,105 @@
+# public hosts, one ingress rule per component
+hosts:
+  frontend: project101.tech
+  backend: api.project101.tech
+
+imagePullSecrets: []
+
+# secrets of all components; either set them here (e.g. with --set or a values file that is not committed)
+# or create the secret yourself with the same keys and name it in existingSecret
+secrets:
+  existingSecret: ""
+  postgresUsername: ""
+  postgresPassword: ""
+  # web app in zitadel (confidential client, code flow with PKCE)
+  authClientId: ""
+  authClientSecret: ""
+  # encrypts the session cookie, at least 32 random characters
+  authSecret: ""
+  # optional: photos of meals are analyzed by Gemini
+  geminiApiKey: ""
+  # optional: encrypts the app-specific passwords of connected Apple accounts, openssl rand -base64 32
+  calendarEncryptionKey: ""
+
+# shared zitadel of all apps (infra/helm/auth), used by backend and frontend
+auth:
+  # public URL of zitadel, has to match the iss claim of the tokens
+  issuer: https://auth.project101.tech
+  # optional id of the zitadel project, empty accepts tokens of every project
+  audience: ""
+  # organization of the users in zitadel, for the URLs of the profile pictures
+  zitadelOrgId: ""
+
+frontend:
+  enabled: true
+  replicaCount: 1
+  image:
+    repository: ghcr.io/dannyyy101/labs-101-frontend
+    tag: latest
+    pullPolicy: Always
+  # public URL of the frontend, defaults to https://<hosts.frontend>
+  appUrl: ""
+  extraEnv: []
+  resources:
+    requests:
+      cpu: 50m
+      memory: 192Mi
+    limits:
+      memory: 512Mi
+
+backend:
+  enabled: true
+  replicaCount: 1
+  image:
+    repository: ghcr.io/dannyyy101/labs-101-backend
+    tag: latest
+    pullPolicy: Always
+  ddlAuto: update
+  geminiModel: gemini-3.8-flash,gemini-3.6-flash,gemini-3.5-flash-lite
+  foodImageDailyLimit: 5
+  calendarImportAllowedHosts: icloud.com
+  # public URL of the MCP server for Claude, defaults to https://<hosts.backend>/api/mcp
+  mcpResourceUrl: ""
+  javaOpts: "-XX:MaxRAMPercentage=75"
+  extraEnv: []
+  resources:
+    requests:
+      cpu: 100m
+      memory: 512Mi
+    limits:
+      memory: 1Gi
+
+postgres:
+  # false to use an external database, then set host
+  enabled: true
+  host: ""
+  port: 5432
+  database: labs101
+  image:
+    repository: postgres
+    tag: "18"
+    pullPolicy: IfNotPresent
+  persistence:
+    size: 10Gi
+    storageClass: ""
+  resources:
+    requests:
+      cpu: 50m
+      memory: 256Mi
+    limits:
+      memory: 1Gi
+
+ingress:
+  enabled: true
+  className: nginx
+  annotations: {}
+  # e.g. cert-manager.io/cluster-issuer: letsencrypt
+  # photos of meals, up to 11 MB
+  backendAnnotations:
+    nginx.ingress.kubernetes.io/proxy-body-size: 12m
+  frontendAnnotations:
+    nginx.ingress.kubernetes.io/proxy-body-size: 12m
+  tls:
+    enabled: true
+    # prefix, every host gets <secretName>-<component>, e.g. created by cert-manager
+    secretName: labs-101-tls

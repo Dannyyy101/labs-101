@@ -53,6 +53,9 @@ services:
   zitadel:
     container_name: zitadel-labs-101
     image: ghcr.io/zitadel/zitadel:v4.19.4
+    # only for local development: production uses the shared zitadel of the infra repo (helm/auth).
+    # starts with `docker compose --profile local up` or when named, e.g. `docker compose up -d db zitadel`
+    profiles: ["local"]
     # creates database, user and the first instance on the first start, later starts only run the migrations;
     # TLS is terminated by the reverse proxy in front of auth.project101.tech
     command: start-from-init --masterkeyFromEnv --tlsMode ${ZITADEL_TLS_MODE:-external}

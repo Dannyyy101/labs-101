@@ -21,9 +21,6 @@ jobs:
               env:
                   POSTGRES_USERNAME: ${{ secrets.POSTGRES_USERNAME }}
                   POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
-                  ZITADEL_MASTERKEY: ${{ secrets.ZITADEL_MASTERKEY }}
-                  ZITADEL_DB_PASSWORD: ${{ secrets.ZITADEL_DB_PASSWORD }}
-                  ZITADEL_ADMIN_PASSWORD: ${{ secrets.ZITADEL_ADMIN_PASSWORD }}
                   AUTH_CLIENT_ID: ${{ secrets.AUTH_CLIENT_ID }}
                   AUTH_CLIENT_SECRET: ${{ secrets.AUTH_CLIENT_SECRET }}
                   AUTH_SECRET: ${{ secrets.AUTH_SECRET }}

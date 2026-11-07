@@ -39,8 +39,8 @@
 		65DC12D73038BBD0009BECA7 /* labs-101.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "labs-101.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		65DC12F13038BBD2009BECA7 /* Config.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Config.xcconfig; sourceTree = "<group>"; };
 		65DC12F23038BBD2009BECA7 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		A7E100000000000000000002 /* Watch-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "Watch-Info.plist"; sourceTree = "<group>"; };
 		A7E100000000000000000001 /* labs-101-watch.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "labs-101-watch.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		A7E100000000000000000002 /* Watch-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "Watch-Info.plist"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */

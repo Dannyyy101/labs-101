@@ -9,8 +9,8 @@ Das Projekt besteht aus drei Clients/Diensten und dem Identity Provider Zitadel,
 | [`backend/`](backend/) | Spring Boot 4 · Java 25 · JPA · Flyway | REST-API unter `/api`, Geschäftslogik, Datenbank-Migrationen |
 | [`frontend/`](frontend/) | Next.js 16 · React 19 · Tailwind 4 · shadcn · openid-client | Web-App mit Login, Dashboards und Formularen |
 | [`ios/`](ios/) | SwiftUI · HealthKit (iOS 26.5) | Apple-Health-Sync, Essen- und Workout-Tracking unterwegs |
-| Zitadel | Docker (v4) | Identity Provider unter `auth.project101.tech`: Login mit Passwort, Passkey oder Google |
-| Postgres | Docker | Datenbanken `labs101` (App-Daten) und `zitadel` |
+| Zitadel | Docker (v4) lokal, Helm-Chart `helm/auth` im Infra-Repo in Produktion | Gemeinsamer Identity Provider aller Apps unter `auth.project101.tech`: Login mit Passwort, Passkey oder Google |
+| Postgres | Docker | Datenbank `labs101` (App-Daten), lokal zusätzlich `zitadel` |
 
 ```mermaid
 flowchart LR
@@ -41,8 +41,10 @@ Voraussetzung: Docker mit Compose.
 
 ```sh
 cp .env.example .env   # und Werte ergänzen, siehe unten
-docker compose up -d --build
+docker compose --profile local up -d --build
 ```
+
+Zitadel gehört zum Compose-Profil `local`. Ohne `--profile local` startet es nicht, so wie auf dem Server, wo das gemeinsame Zitadel aus dem Infra-Repo läuft.
 
 Danach laufen:
 
@@ -226,7 +228,7 @@ Einmalige Einrichtung in der Zitadel-Console (`/ui/console`, Login mit `ZITADEL_
 
 **Profile** (Name, E-Mail, Profilbild) pflegt jeder Nutzer selbst in Zitadel unter `/ui/console/users/me`, Web und iOS verlinken dorthin. Das Backend speichert keine Kopie davon. Profilbilder haben wie bei GitHub eine feste URL pro Nutzer, `${AUTH_ISSUER}/assets/v1/${ZITADEL_ORG_ID}/users/<user id>/avatar`, ein neues Bild erscheint dort ohne Abgleich. Ohne Bild antwortet Zitadel mit 404, die Apps zeigen dann den Anfangsbuchstaben. Bilder als JPG oder PNG hochladen, HEIC (iPhone-Fotos) zeigen Chrome und Firefox nicht an. Das eigene Profil (`GET /api/users/me`) holt das Backend über den Userinfo-Endpunkt mit dem Token des Nutzers.
 
-Produktion: Der Reverse Proxy leitet `auth.project101.tech` per HTTP/2 (h2c) auf Port `8081` weiter. Zitadel braucht dafür `ZITADEL_TLS_MODE=external`.
+Produktion: Zitadel läuft nicht mehr in diesem Compose, sondern als gemeinsamer Identity Provider für alle Apps im Kubernetes-Cluster (Helm-Chart `helm/auth` im Repo [`infra`](https://github.com/Dannyyy101/infra)). Ein Cloudflare Tunnel leitet `auth.project101.tech` an den Service `auth-zitadel.auth.svc.cluster.local:8085` weiter. Backend und Frontend brauchen davon nur `AUTH_ISSUER=https://auth.project101.tech`.
 
 ### Umstieg von Better Auth
 
