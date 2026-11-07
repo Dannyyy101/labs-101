@@ -1,6 +1,6 @@
 'use client'
 
-import { Card, Segmented } from "@/components/dashboard"
+import { Card, chip, Segmented } from "@/components/dashboard"
 import { cn } from "@/lib/utils"
 import { Achievement } from "@/utils/types/profile"
 import { Lock } from "lucide-react"
@@ -42,16 +42,16 @@ export function Badge({ achievement, size = 76 }: { achievement: AchievementView
                 {label && <span className="font-bold leading-none tabular-nums drop-shadow-sm" style={{ fontSize: size * 0.2, marginTop: size * 0.04 }}>{label}</span>}
             </div>
             : <>
-                <div className="absolute inset-[6px] flex flex-col items-center justify-center rounded-full bg-muted text-muted-foreground/70">
+                <div className="absolute inset-[6px] flex flex-col items-center justify-center rounded-full glass-inset text-ink-muted/70">
                     <Icon style={{ width: size * 0.28, height: size * 0.28 }} strokeWidth={2.2} />
                     {label && <span className="font-bold leading-none tabular-nums" style={{ fontSize: size * 0.17, marginTop: size * 0.03 }}>{label}</span>}
                 </div>
                 <svg className="absolute inset-0 -rotate-90" viewBox={`0 0 ${size} ${size}`} aria-hidden>
-                    <circle cx={size / 2} cy={size / 2} r={radius} fill="none" strokeWidth={ring} className="stroke-muted" />
+                    <circle cx={size / 2} cy={size / 2} r={radius} fill="none" strokeWidth={ring} className="stroke-track" />
                     {ratio > 0 && <circle cx={size / 2} cy={size / 2} r={radius} fill="none" strokeWidth={ring} strokeLinecap="round"
                         stroke={style.color} strokeDasharray={`${circumference * ratio} ${circumference}`} />}
                 </svg>
-                <span className="absolute -bottom-0.5 -right-0.5 flex size-6 items-center justify-center rounded-full border-2 border-card bg-muted-foreground/80 text-white">
+                <span className="absolute -bottom-0.5 -right-0.5 flex size-6 items-center justify-center rounded-full border-2 border-surface-raised bg-ink-muted text-surface-raised">
                     <Lock className="size-3" strokeWidth={2.6} />
                 </span>
             </>}
@@ -59,7 +59,7 @@ export function Badge({ achievement, size = 76 }: { achievement: AchievementView
 }
 
 export function ProgressBar({ ratio, color, className }: { ratio: number, color: string, className?: string }) {
-    return <div className={cn("h-1.5 overflow-hidden rounded-full bg-muted", className)}>
+    return <div className={cn("h-1.5 overflow-hidden rounded-full bg-track", className)}>
         <div className="h-full rounded-full transition-[width] duration-500" style={{ width: `${Math.round(ratio * 100)}%`, background: color }} />
     </div>
 }
@@ -79,28 +79,28 @@ export function NextUp({ achievements, calorieGoal, own = true }: { achievements
 
     return <Card className="p-6">
         <div className="mb-4 flex items-baseline gap-2">
-            <h2 className="text-xl font-bold tracking-tight">Fast geschafft</h2>
-            <span className="text-sm text-muted-foreground">{own ? "Deine nächsten Ziele" : "Die nächsten Ziele"}</span>
+            <h2 className="text-heading">Fast geschafft</h2>
+            <span className="text-body text-ink-muted">{own ? "Deine nächsten Ziele" : "Die nächsten Ziele"}</span>
         </div>
         <div className="grid gap-3 sm:grid-cols-3">
             {next.map((a) => {
                 const color = CATEGORIES[a.category].color
-                return <div key={a.id} className="flex items-center gap-3.5 rounded-2xl bg-muted/60 p-3.5">
+                return <div key={a.id} className="flex items-center gap-3.5 rounded-[12px] glass-inset p-3.5">
                     <Badge achievement={a} size={56} />
                     <div className="min-w-0 flex-1">
                         <div className="flex items-baseline gap-2">
                             <p className="truncate font-semibold">{a.title}</p>
-                            <span className="ml-auto text-sm font-semibold tabular-nums" style={{ color }}>{Math.floor(a.ratio * 100)} %</span>
+                            <span className="ml-auto text-body font-semibold tabular-nums" style={{ color }}>{Math.floor(a.ratio * 100)} %</span>
                         </div>
                         <ProgressBar ratio={a.ratio} color={color} className="mt-1.5" />
-                        <p className="mt-1.5 truncate text-xs text-muted-foreground">{a.progressText}</p>
+                        <p className="mt-1.5 truncate text-label text-ink-muted">{a.progressText}</p>
                     </div>
                 </div>
             })}
         </div>
         {/* only the user can set their own goal, not on the profile of a friend */}
-        {own && calorieGoal == null && <p className="mt-3 text-sm text-muted-foreground">
-            Für „Punktlandung“ fehlt noch ein Kalorienziel – <Link href="/settings" className="text-blue-500 hover:underline">in den Einstellungen festlegen</Link>.
+        {own && calorieGoal == null && <p className="mt-3 text-body text-ink-muted">
+            Für „Punktlandung“ fehlt noch ein Kalorienziel – <Link href="/settings" className="text-brand-strong hover:underline">in den Einstellungen festlegen</Link>.
         </p>}
     </Card>
 }
@@ -118,14 +118,14 @@ export function AchievementList({ achievements, today }: { achievements: Achieve
     return <Card className="p-6">
         <div className="flex flex-wrap items-start gap-4">
             <div>
-                <h2 className="text-2xl font-bold tracking-tight">Achievements</h2>
-                <p className="text-muted-foreground">{done} von {achievements.length} erreicht</p>
+                <h2 className="text-heading">Achievements</h2>
+                <p className="text-ink-muted">{done} von {achievements.length} erreicht</p>
             </div>
             <Segmented value={filter} options={FILTERS} onChange={setFilter} />
         </div>
         <ProgressBar ratio={achievements.length ? done / achievements.length : 0} color="var(--foreground)" className="mt-5 h-2" />
 
-        {groups.length === 0 && <p className="py-10 text-center text-muted-foreground">
+        {groups.length === 0 && <p className="py-10 text-center text-ink-muted">
             {filter === "done" ? "Noch nichts erreicht – das erste Achievement ist nicht weit." : "Alles erreicht. Respekt!"}
         </p>}
 
@@ -136,7 +136,7 @@ export function AchievementList({ achievements, today }: { achievements: Achieve
                 <div className="mb-3 flex items-center gap-2">
                     <span className="size-2.5 rounded-full" style={{ background: style.color }} />
                     <h3 className="font-semibold">{style.label}</h3>
-                    <span className="text-sm text-muted-foreground tabular-nums">{all.filter((a) => a.achievedAt).length}/{all.length}</span>
+                    <span className="text-body text-ink-muted tabular-nums">{all.filter((a) => a.achievedAt).length}/{all.length}</span>
                 </div>
                 <div className="grid grid-cols-2 gap-3 xl:grid-cols-4">
                     {items.map((a) => <AchievementCard key={a.id} achievement={a} today={today} />)}
@@ -150,16 +150,16 @@ function AchievementCard({ achievement: a, today }: { achievement: AchievementVi
     const color = CATEGORIES[a.category].color
     const isNew = a.achievedAt && daysBetween(a.achievedAt, today) < NEW_DAYS
 
-    return <div className={cn("relative flex flex-col rounded-2xl bg-muted/60 p-4", !a.achievedAt && "bg-muted/35")}>
-        {isNew && <span className="absolute right-3 top-3 rounded-full px-2 py-0.5 text-xs font-semibold text-white" style={{ background: color }}>Neu</span>}
+    return <div className="glass-inset relative flex flex-col rounded-[12px] p-4">
+        {isNew && <span className={cn(chip, "absolute right-3 top-3 bg-brand-soft text-brand-strong")}>Neu</span>}
         <Badge achievement={a} />
-        <p className={cn("mt-3 font-semibold", !a.achievedAt && "text-foreground/80")}>{a.title}</p>
-        <p className="text-sm text-muted-foreground">{a.description}</p>
+        <p className={cn("mt-3 text-title", !a.achievedAt && "text-ink/80")}>{a.title}</p>
+        <p className="text-caption text-ink-muted">{a.description}</p>
         <div className="mt-auto pt-3">
             {a.achievedAt
-                ? <p className="text-sm font-semibold" style={{ color }}>Erreicht am {formatDate(a.achievedAt)}</p>
+                ? <p className="flex items-center gap-1.5 text-label font-semibold text-ink"><span className="size-2 rounded-full" style={{ background: color }} />Erreicht am {formatDate(a.achievedAt)}</p>
                 : <>
-                    <div className="flex items-baseline justify-between gap-2 text-xs text-muted-foreground">
+                    <div className="flex items-baseline justify-between gap-2 text-label text-ink-muted">
                         <span className="truncate">{a.progressText ?? "Noch nicht begonnen"}</span>
                         {a.ratio > 0 && <span className="shrink-0 font-semibold tabular-nums">{Math.floor(a.ratio * 100)} %</span>}
                     </div>

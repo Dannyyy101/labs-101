@@ -18,6 +18,6 @@ export default function NumberInput({ value, onChange, label, decimal, className
             onChange(Number.isFinite(parsed) ? parsed : 0)
         }}
         onBlur={() => setText(null)}
-        className={cn("h-9 w-full min-w-0 rounded-[10px] bg-muted px-3 text-[15px] font-semibold tabular-nums outline-none focus:ring-2 focus:ring-[#0a84ff]/50", className)}
+        className={cn("glass-inset h-9 w-full min-w-0 rounded-[10px] px-3 text-[14px] font-semibold tabular-nums outline-none focus:ring-2 focus:ring-brand/50", className)}
     />
 }

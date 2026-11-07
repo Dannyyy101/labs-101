@@ -27,7 +27,7 @@ export default async function SignIn({ searchParams }: PageProps<"/sign-in">) {
                 </CardDescription>
             </CardHeader>
             <CardContent className="flex flex-col gap-4">
-                {typeof error === "string" && <p className="text-sm text-destructive">{ERRORS[error] ?? ERRORS.failed}</p>}
+                {typeof error === "string" && <p className="text-body text-destructive">{ERRORS[error] ?? ERRORS.failed}</p>}
                 {/* a plain link, the route handler redirects to zitadel */}
                 <a className={buttonVariants({ className: "w-full" })} href={loginHref}>
                     Anmelden

@@ -47,23 +47,23 @@ export function AppNavbar() {
         .sort((a, b) => b.href.length - a.href.length)[0]?.href
 
     return (
-        <header className="sticky top-0 z-40 border-b bg-background/80 backdrop-blur">
+        <header className="sticky top-0 z-40 px-3 pt-3 md:px-6">
             {/* equally wide outer columns keep the tabs centered on the page, on small screens they get their own row */}
-            <div className="grid grid-cols-[1fr_auto] items-center gap-x-4 gap-y-2 px-4 py-3 md:grid-cols-[1fr_auto_1fr] md:px-8">
+            <div className="glass mx-auto grid max-w-7xl grid-cols-[1fr_auto] items-center gap-x-4 gap-y-2 rounded-[16px] px-3 py-2 md:grid-cols-[1fr_auto_1fr] md:px-4">
                 <Link href="/" className="justify-self-start"><Logo /></Link>
 
                 <nav className="col-span-2 row-start-2 overflow-x-auto md:col-span-1 md:row-start-auto">
                     {/* mx-auto instead of justify-center, so scrolling still reaches the first tab */}
-                    <div className="mx-auto flex w-fit rounded-xl bg-muted p-1">
+                    <div className="mx-auto flex w-fit gap-0.5 rounded-[12px] bg-ink/5 p-[3px] dark:bg-black/20">
                         {NAV.map((item) => {
                             const active = item.href === activeHref
                             return <Link
                                 key={item.href}
                                 href={item.href}
                                 aria-current={active ? "page" : undefined}
-                                className={`whitespace-nowrap rounded-lg px-4 py-1.5 text-sm font-medium transition-colors ${active
-                                    ? "bg-background text-foreground shadow-sm"
-                                    : "text-muted-foreground hover:text-foreground"}`}
+                                className={`whitespace-nowrap rounded-[9px] px-3.5 py-1.5 text-label font-semibold transition-colors ${active
+                                    ? "bg-surface-raised text-ink shadow-xs dark:bg-white/15"
+                                    : "text-ink-muted hover:text-ink"}`}
                             >
                                 {item.label}
                             </Link>
@@ -87,10 +87,10 @@ function DateNav() {
     const day = param && /^\d{4}-\d{2}-\d{2}$/.test(param) ? param : today()
 
     return <div className="flex items-center gap-x-1">
-        <Link href={`/foods/track?date=${addDays(day, -1)}`} aria-label="Vorheriger Tag" className="p-1 text-blue-500"><ChevronLeft className="size-5" /></Link>
+        <Link href={`/foods/track?date=${addDays(day, -1)}`} aria-label="Vorheriger Tag" className="p-1 text-brand"><ChevronLeft className="size-5" /></Link>
         <span className="w-24 text-center font-medium tabular-nums">{formatShortDay(day)}</span>
-        <Link href={`/foods/track?date=${addDays(day, 1)}`} aria-label="Nächster Tag" className="p-1 text-blue-500"><ChevronRight className="size-5" /></Link>
-        {day !== today() && <Link href="/foods/track" className="ml-1 text-sm text-blue-500">Heute</Link>}
+        <Link href={`/foods/track?date=${addDays(day, 1)}`} aria-label="Nächster Tag" className="p-1 text-brand"><ChevronRight className="size-5" /></Link>
+        {day !== today() && <Link href="/foods/track" className="ml-1 text-label font-semibold text-brand-strong">Heute</Link>}
     </div>
 }
 
@@ -102,8 +102,8 @@ function UserMenu() {
     const initial = user?.name?.trim().charAt(0).toUpperCase() ?? ""
 
     return <DropdownMenu>
-        <DropdownMenuTrigger aria-label="Benutzermenü" className="flex size-10 items-center justify-center overflow-hidden rounded-full bg-muted-foreground/70 font-semibold text-white">
-            <AvatarImage src={user?.image ?? null} alt="" size={40} className="size-10 object-cover" fallback={initial} />
+        <DropdownMenuTrigger aria-label="Benutzermenü" className="flex size-9 items-center justify-center overflow-hidden rounded-full bg-brand font-semibold text-on-brand ring-2 ring-white/70 dark:ring-white/15">
+            <AvatarImage src={user?.image ?? null} alt="" size={40} className="size-9 object-cover" fallback={initial} />
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="min-w-48">
             {user && <>

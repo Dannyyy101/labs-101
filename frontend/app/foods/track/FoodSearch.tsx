@@ -115,14 +115,14 @@ const FoodSearch: React.FC<{ meal: Meal, selectedFoodStore: SelectedFoodState, c
         <DialogTrigger className={className}>{children}</DialogTrigger>
         <DialogContent className="w-4xl flex flex-col" showCloseButton={false}>
             <DialogHeader className="grid grid-cols-[1fr_auto_1fr] items-center">
-                <button className="text-blue-500 hover:text-blue-600 justify-self-start" onClick={close}>Abbrechen</button>
+                <button className="text-brand-strong hover:text-brand-strong justify-self-start" onClick={close}>Abbrechen</button>
                 <DialogTitle className="text-center text-lg">Essen hinzufügen</DialogTitle>
             </DialogHeader>
             <section>
                 <div className="flex gap-x-2">
                     {(["TEXT", "PHOTO", "SEARCH"] as const).map((mode) =>
                         <button key={mode} onClick={() => { setShowDialog(mode); selectedFoodStore.setFoodId(null) }}
-                            className={`rounded-full px-4 py-1.5 font-medium ${showDialog === mode ? "bg-foreground text-background" : "bg-accent"}`}>
+                            className={`rounded-full px-4 py-1.5 font-medium ${showDialog === mode ? "bg-brand text-on-brand" : "glass-inset"}`}>
                             {MODE_LABELS[mode]}
                         </button>
                     )}
@@ -165,7 +165,7 @@ const FoodSearch: React.FC<{ meal: Meal, selectedFoodStore: SelectedFoodState, c
                             }}
                         /> :
                             <InfiniteScroll
-                                className="rounded-2xl w-full max-h-96 overflow-y-auto mt-2 flex flex-col"
+                                className="rounded-[12px] w-full max-h-96 overflow-y-auto mt-2 flex flex-col"
                                 dataLength={food.length}
                                 next={fetchMore}
                                 hasMore={hasMore}
@@ -174,13 +174,13 @@ const FoodSearch: React.FC<{ meal: Meal, selectedFoodStore: SelectedFoodState, c
                             >
                                 {food.map((f) => (
                                     <Button
-                                        className="hover:bg-accent  max-w-96 text-left flex flex-col items-start whitespace-normal h-auto py-2 gap-0"
+                                        className="hover:bg-surface-raised/50 dark:hover:bg-white/5  max-w-96 text-left flex flex-col items-start whitespace-normal h-auto py-2 gap-0"
                                         variant="ghost"
                                         onClick={() => selectSearchFood(f)}
                                         key={f.id ?? `open-${f.openFoodId}`}
                                     >
                                         {f.name}
-                                        {f.openFoodId !== null && <span className="text-xs text-muted-foreground font-normal">Open Food Facts</span>}
+                                        {f.openFoodId !== null && <span className="text-label text-ink-muted font-normal">Open Food Facts</span>}
                                     </Button>
                                 ))}
                             </InfiniteScroll>
@@ -202,10 +202,10 @@ const FoodSearch: React.FC<{ meal: Meal, selectedFoodStore: SelectedFoodState, c
 }
 
 export const MealTabs: React.FC<{ meal: Meal, onChange: (meal: Meal) => void }> = ({ meal, onChange }) =>
-    <div className="bg-accent flex rounded-xl p-1 mt-3">
+    <div className="glass-inset flex rounded-[12px] p-1 mt-3">
         {MEALS.map((m) =>
             <button key={m.type} onClick={() => onChange(m.type)}
-                className={`w-full rounded-lg py-1.5 font-semibold ${meal === m.type ? "bg-background shadow-sm" : ""}`}>
+                className={`w-full rounded-lg py-1.5 font-semibold ${meal === m.type ? "bg-surface-raised shadow-xs dark:bg-white/15" : ""}`}>
                 {m.label}
             </button>
         )}
@@ -329,7 +329,7 @@ const TextFoodInput: React.FC<{ meal: Meal, onTracked: () => void }> = ({ meal, 
             : `${items.length} Lebensmittel`
 
     return <div className="flex flex-col mt-3">
-        <div className="bg-accent rounded-2xl p-4 flex flex-col gap-y-3">
+        <div className="glass-inset rounded-[12px] p-4 flex flex-col gap-y-3">
             <textarea
                 className="bg-transparent resize-none outline-none text-base min-h-16"
                 value={text}
@@ -340,9 +340,9 @@ const TextFoodInput: React.FC<{ meal: Meal, onTracked: () => void }> = ({ meal, 
                 }}
             />
             <div className="flex items-end justify-between gap-x-4">
-                <p className="text-xs text-muted-foreground">Menge · Einheit · Lebensmittel, getrennt durch Komma oder „und“</p>
+                <p className="text-label text-ink-muted">Menge · Einheit · Lebensmittel, getrennt durch Komma oder „und“</p>
                 <button
-                    className="shrink-0 rounded-full bg-blue-500 text-white font-semibold px-4 py-1.5 disabled:opacity-50 flex items-center gap-x-2"
+                    className="shrink-0 rounded-[10px] bg-brand text-on-brand font-semibold px-4 py-1.5 disabled:opacity-50 flex items-center gap-x-2"
                     disabled={extracting || !text.trim()}
                     onClick={extract}
                 >
@@ -360,17 +360,17 @@ const TextFoodInput: React.FC<{ meal: Meal, onTracked: () => void }> = ({ meal, 
         )}
 
         {items.length > 0 && <>
-            <h2 className="text-xs uppercase tracking-wide text-muted-foreground mt-4 mb-2">Vorschau</h2>
+            <h2 className="text-label uppercase tracking-wide text-ink-muted mt-4 mb-2">Vorschau</h2>
             <div className="flex flex-col gap-y-2 max-h-[45vh] overflow-y-auto">
                 {items.map((item) => <PreviewRow key={item.key} item={item} onChange={(change) => updateItem(item.key, change)} onRemove={() => removeItem(item.key)} onSaveUnit={() => saveUnit(item)} />)}
             </div>
             <div className="flex items-center justify-between border-t pt-3 mt-3">
                 <div>
-                    <p className="text-xs text-muted-foreground">{footerHint}</p>
-                    <p className="text-xl font-bold">{totalKcal} kcal</p>
+                    <p className="text-label text-ink-muted">{footerHint}</p>
+                    <p className="text-kpi tabular-nums">{totalKcal} kcal</p>
                 </div>
                 <button
-                    className="rounded-full bg-blue-500 text-white font-semibold px-5 py-2 disabled:bg-accent disabled:text-muted-foreground flex items-center gap-x-2"
+                    className="rounded-[10px] bg-brand text-on-brand font-semibold px-5 py-2 disabled:opacity-50 flex items-center gap-x-2"
                     disabled={!canSubmit}
                     onClick={trackAll}
                 >
@@ -390,9 +390,9 @@ const PreviewRow: React.FC<{ item: PreviewItem, onChange: (change: Partial<Previ
     const presets = [guess - 50, guess, guess + 50].filter((g) => g > 0)
 
     const statusIcon = {
-        OK: <span className="size-6 rounded-full bg-green-500 text-white flex items-center justify-center"><Check className="size-4" /></span>,
-        NEW_UNIT: <span className="size-6 rounded-full bg-orange-400 text-white flex items-center justify-center font-bold text-sm">?</span>,
-        NOT_FOUND: <span className="size-6 rounded-full bg-red-500 text-white flex items-center justify-center"><X className="size-4" /></span>,
+        OK: <span className="size-6 rounded-full bg-success-bar text-on-brand flex items-center justify-center"><Check className="size-4" /></span>,
+        NEW_UNIT: <span className="size-6 rounded-full bg-warning text-on-brand flex items-center justify-center font-bold text-body">?</span>,
+        NOT_FOUND: <span className="size-6 rounded-full bg-danger text-on-brand flex items-center justify-center"><X className="size-4" /></span>,
     }[item.status]
 
     const subtitle = item.status === "NOT_FOUND"
@@ -401,25 +401,25 @@ const PreviewRow: React.FC<{ item: PreviewItem, onChange: (change: Partial<Previ
             ? `${item.amount} ${item.unit}`
             : `${item.amount} ${item.unit} · ${approx}${Math.round(gramsOf(item))} g`
 
-    return <div className="rounded-2xl bg-accent p-3" style={{ outline: isNewUnit ? "1.5px solid var(--color-orange-400)" : "none" }}>
+    return <div className="rounded-[12px] glass-inset p-3" style={{ outline: isNewUnit ? "1.5px solid var(--warning)" : "none" }}>
         <div className="flex items-center gap-x-3">
             {statusIcon}
             <div className="flex-1 min-w-0">
                 <p className="font-medium truncate">{item.food?.name ?? item.query}</p>
-                <p className="text-xs text-muted-foreground">{subtitle}{item.openFoodId !== null && " · Open Food Facts"}</p>
+                <p className="text-label text-ink-muted">{subtitle}{item.openFoodId !== null && " · Open Food Facts"}</p>
             </div>
             {item.food && <div className="text-right">
                 <p className="font-bold leading-tight">{approx}{kcalOf(item)}</p>
-                <p className="text-xs text-muted-foreground">kcal</p>
+                <p className="text-label text-ink-muted">kcal</p>
             </div>}
-            <button className="size-6 rounded-full bg-background/60 flex items-center justify-center text-muted-foreground" onClick={onRemove}><X className="size-3.5" /></button>
+            <button className="size-6 rounded-full glass-inset flex items-center justify-center text-ink-muted" onClick={onRemove}><X className="size-3.5" /></button>
         </div>
 
-        {isNewUnit && <div className="bg-background rounded-xl p-3 mt-3 flex flex-col gap-y-3">
+        {isNewUnit && <div className="glass-inset rounded-[12px] p-3 mt-3 flex flex-col gap-y-3">
             <p><span className="font-semibold">Neue Einheit:</span> „{item.unit}“ gibt es für {item.food?.name} noch nicht. Wie viel Gramm sind 1 {item.unit}?</p>
             <div className="flex flex-wrap items-center gap-2">
-                <div className="flex items-center bg-accent rounded-lg px-2 py-1 gap-x-2">
-                    <button className="text-blue-500" onClick={() => onChange({ unitGrams: Math.max(step, item.unitGrams - step) })}><Minus className="size-4" /></button>
+                <div className="flex items-center glass-inset rounded-lg px-2 py-1 gap-x-2">
+                    <button className="text-brand-strong" onClick={() => onChange({ unitGrams: Math.max(step, item.unitGrams - step) })}><Minus className="size-4" /></button>
                     <input
                         className="w-12 bg-transparent text-right font-semibold outline-none"
                         type="number"
@@ -427,8 +427,8 @@ const PreviewRow: React.FC<{ item: PreviewItem, onChange: (change: Partial<Previ
                         value={item.unitGrams}
                         onChange={(e) => onChange({ unitGrams: Math.max(0, Number(e.target.value)) })}
                     />
-                    <span className="text-muted-foreground">g</span>
-                    <button className="text-blue-500" onClick={() => onChange({ unitGrams: item.unitGrams + step })}><Plus className="size-4" /></button>
+                    <span className="text-ink-muted">g</span>
+                    <button className="text-brand-strong" onClick={() => onChange({ unitGrams: item.unitGrams + step })}><Plus className="size-4" /></button>
                 </div>
                 {presets.map((grams) => <button
                     key={grams}
@@ -438,9 +438,9 @@ const PreviewRow: React.FC<{ item: PreviewItem, onChange: (change: Partial<Previ
                 >{grams} g</button>)}
             </div>
             <div className="flex items-center justify-between">
-                <p className="text-xs text-muted-foreground">1 {item.unit} = {item.unitGrams} g · {Math.round((item.food?.kcal ?? 0) * item.unitGrams / 100)} kcal</p>
+                <p className="text-label text-ink-muted">1 {item.unit} = {item.unitGrams} g · {Math.round((item.food?.kcal ?? 0) * item.unitGrams / 100)} kcal</p>
                 <button
-                    className="rounded-full bg-orange-400 text-white font-semibold px-4 py-1.5 disabled:opacity-50 flex items-center gap-x-2"
+                    className="rounded-[10px] bg-warning text-on-brand font-semibold px-4 py-1.5 disabled:opacity-50 flex items-center gap-x-2"
                     disabled={saving || item.unitGrams <= 0}
                     onClick={async () => {
                         setSaving(true)

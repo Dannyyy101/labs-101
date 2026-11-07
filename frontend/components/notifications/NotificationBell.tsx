@@ -50,7 +50,7 @@ export function NotificationBell() {
 
     return <Popover open={open} onOpenChange={onOpenChange}>
         <PopoverTrigger aria-label={badge ? `Benachrichtigungen, ${badge} ungelesen` : "Benachrichtigungen"}
-            className="relative flex size-10 items-center justify-center rounded-full text-muted-foreground hover:bg-muted hover:text-foreground">
+            className="relative flex size-10 items-center justify-center rounded-full text-ink-muted hover:bg-surface-raised/50 dark:hover:bg-white/5 hover:text-foreground">
             <Bell className="size-5" />
             {badge > 0 && <span className="absolute right-1 top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-destructive px-1 text-[10px] font-semibold leading-none text-white tabular-nums">
                 {badge > 99 ? "99+" : badge}
@@ -59,16 +59,16 @@ export function NotificationBell() {
         <PopoverContent align="end" className="w-[min(24rem,calc(100vw-2rem))] gap-2 p-2">
             <div className="flex items-center justify-between px-2 pt-1">
                 <h2 className="text-base font-semibold">Benachrichtigungen</h2>
-                {unreadCount > 0 && <button type="button" onClick={readAll} className="text-sm text-blue-500 hover:underline">Alle gelesen</button>}
+                {unreadCount > 0 && <button type="button" onClick={readAll} className="text-body text-brand-strong hover:underline">Alle gelesen</button>}
             </div>
 
             <div className="max-h-[min(28rem,70vh)] overflow-y-auto">
                 {loading && notifications.length === 0
                     ? <div className="flex justify-center py-8"><Spinner /></div>
                     : error
-                        ? <p role="alert" className="px-2 py-6 text-center text-sm text-muted-foreground">{error}</p>
+                        ? <p role="alert" className="px-2 py-6 text-center text-body text-ink-muted">{error}</p>
                         : notifications.length === 0
-                            ? <p className="px-2 py-8 text-center text-sm text-muted-foreground">Keine Benachrichtigungen</p>
+                            ? <p className="px-2 py-8 text-center text-body text-ink-muted">Keine Benachrichtigungen</p>
                             : <ul className="flex flex-col">
                                 {notifications.map((notification) => <NotificationItem
                                     key={notification.id}
@@ -81,7 +81,7 @@ export function NotificationBell() {
             </div>
 
             <Link href="/notifications" onClick={() => onOpenChange(false)}
-                className="rounded-xl py-2 text-center text-sm font-medium text-blue-500 hover:bg-muted">
+                className="rounded-[12px] py-2 text-center text-body font-medium text-brand-strong hover:bg-surface-raised/50 dark:hover:bg-white/5">
                 Alle anzeigen
             </Link>
         </PopoverContent>

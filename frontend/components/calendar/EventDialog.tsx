@@ -104,9 +104,9 @@ export function EventDialog({ calendarEvent, closeDialog, startDate }: { calenda
 
     return <form onSubmit={(e) => { e.preventDefault(); saveEvent() }} className="flex max-h-[85vh] flex-col">
         <header className="grid grid-cols-[1fr_auto_1fr] items-center px-4 pt-4 pb-3">
-            <DialogClose type="button" className="justify-self-start text-[17px] text-[#0a84ff]">Abbrechen</DialogClose>
-            <DialogTitle className="text-[17px] font-semibold">{event.id ? "Ereignis bearbeiten" : "Neues Ereignis"}</DialogTitle>
-            <button type="submit" disabled={pending} className="justify-self-end text-[17px] font-semibold text-[#0a84ff] disabled:opacity-40">
+            <DialogClose type="button" className="justify-self-start text-[14px] text-brand-strong">Abbrechen</DialogClose>
+            <DialogTitle className="text-heading">{event.id ? "Ereignis bearbeiten" : "Neues Ereignis"}</DialogTitle>
+            <button type="submit" disabled={pending} className="justify-self-end text-heading text-brand-strong disabled:opacity-40">
                 {pending ? <Spinner className="size-4" /> : event.id ? "Fertig" : "Hinzufügen"}
             </button>
         </header>
@@ -114,7 +114,7 @@ export function EventDialog({ calendarEvent, closeDialog, startDate }: { calenda
         <div className="flex flex-col gap-6 overflow-y-auto px-4 pb-6 pt-2">
             <Group>
                 <input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Titel" aria-label="Titel"
-                    className="w-full bg-transparent px-4 py-3 text-[17px] outline-none placeholder:text-muted-foreground/60" />
+                    className="w-full bg-transparent px-4 py-3 text-[14px] outline-none placeholder:text-ink-muted/60" />
             </Group>
 
             <Group>
@@ -135,7 +135,7 @@ export function EventDialog({ calendarEvent, closeDialog, startDate }: { calenda
                         value={event.recurrence}
                         onValueChange={(value) => setEvent((prev) => ({ ...prev, recurrence: value as Recurrence | null }))}
                     >
-                        <SelectTrigger className="h-auto bg-transparent px-0 py-0 text-[15px] text-muted-foreground hover:text-foreground">
+                        <SelectTrigger className="h-auto bg-transparent px-0 py-0 text-[14px] text-ink-muted hover:text-foreground">
                             <SelectValue />
                         </SelectTrigger>
                         <SelectContent align="end">
@@ -148,10 +148,10 @@ export function EventDialog({ calendarEvent, closeDialog, startDate }: { calenda
                         ? <>
                             <DatePicker date={event.recurrenceEnd} setDate={(date) => setEvent((prev) => ({ ...prev, recurrenceEnd: endOfDay(date) }))} />
                             <button type="button" onClick={() => setEvent((prev) => ({ ...prev, recurrenceEnd: null }))}
-                                className="text-[15px] text-[#0a84ff]">Nie</button>
+                                className="text-[14px] text-brand-strong">Nie</button>
                         </>
                         : <button type="button" onClick={() => setEvent((prev) => ({ ...prev, recurrenceEnd: endOfDay(prev.startDate) }))}
-                            className="text-[15px] text-muted-foreground hover:text-foreground">Nie</button>}
+                            className="text-[14px] text-ink-muted hover:text-foreground">Nie</button>}
                 </Row>}
             </Group>
 
@@ -159,15 +159,15 @@ export function EventDialog({ calendarEvent, closeDialog, startDate }: { calenda
                 <Group>
                     <Row label="Vorlage" icon={<Dumbbell className="size-4" />}>
                         {workouts === null
-                            ? <Spinner className="size-4 text-muted-foreground" />
+                            ? <Spinner className="size-4 text-ink-muted" />
                             : workouts.length === 0
-                                ? <Link href="/workouts/new" className="text-[15px] text-[#0a84ff]">Vorlage erstellen</Link>
+                                ? <Link href="/workouts/new" className="text-[14px] text-brand-strong">Vorlage erstellen</Link>
                                 : <Select
                                     items={[{ label: "Keine", value: null }, ...workouts.map((w) => ({ label: w.name, value: w.id }))]}
                                     value={event.workoutId}
                                     onValueChange={(value) => selectWorkout(value as number | null)}
                                 >
-                                    <SelectTrigger className="h-auto max-w-48 bg-transparent px-0 py-0 text-[15px] text-muted-foreground hover:text-foreground">
+                                    <SelectTrigger className="h-auto max-w-48 bg-transparent px-0 py-0 text-[14px] text-ink-muted hover:text-foreground">
                                         <SelectValue />
                                     </SelectTrigger>
                                     <SelectContent align="end">
@@ -177,12 +177,12 @@ export function EventDialog({ calendarEvent, closeDialog, startDate }: { calenda
                                 </Select>}
                     </Row>
                     {workout && workout.workoutExercises.length > 0 &&
-                        <p className="px-4 py-3 text-[15px] text-muted-foreground">
+                        <p className="px-4 py-3 text-[14px] text-ink-muted">
                             {workout.workoutExercises.map((e) => e.exercise.name).join(" · ")}
                         </p>}
                     {canStart &&
                         <button type="button" onClick={startWorkout} disabled={pending}
-                            className="flex w-full items-center gap-2 px-4 py-3 text-left text-[17px] text-[#30d158] hover:bg-muted/60 disabled:opacity-50">
+                            className="flex w-full items-center gap-2 px-4 py-3 text-left text-[14px] text-success hover:bg-surface-raised/50 dark:hover:bg-white/5 disabled:opacity-50">
                             <Play className="size-4 fill-current" />Training starten
                         </button>}
                 </Group>
@@ -198,7 +198,7 @@ export function EventDialog({ calendarEvent, closeDialog, startDate }: { calenda
 
             {event.id && <Group>
                 <button type="button" onClick={deleteEvent} disabled={pending}
-                    className="w-full px-4 py-3 text-center text-[17px] text-[#ff453a] hover:bg-muted/60 disabled:opacity-50">
+                    className="w-full px-4 py-3 text-center text-[14px] text-danger hover:bg-surface-raised/50 dark:hover:bg-white/5 disabled:opacity-50">
                     Ereignis löschen
                 </button>
             </Group>}
@@ -208,20 +208,20 @@ export function EventDialog({ calendarEvent, closeDialog, startDate }: { calenda
 
 function Section({ title, children }: { title: string, children: React.ReactNode }) {
     return <section>
-        <h3 className="px-4 pb-1.5 text-[13px] uppercase tracking-wide text-muted-foreground">{title}</h3>
+        <h3 className="px-4 pb-1.5 text-[13px] uppercase tracking-wide text-ink-muted">{title}</h3>
         {children}
     </section>
 }
 
 function Row({ label, icon, children }: { label: string, icon?: React.ReactNode, children: React.ReactNode }) {
     return <div className="flex min-h-11 items-center gap-2 px-4 py-1.5">
-        {icon && <span className="text-muted-foreground">{icon}</span>}
-        <span className="flex-1 text-[17px]">{label}</span>
+        {icon && <span className="text-ink-muted">{icon}</span>}
+        <span className="flex-1 text-[14px]">{label}</span>
         {children}
     </div>
 }
 
 function TimeInput({ value, onChange, label }: { value: string, onChange: (value: string) => void, label: string }) {
     return <input type="time" step={60} value={value} onChange={(e) => onChange(e.target.value)} aria-label={label}
-        className="rounded-md bg-muted px-2.5 py-1 text-[15px] tabular-nums outline-none focus:text-[#0a84ff] [&::-webkit-calendar-picker-indicator]:hidden" />
+        className="rounded-md glass-inset px-2.5 py-1 text-[14px] tabular-nums outline-none focus:text-brand-strong [&::-webkit-calendar-picker-indicator]:hidden" />
 }

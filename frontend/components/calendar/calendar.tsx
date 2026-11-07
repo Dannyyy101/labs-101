@@ -159,7 +159,7 @@ export default function Calendar() {
     );
 }
 const Time = () => {
-    return <div className="grid" style={{ gridTemplateRows: "repeat(24, 1fr)" }}>{Array(24).fill(0).map((_, index) => <p key={index} className="text-xs text-muted-foreground">{startAtTime(index, 6).toString().padStart(2, "0")}:00</p>)}</div>
+    return <div className="grid" style={{ gridTemplateRows: "repeat(24, 1fr)" }}>{Array(24).fill(0).map((_, index) => <p key={index} className="text-label text-ink-muted">{startAtTime(index, 6).toString().padStart(2, "0")}:00</p>)}</div>
 }
 
 /** All-day events of Apple calendars above the hours, on every day they last. */
@@ -170,7 +170,7 @@ const AllDayEvents = ({ columnDate }: { columnDate: Date }) => {
 
     return events.filter((e) => e.allDay && e.startDate < dayEnd && e.endDate > columnDate).map((e) =>
         <p key={e.id} title={`${e.title} · ${e.external?.calendarName ?? ""}`}
-            className="w-full truncate rounded bg-muted px-2 py-0.5 text-xs text-muted-foreground">{e.title || "Ohne Titel"}</p>)
+            className="w-full truncate rounded glass-inset px-2 py-0.5 text-label text-ink-muted">{e.title || "Ohne Titel"}</p>)
 }
 
 const Day = ({ columnDate }: { columnDate: Date }) => {
@@ -194,11 +194,11 @@ const TimeSlot = ({ hour, events, columnDate }: { hour: number, events: Calendar
     const startDate = new Date(columnDate.getTime())
     startDate.setHours(hour, 0, 0, 0)
 
-    return <div style={{ height: `${HOUR_HEIGHT}px` }} className="w-full relative block bg-card text-sm text-card-foreground border hover:cursor-default">
+    return <div style={{ height: `${HOUR_HEIGHT}px` }} className="relative block w-full border border-line text-body hover:cursor-default">
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger className="block w-full h-full">
             </DialogTrigger>
-            <DialogContent showCloseButton={false} className="gap-0 overflow-hidden bg-muted p-0 sm:max-w-md">
+            <DialogContent showCloseButton={false} className="gap-0 overflow-hidden p-0 sm:max-w-md">
                 <EventDialog calendarEvent={null} closeDialog={() => setOpen(false)} startDate={startDate} />
             </DialogContent>
         </Dialog>
@@ -220,8 +220,8 @@ const Event = ({ event }: { event: CalendarEvent }) => {
     if (event.external) {
         // read only, it's changed in Apple Calendar; clicks go through to the time slot below
         return <div style={{ height: `${Math.max(durationMinutes, 15) * HOUR_HEIGHT / 60}px`, top: `${startMinutes * HOUR_HEIGHT / 60}px` }}
-            className="pointer-events-none absolute w-full z-40 text-xs leading-tight">
-            <div className='w-full h-full overflow-hidden rounded border-l-4 border-muted-foreground/40 bg-muted px-2 py-1 text-muted-foreground'>
+            className="pointer-events-none absolute w-full z-40 text-label leading-tight">
+            <div className='glass-inset h-full w-full overflow-hidden rounded-[6px] border-l-4 border-l-ink-muted/40 px-2 py-1 text-ink-muted'>
                 <h3 className='truncate'>{event.title || "Ohne Titel"}</h3>
                 <p className='truncate text-[10px]'>{formatTime(event.startDate)} - {formatTime(event.endDate)} · {event.external.calendarName}</p>
             </div>
@@ -230,8 +230,8 @@ const Event = ({ event }: { event: CalendarEvent }) => {
 
     return <Dialog open={open} onOpenChange={setOpen}>
         <DialogTrigger style={{ height: `${durationMinutes * HOUR_HEIGHT / 60}px`, top: `${startMinutes * HOUR_HEIGHT / 60}px` }}
-            className={`absolute w-full z-50 text-xs leading-tight text-left`}>
-            <div className='w-full h-full overflow-hidden bg-blue-300 rounded px-2 py-1 text-white'>
+            className={`absolute w-full z-50 text-label leading-tight text-left`}>
+            <div className='h-full w-full overflow-hidden rounded-[6px] bg-brand px-2 py-1 text-on-brand shadow-xs'>
                 <div className='flex items-center gap-1'>
                     <h3 className='truncate'>{event.title}</h3>
                     {event.recurrence && <Repeat className="size-3 shrink-0" aria-label="Wiederholt sich" />}
@@ -245,7 +245,7 @@ const Event = ({ event }: { event: CalendarEvent }) => {
                 {!compact && event.workoutName && <p className='flex items-center gap-1 text-[10px] truncate'><Dumbbell className="size-3 shrink-0" />{event.workoutName}</p>}
             </div>
         </DialogTrigger>
-        <DialogContent showCloseButton={false} className="gap-0 overflow-hidden bg-muted p-0 sm:max-w-md">
+        <DialogContent showCloseButton={false} className="gap-0 overflow-hidden p-0 sm:max-w-md">
             <EventDialog calendarEvent={event} closeDialog={() => setOpen(false)} startDate={null} />
         </DialogContent>
     </Dialog>

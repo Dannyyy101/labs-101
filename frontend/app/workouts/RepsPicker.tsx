@@ -8,7 +8,7 @@ const MAX_REPS = 50
 export default function RepsPicker({ value, onChange, label, className }: { value: number, onChange: (reps: number) => void, label: string, className?: string }) {
     const max = Math.max(MAX_REPS, value)
     return <select aria-label={label} value={value} onChange={(e) => onChange(Number(e.target.value))}
-        className={cn("h-9 w-full min-w-0 appearance-none rounded-[10px] bg-muted px-3 text-[15px] font-semibold tabular-nums outline-none focus:ring-2 focus:ring-[#0a84ff]/50", className)}>
+        className={cn("appearance-none glass-inset h-9 w-full min-w-0 rounded-[10px] px-3 text-[14px] font-semibold tabular-nums outline-none focus:ring-2 focus:ring-brand/50", className)}>
         {Array.from({ length: max + 1 }, (_, reps) => <option key={reps} value={reps}>{reps}</option>)}
     </select>
 }

@@ -42,11 +42,14 @@ export default function TrackFood({ food, day, calorieGoal, burned, settingsErro
     }
 
     return (
-        <div className="flex-1 w-full bg-muted/50 px-4 py-6 md:px-8">
+        <div className="w-full flex-1 px-4 py-6 md:px-8">
             <div className="grid grid-cols-1 gap-8 lg:grid-cols-[minmax(0,22rem)_minmax(0,1fr)]">
                 <section>
-                    <h1 className="text-4xl font-bold tracking-tight">{formatDayTitle(day)}</h1>
-                    <p className="text-muted-foreground mt-1">{formatLongDay(day)}</p>
+                    {/* same height as the header of the meals, so both columns start their cards on one line */}
+                    <div className="lg:flex lg:h-14 lg:flex-col lg:justify-end">
+                        <h1 className="text-[22px] font-bold leading-7 tracking-tight">{formatDayTitle(day)}</h1>
+                        <p className="text-ink-muted mt-1">{formatLongDay(day)}</p>
+                    </div>
 
                     {settingsError && (
                         <Alert className="mt-5">
@@ -55,7 +58,7 @@ export default function TrackFood({ food, day, calorieGoal, burned, settingsErro
                             <AlertDescription>{settingsError}. Es wird das Standardziel von {calorieGoal} kcal verwendet.</AlertDescription>
                         </Alert>
                     )}
-                    <div className="rounded-3xl bg-card shadow-sm p-6 mt-5">
+                    <div className="glass rounded-[14px] p-6 mt-5">
                         <CalorieCard props={{ consumed: totalCalories, goal: calorieGoal, burned }} />
                         <div className="border-t my-5" />
                         <div className="flex flex-col gap-y-4">
@@ -67,9 +70,9 @@ export default function TrackFood({ food, day, calorieGoal, burned, settingsErro
                 </section>
 
                 <section>
-                    <div className="flex flex-wrap items-center justify-between gap-3 lg:mt-8 mb-5">
-                        <h2 className="text-2xl font-bold tracking-tight">Mahlzeiten</h2>
-                        <button onClick={openSearch} className="flex items-center gap-x-2 rounded-full bg-blue-500 hover:bg-blue-600 text-white font-semibold px-5 py-2.5">
+                    <div className="mb-5 flex flex-wrap items-center justify-between gap-3 lg:h-14 lg:items-end">
+                        <h2 className="text-heading">Mahlzeiten</h2>
+                        <button onClick={openSearch} className="flex items-center gap-x-2 rounded-[10px] bg-brand hover:bg-brand-strong text-on-brand font-semibold px-5 py-2.5">
                             <Plus className="size-5" />Essen hinzufügen
                         </button>
                     </div>

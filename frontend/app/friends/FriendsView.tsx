@@ -28,11 +28,11 @@ export default function FriendsView({ friends }: { friends: Friends }) {
 
     const training = friends.friends.filter((f) => f.training).length
 
-    return <div className="flex-1 w-full bg-muted/50 px-3.5 py-5 md:px-6 md:py-7">
+    return <div className="w-full flex-1 px-3.5 py-5 md:px-6 md:py-7">
         <div className="mx-auto flex max-w-2xl flex-col gap-5">
             <div>
-                <h1 className="text-[34px] font-bold leading-tight tracking-tight">Freunde</h1>
-                {training > 0 && <p className="text-muted-foreground">{training === 1 ? "1 Freund trainiert" : `${training} Freunde trainieren`} gerade</p>}
+                <h1 className="text-[22px] font-bold leading-7 tracking-tight">Freunde</h1>
+                {training > 0 && <p className="text-ink-muted">{training === 1 ? "1 Freund trainiert" : `${training} Freunde trainieren`} gerade</p>}
             </div>
 
             <AddFriend friends={friends} />
@@ -44,7 +44,7 @@ export default function FriendsView({ friends }: { friends: Friends }) {
             <Section title={`Deine Freunde${friends.friends.length ? ` (${friends.friends.length})` : ""}`}>
                 {friends.friends.length
                     ? friends.friends.map((friend) => <FriendRow key={friend.id} friend={friend} />)
-                    : <div className="flex flex-col items-center gap-2 px-6 py-10 text-center text-muted-foreground">
+                    : <div className="flex flex-col items-center gap-2 px-6 py-10 text-center text-ink-muted">
                         <Users className="size-8" />
                         <p>Noch keine Freunde. Such oben nach Namen oder E-Mail und schick eine Anfrage.</p>
                     </div>}
@@ -59,7 +59,7 @@ export default function FriendsView({ friends }: { friends: Friends }) {
 
 function Section({ title, children }: { title: string, children: React.ReactNode }) {
     return <section>
-        <h2 className="px-4 pb-1.5 text-sm font-medium uppercase tracking-wide text-muted-foreground">{title}</h2>
+        <h2 className="px-4 pb-1.5 text-body font-medium uppercase tracking-wide text-ink-muted">{title}</h2>
         <Card className="divide-y divide-border/70 p-0">{children}</Card>
     </section>
 }
@@ -70,15 +70,15 @@ function FriendRow({ friend }: { friend: Friend }) {
     return <div className="flex items-center gap-3 px-4 py-3">
         <Link href={`/friends/${friend.id}`} className="flex min-w-0 flex-1 items-center gap-3">
             <span className="relative">
-                <UserAvatar user={user} className={cn("size-11 text-base ring-0", friend.training && "ring-2 ring-[#30d158] ring-offset-2 ring-offset-card")} />
+                <UserAvatar user={user} className={cn("size-11 text-base ring-0", friend.training && "ring-2 ring-success-bar ring-offset-2 ring-offset-transparent")} />
             </span>
             <span className="min-w-0 flex-1">
-                <span className="block truncate text-[17px] font-medium">{friend.name ?? "Unbekannt"}</span>
+                <span className="block truncate text-[14px] font-medium">{friend.name ?? "Unbekannt"}</span>
                 {friend.training
                     ? <TrainingBadge training={friend.training} />
-                    : <span className="block truncate text-sm text-muted-foreground">Profil & Achievements ansehen</span>}
+                    : <span className="block truncate text-body text-ink-muted">Profil & Achievements ansehen</span>}
             </span>
-            {!friend.training && <ChevronRight className="size-5 shrink-0 text-muted-foreground/60" />}
+            {!friend.training && <ChevronRight className="size-5 shrink-0 text-ink-muted/60" />}
         </Link>
         {friend.training && <CheerButton friendId={friend.id} training={friend.training} />}
     </div>
@@ -97,8 +97,8 @@ function RequestRow({ request, incoming }: { request: FriendRequest, incoming?: 
     return <div className="flex items-center gap-3 px-4 py-3">
         <UserAvatar user={request.user} className="size-11 text-base ring-0" />
         <div className="min-w-0 flex-1">
-            <p className="truncate text-[17px] font-medium">{request.user.name ?? "Unbekannt"}</p>
-            <p className="truncate text-sm text-muted-foreground">
+            <p className="truncate text-[14px] font-medium">{request.user.name ?? "Unbekannt"}</p>
+            <p className="truncate text-body text-ink-muted">
                 {error ?? (incoming ? "möchte mit dir befreundet sein" : "Anfrage gesendet")}
             </p>
         </div>
@@ -107,16 +107,16 @@ function RequestRow({ request, incoming }: { request: FriendRequest, incoming?: 
             : incoming
                 ? <div className="flex gap-2">
                     <button type="button" aria-label="Ablehnen" title="Ablehnen" onClick={() => run(() => deleteFriendRequest(request.id))}
-                        className="grid size-9 place-items-center rounded-full bg-muted text-muted-foreground hover:text-[#ff453a]">
+                        className="grid size-9 place-items-center rounded-full glass-inset text-ink-muted hover:text-danger">
                         <X className="size-5" />
                     </button>
                     <button type="button" onClick={() => run(() => acceptFriendRequest(request.id))}
-                        className="flex items-center gap-1 rounded-full bg-[#0a84ff] px-3.5 py-1.5 text-sm font-semibold text-white hover:brightness-110">
+                        className="flex items-center gap-1 rounded-full bg-brand px-3.5 py-1.5 text-body font-semibold text-on-brand hover:brightness-110">
                         <Check className="size-4" />Annehmen
                     </button>
                 </div>
                 : <button type="button" onClick={() => run(() => deleteFriendRequest(request.id))}
-                    className="rounded-full bg-muted px-3.5 py-1.5 text-sm font-medium text-muted-foreground hover:text-foreground">
+                    className="rounded-full glass-inset px-3.5 py-1.5 text-body font-medium text-ink-muted hover:text-foreground">
                     Zurückziehen
                 </button>}
     </div>
@@ -161,17 +161,17 @@ function AddFriend({ friends }: { friends: Friends }) {
     return <div>
         <Card className="p-0">
             <label className="flex items-center gap-3 px-4">
-                <Search className="size-5 shrink-0 text-muted-foreground" />
+                <Search className="size-5 shrink-0 text-ink-muted" />
                 <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Freunde finden – Name oder E-Mail"
-                    className="min-w-0 flex-1 bg-transparent py-3.5 text-[17px] outline-none placeholder:text-muted-foreground" />
+                    className="min-w-0 flex-1 bg-transparent py-3.5 text-[14px] outline-none placeholder:text-ink-muted" />
                 {query && <button type="button" aria-label="Suche leeren" onClick={() => { setQuery(""); setResults([]) }}
-                    className="grid size-6 place-items-center rounded-full bg-muted-foreground/30 text-background"><X className="size-3.5" strokeWidth={3} /></button>}
+                    className="grid size-6 place-items-center rounded-full bg-ink-muted/30 text-surface-raised"><X className="size-3.5" strokeWidth={3} /></button>}
             </label>
             {query.trim() && <div className="divide-y divide-border/70 border-t">
                 {loading && options.length === 0
                     ? <div className="flex justify-center p-4"><Spinner className="size-4" /></div>
                     : options.length === 0
-                        ? <p className="px-4 py-3.5 text-[15px] text-muted-foreground">Niemand gefunden</p>
+                        ? <p className="px-4 py-3.5 text-[14px] text-ink-muted">Niemand gefunden</p>
                         : options.map((user) => <SearchResult key={user.id} user={user} status={status.get(user.id)} />)}
             </div>}
         </Card>
@@ -189,15 +189,15 @@ function SearchResult({ user, status }: { user: CalendarUser, status?: string })
     })
 
     return <div className="flex items-center gap-3 px-4 py-2.5">
-        <UserAvatar user={user} className="size-9 text-sm ring-0" />
+        <UserAvatar user={user} className="size-9 text-body ring-0" />
         <div className="min-w-0 flex-1">
-            <p className="truncate text-[17px]">{user.name ?? "Unbekannt"}</p>
-            {error && <p role="alert" className="truncate text-sm text-destructive">{error}</p>}
+            <p className="truncate text-[14px]">{user.name ?? "Unbekannt"}</p>
+            {error && <p role="alert" className="truncate text-body text-destructive">{error}</p>}
         </div>
         {status
-            ? <span className="text-sm text-muted-foreground">{status}</span>
+            ? <span className="text-body text-ink-muted">{status}</span>
             : <button type="button" onClick={send} disabled={pending}
-                className="flex items-center gap-1.5 rounded-full bg-[#0a84ff] px-3.5 py-1.5 text-sm font-semibold text-white hover:brightness-110 disabled:opacity-60">
+                className="flex items-center gap-1.5 rounded-full bg-brand px-3.5 py-1.5 text-body font-semibold text-on-brand hover:brightness-110 disabled:opacity-60">
                 {pending ? <Spinner className="size-4" /> : <UserPlus className="size-4" />}Hinzufügen
             </button>}
     </div>

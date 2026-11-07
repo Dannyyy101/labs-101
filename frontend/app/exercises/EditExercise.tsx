@@ -64,7 +64,7 @@ const EditExercise: React.FC<{ exercise: Exercise, children: React.ReactNode, cl
         <DrawerTrigger className={className} render={<Button variant="outline" />}>{children}</DrawerTrigger>
         <DrawerContent className="data-[swipe-axis=x]:sm:[--drawer-content-width:30rem]!">
             <DrawerHeader className="flex-row items-center gap-2 pb-2">
-                <DrawerTitle className="flex-1 text-lg font-semibold">{isEditing ? "Update exercise" : "Create exercise"}</DrawerTitle>
+                <DrawerTitle className="flex-1 text-heading">{isEditing ? "Update exercise" : "Create exercise"}</DrawerTitle>
                 {isEditing && <DrawerClose render={<Button onClick={handleDelete} variant="outline" size="icon" aria-label="Delete exercise" />}>
                     <TrashIcon />
                 </DrawerClose>}
@@ -74,8 +74,8 @@ const EditExercise: React.FC<{ exercise: Exercise, children: React.ReactNode, cl
                     <div className="-mx-4 flex gap-1.5 overflow-x-auto px-4 [scrollbar-width:none]">
                         {EXERCISE_TYPES.map((type) => <button type="button" key={type}
                             onClick={() => setExercise((prev) => ({ ...prev, type: type }))}
-                            className={cn("flex-none rounded-full border px-3 py-1.5 text-sm font-medium",
-                                exercise.type === type ? "border-transparent bg-primary text-primary-foreground" : "text-muted-foreground")}>
+                            className={cn("flex-none rounded-full border px-3 py-1.5 text-body font-medium",
+                                exercise.type === type ? "border-transparent bg-primary text-primary-foreground" : "text-ink-muted")}>
                             {type}
                         </button>)}
                     </div>
@@ -140,19 +140,19 @@ function MusclePicker({ parts, setBodyParts }: { parts: ExtendedBodyPart[], setB
 
     return <div className="flex flex-col gap-3">
         <div className="flex items-baseline justify-between gap-2">
-            <span className="text-sm font-medium">Muscles</span>
-            <span className="text-xs text-muted-foreground">Tap to cycle intensity</span>
+            <span className="text-body font-medium">Muscles</span>
+            <span className="text-label text-ink-muted">Tap to cycle intensity</span>
         </div>
-        <div className="grid grid-cols-2 gap-2 rounded-xl bg-muted/50 p-3">
+        <div className="grid grid-cols-2 gap-2 rounded-[12px] glass-inset p-3">
             {(["front", "back"] as const).map((side) => <div key={side} className="flex flex-col items-center gap-1">
                 <div className="w-full max-w-44 [&_svg]:h-auto [&_svg]:w-full">
                     <Body data={data} side={side} gender="male" colors={MUSCLE_LEVELS} defaultFill="#8e8e9340" border="none"
                         onBodyPartPress={(part) => onPress(part.slug)} />
                 </div>
-                <span className="text-xs font-medium text-muted-foreground">{side === "front" ? "Front" : "Back"}</span>
+                <span className="text-label font-medium text-ink-muted">{side === "front" ? "Front" : "Back"}</span>
             </div>)}
         </div>
-        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-label text-ink-muted">
             {["Supporting", "Secondary", "Primary"].map((label, i) => <span key={label} className="flex items-center gap-1.5">
                 <span className="size-2.5 rounded-full" style={{ background: MUSCLE_LEVELS[i] }} />{label}
             </span>)}
@@ -160,10 +160,10 @@ function MusclePicker({ parts, setBodyParts }: { parts: ExtendedBodyPart[], setB
         {selected.length > 0 && <div className="flex flex-wrap gap-1.5">
             {selected.map((part) => <button type="button" key={part.slug} onClick={() => setIntensity(part.slug!, 0)}
                 aria-label={`Remove ${MUSCLES[part.slug!] ?? part.slug}`}
-                className={cn("flex items-center gap-1 rounded-full py-1 pr-1.5 pl-2.5 text-xs font-medium",
+                className={cn("flex items-center gap-1 rounded-full py-1 pr-1.5 pl-2.5 text-label font-medium",
                     (part.intensity ?? 0) >= MUSCLE_LEVELS.length
-                        ? "bg-[#ff9f0a]/15 text-[#c76f00] dark:text-[#ff9f0a]"
-                        : "bg-muted text-muted-foreground")}>
+                        ? "bg-brand-soft text-brand-strong"
+                        : "glass-inset text-ink-muted")}>
                 {MUSCLES[part.slug!] ?? part.slug}<X className="size-3.5" />
             </button>)}
         </div>}

@@ -6,7 +6,8 @@ import type { GeoJSONSource, LngLatBoundsLike } from "maplibre-gl"
 import { useEffect, useMemo } from "react"
 import { paceColor } from "./format"
 
-const ACCENT = "#0a84ff"
+// yard ops brand blue, maplibre needs the value itself
+const ACCENT = "#3560e0"
 
 type Collection = GeoJSON.FeatureCollection
 
@@ -46,7 +47,7 @@ export default function RunMap({ points, highlightKm, cursor, children }: {
     cursor: RunPoint | null
     children?: React.ReactNode
 }) {
-    return <div className="relative h-[420px] overflow-hidden rounded-[18px] bg-muted lg:h-[520px]">
+    return <div className="relative h-[420px] overflow-hidden rounded-[14px] bg-surface-sunken lg:h-[520px]">
         <Map center={[13.4, 52.5]} zoom={12} scrollZoom={false} attributionControl={{ compact: true }}>
             <MapControls position="bottom-right" />
             <RouteLayers points={points} highlightKm={highlightKm} cursor={cursor} />
@@ -62,7 +63,7 @@ function RouteLayers({ points, highlightKm, cursor }: { points: RunPoint[], high
     const outline = useMemo<Collection>(() => points.length > 1 ? { type: "FeatureCollection", features: [line(points)] } : empty, [points])
     const markers = useMemo<Collection>(() => points.length > 1 ? {
         type: "FeatureCollection",
-        features: [point(points[0], { color: "#30d158" }), point(points[points.length - 1], { color: "#ff453a" })],
+        features: [point(points[0], { color: "#338548" }), point(points[points.length - 1], { color: "#c42d2d" })],
     } : empty, [points])
     const highlight = useMemo<Collection>(() => {
         if (highlightKm == null) return empty
@@ -77,7 +78,7 @@ function RouteLayers({ points, highlightKm, cursor }: { points: RunPoint[], high
         const sources = ["run-outline", "run-route", "run-highlight", "run-markers", "run-cursor"]
         sources.forEach((id) => map.addSource(id, { type: "geojson", data: empty }))
         const round = { "line-join": "round", "line-cap": "round" } as const
-        map.addLayer({ id: "run-outline", type: "line", source: "run-outline", layout: round, paint: { "line-color": "#000", "line-width": 9, "line-opacity": .18 } })
+        map.addLayer({ id: "run-outline", type: "line", source: "run-outline", layout: round, paint: { "line-color": "#0f1424", "line-width": 9, "line-opacity": .18 } })
         map.addLayer({ id: "run-route", type: "line", source: "run-route", layout: round, paint: { "line-color": ["get", "color"], "line-width": 5 } })
         map.addLayer({ id: "run-highlight-casing", type: "line", source: "run-highlight", layout: round, paint: { "line-color": "#fff", "line-width": 11, "line-opacity": .9 } })
         map.addLayer({ id: "run-highlight", type: "line", source: "run-highlight", layout: round, paint: { "line-color": ACCENT, "line-width": 6 } })

@@ -29,7 +29,7 @@ export default function SettingsForm({ settings }: { settings: UserSettings | nu
     })
 
     return <form
-        className="rounded-3xl bg-card shadow-sm p-6 flex flex-col gap-5"
+        className="glass rounded-[14px] p-6 flex flex-col gap-5"
         onSubmit={(e) => { e.preventDefault(); if (valid && changed) save() }}
     >
         <h2 className="text-xl font-semibold">Ernährung</h2>
@@ -66,7 +66,7 @@ export default function SettingsForm({ settings }: { settings: UserSettings | nu
             <Button type="submit" disabled={!valid || !changed || saving}>
                 {saving && <Spinner />}Speichern
             </Button>
-            {saved && !changed && <span className="flex items-center gap-x-1 text-sm text-muted-foreground"><Check className="size-4" />Gespeichert</span>}
+            {saved && !changed && <span className="flex items-center gap-x-1 text-body text-ink-muted"><Check className="size-4" />Gespeichert</span>}
         </div>
     </form>
 }
