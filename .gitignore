@@ -2,3 +2,6 @@
 
 data
 .env
+
+# secrets for helm
+deploy/helm/**/values-*.local.yaml

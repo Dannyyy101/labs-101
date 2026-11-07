@@ -4,16 +4,10 @@
 <dict>
 	<key>APIBaseURL</key>
 	<string>$(API_BASE_URL)</string>
-	<key>AuthIssuer</key>
-	<string>$(AUTH_ISSUER)</string>
 	<key>AuthClientID</key>
 	<string>$(AUTH_CLIENT_ID)</string>
-	<!-- health sync while the app is closed, see HealthBackgroundSync.swift -->
-	<key>UIBackgroundModes</key>
-	<array>
-		<string>fetch</string>
-		<string>processing</string>
-	</array>
+	<key>AuthIssuer</key>
+	<string>$(AUTH_ISSUER)</string>
 	<key>BGTaskSchedulerPermittedIdentifiers</key>
 	<array>
 		<string>labs-101.labs-101.health-refresh</string>
@@ -21,9 +15,13 @@
 	</array>
 	<key>NSAppTransportSecurity</key>
 	<dict>
-		<!-- plain http to the backend in the local network during development -->
 		<key>NSAllowsLocalNetworking</key>
 		<true/>
 	</dict>
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>fetch</string>
+		<string>processing</string>
+	</array>
 </dict>
 </plist>

@@ -1,0 +1,75 @@
+{{- if .Values.frontend.enabled }}
+{{- $name := printf "%s-frontend" (include "labs101.fullname" .) }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ $name }}
+  labels:
+    {{- include "labs101.labels" . | nindent 4 }}
+spec:
+  selector:
+    {{- include "labs101.selectorLabels" (list . "frontend") | nindent 4 }}
+  ports:
+    - name: http
+      port: 3000
+      targetPort: http
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ $name }}
+  labels:
+    {{- include "labs101.labels" . | nindent 4 }}
+    {{- include "labs101.selectorLabels" (list . "frontend") | nindent 4 }}
+spec:
+  replicas: {{ .Values.frontend.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "labs101.selectorLabels" (list . "frontend") | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "labs101.selectorLabels" (list . "frontend") | nindent 8 }}
+      annotations:
+        checksum/secret: {{ include (print $.Template.BasePath "/secret.yaml") . | sha256sum }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: frontend
+          image: "{{ .Values.frontend.image.repository }}:{{ .Values.frontend.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.frontend.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: 3000
+          env:
+            - name: APP_URL
+              value: {{ .Values.frontend.appUrl | default (printf "https://%s" .Values.hosts.frontend) | quote }}
+            - name: AUTH_ISSUER
+              value: {{ include "labs101.authIssuer" . | quote }}
+            - name: ZITADEL_ORG_ID
+              value: {{ .Values.auth.zitadelOrgId | quote }}
+            {{- include "labs101.secretEnv" (list . "AUTH_CLIENT_ID" "AUTH_CLIENT_ID") | nindent 12 }}
+            {{- include "labs101.secretEnv" (list . "AUTH_CLIENT_SECRET" "AUTH_CLIENT_SECRET") | nindent 12 }}
+            {{- include "labs101.secretEnv" (list . "AUTH_SECRET" "AUTH_SECRET") | nindent 12 }}
+            # in-cluster, saves the way through the ingress
+            - name: BACKEND_URL
+              value: "http://{{ include "labs101.fullname" . }}-backend:8080/api"
+            {{- with .Values.frontend.extraEnv }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
+          # pages redirect to the sign in, so only the port is checked
+          readinessProbe:
+            tcpSocket:
+              port: http
+            periodSeconds: 10
+          livenessProbe:
+            tcpSocket:
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 30
+          resources:
+            {{- toYaml .Values.frontend.resources | nindent 12 }}
+{{- end }}

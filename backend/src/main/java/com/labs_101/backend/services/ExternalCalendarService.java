@@ -99,6 +99,8 @@ public class ExternalCalendarService {
         try {
             discovered = calDavClient.discover(appleId, password);
         } catch (CalDavClient.UnauthorizedException e) {
+            // 401 and 403 of Apple mean different things, the status tells them apart
+            logger.warn("iCloud refused the Apple ID: {}", e.getMessage());
             throw BadRequestException.appleAccountCredentials();
         } catch (RuntimeException e) {
             logger.warn("iCloud calendars not readable: {}", e.getMessage());
