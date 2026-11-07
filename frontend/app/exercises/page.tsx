@@ -8,10 +8,10 @@ import ExerciseList from "./ExerciseList"
 import EditExercise from "./EditExercise"
 
 export default function Exercises() {
-    return <div className="flex-1 w-full bg-muted/50 px-3.5 py-5 md:px-6 md:py-7">
+    return <div className="w-full flex-1 px-3.5 py-5 md:px-6 md:py-7">
         <div className="mx-auto flex max-w-7xl flex-col gap-4 md:gap-5">
             <div className="flex items-center gap-3">
-                <h1 className="min-w-0 flex-1 truncate text-[34px] font-bold leading-tight tracking-tight">Exercises</h1>
+                <h1 className="min-w-0 flex-1 truncate text-[22px] font-bold leading-7 tracking-tight">Exercises</h1>
                 <EditExercise exercise={{ name: "", description: "", id: -1, type: "Strength Training", bodyParts: [] }}>Create exercise</EditExercise>
             </div>
 

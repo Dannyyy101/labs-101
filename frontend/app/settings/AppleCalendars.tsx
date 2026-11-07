@@ -46,10 +46,10 @@ export default function AppleCalendars({ calendars: initial }: { calendars: Exte
         })
     }
 
-    return <div className="rounded-3xl bg-card shadow-sm p-6 flex flex-col gap-5">
+    return <div className="glass rounded-[14px] p-6 flex flex-col gap-5">
         <div className="flex flex-col gap-1">
             <h2 className="text-xl font-semibold">Apple-Kalender</h2>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-body text-ink-muted">
                 Termine aus deinen Apple-Kalendern werden im Planer angezeigt, ändern kannst du sie weiter in Apple Kalender.
             </p>
         </div>
@@ -57,7 +57,7 @@ export default function AppleCalendars({ calendars: initial }: { calendars: Exte
         {[...accounts.entries()].map(([accountId, account]) =>
             <section key={accountId} className="flex flex-col gap-2">
                 <div className="flex items-center justify-between gap-3">
-                    <p className="truncate text-sm font-medium">{account.appleId}</p>
+                    <p className="truncate text-body font-medium">{account.appleId}</p>
                     <Button type="button" variant="ghost" size="sm" disabled={pending} onClick={() => disconnect(accountId, account.appleId)}>
                         Trennen
                     </Button>
@@ -66,7 +66,7 @@ export default function AppleCalendars({ calendars: initial }: { calendars: Exte
             </section>)}
 
         {shared.length > 0 && <section className="flex flex-col gap-2">
-            <p className="text-sm font-medium">Über Link</p>
+            <p className="text-body font-medium">Über Link</p>
             <CalendarList calendars={shared} pending={pending} remove={removeCalendar} />
         </section>}
 
@@ -81,7 +81,7 @@ export default function AppleCalendars({ calendars: initial }: { calendars: Exte
         <ConnectForm pending={pending} run={run} setError={setError} onConnected={setCalendars} />
 
         <details className="group">
-            <summary className="flex cursor-pointer items-center gap-2 text-sm text-muted-foreground hover:text-foreground">
+            <summary className="flex cursor-pointer items-center gap-2 text-body text-ink-muted hover:text-foreground">
                 <Link2 className="size-4" />Oder einen öffentlich freigegebenen Kalender über seinen Link hinzufügen
             </summary>
             <LinkForm pending={pending} run={run} setError={setError}
@@ -91,12 +91,12 @@ export default function AppleCalendars({ calendars: initial }: { calendars: Exte
 }
 
 function CalendarList({ calendars, pending, remove }: { calendars: ExternalCalendar[], pending: boolean, remove: (calendar: ExternalCalendar) => void }) {
-    return <ul className="divide-y divide-border/70 rounded-xl border">
+    return <ul className="divide-y divide-border/70 rounded-[12px] border">
         {calendars.map((calendar) => <li key={calendar.id} className="flex items-center gap-3 px-4 py-2">
-            <CalendarDays className="size-4 shrink-0 text-muted-foreground" />
+            <CalendarDays className="size-4 shrink-0 text-ink-muted" />
             <div className="min-w-0 flex-1">
                 <p className="truncate">{calendar.name}</p>
-                {calendar.error && <p className="text-xs text-destructive">{calendar.error}</p>}
+                {calendar.error && <p className="text-label text-destructive">{calendar.error}</p>}
             </div>
             <Button type="button" variant="ghost" size="icon" disabled={pending} onClick={() => remove(calendar)}
                 aria-label={`${calendar.name} ausblenden`}>

@@ -33,8 +33,8 @@ export const formatDate = (date: Date) => `${WEEKDAY(date)}, ${date.getDate()}. 
 
 export const formatMonth = (date: Date) => `${MONTHS_SHORT[date.getMonth()]} ${date.getFullYear()}`
 
-// green (fast) → yellow → orange → red (slow), `value` between 0 and 1
-const STOPS = [[48, 209, 88], [255, 214, 10], [255, 159, 10], [255, 69, 58]]
+// one blue from strong (fast) to light (slow), `value` between 0 and 1; real colours because maplibre can't read css variables
+const STOPS = [[27, 47, 138], [53, 96, 224], [125, 151, 236], [180, 195, 243]]
 export function paceColor(value: number) {
     const v = Math.max(0, Math.min(1, value)) * 3
     const i = Math.min(2, Math.floor(v)), f = v - i, a = STOPS[i], b = STOPS[i + 1]

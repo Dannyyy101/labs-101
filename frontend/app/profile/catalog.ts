@@ -7,10 +7,11 @@ import { de, formatPace } from "@/app/runs/format"
 export type Category = "food" | "run" | "workout" | "streak"
 
 export const CATEGORIES: Record<Category, { label: string, color: string, gradient: string }> = {
-    food: { label: "Ernährung", color: "#ff9f0a", gradient: "linear-gradient(145deg,#ffd60a,#ff9f0a 55%,#f07c00)" },
-    run: { label: "Laufen", color: "#0a84ff", gradient: "linear-gradient(145deg,#64d2ff,#0a84ff 55%,#0060df)" },
-    workout: { label: "Training", color: "#ff375f", gradient: "linear-gradient(145deg,#ff8aa1,#ff375f 55%,#e0153f)" },
-    streak: { label: "Streak", color: "#bf5af2", gradient: "linear-gradient(145deg,#da8fff,#bf5af2 55%,#9a3bd1)" },
+    // the categorical chart series from globals.css, the same colours as the activity heatmap
+    food: { label: "Ernährung", color: "var(--series-2)", gradient: "linear-gradient(145deg,color-mix(in srgb,var(--series-2) 65%,white),var(--series-2) 55%,color-mix(in srgb,var(--series-2) 80%,black))" },
+    run: { label: "Laufen", color: "var(--series-1)", gradient: "linear-gradient(145deg,color-mix(in srgb,var(--series-1) 65%,white),var(--series-1) 55%,color-mix(in srgb,var(--series-1) 80%,black))" },
+    workout: { label: "Training", color: "var(--series-3)", gradient: "linear-gradient(145deg,color-mix(in srgb,var(--series-3) 65%,white),var(--series-3) 55%,color-mix(in srgb,var(--series-3) 80%,black))" },
+    streak: { label: "Streak", color: "var(--series-4)", gradient: "linear-gradient(145deg,color-mix(in srgb,var(--series-4) 65%,white),var(--series-4) 55%,color-mix(in srgb,var(--series-4) 80%,black))" },
 }
 
 interface Definition {

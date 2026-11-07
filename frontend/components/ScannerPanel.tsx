@@ -40,7 +40,7 @@ function ScannerSurface({ onDetected }: ScannerPanelProps) {
     return (
         <div
             className={[
-                "rounded-2xl",
+                "rounded-[12px]",
                 'relative w-full select-none overflow-hidden bg-neutral-950 text-neutral-50',
                 'aspect-[3/4] sm:aspect-[4/3]',
                 '[&_video]:absolute [&_video]:inset-0 [&_video]:size-full [&_video]:object-cover'
@@ -63,9 +63,9 @@ function ScannerSurface({ onDetected }: ScannerPanelProps) {
                     <div className="pointer-events-none absolute inset-0 grid place-items-center">
                         <div
                             className={[
-                                'relative aspect-[5/2] w-[80%] max-w-sm rounded-xl transition-colors duration-200',
+                                'relative aspect-[5/2] w-[80%] max-w-sm rounded-[12px] transition-colors duration-200',
                                 'shadow-[0_0_0_9999px_rgba(0,0,0,0.55)]',
-                                code ? 'ring-2 ring-lime-300' : 'ring-1 ring-white/25'
+                                code ? 'ring-2 ring-[#9db2ff]' : 'ring-1 ring-white/25'
                             ].join(' ')}
                         >
                             <Bracket className="left-0 top-0 rounded-tl-xl border-l-2 border-t-2" active={!!code} />
@@ -79,28 +79,28 @@ function ScannerSurface({ onDetected }: ScannerPanelProps) {
 
             {/* Kopfzeile liegt über dem Bild, statt Höhe zu verbrauchen */}
             <div className="pointer-events-none absolute inset-x-0 top-0 bg-gradient-to-b from-black/70 to-transparent px-4 pb-8 pt-[max(0.875rem,env(safe-area-inset-top))]">
-                <p className="text-sm font-medium">Produkt scannen</p>
+                <p className="text-body font-medium">Produkt scannen</p>
             </div>
 
             {/* Fußzeile: Hinweis, Licht, Ergebnis */}
             <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/85 via-black/60 to-transparent px-4 pb-[max(1rem,env(safe-area-inset-bottom))] pt-10">
                 {code ? (
                     <div className="flex flex-col gap-3">
-                        <p className="text-center font-mono text-lg tabular-nums tracking-[0.3em] text-lime-300">
+                        <p className="text-center font-mono text-lg tabular-nums tracking-[0.3em] text-[#9db2ff]">
                             {code}
                         </p>
                         <div className="flex gap-2">
                             <button
                                 type="button"
                                 onClick={() => setCode(undefined)}
-                                className="h-11 flex-1 rounded-full border border-white/20 text-sm font-medium text-neutral-100 transition-colors hover:bg-white/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-lime-300"
+                                className="h-11 flex-1 rounded-full border border-white/20 text-body font-medium text-neutral-100 transition-colors hover:bg-white/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#9db2ff]"
                             >
                                 Nochmal
                             </button>
                             <button
                                 type="button"
                                 onClick={() => onDetected?.(code)}
-                                className="h-11 flex-[2] rounded-full bg-lime-300 text-sm font-medium text-neutral-950 transition-colors hover:bg-lime-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-lime-300"
+                                className="h-11 flex-[2] rounded-full bg-[#9db2ff] text-body font-medium text-neutral-950 transition-colors hover:bg-[#b9c8fb] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#9db2ff]"
                             >
                                 Hinzufügen
                             </button>
@@ -108,7 +108,7 @@ function ScannerSurface({ onDetected }: ScannerPanelProps) {
                     </div>
                 ) : (
                     <div className="flex items-center justify-between gap-3">
-                        <p className="text-sm text-neutral-300">Code quer ins Fenster halten</p>
+                        <p className="text-body text-neutral-300">Code quer ins Fenster halten</p>
                         <TorchButton />
                     </div>
                 )}
@@ -121,7 +121,7 @@ function Bracket({ className, active }: { className: string; active: boolean }) 
     return (
         <span
             aria-hidden
-            className={`absolute size-6 transition-colors duration-200 ${active ? 'border-lime-300' : 'border-white'
+            className={`absolute size-6 transition-colors duration-200 ${active ? 'border-[#9db2ff]' : 'border-white'
                 } ${className}`}
         />
     )
@@ -136,7 +136,7 @@ function TorchButton() {
             type="button"
             onClick={() => setIsTorchOn(!isTorchOn)}
             aria-pressed={isTorchOn}
-            className={`grid size-11 shrink-0 place-items-center rounded-full transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-lime-300 ${isTorchOn ? 'bg-lime-300 text-neutral-950' : 'bg-white/15 text-neutral-100 hover:bg-white/25'
+            className={`grid size-11 shrink-0 place-items-center rounded-full transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#9db2ff] ${isTorchOn ? 'bg-[#9db2ff] text-neutral-950' : 'bg-white/15 text-neutral-100 hover:bg-white/25'
                 }`}
         >
             <span aria-hidden>☀</span>
@@ -151,8 +151,8 @@ function CameraError({ error }: { error: Error }) {
     return (
         <div className="absolute inset-0 grid place-items-center px-8 text-center">
             <div className="max-w-xs">
-                <p className="text-sm font-medium">Kamera nicht verfügbar</p>
-                <p className="mt-2 text-sm leading-relaxed text-neutral-400">
+                <p className="text-body font-medium">Kamera nicht verfügbar</p>
+                <p className="mt-2 text-body leading-relaxed text-neutral-400">
                     {denied
                         ? 'Kamerazugriff ist blockiert. In den Website-Einstellungen freigeben und neu laden.'
                         : 'Die Kamera lässt sich nicht starten. Prüfe, ob eine andere App sie benutzt und ob die Seite über HTTPS läuft.'}

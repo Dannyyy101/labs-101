@@ -18,11 +18,11 @@ const JPEG_QUALITY = 0.85
 const MAX_DESCRIPTION_LENGTH = 500
 
 export const STATUS_LABEL: Record<FoodImageStatus, { label: string, className: string }> = {
-    PENDING: { label: "Wird ausgewertet", className: "bg-blue-500/10 text-blue-500" },
-    READY: { label: "Prüfen", className: "bg-orange-400/15 text-orange-500" },
+    PENDING: { label: "Wird ausgewertet", className: "bg-brand-soft text-brand-strong" },
+    READY: { label: "Prüfen", className: "bg-warning-soft text-warning" },
     FAILED: { label: "Fehlgeschlagen", className: "bg-destructive/10 text-destructive" },
-    ACCEPTED: { label: "Eingetragen", className: "bg-green-500/10 text-green-600" },
-    REJECTED: { label: "Abgelehnt", className: "bg-muted text-muted-foreground" },
+    ACCEPTED: { label: "Eingetragen", className: "bg-success-soft text-success" },
+    REJECTED: { label: "Abgelehnt", className: "glass-inset text-ink-muted" },
 }
 
 // the browser decodes the photo (also HEIC on Safari) and turns the EXIF rotation into pixels,
@@ -97,14 +97,14 @@ const PhotoFoodInput: React.FC<{ meal: Meal }> = ({ meal }) => {
     const left = usage ? Math.max(0, usage.limit - usage.used) : null
 
     return <div className="flex flex-col mt-3 gap-y-3">
-        <div className="bg-accent rounded-2xl p-4 flex flex-col items-center gap-y-3 text-center">
-            <span className="size-12 rounded-full bg-blue-500/10 text-blue-500 flex items-center justify-center"><Camera className="size-6" /></span>
+        <div className="glass-inset rounded-[12px] p-4 flex flex-col items-center gap-y-3 text-center">
+            <span className="size-12 rounded-full bg-brand-soft text-brand-strong flex items-center justify-center"><Camera className="size-6" /></span>
             <div>
                 <p className="font-semibold">Foto deiner Mahlzeit</p>
-                <p className="text-sm text-muted-foreground">Die KI erkennt die Lebensmittel und schätzt die Mengen. Du bekommst eine Benachrichtigung, sobald du sie prüfen kannst.</p>
+                <p className="text-body text-ink-muted">Die KI erkennt die Lebensmittel und schätzt die Mengen. Du bekommst eine Benachrichtigung, sobald du sie prüfen kannst.</p>
             </div>
             <textarea
-                className="w-full bg-background rounded-xl px-3 py-2 resize-none outline-none text-sm min-h-16"
+                className="w-full glass-inset rounded-[12px] px-3 py-2 resize-none outline-none text-body min-h-16"
                 value={description}
                 maxLength={MAX_DESCRIPTION_LENGTH}
                 placeholder="Optional: Was gibt es? z. B. Spaghetti Bolognese mit Parmesan, dazu ein Glas Apfelschorle"
@@ -119,23 +119,23 @@ const PhotoFoodInput: React.FC<{ meal: Meal }> = ({ meal }) => {
                 onChange={(e) => { const file = e.target.files?.[0]; if (file) upload(file) }}
             />
             <button
-                className="rounded-full bg-blue-500 hover:bg-blue-600 text-white font-semibold px-5 py-2 disabled:opacity-50 flex items-center gap-x-2"
+                className="rounded-[10px] bg-brand hover:bg-brand-strong text-on-brand font-semibold px-5 py-2 disabled:opacity-50 flex items-center gap-x-2"
                 disabled={uploading || left === 0}
                 onClick={() => input.current?.click()}
             >
                 {uploading ? <Spinner className="size-4" /> : <Camera className="size-4" />}Foto aufnehmen oder auswählen
             </button>
-            {left !== null && <p className="text-xs text-muted-foreground tabular-nums">
+            {left !== null && <p className="text-label text-ink-muted tabular-nums">
                 {left === 0 ? "Heute sind keine Fotos mehr übrig, morgen geht es weiter" : `Noch ${left} von ${usage!.limit} Fotos heute`}
             </p>}
         </div>
 
         {uploaded && <Alert>
-            <CheckCircle2 className="size-4 text-green-600" />
+            <CheckCircle2 className="size-4 text-success" />
             <AlertTitle>Foto wird ausgewertet</AlertTitle>
             <AlertDescription>
                 Das dauert meist nur ein paar Sekunden, du bekommst dann eine Benachrichtigung.{" "}
-                <Link href={`/foods/images/${uploaded.id}`} className="text-blue-500 hover:underline">Jetzt öffnen</Link>
+                <Link href={`/foods/images/${uploaded.id}`} className="text-brand-strong hover:underline">Jetzt öffnen</Link>
             </AlertDescription>
         </Alert>}
 
@@ -146,17 +146,17 @@ const PhotoFoodInput: React.FC<{ meal: Meal }> = ({ meal }) => {
         </Alert>}
 
         {recent.length > 0 && <>
-            <h2 className="text-xs uppercase tracking-wide text-muted-foreground mt-1">Letzte Fotos</h2>
+            <h2 className="text-label uppercase tracking-wide text-ink-muted mt-1">Letzte Fotos</h2>
             <ul className="flex flex-col gap-y-1">
                 {recent.map((photo) => <li key={photo.id}>
-                    <Link href={`/foods/images/${photo.id}`} className="flex items-center gap-x-3 rounded-2xl p-2 hover:bg-accent">
+                    <Link href={`/foods/images/${photo.id}`} className="flex items-center gap-x-3 rounded-[12px] p-2 hover:bg-surface-raised/50 dark:hover:bg-white/5">
                         {/* eslint-disable-next-line @next/next/no-img-element -- private photo through our route handler */}
-                        <img src={foodImageUrl(photo.id)} alt="" className="size-12 rounded-xl object-cover bg-muted" />
+                        <img src={foodImageUrl(photo.id)} alt="" className="size-12 rounded-[12px] object-cover glass-inset" />
                         <div className="flex-1 min-w-0">
                             <p className="font-medium truncate">{photo.items.length > 0 ? photo.items.map((i) => i.food?.name ?? i.query).join(", ") : "Foto"}</p>
-                            <p className="text-xs text-muted-foreground">{formatDistanceToNow(new Date(photo.createdAt), { addSuffix: true, locale: de })}</p>
+                            <p className="text-label text-ink-muted">{formatDistanceToNow(new Date(photo.createdAt), { addSuffix: true, locale: de })}</p>
                         </div>
-                        <span className={`text-xs font-medium rounded-full px-2.5 py-1 ${STATUS_LABEL[photo.status].className}`}>{STATUS_LABEL[photo.status].label}</span>
+                        <span className={`text-label font-medium rounded-full px-2.5 py-1 ${STATUS_LABEL[photo.status].className}`}>{STATUS_LABEL[photo.status].label}</span>
                     </Link>
                 </li>)}
             </ul>

@@ -55,7 +55,7 @@ const NutrientInput: React.FC<{
     step?: number
 }> = ({ label, unit, value, onValueChange }) => (
     <Field className="gap-0">
-        <FieldLabel className="flex items-center gap-1.5 text-muted-foreground">
+        <FieldLabel className="flex items-center gap-1.5 text-ink-muted">
             {label}
         </FieldLabel>
         <div className="relative">
@@ -69,7 +69,7 @@ const NutrientInput: React.FC<{
                 onChange={(e) => onValueChange(parseNumber(e.target.value))}
                 className="pr-12 tabular-nums"
             />
-            <span className="pointer-events-none absolute inset-y-0 right-3 flex items-center text-xs text-muted-foreground">
+            <span className="pointer-events-none absolute inset-y-0 right-3 flex items-center text-label text-ink-muted">
                 {unit}
             </span>
         </div>
@@ -88,7 +88,7 @@ const MacroSplit: React.FC<{
 
     if (total <= 0) {
         return (
-            <p className="text-xs text-muted-foreground">
+            <p className="text-label text-ink-muted">
                 Add protein, carbs or fat to see the energy split.
             </p>
         )
@@ -98,12 +98,12 @@ const MacroSplit: React.FC<{
 
     return (
         <div className="space-y-2 mt-2">
-            <div className="flex h-2 overflow-hidden rounded-full bg-muted">
+            <div className="flex h-2 overflow-hidden rounded-full bg-track">
                 <div className="bg-protein" style={{ width: `${(proteinKcal / total) * 100}%` }} />
                 <div className="bg-carbohydrates" style={{ width: `${(carbKcal / total) * 100}%` }} />
                 <div className="bg-fat" style={{ width: `${(fatKcal / total) * 100}%` }} />
             </div>
-            <div className="flex gap-4 text-xs text-muted-foreground tabular-nums">
+            <div className="flex gap-4 text-label text-ink-muted tabular-nums">
                 <span>Protein {share(proteinKcal)}%</span>
                 <span>Carbs {share(carbKcal)}%</span>
                 <span>Fat {share(fatKcal)}%</span>
@@ -262,7 +262,7 @@ const EditFood: React.FC<{
                                     aria-invalid={!!nameError}
                                 />
                                 {nameError && (
-                                    <p className="text-xs text-destructive">{nameError}</p>
+                                    <p className="text-label text-destructive">{nameError}</p>
                                 )}
                             </Field>
 
@@ -276,7 +276,7 @@ const EditFood: React.FC<{
                                     onChange={(e) => set("blsCode", e.target.value)}
                                     className="font-mono uppercase"
                                 />
-                                <p className="text-xs text-muted-foreground">
+                                <p className="text-label text-ink-muted">
                                     Optional — links this food to the Bundeslebensmittelschlüssel.
                                 </p>
                             </Field>
@@ -285,12 +285,12 @@ const EditFood: React.FC<{
                         {/* nutrition ----------------------------------------------- */}
                         <section className="space-y-4">
                             <div className="flex items-baseline justify-between">
-                                <h3 className="text-sm font-medium">Nutrition per 100 g</h3>
+                                <h3 className="text-body font-medium">Nutrition per 100 g</h3>
                                 {computedKcal > 0 && (
                                     <button
                                         type="button"
                                         onClick={() => set("kcal", computedKcal)}
-                                        className="text-xs text-muted-foreground underline-offset-4 hover:underline"
+                                        className="text-label text-ink-muted underline-offset-4 hover:underline"
                                     >
                                         Use {computedKcal} kcal from macros
                                     </button>
@@ -345,7 +345,7 @@ const EditFood: React.FC<{
                             />
 
                             {kcalMismatch && (
-                                <p className="text-xs text-amber-600">
+                                <p className="text-label text-warning">
                                     Macros add up to {computedKcal} kcal — check the entered energy.
                                 </p>
                             )}
@@ -354,14 +354,14 @@ const EditFood: React.FC<{
                         {/* portions ------------------------------------------------ */}
                         <section className="space-y-3">
                             <div className="flex items-baseline justify-between">
-                                <h3 className="text-sm font-medium">Portions</h3>
-                                <span className="text-xs text-muted-foreground">
+                                <h3 className="text-body font-medium">Portions</h3>
+                                <span className="text-label text-ink-muted">
                                     Star marks the one preselected when logging
                                 </span>
                             </div>
 
                             {portions.length === 0 ? (
-                                <p className="rounded-md border border-dashed p-4 text-sm text-muted-foreground">
+                                <p className="rounded-md border border-dashed p-4 text-body text-ink-muted">
                                     No portions yet. Add one like “slice” or “bowl” so you don’t
                                     have to weigh every time.
                                 </p>
@@ -378,8 +378,8 @@ const EditFood: React.FC<{
                                                 onClick={() => markDefault(portion.key)}
                                                 className={
                                                     portion.isDefault
-                                                        ? "text-amber-500"
-                                                        : "text-muted-foreground"
+                                                        ? "text-warning"
+                                                        : "text-ink-muted"
                                                 }
                                             >
                                                 <Star
@@ -417,7 +417,7 @@ const EditFood: React.FC<{
                                                     }
                                                     className="pr-8 tabular-nums"
                                                 />
-                                                <span className="pointer-events-none absolute inset-y-0 right-3 flex items-center text-xs text-muted-foreground">
+                                                <span className="pointer-events-none absolute inset-y-0 right-3 flex items-center text-label text-ink-muted">
                                                     g
                                                 </span>
                                             </div>
@@ -437,7 +437,7 @@ const EditFood: React.FC<{
                             )}
 
                             {portionError && (
-                                <p className="text-xs text-destructive">{portionError}</p>
+                                <p className="text-label text-destructive">{portionError}</p>
                             )}
 
                             <Button

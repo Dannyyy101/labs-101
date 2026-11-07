@@ -60,18 +60,18 @@ export default function FoodImageReview({ analysis }: { analysis: FoodImageAnaly
     return <div className="flex flex-col gap-4">
         <div className="relative">
             {/* eslint-disable-next-line @next/next/no-img-element -- private photo through our route handler */}
-            <img src={foodImageUrl(analysis.id)} alt="Foto der Mahlzeit" className="w-full max-h-[50vh] object-contain rounded-3xl bg-card shadow-sm" />
-            <span className={`absolute top-3 left-3 text-xs font-semibold rounded-full px-3 py-1 backdrop-blur bg-background/80 ${status.className}`}>{status.label}</span>
+            <img src={foodImageUrl(analysis.id)} alt="Foto der Mahlzeit" className="w-full max-h-[50vh] object-contain glass rounded-[14px]" />
+            <span className={`absolute top-3 left-3 text-label font-semibold rounded-full px-3 py-1 glass ${status.className}`}>{status.label}</span>
         </div>
 
-        {analysis.description && <p className="rounded-2xl bg-card shadow-sm px-4 py-3 text-sm">
-            <span className="text-muted-foreground">Deine Beschreibung: </span>{analysis.description}
+        {analysis.description && <p className="glass rounded-[14px] px-4 py-3 text-body">
+            <span className="text-ink-muted">Deine Beschreibung: </span>{analysis.description}
         </p>}
 
-        {analysis.status === "PENDING" && <div className="rounded-3xl bg-card shadow-sm p-6 flex flex-col items-center gap-2 text-center">
+        {analysis.status === "PENDING" && <div className="glass rounded-[14px] p-6 flex flex-col items-center gap-2 text-center">
             <Spinner className="size-6" />
             <p className="font-semibold">Das Foto wird ausgewertet</p>
-            <p className="text-sm text-muted-foreground">Du bekommst eine Benachrichtigung, du kannst die Seite auch offen lassen.</p>
+            <p className="text-body text-ink-muted">Du bekommst eine Benachrichtigung, du kannst die Seite auch offen lassen.</p>
         </div>}
 
         {analysis.status === "FAILED" && <Alert variant="destructive">
@@ -87,15 +87,15 @@ export default function FoodImageReview({ analysis }: { analysis: FoodImageAnaly
 }
 
 function Summary({ analysis }: { analysis: FoodImageAnalysis }) {
-    return <div className="rounded-3xl bg-card shadow-sm p-4 flex flex-col gap-y-2">
-        <p className="text-sm text-muted-foreground">
+    return <div className="glass rounded-[14px] p-4 flex flex-col gap-y-2">
+        <p className="text-body text-ink-muted">
             {analysis.status === "ACCEPTED" ? "Diese Lebensmittel wurden eingetragen:" : "Du hast die Auswertung abgelehnt, es wurde nichts eingetragen."}
         </p>
         {analysis.items.map((item, i) => <div key={i} className="flex items-center justify-between gap-x-3">
             <span className="truncate">{item.food?.name ?? item.query}</span>
-            <span className="text-muted-foreground tabular-nums shrink-0">{formatNumber(item.amount)} {item.unit}{!isGrams(item.unit) && ` · ${formatNumber(item.amount * item.gramsPerUnit)} g`}</span>
+            <span className="text-ink-muted tabular-nums shrink-0">{formatNumber(item.amount)} {item.unit}{!isGrams(item.unit) && ` · ${formatNumber(item.amount * item.gramsPerUnit)} g`}</span>
         </div>)}
-        {analysis.status === "ACCEPTED" && <Link href="/foods/track" className="text-blue-500 hover:underline self-start mt-1">Zum Ernährungstagebuch</Link>}
+        {analysis.status === "ACCEPTED" && <Link href="/foods/track" className="text-brand-strong hover:underline self-start mt-1">Zum Ernährungstagebuch</Link>}
     </div>
 }
 
@@ -156,8 +156,8 @@ function Review({ analysis }: { analysis: FoodImageAnalysis }) {
                 ? `${newUnits} neue ${newUnits === 1 ? "Portion wird" : "Portionen werden"} angelegt`
                 : `${items.length} Lebensmittel`
 
-    return <div className="rounded-3xl bg-card shadow-sm p-4 flex flex-col">
-        <p className="text-sm text-muted-foreground">
+    return <div className="glass rounded-[14px] p-4 flex flex-col">
+        <p className="text-body text-ink-muted">
             {analysis.items.length === 0
                 ? "Auf dem Foto wurde kein Essen erkannt."
                 : "Prüfe die erkannten Lebensmittel und Mengen, die Mengen sind Schätzungen der KI."}
@@ -178,18 +178,18 @@ function Review({ analysis }: { analysis: FoodImageAnalysis }) {
 
         <div className="flex flex-wrap items-center gap-3 border-t pt-3 mt-4">
             <div className="mr-auto">
-                <p className="text-xs text-muted-foreground">{hint}</p>
-                <p className="text-xl font-bold tabular-nums">≈ {formatNumber(totalKcal)} kcal</p>
+                <p className="text-label text-ink-muted">{hint}</p>
+                <p className="text-kpi tabular-nums">≈ {formatNumber(totalKcal)} kcal</p>
             </div>
             <button
-                className="rounded-full px-5 py-2 font-semibold bg-muted hover:bg-destructive/15 hover:text-destructive disabled:opacity-50 flex items-center gap-x-2"
+                className="rounded-[10px] px-5 py-2 font-semibold glass-inset hover:bg-destructive/15 hover:text-destructive disabled:opacity-50 flex items-center gap-x-2"
                 disabled={saving !== null}
                 onClick={reject}
             >
                 {saving === "REJECT" && <Spinner className="size-4" />}Ablehnen
             </button>
             <button
-                className="rounded-full bg-blue-500 hover:bg-blue-600 text-white font-semibold px-5 py-2 disabled:bg-accent disabled:text-muted-foreground flex items-center gap-x-2"
+                className="rounded-[10px] bg-brand hover:bg-brand-strong text-on-brand font-semibold px-5 py-2 disabled:opacity-50 flex items-center gap-x-2"
                 disabled={!canAccept}
                 onClick={accept}
             >
@@ -206,9 +206,9 @@ function ItemRow({ item, onChange, onRemove }: { item: ReviewItem, onChange: (ch
     const step = isGrams(item.unit) ? 10 : 1
 
     const statusIcon = {
-        OK: <span className="size-6 shrink-0 rounded-full bg-green-500 text-white flex items-center justify-center"><Check className="size-4" /></span>,
-        NEW_UNIT: <span className="size-6 shrink-0 rounded-full bg-orange-400 text-white flex items-center justify-center font-bold text-sm">?</span>,
-        NOT_FOUND: <span className="size-6 shrink-0 rounded-full bg-red-500 text-white flex items-center justify-center"><X className="size-4" /></span>,
+        OK: <span className="size-6 shrink-0 rounded-full bg-success-bar text-on-brand flex items-center justify-center"><Check className="size-4" /></span>,
+        NEW_UNIT: <span className="size-6 shrink-0 rounded-full bg-warning text-on-brand flex items-center justify-center font-bold text-body">?</span>,
+        NOT_FOUND: <span className="size-6 shrink-0 rounded-full bg-danger text-on-brand flex items-center justify-center"><X className="size-4" /></span>,
     }[status]
 
     // keeps the grams when switching to g, starts with one piece for a portion
@@ -224,27 +224,27 @@ function ItemRow({ item, onChange, onRemove }: { item: ReviewItem, onChange: (ch
         ...(status === "NEW_UNIT" ? [{ label: item.unit, portion: null }] : []),
     ]
 
-    return <div className="rounded-2xl bg-accent p-3" style={{ outline: status === "NEW_UNIT" ? "1.5px solid var(--color-orange-400)" : status === "NOT_FOUND" ? "1.5px solid var(--color-red-500)" : "none" }}>
+    return <div className="rounded-[12px] glass-inset p-3" style={{ outline: status === "NEW_UNIT" ? "1.5px solid var(--warning)" : status === "NOT_FOUND" ? "1.5px solid var(--danger)" : "none" }}>
         <div className="flex items-center gap-x-3">
             {statusIcon}
             <div className="flex-1 min-w-0">
                 <p className="font-medium truncate">{item.food?.name ?? item.query}</p>
-                <p className="text-xs text-muted-foreground truncate">
+                <p className="text-label text-ink-muted truncate">
                     {status === "NOT_FOUND" ? `„${item.query}“ nicht gefunden` : `erkannt: ${item.query}`}
                     {item.openFoodId !== null && " · Open Food Facts"}
                 </p>
             </div>
             {item.food && <div className="text-right">
                 <p className="font-bold leading-tight tabular-nums">{formatNumber(kcalOf(item))}</p>
-                <p className="text-xs text-muted-foreground">kcal</p>
+                <p className="text-label text-ink-muted">kcal</p>
             </div>}
-            <button aria-label="Entfernen" className="size-6 shrink-0 rounded-full bg-background/60 flex items-center justify-center text-muted-foreground" onClick={onRemove}><X className="size-3.5" /></button>
+            <button aria-label="Entfernen" className="size-6 shrink-0 rounded-full glass-inset flex items-center justify-center text-ink-muted" onClick={onRemove}><X className="size-3.5" /></button>
         </div>
 
         {item.food && <div className="flex flex-col gap-y-2 mt-3">
             <div className="flex flex-wrap items-center gap-2">
-                <div className="flex items-center bg-background rounded-lg px-2 py-1 gap-x-2">
-                    <button aria-label="Weniger" className="text-blue-500 disabled:opacity-40" disabled={item.amount <= step} onClick={() => onChange({ amount: Math.max(step, item.amount - step) })}><Minus className="size-4" /></button>
+                <div className="flex items-center glass-inset rounded-lg px-2 py-1 gap-x-2">
+                    <button aria-label="Weniger" className="text-brand-strong disabled:opacity-40" disabled={item.amount <= step} onClick={() => onChange({ amount: Math.max(step, item.amount - step) })}><Minus className="size-4" /></button>
                     <input
                         aria-label="Menge"
                         className="w-14 bg-transparent text-right font-semibold tabular-nums outline-none"
@@ -253,19 +253,19 @@ function ItemRow({ item, onChange, onRemove }: { item: ReviewItem, onChange: (ch
                         value={item.amount === 0 ? "" : item.amount}
                         onChange={(e) => onChange({ amount: e.target.value === "" ? 0 : Math.max(0, Math.round(parseFloat(e.target.value) * 10) / 10) })}
                     />
-                    <button aria-label="Mehr" className="text-blue-500" onClick={() => onChange({ amount: item.amount + step })}><Plus className="size-4" /></button>
+                    <button aria-label="Mehr" className="text-brand-strong" onClick={() => onChange({ amount: item.amount + step })}><Plus className="size-4" /></button>
                 </div>
                 {units.map((u) => <button
                     key={u.label}
-                    className={`rounded-full px-3 py-1 text-sm ${sameLabel(u.label, item.unit) ? "bg-blue-500 text-white" : "bg-background hover:bg-background/70"}`}
+                    className={`rounded-full px-3 py-1 text-body ${sameLabel(u.label, item.unit) ? "bg-brand text-on-brand" : "glass-inset hover:bg-surface-raised/50 dark:hover:bg-white/5"}`}
                     onClick={() => selectUnit(u.label, u.portion)}
-                >{u.label}{u.portion && <span className={sameLabel(u.label, item.unit) ? "text-white/80" : "text-muted-foreground"}> {formatNumber(u.portion.grams)} g</span>}</button>)}
-                {!isGrams(item.unit) && <span className="text-sm text-muted-foreground tabular-nums">= {formatNumber(gramsOf(item))} g</span>}
+                >{u.label}{u.portion && <span className={sameLabel(u.label, item.unit) ? "text-on-brand/80" : "text-ink-muted"}> {formatNumber(u.portion.grams)} g</span>}</button>)}
+                {!isGrams(item.unit) && <span className="text-body text-ink-muted tabular-nums">= {formatNumber(gramsOf(item))} g</span>}
             </div>
 
-            {status === "NEW_UNIT" && <div className="flex flex-wrap items-center gap-2 text-sm">
+            {status === "NEW_UNIT" && <div className="flex flex-wrap items-center gap-2 text-body">
                 <span>Neue Portion: 1 {item.unit} =</span>
-                <div className="flex items-center bg-background rounded-lg px-2 py-0.5 gap-x-1">
+                <div className="flex items-center glass-inset rounded-lg px-2 py-0.5 gap-x-1">
                     <input
                         aria-label={`Gramm pro ${item.unit}`}
                         className="w-14 bg-transparent text-right font-semibold tabular-nums outline-none"
@@ -274,16 +274,16 @@ function ItemRow({ item, onChange, onRemove }: { item: ReviewItem, onChange: (ch
                         value={perUnit === 0 ? "" : perUnit}
                         onChange={(e) => onChange({ gramsPerUnit: e.target.value === "" ? 0 : Math.max(0, parseFloat(e.target.value)) })}
                     />
-                    <span className="text-muted-foreground">g</span>
+                    <span className="text-ink-muted">g</span>
                 </div>
-                <span className="text-xs text-muted-foreground">geschätzt, wird für {item.food.name} gespeichert</span>
+                <span className="text-label text-ink-muted">geschätzt, wird für {item.food.name} gespeichert</span>
             </div>}
         </div>}
 
         {searching
             ? <FoodPicker initialQuery={item.query} onCancel={item.food ? () => setSearching(false) : undefined}
                 onPicked={(food, openFoodId) => { onChange({ food, openFoodId }); setSearching(false) }} />
-            : <button className="text-sm text-blue-500 hover:underline mt-2" onClick={() => setSearching(true)}>Anderes Lebensmittel</button>}
+            : <button className="text-body text-brand-strong hover:underline mt-2" onClick={() => setSearching(true)}>Anderes Lebensmittel</button>}
     </div>
 }
 
@@ -349,20 +349,20 @@ function FoodPicker({ initialQuery, onPicked, onCancel }: {
         }
     }
 
-    return <div className="bg-background rounded-xl p-2 mt-3 flex flex-col gap-y-1">
+    return <div className="glass-inset rounded-[12px] p-2 mt-3 flex flex-col gap-y-1">
         <div className="flex items-center gap-x-2 px-1">
-            <Search className="size-4 text-muted-foreground" />
+            <Search className="size-4 text-ink-muted" />
             <input autoFocus className="flex-1 bg-transparent outline-none py-1" value={query} placeholder="Lebensmittel suchen" onChange={(e) => search(e.target.value)} />
             {loading && <Spinner className="size-4" />}
-            {onCancel && <button className="text-sm text-muted-foreground hover:text-foreground" onClick={onCancel}>Abbrechen</button>}
+            {onCancel && <button className="text-body text-ink-muted hover:text-foreground" onClick={onCancel}>Abbrechen</button>}
         </div>
         {results.map((result) => {
             const key = `${result.id}-${result.openFoodId}`
-            return <button key={key} className="text-left rounded-lg px-2 py-1.5 hover:bg-accent flex items-center gap-x-2 disabled:opacity-50" disabled={picking !== null} onClick={() => pick(result)}>
-                <span className="flex-1">{result.name}{result.openFoodId !== null && <span className="text-xs text-muted-foreground"> · Open Food Facts</span>}</span>
+            return <button key={key} className="text-left rounded-lg px-2 py-1.5 hover:bg-surface-raised/50 dark:hover:bg-white/5 flex items-center gap-x-2 disabled:opacity-50" disabled={picking !== null} onClick={() => pick(result)}>
+                <span className="flex-1">{result.name}{result.openFoodId !== null && <span className="text-label text-ink-muted"> · Open Food Facts</span>}</span>
                 {picking === key && <Spinner className="size-4" />}
             </button>
         })}
-        {!loading && query.trim() && results.length === 0 && <p className="text-sm text-muted-foreground px-2 py-1">Nichts gefunden</p>}
+        {!loading && query.trim() && results.length === 0 && <p className="text-body text-ink-muted px-2 py-1">Nichts gefunden</p>}
     </div>
 }

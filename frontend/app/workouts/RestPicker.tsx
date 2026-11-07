@@ -9,8 +9,8 @@ export default function RestPicker({ value, onChange, label, className }: { valu
     const options = REST_OPTIONS.includes(value) ? REST_OPTIONS : [...REST_OPTIONS, value].sort((a, b) => a - b)
     return <DropdownMenu>
         <DropdownMenuTrigger aria-label={`${label}: ${formatRest(value)}`} title={label}
-            className={cn("h-9 w-full min-w-0 rounded-[10px] bg-muted px-2 text-center text-[15px] font-semibold tabular-nums outline-none focus-visible:ring-2 focus-visible:ring-[#0a84ff]/50",
-                !value && "text-muted-foreground", className)}>
+            className={cn("glass-inset h-9 w-full min-w-0 rounded-[10px] px-2 text-center text-[14px] font-semibold tabular-nums outline-none focus-visible:ring-2 focus-visible:ring-brand/50",
+                !value && "text-ink-muted", className)}>
             {formatRest(value)}
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="min-w-36">

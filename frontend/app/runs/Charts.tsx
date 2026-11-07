@@ -5,9 +5,10 @@ import { useEffect, useMemo, useRef, useState } from "react"
 import { Period } from "@/components/dashboard"
 import { de, formatDate, formatDuration, formatPace, WEEKDAY } from "./format"
 
-const PACE = "#0a84ff"
-const PULSE = "#ff375f"
-const RUN = "#30d158"
+// the two series of the profile chart in the order of the chart palette, the distance bars are a single series
+const PACE = "var(--series-1)"
+const PULSE = "var(--series-2)"
+const RUN = "var(--brand)"
 export const WEEKLY_GOAL_KM = 30
 
 // width of the chart container, the SVGs are drawn in real pixels so the text never scales
@@ -24,7 +25,7 @@ export function useWidth() {
 }
 
 export function Tooltip({ x, y, children }: { x: number, y: number, children: React.ReactNode }) {
-    return <div className="pointer-events-none absolute z-10 whitespace-nowrap rounded-[10px] bg-card px-2.5 py-2 text-xs shadow-[0_6px_20px_rgba(0,0,0,.18)]" style={{ left: x, top: y }}>
+    return <div className="pointer-events-none absolute z-10 whitespace-nowrap glass-thick rounded-[10px] px-2.5 py-2 text-label" style={{ left: x, top: y }}>
         {children}
     </div>
 }
@@ -81,7 +82,7 @@ export function ProfileChart({ points, onHover }: { points: RunPoint[], onHover:
 
     const p = hover != null ? points[hover] : null
     return <div ref={ref} className="relative">
-        {!chart && W > 0 && <p className="py-20 text-center text-sm text-muted-foreground">Kein Pace-Verlauf für diesen Lauf</p>}
+        {!chart && W > 0 && <p className="py-20 text-center text-ink-muted">Kein Pace-Verlauf für diesen Lauf</p>}
         {chart && <>
             <svg width={W} height={H} className="block overflow-visible">
                 <defs>
@@ -91,26 +92,26 @@ export function ProfileChart({ points, onHover }: { points: RunPoint[], onHover:
                     </linearGradient>
                 </defs>
                 {chart.paceTicks.map((v) => <g key={v}>
-                    <line x1={ml} x2={W - mr} y1={chart.Yp(v)} y2={chart.Yp(v)} className="stroke-border" />
-                    <text x={ml - 8} y={chart.Yp(v) + 4} textAnchor="end" fontSize={11} className="fill-muted-foreground">{formatPace(v)}</text>
+                    <line x1={ml} x2={W - mr} y1={chart.Yp(v)} y2={chart.Yp(v)} className="stroke-line" />
+                    <text x={ml - 8} y={chart.Yp(v) + 4} textAnchor="end" fontSize={11} className="fill-ink-muted">{formatPace(v)}</text>
                 </g>)}
                 {chart.hrTicks.map((v) => <text key={v} x={W - mr + 8} y={chart.Yh(v) + 4} fontSize={11} fill={PULSE} opacity={.8}>{v}</text>)}
-                {chart.kmTicks.map((k) => <text key={k} x={chart.X(k * 1000)} y={H - 6} textAnchor="middle" fontSize={11} className="fill-muted-foreground">{k} km</text>)}
+                {chart.kmTicks.map((k) => <text key={k} x={chart.X(k * 1000)} y={H - 6} textAnchor="middle" fontSize={11} className="fill-ink-muted">{k} km</text>)}
                 <path d={chart.area} fill="url(#pace-gradient)" />
                 <path d={chart.pacePath} fill="none" stroke={PACE} strokeWidth={2.2} strokeLinejoin="round" />
                 <path d={chart.hr} fill="none" stroke={PULSE} strokeWidth={1.6} strokeLinejoin="round" opacity={.85} />
                 {p && <>
                     <line x1={chart.X(p.distance)} x2={chart.X(p.distance)} y1={mt} y2={H - mb} className="stroke-foreground" opacity={.35} />
-                    {p.pace != null && <circle cx={chart.X(p.distance)} cy={chart.Yp(p.pace)} r={4.5} fill={PACE} className="stroke-card" strokeWidth={2} />}
-                    {p.heartRate != null && <circle cx={chart.X(p.distance)} cy={chart.Yh(p.heartRate)} r={4} fill={PULSE} className="stroke-card" strokeWidth={2} />}
+                    {p.pace != null && <circle cx={chart.X(p.distance)} cy={chart.Yp(p.pace)} r={4.5} fill={PACE} className="stroke-surface-raised" strokeWidth={2} />}
+                    {p.heartRate != null && <circle cx={chart.X(p.distance)} cy={chart.Yh(p.heartRate)} r={4} fill={PULSE} className="stroke-surface-raised" strokeWidth={2} />}
                 </>}
                 <rect x={ml} y={0} width={Math.max(0, W - ml - mr)} height={H} fill="transparent" onMouseMove={move} onMouseLeave={leave} />
             </svg>
             {p && <Tooltip x={Math.min(W - 160, chart.X(p.distance) + 12)} y={8}>
-                <div className="text-muted-foreground">{de(p.distance / 1000, 2)} km · {formatDuration(p.time)}</div>
+                <div className="text-ink-muted">{de(p.distance / 1000, 2)} km · {formatDuration(p.time)}</div>
                 <div>
-                    {p.pace != null && <><b className="text-sm" style={{ color: PACE }}>{formatPace(p.pace)}</b> /km &nbsp; </>}
-                    {p.heartRate != null && <><b className="text-sm" style={{ color: PULSE }}>{Math.round(p.heartRate)}</b> bpm</>}
+                    {p.pace != null && <><span className="mr-1 inline-block size-2 rounded-full" style={{ background: PACE }} /><b className="text-title">{formatPace(p.pace)}</b> /km &nbsp; </>}
+                    {p.heartRate != null && <><span className="mr-1 inline-block size-2 rounded-full" style={{ background: PULSE }} /><b className="text-title">{Math.round(p.heartRate)}</b> bpm</>}
                 </div>
             </Tooltip>}
         </>}
@@ -190,8 +191,8 @@ export function ActivityChart({ runs, period, from, to, onSelect }: {
     return <div ref={ref} className="relative">
         {W > 0 && <svg width={W} height={H} className="block overflow-visible">
             {ticks.map((v) => <g key={v}>
-                <line x1={ml} x2={W - mr} y1={Y(v)} y2={Y(v)} className="stroke-border" />
-                <text x={ml - 6} y={Y(v) + 4} textAnchor="end" fontSize={11} className="fill-muted-foreground">{v}</text>
+                <line x1={ml} x2={W - mr} y1={Y(v)} y2={Y(v)} className="stroke-line" />
+                <text x={ml - 6} y={Y(v) + 4} textAnchor="end" fontSize={11} className="fill-ink-muted">{v}</text>
             </g>)}
             {data.map((bucket, i) => {
                 const x = ml + i * bw + bw * .18, w = Math.max(2, bw * .64), r = Math.min(4, w / 2)
@@ -199,8 +200,8 @@ export function ActivityChart({ runs, period, from, to, onSelect }: {
                     {bucket.distance > 0
                         ? <path d={`M${x},${Y(0)}V${Y(bucket.distance) + r}q0,-${r} ${r},-${r}h${w - 2 * r}q${r},0 ${r},${r}V${Y(0)}Z`}
                             fill={RUN} opacity={bucket.current || hover === i ? 1 : .55} />
-                        : <rect x={x} y={Y(0) - 2} width={w} height={2} rx={1} className="fill-muted" />}
-                    {bucket.short && <text x={x + w / 2} y={H - 6} textAnchor={period === "year" ? "start" : "middle"} fontSize={11} className="fill-muted-foreground">{bucket.short}</text>}
+                        : <rect x={x} y={Y(0) - 2} width={w} height={2} rx={1} className="fill-track" />}
+                    {bucket.short && <text x={x + w / 2} y={H - 6} textAnchor={period === "year" ? "start" : "middle"} fontSize={11} className="fill-ink-muted">{bucket.short}</text>}
                     <rect x={ml + i * bw} y={0} width={bw} height={H - mb} fill="transparent"
                         style={{ cursor: bucket.run ? "pointer" : "default" }}
                         onMouseEnter={() => setHover(i)} onMouseLeave={() => setHover(null)}
@@ -209,12 +210,12 @@ export function ActivityChart({ runs, period, from, to, onSelect }: {
             })}
             {reference && <>
                 <line x1={ml} x2={W - mr} y1={Y(reference.value)} y2={Y(reference.value)} className="stroke-foreground" strokeDasharray="4 4" opacity={.45} />
-                <text x={W - mr} y={Y(reference.value) - 6} textAnchor="end" fontSize={11} className="fill-muted-foreground">{reference.label}</text>
+                <text x={W - mr} y={Y(reference.value) - 6} textAnchor="end" fontSize={11} className="fill-ink-muted">{reference.label}</text>
             </>}
         </svg>}
         {b && <Tooltip x={Math.min(W - 150, Math.max(0, ml + hover! * bw - 40))} y={Math.max(0, Y(b.distance) - 56)}>
-            <div className="text-muted-foreground">{b.label}</div>
-            <b className="text-sm">{de(b.distance, 1)} km</b> · {b.count} {b.count === 1 ? "Lauf" : "Läufe"}
+            <div className="text-ink-muted">{b.label}</div>
+            <b className="text-title">{de(b.distance, 1)} km</b> · {b.count} {b.count === 1 ? "Lauf" : "Läufe"}
         </Tooltip>}
     </div>
 }

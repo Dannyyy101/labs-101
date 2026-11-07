@@ -2,7 +2,7 @@ import { cn } from "@/lib/utils"
 
 /** The app icon, same artwork as app/icon.svg */
 export function LogoMark({ className }: { className?: string }) {
-    return <svg viewBox="0 0 1024 1024" aria-hidden="true" className={cn("size-7 shrink-0", className)}>
+    return <svg viewBox="0 0 1024 1024" aria-hidden="true" className={cn("size-7 min-w-7 shrink-0 overflow-visible", className)}>
         <rect width="1024" height="1024" rx="230" fill="#0A84FF" />
         <g transform="translate(42 0) translate(0 480) skewX(-12) translate(0 -480)">
             <line x1="220" y1="350" x2="220" y2="610" stroke="#FFFFFF" strokeWidth="120" strokeLinecap="round" />

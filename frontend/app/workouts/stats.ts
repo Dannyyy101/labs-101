@@ -2,7 +2,6 @@ import { de } from "@/app/runs/format"
 import { Exercise } from "@/utils/types/workoutTypes"
 import { SessionSet, WorkoutSession } from "@/utils/types/types"
 
-export const COLORS = { count: "#ff375f", time: "#0a84ff", volume: "#ff9f0a", sets: "#30d158", reps: "#bf5af2" }
 
 /** Seconds from the start to the end (or now, while it is running). */
 export const sessionDuration = (session: WorkoutSession, now = Date.now()) =>

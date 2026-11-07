@@ -48,19 +48,19 @@ export function InviteField({ invitees, setInvitees, excludeIds }: { invitees: C
         <Group>
             {invitees.map((user) =>
                 <div key={user.id} className="flex min-h-11 items-center gap-3 px-4 py-1.5">
-                    <UserAvatar user={user} className="size-7 text-xs ring-0" />
-                    <span className="flex-1 truncate text-[17px]">{user.name}</span>
+                    <UserAvatar user={user} className="size-7 text-label ring-0" />
+                    <span className="flex-1 truncate text-[14px]">{user.name}</span>
                     <button type="button" aria-label={`${user.name} entfernen`} title="Entfernen"
-                        className="grid size-7 place-items-center rounded-full text-muted-foreground hover:bg-muted hover:text-[#ff453a]"
+                        className="grid size-7 place-items-center rounded-full text-ink-muted hover:bg-surface-raised/50 dark:hover:bg-white/5 hover:text-danger"
                         onClick={() => setInvitees(invitees.filter((u) => u.id !== user.id))}>
                         <X className="size-4" />
                     </button>
                 </div>
             )}
             <label className="flex min-h-11 items-center gap-3 px-4">
-                <span className="grid size-7 place-items-center rounded-full bg-[#0a84ff] text-white"><Plus className="size-4" /></span>
+                <span className="grid size-7 place-items-center rounded-full bg-brand text-on-brand"><Plus className="size-4" /></span>
                 <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Person hinzufügen"
-                    className="flex-1 bg-transparent py-2.5 text-[17px] outline-none placeholder:text-[#0a84ff]"
+                    className="flex-1 bg-transparent py-2.5 text-[14px] outline-none placeholder:text-brand-strong"
                     // enter picks the first match instead of submitting the form
                     onKeyDown={(e) => {
                         if (e.key === "Enter") {
@@ -74,11 +74,11 @@ export function InviteField({ invitees, setInvitees, excludeIds }: { invitees: C
             {loading && options.length === 0
                 ? <div className="flex justify-center p-3"><Spinner className="size-4" /></div>
                 : options.length === 0
-                    ? <p className="px-4 py-3 text-[15px] text-muted-foreground">Niemand gefunden</p>
+                    ? <p className="px-4 py-3 text-[14px] text-ink-muted">Niemand gefunden</p>
                     : options.map((user) =>
                         <button type="button" key={user.id} onClick={() => invite(user)}
-                            className="flex min-h-11 w-full items-center gap-3 px-4 py-1.5 text-left text-[17px] hover:bg-muted/60">
-                            <UserAvatar user={user} className="size-7 text-xs ring-0" />
+                            className="flex min-h-11 w-full items-center gap-3 px-4 py-1.5 text-left text-[14px] hover:bg-surface-raised/50 dark:hover:bg-white/5">
+                            <UserAvatar user={user} className="size-7 text-label ring-0" />
                             {user.name}
                         </button>
                     )}

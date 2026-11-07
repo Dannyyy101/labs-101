@@ -46,17 +46,17 @@ function ExerciseElement({ exercise }: { exercise: Exercise }) {
     return <Card className="flex flex-col p-4">
         <div className="flex items-start gap-2">
             <div className="min-w-0 flex-1">
-                <h2 className="truncate text-[17px] font-semibold" title={exercise.name}>{exercise.name}</h2>
-                <p className="text-xs font-medium text-muted-foreground">{exercise.type}</p>
+                <h2 className="truncate text-heading" title={exercise.name}>{exercise.name}</h2>
+                <p className="text-label font-medium text-ink-muted">{exercise.type}</p>
             </div>
             <EditExercise exercise={exercise}>Edit</EditExercise>
         </div>
-        {exercise.description && <p className="mt-2 line-clamp-2 text-sm text-muted-foreground" title={exercise.description}>{exercise.description}</p>}
+        {exercise.description && <p className="mt-2 line-clamp-2 text-body text-ink-muted" title={exercise.description}>{exercise.description}</p>}
         {muscles.length > 0 && <div className="mt-auto flex flex-wrap gap-1 pt-3">
-            {muscles.map((part) => <span key={part.slug} className={cn("rounded-full px-2 py-0.5 text-xs font-medium",
+            {muscles.map((part) => <span key={part.slug} className={cn("rounded-full px-2 py-0.5 text-label font-medium",
                 (part.intensity ?? 0) >= 3
-                    ? "bg-[#ff9f0a]/15 text-[#c76f00] dark:text-[#ff9f0a]"
-                    : "bg-muted text-muted-foreground")}>
+                    ? "bg-brand-soft text-brand-strong"
+                    : "glass-inset text-ink-muted")}>
                 {MUSCLES[part.slug!] ?? part.slug}
             </span>)}
         </div>}

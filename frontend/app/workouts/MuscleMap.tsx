@@ -2,9 +2,11 @@
 
 import Body, { type ExtendedBodyPart, type Slug } from "react-muscle-highlighter"
 import { de } from "@/app/runs/format"
-import { COLORS, MUSCLES } from "./stats"
+import { MUSCLES } from "./stats"
 
-const LEVELS = [`${COLORS.volume}55`, `${COLORS.volume}99`, `${COLORS.volume}cc`, COLORS.volume]
+// the library takes colour strings, not css variables: the yard ops brand blue, reads on both themes
+const BRAND = "#4a72ea"
+const LEVELS = [`${BRAND}55`, `${BRAND}99`, `${BRAND}cc`, BRAND]
 
 /** Front and back of a body, the more sets a muscle got the stronger it is colored. */
 export default function MuscleMap({ muscles, scale = 0.62, legend = 5 }: { muscles: [string, number][], scale?: number, legend?: number }) {
@@ -17,17 +19,17 @@ export default function MuscleMap({ muscles, scale = 0.62, legend = 5 }: { muscl
     return <div>
         <div className="flex justify-center gap-2">
             {(["front", "back"] as const).map((side) =>
-                <Body key={side} data={data} side={side} scale={scale} colors={LEVELS} border="none" defaultFill="#8e8e9340" />)}
+                <Body key={side} data={data} side={side} scale={scale} colors={LEVELS} border="none" defaultFill="#8a94b040" />)}
         </div>
         {legend > 0 && muscles.length > 0 && <div className="mt-3 flex flex-col">
-            {muscles.slice(0, legend).map(([slug, sets]) => <div key={slug} className="grid grid-cols-[minmax(0,1fr)_minmax(0,1.4fr)_44px] items-center gap-2.5 py-1 text-sm">
+            {muscles.slice(0, legend).map(([slug, sets]) => <div key={slug} className="grid grid-cols-[minmax(0,1fr)_minmax(0,1.4fr)_48px] items-center gap-2.5 py-1">
                 <span className="truncate">{MUSCLES[slug] ?? slug}</span>
-                <div className="h-2 overflow-hidden rounded-full bg-muted">
-                    <div className="h-full rounded-full" style={{ width: `${sets / max * 100}%`, background: COLORS.volume }} />
+                <div className="h-1.5 overflow-hidden rounded-full bg-track">
+                    <div className="h-full rounded-full bg-brand" style={{ width: `${sets / max * 100}%` }} />
                 </div>
-                <span className="text-right tabular-nums text-muted-foreground">{de(sets)} {sets === 1 ? "Satz" : "Sätze"}</span>
+                <span className="text-right text-caption tabular-nums text-ink-muted">{de(sets)} {sets === 1 ? "Satz" : "Sätze"}</span>
             </div>)}
         </div>}
-        {muscles.length === 0 && <p className="mt-3 text-center text-sm text-muted-foreground">Noch keine Muskeln trainiert</p>}
+        {muscles.length === 0 && <p className="mt-3 text-center text-ink-muted">Noch keine Muskeln trainiert</p>}
     </div>
 }

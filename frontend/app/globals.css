@@ -49,82 +49,238 @@
   --color-protein: var(--protein);
   --color-carbohydrates: var(--carbohydrates);
   --color-fat: var(--fat);
+
+  --color-canvas: var(--canvas);
+  --color-surface: var(--surface);
+  --color-surface-raised: var(--surface-raised);
+  --color-surface-sunken: var(--surface-sunken);
+  --color-line: var(--line);
+  --color-track: var(--track);
+  --color-ink: var(--ink);
+  --color-ink-muted: var(--ink-muted);
+  --color-brand: var(--brand);
+  --color-brand-strong: var(--brand-strong);
+  --color-brand-soft: var(--brand-soft);
+  --color-on-brand: var(--on-brand);
+  --color-success: var(--success);
+  --color-success-soft: var(--success-soft);
+  --color-success-bar: var(--success-bar);
+  --color-warning: var(--warning);
+  --color-warning-soft: var(--warning-soft);
+  --color-danger: var(--danger);
+  --color-danger-soft: var(--danger-soft);
+  --color-series-1: var(--series-1);
+  --color-series-2: var(--series-2);
+  --color-series-3: var(--series-3);
+  --color-series-4: var(--series-4);
+
+  --shadow-xs: var(--elev-xs);
+  --shadow-card: var(--elev-card);
+  --shadow-float: var(--elev-float);
+
+  /* yard ops type scale: text-kpi, text-heading, text-title, text-body, text-label, text-caption */
+  --text-kpi: 24px;
+  --text-kpi--line-height: 28px;
+  --text-kpi--letter-spacing: -0.01em;
+  --text-kpi--font-weight: 700;
+  --text-heading: 16px;
+  --text-heading--line-height: 20px;
+  --text-heading--font-weight: 700;
+  --text-title: 14px;
+  --text-title--line-height: 20px;
+  --text-title--font-weight: 600;
+  --text-body: 13px;
+  --text-body--line-height: 18px;
+  --text-label: 12px;
+  --text-label--line-height: 16px;
+  --text-caption: 11px;
+  --text-caption--line-height: 14px;
+}
+
+/* a floating pane of liquid glass, for controls and KPIs that sit over the colour fields */
+@utility glass {
+  background: var(--glass-fill);
+  border: 1px solid var(--glass-rim);
+  border-top-color: var(--glass-rim-top);
+  box-shadow: var(--glass-shine), var(--elev-card);
+  -webkit-backdrop-filter: blur(18px) saturate(180%);
+  backdrop-filter: blur(18px) saturate(180%);
+
+  @media (prefers-reduced-transparency: reduce) {
+    background: var(--surface-raised);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+}
+
+/* denser glass for menus, dialogs and tooltips that float over content */
+@utility glass-thick {
+  background: var(--glass-thick-fill);
+  border: 1px solid var(--glass-rim);
+  border-top-color: var(--glass-rim-top);
+  box-shadow: var(--glass-shine), var(--elev-float);
+  -webkit-backdrop-filter: blur(28px) saturate(180%);
+  backdrop-filter: blur(28px) saturate(180%);
+
+  @media (prefers-reduced-transparency: reduce) {
+    background: var(--surface-raised);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+}
+
+/* a lighter pane inside a glass card, without its own blur: the card behind it is already blurred */
+@utility glass-inset {
+  background: var(--glass-inset-fill);
+  border: 1px solid var(--glass-inset-rim);
+  box-shadow: inset 0 1px 0 var(--glass-inset-rim);
+
+  @media (prefers-reduced-transparency: reduce) {
+    background: var(--surface-sunken);
+  }
 }
 
 body {
   position: relative;
 }
 
+/* yard ops tokens, light theme first */
 :root {
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --radius: 0.625rem;
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
-  --protein: oklch(65.8% 0.232 16);
-  --carbohydrates: oklch(62.3% 0.214 259.8);
-  --fat: oklch(72.3% 0.219 149.6);
+  --canvas: #d6def6;
+  --surface: #f5f7fd;
+  --surface-raised: #ffffff;
+  --surface-sunken: #eef1f7;
+  --line: #e3e7f0;
+  --track: #dfe4ee;
+  --ink: #0f1424;
+  --ink-muted: #5f677a;
+  --brand: #3560e0;
+  --brand-strong: #2747c2;
+  --brand-soft: #e6ecfd;
+  --on-brand: #ffffff;
+  --success: #23763c;
+  --success-soft: #def3e5;
+  --success-bar: #338548;
+  --warning: #9a5208;
+  --warning-soft: #fdf0d6;
+  --danger: #c42d2d;
+  --danger-soft: #fde4e4;
+
+  --elev-xs: 0 1px 2px rgba(15, 20, 36, 0.06);
+  --elev-card: 0 1px 2px rgba(15, 20, 36, 0.04), 0 8px 24px rgba(53, 96, 224, 0.10);
+  --elev-float: 0 2px 4px rgba(15, 20, 36, 0.05), 0 16px 40px rgba(53, 96, 224, 0.16);
+
+  /* liquid glass: a tinted, blurred pane with a bright rim at the top and a darker one at the bottom */
+  --glass-fill: linear-gradient(160deg, rgba(255, 255, 255, 0.72), rgba(255, 255, 255, 0.42));
+  --glass-rim: rgba(255, 255, 255, 0.75);
+  --glass-rim-top: rgba(255, 255, 255, 0.75);
+  --glass-shine: inset 0 1px 0 rgba(255, 255, 255, 0.95), inset 0 -1px 0 rgba(53, 96, 224, 0.10), inset 0 0 0 1px rgba(255, 255, 255, 0.35);
+  --glass-thick-fill: linear-gradient(160deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.70));
+  --glass-inset-fill: rgba(255, 255, 255, 0.45);
+  --glass-inset-rim: rgba(255, 255, 255, 0.75);
+  /* the soft colour fields behind the glass */
+  --field-1: rgba(53, 96, 224, 0.30);
+  --field-2: rgba(139, 120, 240, 0.24);
+  --field-3: rgba(96, 196, 236, 0.26);
+
+  /* shadcn variables on top of the yard ops tokens */
+  --background: var(--surface);
+  --foreground: var(--ink);
+  --card: var(--surface-raised);
+  --card-foreground: var(--ink);
+  --popover: var(--surface-raised);
+  --popover-foreground: var(--ink);
+  --primary: var(--brand);
+  --primary-foreground: var(--on-brand);
+  --secondary: var(--surface-sunken);
+  --secondary-foreground: var(--ink);
+  --muted: var(--surface-sunken);
+  --muted-foreground: var(--ink-muted);
+  --accent: var(--brand-soft);
+  --accent-foreground: var(--brand-strong);
+  --destructive: var(--danger);
+  --border: var(--line);
+  --input: var(--line);
+  --ring: var(--brand);
+  /* categorical series for charts with several series, validated for colour blindness and 3:1 on the glass */
+  --series-1: #3560e0;
+  --series-2: #c4721f;
+  --series-3: #13917f;
+  --series-4: #8b5cf6;
+  /* sequential blue ramp for ordered levels (heart rate zones, sleep depth), light to strong */
+  --ramp-1: #b9c8f5;
+  --ramp-2: #8aa3ef;
+  --ramp-3: #5f80e8;
+  --ramp-4: #3560e0;
+  --ramp-5: #2240a8;
+  --chart-1: var(--series-1);
+  --chart-2: var(--series-2);
+  --chart-3: var(--series-3);
+  --chart-4: var(--series-4);
+  --chart-5: var(--track);
+  --radius: 0.875rem;
+  --sidebar: var(--surface);
+  --sidebar-foreground: var(--ink);
+  --sidebar-primary: var(--brand);
+  --sidebar-primary-foreground: var(--on-brand);
+  --sidebar-accent: var(--brand-soft);
+  --sidebar-accent-foreground: var(--brand-strong);
+  --sidebar-border: var(--line);
+  --sidebar-ring: var(--brand);
+  --protein: var(--series-1);
+  --carbohydrates: var(--series-2);
+  --fat: var(--series-3);
 }
 
 .dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
+  --canvas: #1e2742;
+  --surface: #121829;
+  --surface-raised: #19213a;
+  --surface-sunken: #0f1526;
+  --line: #2b3552;
+  --track: #2f3a58;
+  --ink: #eef1f8;
+  --ink-muted: #a3acc2;
+  --brand: #6f8ff7;
+  --brand-strong: #9db2ff;
+  /* lighter than the yard ops #1f2c58, which disappears on dark glass; brand-strong on it still reads 5:1 */
+  --brand-soft: #283a7a;
+  --on-brand: #0b1020;
+  --success: #6fd38b;
+  --success-soft: #163824;
+  --success-bar: #4fbf6c;
+  --warning: #f2ae5c;
+  --warning-soft: #3b2a10;
+  --danger: #f47a7a;
+  --danger-soft: #3f1a1c;
+
+  --elev-xs: 0 1px 2px rgba(0, 0, 0, 0.4);
+  /* soft and wide: a hard dark halo makes the glass edge look doubled */
+  --elev-card: 0 1px 2px rgba(0, 0, 0, 0.18), 0 12px 32px rgba(4, 8, 24, 0.28);
+  --elev-float: 0 2px 4px rgba(0, 0, 0, 0.22), 0 18px 44px rgba(4, 8, 24, 0.42);
+
+  --glass-fill: linear-gradient(160deg, rgba(40, 52, 92, 0.62), rgba(25, 33, 58, 0.42));
+  /* no drawn rim: the edge of the blurred pane already reads as one, any extra line doubles it.
+     only a faint light on the top edge itself, like real glass */
+  --glass-rim: transparent;
+  --glass-rim-top: rgba(255, 255, 255, 0.12);
+  --glass-shine: 0 0 #0000;
+  --glass-thick-fill: linear-gradient(160deg, rgba(36, 47, 84, 0.90), rgba(25, 33, 58, 0.80));
+  --glass-inset-fill: rgba(255, 255, 255, 0.05);
+  --glass-inset-rim: rgba(255, 255, 255, 0.06);
+  --field-1: rgba(79, 112, 240, 0.34);
+  --field-2: rgba(124, 98, 230, 0.26);
+  --field-3: rgba(56, 160, 210, 0.20);
+
+  --series-1: #5b7cf0;
+  --series-2: #c97d2c;
+  --series-3: #2a9d8a;
+  --series-4: #8f74e6;
+  --ramp-1: #2c3d7a;
+  --ramp-2: #3f57b0;
+  --ramp-3: #5b7cf0;
+  --ramp-4: #8aa3f5;
+  --ramp-5: #b9c8fb;
 }
 
 @layer base {
@@ -133,7 +289,29 @@ body {
   }
 
   body {
-    @apply bg-background text-foreground;
+    @apply bg-canvas text-foreground text-body;
+    /* medium is the yard ops default, regular looks too thin on the coloured backdrop */
+    font-weight: 500;
+    font-feature-settings: "tnum" 1;
+  }
+
+  /* fixed colour fields behind everything, the glass panes refract them */
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background:
+      radial-gradient(42rem 32rem at 8% 4%, var(--field-1), transparent 70%),
+      radial-gradient(36rem 30rem at 92% 18%, var(--field-2), transparent 70%),
+      radial-gradient(44rem 30rem at 60% 100%, var(--field-3), transparent 70%),
+      var(--canvas);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--brand);
+    outline-offset: 2px;
   }
 
   button:not(:disabled),

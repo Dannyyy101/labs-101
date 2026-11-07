@@ -16,7 +16,8 @@ const FILTERS: { value: Filter, label: string }[] = [
     { value: "workout", label: "Workouts" },
 ]
 
-const COLORS: Record<Filter, string> = { all: "#30d158", food: "#ff9f0a", run: "#0a84ff", workout: "#ff375f" }
+// "all" in the brand, the categories like their achievements (catalog.ts)
+const COLORS: Record<Filter, string> = { all: "var(--brand)", food: "var(--series-2)", run: "var(--series-1)", workout: "var(--series-3)" }
 // opacity of the levels 1–4, level 0 is the empty cell
 const LEVELS = [0.3, 0.5, 0.75, 1]
 const WEEKS = 53
@@ -72,8 +73,8 @@ export function ActivityHeatmap({ days, today }: { days: ActivityDay[], today: s
     return <Card className="p-6">
         <div className="flex flex-wrap items-start gap-4">
             <div className="min-w-0">
-                <h2 className="text-2xl font-bold tracking-tight tabular-nums">{de(total)} {total === 1 ? "Aktivität" : "Aktivitäten"}</h2>
-                <p className="text-muted-foreground">Letzte 12 Monate · {de(activeDays)} aktive Tage</p>
+                <h2 className="text-heading tabular-nums">{de(total)} {total === 1 ? "Aktivität" : "Aktivitäten"}</h2>
+                <p className="text-ink-muted">Letzte 12 Monate · {de(activeDays)} aktive Tage</p>
             </div>
             <Segmented value={filter} options={FILTERS} onChange={setFilter} />
         </div>
@@ -81,7 +82,7 @@ export function ActivityHeatmap({ days, today }: { days: ActivityDay[], today: s
         <div ref={scroller} className="-mx-1 mt-5 overflow-x-auto px-1 pb-1">
             <div className="grid min-w-[640px] grid-cols-[auto_1fr] gap-x-2">
                 <div />
-                <div className="grid text-xs text-muted-foreground" style={{ gridTemplateColumns: `repeat(${WEEKS}, minmax(0, 1fr))` }}>
+                <div className="grid text-label text-ink-muted" style={{ gridTemplateColumns: `repeat(${WEEKS}, minmax(0, 1fr))` }}>
                     {weeks.map((week, w) => {
                         // label the week the month starts in
                         const start = week.find((d) => d.endsWith("-01"))
@@ -91,7 +92,7 @@ export function ActivityHeatmap({ days, today }: { days: ActivityDay[], today: s
                     })}
                 </div>
 
-                <div className="grid grid-rows-7 gap-[3px] pr-1 text-xs text-muted-foreground">
+                <div className="grid grid-rows-7 gap-[3px] pr-1 text-label text-ink-muted">
                     {["Mo", "", "Mi", "", "Fr", "", ""].map((label, i) => <span key={i} className="flex items-center leading-none">{label}</span>)}
                 </div>
                 <div className="grid grid-flow-col grid-rows-7 gap-[3px]" style={{ gridTemplateColumns: `repeat(${WEEKS}, minmax(0, 1fr))` }}>
@@ -103,8 +104,8 @@ export function ActivityHeatmap({ days, today }: { days: ActivityDay[], today: s
                             aria-label={`${longDay(date)}: ${count(d, filter)} Aktivitäten`}
                             aria-pressed={date === selected}
                             title={`${longDay(date)} · ${summary(d).map((c) => c.label).join(", ") || "Keine Aktivität"}`}
-                            className={cn("aspect-square w-full rounded-[3px] bg-muted transition-transform hover:scale-125",
-                                date === selected && "ring-2 ring-foreground/70 ring-offset-1 ring-offset-card")}
+                            className={cn("aspect-square w-full rounded-[3px] glass-inset transition-transform hover:scale-125",
+                                date === selected && "ring-2 ring-foreground/70 ring-offset-1 ring-offset-transparent")}
                             style={{ background: cellColor(value, color) }} />
                     })}
                 </div>
@@ -113,17 +114,17 @@ export function ActivityHeatmap({ days, today }: { days: ActivityDay[], today: s
 
         <div className="mt-5 flex flex-wrap items-end gap-4 border-t pt-5">
             <div className="min-w-0 flex-1">
-                <h3 className="text-lg font-semibold">{longDay(selected)}</h3>
+                <h3 className="text-heading">{longDay(selected)}</h3>
                 <div className="mt-2 flex flex-wrap gap-2">
-                    {summary(day).map((chip) => <span key={chip.label} className="flex items-center gap-2 rounded-full bg-muted px-3.5 py-1.5 text-sm font-medium">
+                    {summary(day).map((chip) => <span key={chip.label} className="flex items-center gap-2 rounded-full glass-inset px-3.5 py-1.5 text-body font-medium">
                         <span className="size-2 rounded-full" style={{ background: chip.color }} />{chip.label}
                     </span>)}
-                    {summary(day).length === 0 && <span className="text-sm text-muted-foreground">Keine Aktivität an diesem Tag</span>}
+                    {summary(day).length === 0 && <span className="text-body text-ink-muted">Keine Aktivität an diesem Tag</span>}
                 </div>
             </div>
-            <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
+            <div className="flex items-center gap-1.5 text-body text-ink-muted">
                 Weniger
-                {[0, 1, 2, 3, 4].map((v) => <span key={v} className="size-3 rounded-[3px] bg-muted" style={{ background: cellColor(v, color) }} />)}
+                {[0, 1, 2, 3, 4].map((v) => <span key={v} className="size-3 rounded-[3px] glass-inset" style={{ background: cellColor(v, color) }} />)}
                 Mehr
             </div>
         </div>

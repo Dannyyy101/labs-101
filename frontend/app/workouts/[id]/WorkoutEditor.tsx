@@ -1,7 +1,8 @@
 'use client'
 
 import { AvatarImage } from "@/components/AvatarImage"
-import { Card, CardHead, Stat } from "@/components/dashboard"
+import { Card, CardHead, IconTile, Stat } from "@/components/dashboard"
+import { buttonVariants } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import { CardioExercise, ExerciseSet, Workout, WorkoutExercise, WorkoutExerciseType } from "@/utils/types/types"
 import { Friend } from "@/utils/types/friend"
@@ -99,26 +100,26 @@ export default function WorkoutEditor({ workout, exercises, friends }: { workout
     }
 
     const actions = <>
-        {workout?.sharedWithMe && <button onClick={onLeave} disabled={pending} className="rounded-full px-3.5 py-2 text-sm font-semibold text-[#ff453a] hover:bg-[#ff453a]/10 disabled:opacity-50">Entfernen</button>}
-        {workout && !readOnly && <button onClick={onDelete} disabled={pending} className="rounded-full px-3.5 py-2 text-sm font-semibold text-[#ff453a] hover:bg-[#ff453a]/10 disabled:opacity-50">Löschen</button>}
-        {!readOnly && <button onClick={onSave} disabled={pending || (!!workout && !dirty)} className="flex-1 rounded-full bg-background px-4 py-2.5 text-sm font-semibold shadow-[0_1px_3px_rgba(0,0,0,.12)] disabled:opacity-50 md:flex-none md:py-2">
+        {workout?.sharedWithMe && <button onClick={onLeave} disabled={pending} className={buttonVariants({ variant: "destructive" })}>Entfernen</button>}
+        {workout && !readOnly && <button onClick={onDelete} disabled={pending} className={buttonVariants({ variant: "destructive" })}>Löschen</button>}
+        {!readOnly && <button onClick={onSave} disabled={pending || (!!workout && !dirty)} className={cn(buttonVariants({ variant: "outline" }), "flex-1 md:flex-none")}>
             {pending ? "Speichert…" : "Speichern"}
         </button>}
-        <button onClick={onStart} disabled={pending || !items.length} className="flex flex-1 items-center justify-center gap-1.5 rounded-full bg-[#30d158] px-4 py-2.5 text-sm font-semibold text-white disabled:opacity-50 md:flex-none md:py-2">
+        <button onClick={onStart} disabled={pending || !items.length} className={cn(buttonVariants(), "flex-1 md:flex-none")}>
             <Play className="size-3.5 fill-current" />Training starten
         </button>
     </>
 
-    return <div className="flex-1 w-full bg-muted/50 px-3.5 pt-5 pb-28 md:px-6 md:py-7">
+    return <div className="w-full flex-1 px-3.5 pt-5 pb-28 md:px-6 md:py-7">
         <div className="mx-auto flex max-w-7xl flex-col gap-4 md:gap-5">
             <div className="flex flex-wrap items-end gap-4">
                 <div className="min-w-0 flex-1">
-                    <Link href="/workouts" className="flex w-fit items-center text-[15px] text-[#0a84ff]"><ChevronLeft className="size-5" />Training</Link>
+                    <Link href="/workouts" className="flex w-fit items-center text-label font-semibold text-brand-strong hover:underline"><ChevronLeft className="size-4" />Training</Link>
                     {readOnly
-                        ? <h1 className="mt-1 truncate text-[28px] font-bold leading-tight tracking-tight md:text-[34px]">{name}</h1>
+                        ? <h1 className="mt-1 truncate text-[22px] font-bold leading-7 tracking-tight">{name}</h1>
                         : <input value={name} onChange={(e) => { setName(e.target.value); setDirty(true) }} placeholder="Name der Vorlage" aria-label="Name"
-                            className="mt-1 w-full bg-transparent text-[28px] font-bold leading-tight tracking-tight outline-none placeholder:text-muted-foreground/50 md:text-[34px]" />}
-                    <p className="text-muted-foreground">
+                            className="mt-1 w-full rounded-[8px] bg-transparent text-[22px] font-bold leading-7 tracking-tight outline-none focus-visible:outline-2 focus-visible:outline-brand placeholder:text-ink-muted/50" />}
+                    <p className="text-ink-muted">
                         {readOnly
                             ? `${workout.sharedWithMe ? "Geteilt von" : "Vorlage von"} ${workout.ownerName ?? "jemand anderem"} · nur ansehen`
                             : workout ? (dirty ? "Ungespeicherte Änderungen" : "Gespeichert") : "Neue Vorlage"}
@@ -126,7 +127,7 @@ export default function WorkoutEditor({ workout, exercises, friends }: { workout
                 </div>
                 <div className="hidden flex-wrap items-center gap-2 md:flex">{actions}</div>
             </div>
-            {error && <p className="rounded-xl bg-[#ff453a]/10 px-4 py-2 text-sm font-medium text-[#ff453a]">{error}</p>}
+            {error && <p className="rounded-[12px] bg-danger-soft px-4 py-2 text-body font-medium text-danger">{error}</p>}
 
             <div className="grid grid-cols-1 gap-4 lg:grid-cols-12">
                 <div className="flex flex-col gap-3 md:gap-4 lg:col-span-8">
@@ -143,15 +144,15 @@ export default function WorkoutEditor({ workout, exercises, friends }: { workout
                     })}
                     {!readOnly && <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                         <ExercisePicker exercises={strengthExercises} onPick={add}
-                            className="flex items-center justify-center gap-2 rounded-[18px] border-2 border-dashed p-5 font-semibold text-[#0a84ff] hover:bg-card">
+                            className="flex items-center justify-center gap-2 rounded-[14px] border border-dashed border-ink-muted/40 p-5 font-semibold text-brand-strong transition-colors hover:bg-surface-raised/50 dark:hover:bg-white/5">
                             <Plus className="size-5" />Übung hinzufügen
                         </ExercisePicker>
                         <ExercisePicker exercises={cardioExercises} onPick={addCardio} title="Cardio hinzufügen"
-                            className="flex items-center justify-center gap-2 rounded-[18px] border-2 border-dashed p-5 font-semibold text-[#ff375f] hover:bg-card">
+                            className="flex items-center justify-center gap-2 rounded-[14px] border border-dashed border-ink-muted/40 p-5 font-semibold text-brand-strong transition-colors hover:bg-surface-raised/50 dark:hover:bg-white/5">
                             <HeartPulse className="size-5" />Cardio hinzufügen
                         </ExercisePicker>
                     </div>}
-                    {readOnly && !items.length && <p className="py-6 text-center text-muted-foreground">Keine Übungen</p>}
+                    {readOnly && !items.length && <p className="py-6 text-center text-ink-muted">Keine Übungen</p>}
                 </div>
 
                 <div className="flex flex-col gap-4 lg:col-span-4">
@@ -176,7 +177,7 @@ export default function WorkoutEditor({ workout, exercises, friends }: { workout
 
         {/* on phones the actions stay reachable at the bottom */}
         <div className="fixed inset-x-0 bottom-0 z-30 px-3 pb-[max(12px,env(safe-area-inset-bottom))] md:hidden">
-            <div className="mx-auto flex max-w-3xl items-center gap-2 rounded-[22px] bg-background/85 p-2 shadow-[0_8px_32px_rgba(0,0,0,.18)] ring-1 ring-foreground/5 backdrop-blur-xl">
+            <div className="glass-thick mx-auto flex max-w-3xl items-center gap-2 rounded-[18px] p-2">
                 {actions}
             </div>
         </div>
@@ -215,22 +216,22 @@ function ShareCard({ workout, friends }: { workout: Workout, friends: Friend[] }
                 {friends.map((friend) => {
                     const on = shared.has(friend.id)
                     return <button key={friend.id} type="button" onClick={() => toggle(friend.id)} disabled={pending} aria-pressed={on}
-                        className="flex items-center gap-3 rounded-xl px-2 py-2 text-left hover:bg-muted disabled:opacity-60">
-                        <span className="grid size-8 flex-none place-items-center overflow-hidden rounded-full bg-muted text-sm font-semibold">
+                        className="flex items-center gap-3 rounded-[12px] px-2 py-2 text-left hover:bg-surface-raised/50 dark:hover:bg-white/5 disabled:opacity-60">
+                        <span className="grid size-8 flex-none place-items-center overflow-hidden rounded-full bg-track text-body font-semibold">
                             <AvatarImage src={friend.image} alt="" size={32} className="size-full object-cover" fallback={(friend.name?.trim() || "?").charAt(0).toUpperCase()} />
                         </span>
-                        <span className="min-w-0 flex-1 truncate text-[15px] font-medium">{friend.name ?? "Unbekannt"}</span>
-                        <span className={cn("grid size-6 place-items-center rounded-full", on ? "bg-[#30d158] text-white" : "bg-muted text-transparent")}>
+                        <span className="min-w-0 flex-1 truncate text-[14px] font-medium">{friend.name ?? "Unbekannt"}</span>
+                        <span className={cn("grid size-6 place-items-center rounded-full", on ? "bg-brand text-on-brand" : "glass-inset text-transparent")}>
                             <Check className="size-3.5" strokeWidth={3} />
                         </span>
                     </button>
                 })}
             </div>
-            : <p className="flex items-center gap-2 text-sm text-muted-foreground">
-                <Users className="size-4" />Füge unter <Link href="/friends" className="font-medium text-[#0a84ff]">Freunde</Link> jemanden hinzu, um Workouts zu teilen.
+            : <p className="flex items-center gap-2 text-body text-ink-muted">
+                <Users className="size-4" />Füge unter <Link href="/friends" className="font-medium text-brand-strong">Freunde</Link> jemanden hinzu, um Workouts zu teilen.
             </p>}
-        <p className="mt-2 text-xs text-muted-foreground">Freunde sehen und trainieren das Workout, ändern kannst nur du es.</p>
-        {error && <p className="mt-2 text-sm font-medium text-[#ff453a]">Teilen fehlgeschlagen, versuche es noch einmal.</p>}
+        <p className="mt-2 text-label text-ink-muted">Freunde sehen und trainieren das Workout, ändern kannst nur du es.</p>
+        {error && <p className="mt-2 text-body font-medium text-danger">Teilen fehlgeschlagen, versuche es noch einmal.</p>}
     </Card>
 }
 
@@ -241,22 +242,22 @@ function CardioCard({ item, readOnly, onChange, onRemove, onMoveUp, onMoveDown }
 }) {
     return <Card className="p-4 md:p-5">
         <div className="flex items-center gap-1 md:gap-2">
-            <span className="mr-2 grid size-9 flex-none place-items-center rounded-[10px] bg-[#ff375f]/12 text-[#ff375f]"><HeartPulse className="size-5" /></span>
+            <IconTile icon={HeartPulse} size="sm" className="mr-2" />
             <div className="min-w-0 flex-1">
-                <h2 className="truncate text-[17px] font-semibold">{item.exercise.name}</h2>
-                <p className="truncate text-sm text-muted-foreground">Cardio</p>
+                <h2 className="truncate text-heading">{item.exercise.name}</h2>
+                <p className="truncate text-caption text-ink-muted">Cardio</p>
             </div>
             {readOnly
-                ? <span className="rounded-[10px] bg-muted/60 px-3 py-2 text-[15px] font-semibold tabular-nums">{item.minutes} min</span>
+                ? <span className="rounded-[10px] glass-inset px-3 py-2 text-[14px] font-semibold tabular-nums">{item.minutes} min</span>
                 : <>
                     <div className="flex w-28 items-center gap-1.5">
                         <NumberInput value={item.minutes} onChange={(minutes) => onChange({ ...item, minutes: Math.max(0, Math.round(minutes)) })}
                             label={`Minuten ${item.exercise.name}`} className="h-10 md:h-9" />
-                        <span className="text-sm text-muted-foreground">min</span>
+                        <span className="text-body text-ink-muted">min</span>
                     </div>
                     <IconButton label="Nach oben" onClick={onMoveUp}><ArrowUp /></IconButton>
                     <IconButton label="Nach unten" onClick={onMoveDown}><ArrowDown /></IconButton>
-                    <IconButton label="Cardio entfernen" onClick={onRemove} className="text-[#ff453a]"><Trash2 /></IconButton>
+                    <IconButton label="Cardio entfernen" onClick={onRemove} className="text-danger"><Trash2 /></IconButton>
                 </>}
         </div>
     </Card>
@@ -274,36 +275,36 @@ function ExerciseCard({ item, exercise, readOnly, onChange, onRemove, onMoveUp, 
     return <Card className="p-4 md:p-5">
         <div className="mb-3 flex items-start gap-1 md:gap-2">
             <div className="min-w-0 flex-1">
-                <h2 className="truncate text-[17px] font-semibold">{item.exercise.name}</h2>
-                <p className="truncate text-sm text-muted-foreground">{muscles.map((m) => MUSCLES[m!] ?? m).join(", ") || item.exercise.description}</p>
+                <h2 className="truncate text-heading">{item.exercise.name}</h2>
+                <p className="truncate text-caption text-ink-muted">{muscles.map((m) => MUSCLES[m!] ?? m).join(", ") || item.exercise.description}</p>
             </div>
             {!readOnly && <>
                 <IconButton label="Nach oben" onClick={onMoveUp}><ArrowUp /></IconButton>
                 <IconButton label="Nach unten" onClick={onMoveDown}><ArrowDown /></IconButton>
-                <IconButton label="Übung entfernen" onClick={onRemove} className="text-[#ff453a]"><Trash2 /></IconButton>
+                <IconButton label="Übung entfernen" onClick={onRemove} className="text-danger"><Trash2 /></IconButton>
             </>}
         </div>
         <div className={cn("grid items-center gap-x-2 gap-y-1.5 md:gap-x-3",
             readOnly
                 ? "grid-cols-[24px_repeat(3,minmax(0,1fr))] md:grid-cols-[32px_repeat(3,minmax(0,1fr))]"
                 : "grid-cols-[20px_repeat(3,minmax(0,1fr))_28px] md:grid-cols-[32px_repeat(3,minmax(0,1fr))_32px]")}>
-            <span className="text-xs font-medium text-muted-foreground">Satz</span>
-            <span className="text-xs font-medium text-muted-foreground">Wdh</span>
-            <span className="text-xs font-medium text-muted-foreground">kg</span>
-            <span className="text-xs font-medium text-muted-foreground">Pause</span>
+            <span className="text-caption text-ink-muted">Satz</span>
+            <span className="text-caption text-ink-muted">Wdh</span>
+            <span className="text-caption text-ink-muted">kg</span>
+            <span className="text-caption text-ink-muted">Pause</span>
             {!readOnly && <span />}
             {item.sets.map((set, i) => readOnly
                 ? <ReadOnlySetRow key={i} index={i} set={set} />
                 : <SetRow key={i} index={i} set={set} onChange={(s) => updateSet(i, s)}
                     onRemove={() => onChange({ ...item, sets: item.sets.filter((_, j) => j !== i) })} />)}
         </div>
-        {!readOnly && <button onClick={addSet} className="mt-3 flex items-center gap-1 py-1 text-sm font-medium text-[#0a84ff]"><Plus className="size-4" />Satz hinzufügen</button>}
+        {!readOnly && <button onClick={addSet} className="mt-3 flex items-center gap-1 py-1 text-label font-semibold text-brand-strong hover:underline"><Plus className="size-4" />Satz hinzufügen</button>}
     </Card>
 }
 
 function SetRow({ index, set, onChange, onRemove }: { index: number, set: ExerciseSet, onChange: (set: Partial<ExerciseSet>) => void, onRemove: () => void }) {
     return <>
-        <span className="text-center font-semibold tabular-nums text-muted-foreground">{index + 1}</span>
+        <span className="text-center font-semibold tabular-nums text-ink-muted">{index + 1}</span>
         <NumberInput value={set.reps} onChange={(reps) => onChange({ reps: Math.round(reps) })} label={`Wiederholungen Satz ${index + 1}`} className="h-10 md:h-9" />
         <NumberInput value={set.weightKg} onChange={(weightKg) => onChange({ weightKg })} label={`Gewicht Satz ${index + 1}`} decimal className="h-10 md:h-9" />
         <RestPicker value={restOf(set)} onChange={(restSeconds) => onChange({ restSeconds })} label={`Ruhezeit nach Satz ${index + 1}`} className="h-10 md:h-9" />
@@ -313,16 +314,16 @@ function SetRow({ index, set, onChange, onRemove }: { index: number, set: Exerci
 
 function ReadOnlySetRow({ index, set }: { index: number, set: ExerciseSet }) {
     return <>
-        <span className="text-center font-semibold tabular-nums text-muted-foreground">{index + 1}</span>
-        <span className="rounded-[10px] bg-muted/60 px-3 py-2 text-[15px] font-semibold tabular-nums">{set.reps}</span>
-        <span className="rounded-[10px] bg-muted/60 px-3 py-2 text-[15px] font-semibold tabular-nums">{formatWeight(set.weightKg)}</span>
-        <span className="rounded-[10px] bg-muted/60 px-3 py-2 text-[15px] font-semibold tabular-nums">{formatRest(restOf(set))}</span>
+        <span className="text-center font-semibold tabular-nums text-ink-muted">{index + 1}</span>
+        <span className="rounded-[10px] glass-inset px-3 py-2 text-[14px] font-semibold tabular-nums">{set.reps}</span>
+        <span className="rounded-[10px] glass-inset px-3 py-2 text-[14px] font-semibold tabular-nums">{formatWeight(set.weightKg)}</span>
+        <span className="rounded-[10px] glass-inset px-3 py-2 text-[14px] font-semibold tabular-nums">{formatRest(restOf(set))}</span>
     </>
 }
 
 function IconButton({ label, onClick, className, children }: { label: string, onClick?: () => void, className?: string, children: React.ReactNode }) {
     return <button type="button" aria-label={label} title={label} onClick={onClick} disabled={!onClick}
-        className={cn("grid size-8 flex-none place-items-center rounded-full text-muted-foreground hover:bg-muted disabled:opacity-30 [&_svg]:size-4", className)}>
+        className={cn("grid size-8 flex-none place-items-center rounded-full text-ink-muted hover:bg-surface-raised/50 dark:hover:bg-white/5 disabled:opacity-30 [&_svg]:size-4", className)}>
         {children}
     </button>
 }

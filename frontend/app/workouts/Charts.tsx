@@ -5,7 +5,7 @@ import { WorkoutSession } from "@/utils/types/types"
 import { useMemo, useState } from "react"
 import { Tooltip, useWidth } from "../runs/Charts"
 import { de, formatDate, WEEKDAY } from "../runs/format"
-import { aggregate, COLORS, formatVolume } from "./stats"
+import { aggregate, formatVolume } from "./stats"
 
 interface Bucket {
     label: string
@@ -77,20 +77,20 @@ export function VolumeChart({ sessions, period, from, to, onSelect }: {
     return <div ref={ref} className="relative">
         {W > 0 && <svg width={W} height={H} className="block overflow-visible">
             {ticks.map((v) => <g key={v}>
-                <line x1={ml} x2={W - mr} y1={Y(v)} y2={Y(v)} className="stroke-border" />
-                <text x={ml - 6} y={Y(v) + 4} textAnchor="end" fontSize={11} className="fill-muted-foreground">{v}</text>
+                <line x1={ml} x2={W - mr} y1={Y(v)} y2={Y(v)} className="stroke-line" />
+                <text x={ml - 6} y={Y(v) + 4} textAnchor="end" fontSize={11} className="fill-ink-muted">{v}</text>
             </g>)}
             {data.map((bucket, i) => {
                 const x = ml + i * bw + bw * .18, w = Math.max(2, bw * .64), r = Math.min(4, w / 2)
                 return <g key={i}>
                     {bucket.volume > 0
                         ? <path d={`M${x},${Y(0)}V${Y(bucket.volume) + r}q0,-${r} ${r},-${r}h${w - 2 * r}q${r},0 ${r},${r}V${Y(0)}Z`}
-                            fill={COLORS.volume} opacity={bucket.current || hover === i ? 1 : .55} />
+                            className="fill-brand" opacity={bucket.current || hover === i ? 1 : .5} />
                         : bucket.count > 0
                             // a workout without weights (e.g. only bodyweight) still shows up
-                            ? <rect x={x} y={Y(0) - 4} width={w} height={4} rx={2} fill={COLORS.volume} opacity={.55} />
-                            : <rect x={x} y={Y(0) - 2} width={w} height={2} rx={1} className="fill-muted" />}
-                    {bucket.short && <text x={x + w / 2} y={H - 6} textAnchor={period === "year" ? "start" : "middle"} fontSize={11} className="fill-muted-foreground">{bucket.short}</text>}
+                            ? <rect x={x} y={Y(0) - 4} width={w} height={4} rx={2} className="fill-brand" opacity={.5} />
+                            : <rect x={x} y={Y(0) - 2} width={w} height={2} rx={1} className="fill-track" />}
+                    {bucket.short && <text x={x + w / 2} y={H - 6} textAnchor={period === "year" ? "start" : "middle"} fontSize={11} className="fill-ink-muted">{bucket.short}</text>}
                     <rect x={ml + i * bw} y={0} width={bw} height={H - mb} fill="transparent"
                         style={{ cursor: bucket.session ? "pointer" : "default" }}
                         onMouseEnter={() => setHover(i)} onMouseLeave={() => setHover(null)}
@@ -98,15 +98,15 @@ export function VolumeChart({ sessions, period, from, to, onSelect }: {
                 </g>
             })}
             {average > 0 && <>
-                <line x1={ml} x2={W - mr} y1={Y(average)} y2={Y(average)} className="stroke-foreground" strokeDasharray="4 4" opacity={.45} />
-                <text x={W - mr} y={Y(average) - 6} textAnchor="end" fontSize={11} className="fill-muted-foreground">
+                <line x1={ml} x2={W - mr} y1={Y(average)} y2={Y(average)} className="stroke-ink" strokeDasharray="4 4" opacity={.4} />
+                <text x={W - mr} y={Y(average) - 6} textAnchor="end" fontSize={11} className="fill-ink-muted">
                     Ø {de(average, 1)} t pro {period === "year" ? "Woche" : "Training"}
                 </text>
             </>}
         </svg>}
         {b && <Tooltip x={Math.min(W - 170, Math.max(0, ml + hover! * bw - 40))} y={Math.max(0, Y(b.volume) - 56)}>
-            <div className="text-muted-foreground">{b.label}</div>
-            <b className="text-sm">{formatVolume(b.volume * 1000).join(" ")}</b> · {b.count} {b.count === 1 ? "Training" : "Trainings"}
+            <div className="text-ink-muted">{b.label}</div>
+            <b className="text-title">{formatVolume(b.volume * 1000).join(" ")}</b> · {b.count} {b.count === 1 ? "Training" : "Trainings"}
         </Tooltip>}
     </div>
 }

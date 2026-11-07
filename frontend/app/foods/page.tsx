@@ -1,12 +1,4 @@
-import {
-    Table,
-    TableBody,
-    TableCaption,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
-} from "@/components/ui/table"
+import { Card } from "@/components/dashboard"
 import {
     Pagination,
     PaginationContent,
@@ -18,7 +10,6 @@ import {
 } from "@/components/ui/pagination"
 import { getAllFoods } from "./action"
 import { FoodSearch } from "./FoodSearch"
-import EditFood from "./EditFood"
 import FoodTable from "./FoodTable"
 
 function pageItems(current: number, total: number): (number | "...")[] {
@@ -51,53 +42,70 @@ export default async function Page({
 
     const data = await getAllFoods(page, sort, query)
     const totalPages = Math.max(1, data.totalPages)
+    // the backend counts pages from 0, people from 1
+    const current = page + 1
 
     const hrefFor = (p: number) => {
-        const params = new URLSearchParams({ page: String(p), sort })
+        const params = new URLSearchParams({ page: String(p - 1), sort })
         if (query) params.set("query", query)
         return `?${params}`
     }
 
-
     return (
-        <div className="w-full max-w-5xl mx-auto px-4 py-4 md:px-8">
-            <FoodSearch initialQuery={query} />
-            <div className="max-h-[calc(100dvh-17rem)] md:max-h-[calc(100dvh-14rem)] overflow-auto rounded-md border mt-4">
-                <FoodTable foods={data.content} />
+        <div className="w-full flex-1 px-3.5 py-5 md:px-6 md:py-7">
+            <div className="mx-auto flex max-w-5xl flex-col gap-3 md:gap-4">
+                <div className="flex flex-wrap items-end gap-x-4 gap-y-3">
+                    <div className="min-w-48 flex-1">
+                        <h1 className="text-[22px] font-bold leading-7 tracking-tight">Lebensmittel</h1>
+                        <p className="text-label text-ink">
+                            {data.totalElements.toLocaleString("de-DE")} {data.totalElements === 1 ? "Eintrag" : "Einträge"}{query && ` für „${query}“`}
+                        </p>
+                    </div>
+                    <FoodSearch initialQuery={query} />
+                </div>
+
+                <Card className="flex flex-col p-0">
+                    <div className="max-h-[calc(100dvh-19rem)] overflow-auto md:max-h-[calc(100dvh-17rem)]">
+                        <FoodTable foods={data.content} />
+                    </div>
+                    <div className="flex items-center gap-3 border-t border-line px-4 py-2">
+                        <span className="hidden whitespace-nowrap text-label text-ink-muted sm:block">Seite {current} von {totalPages}</span>
+                        <Pagination className="justify-end">
+                            <PaginationContent>
+                                <PaginationItem>
+                                    <PaginationPrevious text="Zurück" aria-label="Vorherige Seite"
+                                        href={hrefFor(current - 1)}
+                                        aria-disabled={current <= 1}
+                                        className={current <= 1 ? "pointer-events-none opacity-50" : ""}
+                                    />
+                                </PaginationItem>
+
+                                {pageItems(current, totalPages).map((p, i) =>
+                                    p === "..." ? (
+                                        <PaginationItem key={`e${i}`}>
+                                            <PaginationEllipsis />
+                                        </PaginationItem>
+                                    ) : (
+                                        <PaginationItem key={p}>
+                                            <PaginationLink href={hrefFor(p)} isActive={p === current} className="tabular-nums">
+                                                {p}
+                                            </PaginationLink>
+                                        </PaginationItem>
+                                    )
+                                )}
+
+                                <PaginationItem>
+                                    <PaginationNext text="Weiter" aria-label="Nächste Seite"
+                                        href={hrefFor(current + 1)}
+                                        aria-disabled={current >= totalPages}
+                                        className={current >= totalPages ? "pointer-events-none opacity-50" : ""}
+                                    />
+                                </PaginationItem>
+                            </PaginationContent>
+                        </Pagination>
+                    </div>
+                </Card>
             </div>
-            <Pagination className="mt-4">
-                <PaginationContent>
-                    <PaginationItem>
-                        <PaginationPrevious
-                            href={hrefFor(page - 1)}
-                            aria-disabled={page <= 1}
-                            className={page <= 1 ? "pointer-events-none opacity-50" : ""}
-                        />
-                    </PaginationItem>
-
-                    {pageItems(page, totalPages).map((p, i) =>
-                        p === "..." ? (
-                            <PaginationItem key={`e${i}`}>
-                                <PaginationEllipsis />
-                            </PaginationItem>
-                        ) : (
-                            <PaginationItem key={p}>
-                                <PaginationLink href={hrefFor(p)} isActive={p === page}>
-                                    {p}
-                                </PaginationLink>
-                            </PaginationItem>
-                        )
-                    )}
-
-                    <PaginationItem>
-                        <PaginationNext
-                            href={hrefFor(page + 1)}
-                            aria-disabled={page >= totalPages}
-                            className={page >= totalPages ? "pointer-events-none opacity-50" : ""}
-                        />
-                    </PaginationItem>
-                </PaginationContent>
-            </Pagination>
         </div>
     )
 }
