@@ -105,12 +105,12 @@ function UserMenu() {
         <DropdownMenuTrigger aria-label="Benutzermenü" className="flex size-9 items-center justify-center overflow-hidden rounded-full bg-brand font-semibold text-on-brand ring-2 ring-white/70 dark:ring-white/15">
             <AvatarImage src={user?.image ?? null} alt="" size={40} className="size-9 object-cover" fallback={initial} />
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="min-w-48">
+        <DropdownMenuContent align="end" className="w-auto min-w-48 max-w-[min(20rem,calc(100vw-2rem))]">
             {user && <>
                 <DropdownMenuGroup>
                     <DropdownMenuLabel>
-                        <p className="font-medium text-foreground">{user.name}</p>
-                        <p className="text-xs font-normal">{user.email}</p>
+                        <p className="truncate font-medium text-foreground">{user.name}</p>
+                        <p className="truncate text-xs font-normal" title={user.email ?? undefined}>{user.email}</p>
                     </DropdownMenuLabel>
                 </DropdownMenuGroup>
                 <DropdownMenuSeparator />
