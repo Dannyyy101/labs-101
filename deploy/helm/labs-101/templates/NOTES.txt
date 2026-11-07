@@ -1,0 +1,12 @@
+labs-101 is deployed to the namespace {{ .Release.Namespace }}.
+
+{{- if .Values.frontend.enabled }}
+  Frontend: https://{{ .Values.hosts.frontend }}
+{{- end }}
+{{- if .Values.backend.enabled }}
+  Backend:  https://{{ .Values.hosts.backend }}/api
+{{- end }}
+  Auth:     {{ .Values.auth.issuer }} (shared zitadel, deployed separately)
+
+Watch the start:
+  kubectl -n {{ .Release.Namespace }} get pods -l app.kubernetes.io/instance={{ .Release.Name }} -w

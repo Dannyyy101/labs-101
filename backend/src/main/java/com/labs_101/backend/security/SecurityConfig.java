@@ -3,6 +3,8 @@ package com.labs_101.backend.security;
 import java.net.URI;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -10,8 +12,10 @@ import org.springframework.http.HttpMethod;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.server.resource.web.BearerTokenAuthenticationEntryPoint;
 import org.springframework.security.oauth2.server.resource.web.authentication.BearerTokenAuthenticationFilter;
+import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
@@ -32,6 +36,8 @@ import com.labs_101.backend.repositories.LoginDayRepository;
 @Configuration
 public class SecurityConfig {
 
+    private static final Logger log = LoggerFactory.getLogger(SecurityConfig.class);
+
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity http, UserProvisioning userProvisioning,
             LoginDayRepository loginDays, @Value("${mcp.resource-url}") String mcpResource,
@@ -42,6 +48,15 @@ public class SecurityConfig {
                 + "/.well-known/oauth-protected-resource" + resource.getRawPath();
         BearerTokenAuthenticationEntryPoint entryPoint = new BearerTokenAuthenticationEntryPoint();
         entryPoint.setResourceMetadataParameterResolver(request -> metadataUrl);
+        // a token that was sent but rejected (expired, unknown key, wrong issuer, ...): clients only get a bare 401,
+        // so the reason is logged here. Requests without a token (e.g. the first one of Claude) aren't logged
+        AuthenticationEntryPoint loggingEntryPoint = (request, response, exception) -> {
+            if (exception instanceof OAuth2AuthenticationException rejected) {
+                log.warn("Rejected token for {} {}: {}", request.getMethod(), request.getRequestURI(),
+                        rejected.getError().getDescription());
+            }
+            entryPoint.commence(request, response, exception);
+        };
 
         http
                 .csrf(csrf -> csrf.disable())
@@ -52,7 +67,7 @@ public class SecurityConfig {
                         .anyRequest().authenticated())
                 .oauth2ResourceServer(server -> server
                         .jwt(Customizer.withDefaults())
-                        .authenticationEntryPoint(entryPoint)
+                        .authenticationEntryPoint(loggingEntryPoint)
                         .protectedResourceMetadata(metadata -> metadata.protectedResourceMetadataCustomizer(builder -> builder
                                 .resource(mcpResource)
                                 .resourceName("labs-101")

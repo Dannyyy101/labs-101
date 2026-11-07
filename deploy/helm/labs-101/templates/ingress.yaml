@@ -1,0 +1,46 @@
+{{- if .Values.ingress.enabled }}
+{{- $fullname := include "labs101.fullname" . }}
+{{- $components := list }}
+{{- if .Values.frontend.enabled }}
+{{- $components = append $components (dict "name" "frontend" "host" .Values.hosts.frontend "port" 3000 "annotations" .Values.ingress.frontendAnnotations) }}
+{{- end }}
+{{- if .Values.backend.enabled }}
+{{- $components = append $components (dict "name" "backend" "host" .Values.hosts.backend "port" 8080 "annotations" .Values.ingress.backendAnnotations) }}
+{{- end }}
+{{- range $components }}
+---
+# one ingress per host, the annotations apply to a whole ingress
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ $fullname }}-{{ .name }}
+  labels:
+    {{- include "labs101.labels" $ | nindent 4 }}
+  {{- $annotations := merge (deepCopy (.annotations | default dict)) ($.Values.ingress.annotations | default dict) }}
+  {{- with $annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  {{- with $.Values.ingress.className }}
+  ingressClassName: {{ . }}
+  {{- end }}
+  {{- if $.Values.ingress.tls.enabled }}
+  tls:
+    - hosts:
+        - {{ .host | quote }}
+      secretName: {{ $.Values.ingress.tls.secretName }}-{{ .name }}
+  {{- end }}
+  rules:
+    - host: {{ .host | quote }}
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ $fullname }}-{{ .name }}
+                port:
+                  number: {{ .port }}
+{{- end }}
+{{- end }}
