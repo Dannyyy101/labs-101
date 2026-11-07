@@ -48,12 +48,17 @@ public class SecurityConfig {
                 + "/.well-known/oauth-protected-resource" + resource.getRawPath();
         BearerTokenAuthenticationEntryPoint entryPoint = new BearerTokenAuthenticationEntryPoint();
         entryPoint.setResourceMetadataParameterResolver(request -> metadataUrl);
-        // a token that was sent but rejected (expired, unknown key, wrong issuer, ...): clients only get a bare 401,
-        // so the reason is logged here. Requests without a token (e.g. the first one of Claude) aren't logged
+        // clients only get a bare 401, so the reason is logged here: a token that was sent but rejected (expired,
+        // unknown key, wrong issuer, ...) or a request of the apps without any token. Requests without a token
+        // outside /api/users (e.g. the first one of Claude at /api/mcp) are expected and not logged
         AuthenticationEntryPoint loggingEntryPoint = (request, response, exception) -> {
             if (exception instanceof OAuth2AuthenticationException rejected) {
                 log.warn("Rejected token for {} {}: {}", request.getMethod(), request.getRequestURI(),
                         rejected.getError().getDescription());
+            } else if (request.getRequestURI().startsWith("/api/users/")) {
+                log.warn("No token for {} {} (Authorization header {}, User-Agent {})", request.getMethod(),
+                        request.getRequestURI(), request.getHeader("Authorization") == null ? "missing" : "present",
+                        request.getHeader("User-Agent"));
             }
             entryPoint.commence(request, response, exception);
         };
