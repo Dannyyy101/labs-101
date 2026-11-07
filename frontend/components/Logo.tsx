@@ -14,11 +14,11 @@ export function LogoMark({ className }: { className?: string }) {
     </svg>
 }
 
-/** Icon plus the "Labs-1o1" wordmark, the 0 is drawn as a blue ring */
-export function Logo({ className }: { className?: string }) {
+/** Icon plus the "Labs-1o1" wordmark, the 0 is drawn as a blue ring. compact hides the wordmark on small screens */
+export function Logo({ className, compact = false }: { className?: string, compact?: boolean }) {
     return <span className={cn("inline-flex items-center gap-2", className)}>
         <LogoMark />
-        <span className="text-lg font-bold italic tracking-tight">
+        <span className={cn("whitespace-nowrap text-lg font-bold italic tracking-tight", compact && "max-sm:sr-only")}>
             <span className="sr-only">Labs-101</span>
             Labs-1<span className="text-[#0A84FF] ml-[1px]">o</span>1
         </span>

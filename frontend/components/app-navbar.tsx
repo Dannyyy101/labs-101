@@ -45,14 +45,17 @@ export function AppNavbar() {
     const activeHref = NAV
         .filter((item) => pathname === item.href || pathname.startsWith(item.href + "/"))
         .sort((a, b) => b.href.length - a.href.length)[0]?.href
+    // the day switcher leaves no room for the wordmark on a phone
+    const showDateNav = activeHref === "/foods/track"
 
     return (
         <header className="sticky top-0 z-40 px-3 pt-3 md:px-6">
             {/* equally wide outer columns keep the tabs centered on the page, on small screens they get their own row */}
             <div className="glass mx-auto grid max-w-7xl grid-cols-[1fr_auto] items-center gap-x-4 gap-y-2 rounded-[16px] px-3 py-2 md:grid-cols-[1fr_auto_1fr] md:px-4">
-                <Link href="/" className="justify-self-start"><Logo /></Link>
+                <Link href="/" aria-label="Labs-101" className="justify-self-start"><Logo compact={showDateNav} /></Link>
 
-                <nav className="col-span-2 row-start-2 overflow-x-auto md:col-span-1 md:row-start-auto">
+                {/* min-w-0 lets the tabs scroll instead of widening the grid past the card */}
+                <nav className="col-span-2 row-start-2 min-w-0 overflow-x-auto md:col-span-1 md:row-start-auto">
                     {/* mx-auto instead of justify-center, so scrolling still reaches the first tab */}
                     <div className="mx-auto flex w-fit gap-0.5 rounded-[12px] bg-ink/5 p-[3px] dark:bg-black/20">
                         {NAV.map((item) => {
@@ -71,8 +74,8 @@ export function AppNavbar() {
                     </div>
                 </nav>
 
-                <div className="flex items-center justify-self-end gap-x-4">
-                    {activeHref === "/foods/track" && <Suspense><DateNav /></Suspense>}
+                <div className="flex items-center justify-self-end gap-x-2 sm:gap-x-4">
+                    {showDateNav && <Suspense><DateNav /></Suspense>}
                     <NotificationBell />
                     <UserMenu />
                 </div>
