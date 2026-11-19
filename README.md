@@ -2,13 +2,14 @@
 
 Personal health & fitness platform: track nutrition, plan and log workouts, analyze runs and store Apple Health data in one place.
 
-The project consists of three clients/services and the identity provider Zitadel, all sharing one Postgres instance:
+The project consists of four clients/services and the identity provider Zitadel, all sharing one Postgres instance:
 
 | Part | Tech | Purpose |
 | --- | --- | --- |
 | [`backend/`](backend/) | Spring Boot 4 · Java 25 · JPA · Flyway | REST API under `/api`, business logic, database migrations |
 | [`frontend/`](frontend/) | Next.js 16 · React 19 · Tailwind 4 · shadcn · openid-client | Web app with login, dashboards and forms |
 | [`ios/`](ios/) | SwiftUI · HealthKit (iOS 26.5) | Apple Health sync, food and workout tracking on the go |
+| [`android/`](android/) | Kotlin · Jetpack Compose (Android 9+) | Food and workout tracking on Android, no health sync yet |
 | Zitadel | Docker (v4) locally, Helm chart `helm/auth` in the infra repo in production | Shared identity provider for all apps at `auth.project101.tech`: login with password, passkey or Google |
 | Postgres | Docker | Database `labs101` (app data), locally also `zitadel` |
 
@@ -114,6 +115,15 @@ npm run build
 ```
 
 Locally, Zitadel runs via `docker compose up -d db zitadel` on <http://localhost:8081>, while backend and frontend run directly on the machine. A backend inside the Docker network cannot reach `localhost:8081`, so don't run everything in Docker locally.
+
+### Android app
+
+Requires JDK 21 and the Android SDK (Android Studio, or `brew install --cask android-commandlinetools`). Details, sharing the APK and what is still missing: [`android/README.md`](android/README.md).
+
+```sh
+cp android/secrets.example.properties android/secrets.properties   # fill in API_BASE_URL, AUTH_ISSUER, AUTH_CLIENT_ID
+cd android && ./gradlew assembleRelease                              # app/build/outputs/apk/release/app-release.apk
+```
 
 ### iOS app
 
@@ -223,7 +233,7 @@ One-time setup in the Zitadel console (`/ui/console`, log in with `ZITADEL_ADMIN
 
 1. Create the **project** `labs-101`.
 2. **Web app** in the project: type *Web*, authentication *Code* (client secret), redirect URI `https://project101.tech/auth/callback`, post-logout URI `https://project101.tech/sign-in` (locally `http://localhost:3000/…`, enable *Development Mode* for that). Client ID and secret → `AUTH_CLIENT_ID` / `AUTH_CLIENT_SECRET`.
-3. **Native app** in the project: type *Native*, authentication *PKCE*, redirect URI `labs101://auth/callback`. Client ID → `AUTH_CLIENT_ID` in `ios/Config/Secrets.xcconfig`.
+3. **Native app** in the project: type *Native*, authentication *PKCE*, redirect URI `labs101://auth/callback`. Client ID → `AUTH_CLIENT_ID` in `ios/Config/Secrets.xcconfig` and `android/secrets.properties` (both apps share the client and the redirect URI).
 4. For **both apps**, set the **Auth Token Type to JWT** under *Token Settings* and allow *Refresh Token*. The backend validates tokens only against Zitadel's keys and cannot handle opaque tokens.
 5. **Google** (#82): under *Settings → Identity Providers*, add Google with the client ID/secret from the Google Cloud Console (Zitadel shows the redirect URI) and enable it in the *Login Settings*.
 6. **Profile pictures:** enter the ID of the organization the users belong to (console → *Organization*, shown next to the name) as `ZITADEL_ORG_ID` for backend and frontend.
@@ -251,6 +261,7 @@ docker exec -i postgres-labs-101 psql -U user -d labs101 \
 ├── backend/            Spring Boot API
 ├── frontend/           Next.js web app
 ├── ios/                SwiftUI app with HealthKit sync
+├── android/            Kotlin/Compose app
 ├── api/                OpenAPI spec, the shared API contract
 ├── deploy/helm/        Helm chart for the Kubernetes deployment
 ├── bruno-labs-101/     API requests for Bruno

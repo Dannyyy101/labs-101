@@ -1,0 +1,12 @@
+.gradle/
+build/
+local.properties
+.idea/
+*.iml
+.kotlin/
+.DS_Store
+# real values for API and login, see secrets.example.properties
+secrets.properties
+# signing key for release builds
+*.jks
+*.keystore

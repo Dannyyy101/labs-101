@@ -5,12 +5,13 @@ description: Grundregeln für jeden Code in labs-101 (Backend, Frontend, iOS), v
 
 # labs-101
 
-Monorepo mit drei Projekten, die über einen gemeinsamen API-Vertrag verbunden sind:
+Monorepo mit vier Projekten, die über einen gemeinsamen API-Vertrag verbunden sind:
 
 - `backend/`: Spring Boot (Java 25), siehe den Skill `backend`
 - `frontend/`: Next.js, siehe den Skill `frontend`
 - `ios/`: SwiftUI-App mit Watch-App, siehe den Skill `ios`
-- `api/openapi.json`: die OpenAPI-Spec, aus der Frontend und iOS ihre Clients generieren
+- `android/`: Kotlin/Compose-App, siehe `android/README.md`
+- `api/openapi.json`: die OpenAPI-Spec, aus der Frontend, iOS und Android ihre Clients generieren
 
 ## 1. Aufbau einer Funktion: der Happy Path steht am Ende
 
@@ -51,7 +52,7 @@ self.init(...)
 
 - Kein `else` nach einem `return`/`throw`.
 - Mehrere Fehlerfälle nacheinander als einzelne Guards, nicht verschachtelt.
-- Das gilt in allen drei Projekten.
+- Das gilt in allen Projekten.
 
 ## 2. Ein Vertrag für die API
 
@@ -66,6 +67,7 @@ Ablauf bei einer Änderung an Controller oder DTO:
    (startet die App kurz mit dem Profil `openapi`, braucht die Datenbank: `docker compose up -d db`).
 2. `cd frontend && npm run generate:api` schreibt `lib/api/schema.d.ts` neu, dann `npx tsc --noEmit`.
 3. iOS generiert bei jedem Build selbst, Xcode bzw. `xcodebuild ... -skipPackagePluginValidation`.
+   Android ebenso (`cd android && ./gradlew assembleDebug`, Retrofit-Client unter `app/build/generated/openapi`).
 4. Alle Fehler beheben und `api/openapi.json` und `frontend/lib/api/schema.d.ts` mitcommitten. Die
    CI generiert beide neu und schlägt fehl, wenn die committeten Dateien veraltet sind.
 
